@@ -1,0 +1,45 @@
+# Build artifacts
+dist/
+build/
+out/
+
+# Configuration files
+*.config.js
+*.config.ts
+tsconfig.json
+
+# Test files
+**/__tests__/**
+**/*.test.*
+**/*.spec.*
+test/
+tests/
+
+# Documentation files (except main ones)
+docs/
+*.mdown
+*.mkdn
+*.mdwn
+*.mkd
+*.ron
+
+# Log files
+*.log
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# LAPA specific files
+.lapa/

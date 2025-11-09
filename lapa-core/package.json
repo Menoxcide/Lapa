@@ -4,6 +4,14 @@
   "description": "LAPA Core - Local AI Pair Programmer Agent for Cursor",
   "main": "index.js",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Menoxcide/Lapa.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Menoxcide/Lapa/issues"
+  },
+  "homepage": "https://github.com/Menoxcide/Lapa#readme",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "test:ctx-zip": "node src/test/ctx-zip.test.ts",
@@ -29,5 +37,17 @@
   "dependencies": {
     "@toon-format/toon": "^0.8.0",
     "ctx-zip": "^0.0.9"
+  },
+  "files": [
+    "src/",
+    "media/",
+    "cursor.json",
+    "README.md",
+    "LICENSE",
+    "AGENT.md",
+    "DOCUMENTATION.md"
+  ],
+  "publishConfig": {
+    "access": "public"
   }
 }
