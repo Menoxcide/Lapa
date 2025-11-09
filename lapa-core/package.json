@@ -1,0 +1,33 @@
+{
+  "name": "lapa-core",
+  "version": "0.1.0",
+  "description": "LAPA Core - Local AI Pair Programmer Agent for Cursor",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test:ctx-zip": "node src/test/ctx-zip.test.ts",
+    "setup:nim": "bash ../scripts/install-nim.sh"
+  },
+  "keywords": [
+    "ai",
+    "cursor",
+    "mcp",
+    "ctx-zip",
+    "nim",
+    "moe",
+    "swarm"
+  ],
+  "author": "LAPA Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^24.10.0",
+    "@types/vscode": "^1.105.0",
+    "toon-parser": "file:../lib/toon-parser",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@toon-format/toon": "^0.8.0",
+    "ctx-zip": "^0.0.9"
+  }
+}

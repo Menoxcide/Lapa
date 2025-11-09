@@ -1,0 +1,57 @@
+{
+  "name": "LAPA Swarm",
+  "displayName": "LAPA - Local AI Pair Programmer Agent",
+  "description": "Your Autonomous MoE-Powered Coding Swarm — Local-First, Cursor-Native, Fully Self-Driving",
+  "version": "0.1.0",
+  "publisher": "lapa-ai",
+  "engines": {
+    "cursor": "^1.0.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "lapa.startSwarm",
+        "title": "Start LAPA Swarm"
+      },
+      {
+        "command": "lapa.stopSwarm",
+        "title": "Stop LAPA Swarm"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "lapaView",
+          "title": "LAPA Swarm",
+          "icon": "media/lapa-icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "lapaView": [
+        {
+          "id": "lapa.swarmDashboard",
+          "name": "Swarm Dashboard",
+          "type": "webview"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "@types/vscode": "^1.0.0",
+    "typescript": "^5.0.0"
+  }
+}
