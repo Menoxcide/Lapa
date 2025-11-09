@@ -36,6 +36,9 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "@anthropic-ai/claude-sdk": "^1.0.0",
+    "@modelcontextprotocol/server-e2b": "^1.0.0",
+    "@openai/agents-ts": "^1.0.0",
     "@toon-format/toon": "^0.8.0",
     "ctx-zip": "^0.0.9"
   },
