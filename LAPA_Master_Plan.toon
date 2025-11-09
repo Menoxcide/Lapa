@@ -2,12 +2,12 @@ lapa:
   name: LAPA
   full: Local AI Pair Programmer Agent
   tag: Autonomous MoE Swarm • Local-First • Cursor-Native
-  ver: 1.0.0
-  date: 2026-03-15
+  ver: 1.1.0
+  date: 2026-06-15
   license: MIT
-  repo: github.com/lapa-ai/lapa
+  repo: github.com/Menoxcide/Lapa
   site: lapa.ai
-  $status: founding
+  $status: v1.1-gaps
 
 $vision:
   mission: Empower devs with private, autonomous, local AI pair programmer
@@ -21,13 +21,13 @@ $flagship:
   premium: true
   price: { mo: 12, yr: 99 }
   agents:
-    [5]
-    role;model;task
-    Architect;nemotron-4-340b;plan
-    Researcher;gemma-2-27b;search
-    Coder;deepseek-coder-v2;write
-    Tester;llama-3.1-405b;verify
-    Reviewer;mixtral-8x22b;critique
+  - [5]
+  - role;model;task
+  - Architect;nemotron-4-340b;plan
+  - Researcher;gemma-2-27b;search
+  - Coder;deepseek-coder-v2;write
+  - Tester;llama-3.1-405b;verify
+  - Reviewer;mixtral-8x22b;critique
   autonomy:
     noContinue: true
     handoffAt: 0.5
@@ -51,11 +51,11 @@ $stack:
     provider: LocalSandboxProvider
     dir: ./.lapa/sandbox
     servers:
-      [3]
-      name;url
-      git;mcp.git.com
-      fs;local://fs
-      debug;local://debugger
+    - [3]
+    - name;url
+    - git;mcp.git.com
+    - fs;local://fs
+    - debug;local://debugger
     tools: [ls, cat, grep, find, exec]
   rag: Chroma
   storage:
@@ -63,80 +63,14 @@ $stack:
     prem: blob://lapa-prem
   ui: React sidebar + swarm dashboard
 
-features:
-  free:
-    [10]
-    - NIM local (RTX 3060+)
-    - BYOK
-    - MoE (3 models)
-    - 2 parallel agents
-    - AGENT.md auto
-    - ctx-zip local
-    - MCP local sandbox
-    - 5 personas
-    - RAG workspace
-    - 1 retry
-  premium:
-    [12]
-    - LAPA Swarm™
-    - 5+ agents
-    - zero-prompt
-    - context handoff
-    - git worktrees
-    - cloud NIM
-    - LoRA fine-tune
-    - bg tasks
-    - Vercel Blob
-    - E2B sandbox
-    - team state
-    - audit logs
-
-dev:
-  [7]
-  p;w;t
-  0. Foundation;1-2;[fork Cline, NIM Docker, ctx-zip hardcode, MCP local, Cursor scaffold]
-  1. Core;3-6;[MoE router, Ray parallel, AGENT.md, persona JSON, ctx-zip loop]
-  2. Swarm;7-12;[LangGraph, handoff, consensus, spawn, worktree]
-  3. UI;13-16;[dashboard, avatars, logs, launch, settings]
-  4. Prem Infra;17-20;[cloud NIM, Blob, E2B, Stripe, license]
-  5. Test;21-24;[90% cov, E2E, beta 100, <2s lat, >95% success]
-  6. Launch;2026-03-15;[Cursor mkt, GH v1, lapa.ai, X/HN/Reddit]
-
-biz:
-  model: freemium
-  free: local swarm 2 agents
-  prem: Swarm >2 or cloud
-  conv: 0.18
-  churn: <0.05
-  arr1: 240000
-  upsell: [7-day trial, enterprise $500/mo]
-
-market:
-  tam: 7400000000
-  sam: Cursor 400k+
-  target: { users: 10000, pct: 2.5 }
-  channels: [Cursor featured, X demos, r/LocalLLaMA, NVIDIA Blog]
-  pos: only local MoE swarm for Cursor
-
-risks:
-  [3]
-  i;m
-  GPU req;CPU fallback + cloud
-  swarm loop;step limit + consensus + override
-  NIM setup;one-click installer
-
-team:
-  core: 2
-  contrib: OSS bounties
-  adv: [NVIDIA, ctx-zip]
-
-$next:
-  [3]
-  - git clone github.com/lapa-ai/lapa
-  - npm run setup:nim
-  - cursor --extensionDevelopmentPath=.
-
-$ref:
-  ctxzip: github.com/karthikscale3/ctx-zip
-  nim: developer.nvidia.com/nim
-  mcp: modelcontextprotocol.org
+v1.1:
+  gaps:
+    nvidia: { blueprint: "AI-Q", multimodal: "RAG+Nemotron-Vision", integrate: "swarm-researcher" }
+    openai: { sdk: "TS-agents", handoff: "hybrid-LangGraph", proto: "swarm-delegation" }
+    claude: { tdd: "Tester-agent", mcp-e2b: "premium-sandbox", practices: "subagents-checkpoints" }
+  phases:
+  - [3]
+  - p;w;tasks
+  - 7. Multimodal;1-2;[AI-Q-ingest, Nemotron-RAG, diagram-parse]
+  - 8. Handoffs;3-4;[TS-SDK-hybrid, LangGraph-delegate, consensus-refine]
+  - 9. TDD-E2B;5-6;[Claude-TDD-loop, MCP-subagents, E2B-scale]
