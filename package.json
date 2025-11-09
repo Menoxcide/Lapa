@@ -13,9 +13,11 @@
   },
   "homepage": "https://github.com/Menoxcide/Lapa#readme",
   "scripts": {
+    "build": "tsc",
+    "build:test": "tsc -p tsconfig.test.json",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "test:ctx-zip": "node src/test/ctx-zip.test.ts",
-    "setup:nim": "bash ../scripts/install-nim.sh"
+    "test:ctx-zip": "npm run build:test && node dist/test/ctx-zip.test.js",
+    "setup:nim": "bash scripts/install-nim.sh"
   },
   "keywords": [
     "ai",
@@ -31,7 +33,6 @@
   "devDependencies": {
     "@types/node": "^24.10.0",
     "@types/vscode": "^1.105.0",
-    "toon-parser": "file:../lib/toon-parser",
     "typescript": "^5.9.3"
   },
   "dependencies": {
