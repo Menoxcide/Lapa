@@ -37,7 +37,9 @@ describe('Hybrid Handoff System Integration', () => {
 
   describe('End-to-End Task Execution', () => {
     it('should execute task with OpenAI agent handoff recommendation', async () => {
+      console.log('Starting test: should execute task with OpenAI agent handoff recommendation');
       handoffSystem.registerOpenAIAgent(mockOpenAIAgent);
+      console.log('Registered OpenAI agent');
       
       // Mock evaluation recommending handoff
       const mockEvaluationResult = {
@@ -58,9 +60,11 @@ describe('Hybrid Handoff System Integration', () => {
         }
       };
       
-            (run as any)
-              .mockResolvedValueOnce(mockEvaluationResult)
+      console.log('Setting up mock responses');
+      (run as any)
+        .mockResolvedValueOnce(mockEvaluationResult)
         .mockResolvedValueOnce(mockExecutionResult);
+      console.log('Mock responses set up');
       
       const task: Task = {
         id: 'complex-task-123',
@@ -69,11 +73,15 @@ describe('Hybrid Handoff System Integration', () => {
         priority: 3 // high priority
       };
       
+      console.log('Executing task with handoffs');
+      const startTime = Date.now();
       const result = await handoffSystem.executeTaskWithHandoffs(task, {
         userData: { id: 'user-456', preferences: { language: 'en' } },
         history: [],
         dataset: 'customer_feedback_q4_2025.csv'
       });
+      const endTime = Date.now();
+      console.log('Task execution completed with result:', result, 'in', endTime - startTime, 'ms');
       
       expect(result.result).toBe('Task completed successfully with OpenAI assistance');
       expect(result.analysis).toBe('Processed 1000 data points');
@@ -94,6 +102,9 @@ describe('Hybrid Handoff System Integration', () => {
     }, 15000);
 
     it('should execute task without handoff when not recommended', async () => {
+      console.log('Starting test: should execute task without handoff when not recommended');
+      const startTime = Date.now();
+      
       handoffSystem.registerOpenAIAgent(mockOpenAIAgent);
       
       // Mock evaluation recommending no handoff
@@ -105,7 +116,7 @@ describe('Hybrid Handoff System Integration', () => {
         }
       };
       
-            (run as any).mockResolvedValueOnce(mockEvaluationResult);
+      (run as any).mockResolvedValueOnce(mockEvaluationResult);
       
       const task: Task = {
         id: 'simple-task-123',
@@ -118,6 +129,9 @@ describe('Hybrid Handoff System Integration', () => {
         userData: { id: 'user-456' },
         history: []
       });
+      
+      const endTime = Date.now();
+      console.log('Test completed in', endTime - startTime, 'ms');
       
       // Since no handoff was recommended, the system should return the evaluation result
       expect(result).toEqual({
@@ -360,8 +374,12 @@ describe('Hybrid Handoff System Integration', () => {
 
   describe('Configuration Integration', () => {
     it('should disable OpenAI evaluation when configured', async () => {
+      console.log('Starting test: should disable OpenAI evaluation when configured');
+      const startTime = Date.now();
+      
       // Create handoff system with OpenAI evaluation disabled
       handoffSystem = new HybridHandoffSystem({ enableOpenAIEvaluation: false });
+      console.log('Created handoff system with OpenAI evaluation disabled');
       
       const task: Task = {
         id: 'disabled-eval-task-123',
@@ -370,10 +388,14 @@ describe('Hybrid Handoff System Integration', () => {
         priority: 2 // medium priority
       };
       
+      console.log('Executing task with handoffs');
       const result = await handoffSystem.executeTaskWithHandoffs(task, {
         userData: { id: 'user-456' },
         history: []
       });
+      
+      const endTime = Date.now();
+      console.log('Task execution completed with result:', result, 'in', endTime - startTime, 'ms');
       
       // Should use default policy when evaluation is disabled
       expect(result).toEqual({
@@ -387,9 +409,14 @@ describe('Hybrid Handoff System Integration', () => {
     }, 15000);
 
     it('should respect maximum handoff depth configuration', async () => {
+      console.log('Starting test: should respect maximum handoff depth configuration');
+      const startTime = Date.now();
+      
       // Create handoff system with limited depth
       handoffSystem = new HybridHandoffSystem({ maxHandoffDepth: 2 });
+      console.log('Created handoff system with maxHandoffDepth: 2');
       handoffSystem.registerOpenAIAgent(mockOpenAIAgent);
+      console.log('Registered OpenAI agent');
       
       // Mock evaluation that would trigger recursive handoffs
       const mockEvaluationResult = {
@@ -401,7 +428,9 @@ describe('Hybrid Handoff System Integration', () => {
         }
       };
       
-            (run as any).mockResolvedValue(mockEvaluationResult);
+      console.log('Setting up mock response');
+      (run as any).mockResolvedValue(mockEvaluationResult);
+      console.log('Mock response set up');
       
       const task: Task = {
         id: 'depth-limited-task-123',
@@ -410,10 +439,14 @@ describe('Hybrid Handoff System Integration', () => {
         priority: 3 // high priority
       };
       
+      console.log('Executing task with handoffs');
       const result = await handoffSystem.executeTaskWithHandoffs(task, {
         userData: { id: 'user-456' },
         history: []
       });
+      
+      const endTime = Date.now();
+      console.log('Task execution completed with result:', result, 'in', endTime - startTime, 'ms');
       
       // Should process the task without infinite recursion
       expect(result).toBeDefined();

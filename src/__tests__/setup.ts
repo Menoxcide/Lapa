@@ -3,6 +3,9 @@ import '@testing-library/jest-dom';
 import { afterEach } from 'vitest';
 import { cleanup } from '@testing-library/react';
 
-afterEach(() => {
-  cleanup();
-});
+// Only run cleanup if it's available
+if (typeof cleanup === 'function') {
+  afterEach(() => {
+    cleanup();
+  });
+}

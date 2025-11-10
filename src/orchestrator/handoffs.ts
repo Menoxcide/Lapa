@@ -215,21 +215,27 @@ class HandoffThresholdManager {
    * @returns Boolean indicating if handoff should occur
    */
   shouldHandoff(confidence: number, currentDepth: number): boolean {
+    console.log('Checking handoff thresholds:', { confidence, currentDepth, config: this.config });
+    
     // Check if confidence meets minimum threshold
     if (confidence < this.config.minimumConfidenceForHandoff) {
+      console.log(`Confidence ${confidence} below minimum threshold ${this.config.minimumConfidenceForHandoff}`);
       return false;
     }
     
     // Check if confidence meets target threshold
     if (confidence < this.config.confidenceThreshold) {
+      console.log(`Confidence ${confidence} below target threshold ${this.config.confidenceThreshold}`);
       return false;
     }
     
     // Check if max handoff depth has been reached
     if (currentDepth >= this.config.maxHandoffDepth) {
+      console.log(`Current depth ${currentDepth} exceeds max depth ${this.config.maxHandoffDepth}`);
       return false;
     }
     
+    console.log('Handoff approved based on thresholds');
     return true;
   }
   
@@ -662,6 +668,8 @@ export class HybridHandoffSystem {
    * @returns Promise that resolves with the orchestration result
    */
   private async executeWorkflowWithContext(initialContext: Record<string, any>): Promise<OrchestrationResult> {
+    console.log('Starting workflow execution with context:', initialContext);
+    
     // For this implementation, we'll create a workflow that demonstrates
     // the integration of LangGraph orchestration with intelligent handoff evaluations
     
@@ -705,10 +713,14 @@ export class HybridHandoffSystem {
     ];
     
     // Configure orchestrator with nodes and edges
+    console.log('Adding nodes to orchestrator');
     nodes.forEach(node => this.langGraphOrchestrator.addNode(node));
+    
+    console.log('Adding edges to orchestrator');
     edges.forEach(edge => this.langGraphOrchestrator.addEdge(edge));
     
     // Execute workflow with handoff optimizations
+    console.log('Executing optimized workflow');
     return await this.executeOptimizedWorkflow(initialContext);
   }
 
@@ -718,8 +730,12 @@ export class HybridHandoffSystem {
    * @returns Promise that resolves with the orchestration result
    */
   private async executeOptimizedWorkflow(initialContext: Record<string, any>): Promise<OrchestrationResult> {
+    console.log('Executing optimized workflow with initial context:', initialContext);
+    
     try {
-      return await this.langGraphOrchestrator.executeWorkflow(initialContext);
+      const result = await this.langGraphOrchestrator.executeWorkflow(initialContext);
+      console.log('Optimized workflow execution completed:', result);
+      return result;
     } catch (error) {
       console.error('Optimized workflow execution failed:', error);
       return {
@@ -739,14 +755,20 @@ export class HybridHandoffSystem {
    * @returns Promise that resolves with the processing result
    */
   private async processNodeWithHandoffOptimizations(node: GraphNode, context: Record<string, any>): Promise<Record<string, any>> {
+    console.log(`Processing node with handoff optimizations: ${node.id} (${node.type})`);
+    
     switch (node.type) {
       case 'agent':
+        console.log(`Processing agent node: ${node.id}`);
         return await this.processAgentNodeWithHandoff(node, context);
       case 'process':
+        console.log(`Processing process node: ${node.id}`);
         return await this.langGraphOrchestrator['processProcessNode'](node, context);
       case 'decision':
+        console.log(`Processing decision node: ${node.id}`);
         // Special handling for handoff decision node
         if (node.id === 'handoff') {
+          console.log('Evaluating handoff decision');
           return await this.evaluateHandoff(context, context.task);
         }
         return await this.langGraphOrchestrator['processDecisionNode'](node, context);
@@ -787,17 +809,21 @@ export class HybridHandoffSystem {
    * @returns Promise that resolves with the handoff evaluation
    */
   private async evaluateHandoff(context: Record<string, any>, task: Task): Promise<HandoffEvaluation> {
+    console.log('Starting handoff evaluation for task:', task.id);
+    
     // If OpenAI evaluation is disabled, use LAPA MoE Router for capability-based delegation
     if (!this.config.enableOpenAIEvaluation) {
-      return this.evaluateHandoffWithMoERouter(task);
+      console.log('OpenAI evaluation disabled, using LAPA MoE Router');
+      return this.evaluateHandoffWithMoERouter(task, context.handoffCount || 0);
     }
     
     // Get the first registered OpenAI agent for evaluation
     const evaluatorAgent = Array.from(this.openAIAgents.values())[0];
+    console.log('Using OpenAI agent for evaluation:', evaluatorAgent?.name);
     
     if (!evaluatorAgent) {
       console.warn('No OpenAI agent found for handoff evaluation, using LAPA MoE Router');
-      return this.evaluateHandoffWithMoERouter(task);
+      return this.evaluateHandoffWithMoERouter(task, context.handoffCount || 0);
     }
     
     // Perform evaluation using OpenAI agent
@@ -810,8 +836,12 @@ export class HybridHandoffSystem {
         priority: 'medium'
       };
       
+      console.log('Sending evaluation task to OpenAI agent:', evaluationTask);
+      
       // Run the evaluation using the OpenAI agent
       const evaluationResult: any = await run(evaluatorAgent, `Evaluate this context and task for handoff: ${evaluationTask.input}`);
+      
+      console.log('Received evaluation result from OpenAI agent:', evaluationResult);
       
       // Parse the evaluation result (assuming it returns a JSON-like structure)
       const finalOutput = evaluationResult.finalOutput || evaluationResult;
@@ -822,34 +852,42 @@ export class HybridHandoffSystem {
         reason: finalOutput?.reason || 'No specific reason provided'
       };
       
-      console.log(`Handoff evaluation completed: ${evaluation.shouldHandoff ? 'HANDOFF' : 'CONTINUE'}`);
+      console.log(`Handoff evaluation completed: ${evaluation.shouldHandoff ? 'HANDOFF' : 'CONTINUE'}`, evaluation);
       return evaluation;
     } catch (error) {
       console.error('Handoff evaluation with OpenAI agent failed:', error);
       console.warn('Falling back to LAPA MoE Router for handoff evaluation');
-      return this.evaluateHandoffWithMoERouter(task);
+      return this.evaluateHandoffWithMoERouter(task, context.handoffCount || 0);
     }
   }
 
   /**
    * Evaluates handoff using LAPA MoE Router for capability-based delegation
    * @param task Current task
+   * @param currentDepth Current handoff depth (default: 0)
    * @returns Handoff evaluation result
    */
   private evaluateHandoffWithMoERouter(task: Task, currentDepth: number = 0): HandoffEvaluation {
+    console.log('Evaluating handoff with MoE Router for task:', task.id, 'at depth:', currentDepth);
+    
     try {
       // Route task using MoE Router to find the most suitable agent
       const routingResult = moeRouter.routeTask(task);
+      console.log('MoE Router routing result:', routingResult);
       
       // Use threshold manager to determine if handoff should occur
       const shouldHandoff = this.thresholdManager.shouldHandoff(routingResult.confidence, currentDepth);
+      console.log('Should handoff decision:', shouldHandoff, 'confidence:', routingResult.confidence, 'depth:', currentDepth);
       
-      return {
+      const result = {
         shouldHandoff,
         targetAgentId: routingResult.agent.id,
         confidence: routingResult.confidence,
         reason: routingResult.reasoning
       };
+      
+      console.log('MoE Router evaluation result:', result);
+      return result;
     } catch (error) {
       console.error('Handoff evaluation with MoE Router failed:', error);
       return {
@@ -887,6 +925,8 @@ export class HybridHandoffSystem {
     taskId: string,
     context: Record<string, any>
   ): Promise<any> {
+    console.log('Initiating handoff:', { sourceAgentId, targetAgentId, taskId, handoffCount: context.handoffCount });
+    
     // Update metrics
     this.metrics.totalHandoffs++;
     const startTime = performance.now();
@@ -907,13 +947,16 @@ export class HybridHandoffSystem {
     try {
       // Find the target OpenAI agent for handoff
       const targetAgent = this.openAIAgents.get(targetAgentId);
+      console.log('Target agent found:', targetAgent?.name);
       
       let result: any;
       if (targetAgent) {
         // If target is an OpenAI agent, perform handoff using SDK
+        console.log('Handing off to OpenAI agent');
         result = await this.handoffToOpenAIAgent(targetAgent, taskId, context, targetAgentId);
       } else {
         // If target is not an OpenAI agent, use existing context handoff mechanism
+        console.log('Handing off to LAPA agent');
         result = await this.handoffToLAPAAgent(sourceAgentId, targetAgentId, taskId, context);
       }
       
