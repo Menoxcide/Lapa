@@ -7,8 +7,9 @@
 
 import { LangGraphOrchestrator, GraphNode, GraphEdge, WorkflowState, OrchestrationResult } from '../swarm/langgraph.orchestrator';
 import { ContextHandoffManager, ContextHandoffRequest } from '../swarm/context.handoff';
-import { Agent, Task } from '../agents/moe-router';
-import { Agent as OpenAIAgent, Handoff, run, type RunContext } from '@openai/agents';
+import { Agent, Task, moeRouter } from '../agents/moe-router';
+import { Agent as OpenAIAgent, run } from '@openai/agents';
+import { performance } from 'perf_hooks';
 
 // OpenAI Agent type (using actual SDK)
 type OpenAIAgentSDK = OpenAIAgent;
@@ -21,21 +22,554 @@ interface HandoffEvaluation {
   reason?: string;
 }
 
+// Retry configuration for handoff operations
+interface RetryConfig {
+  maxRetries: number;
+  retryDelayMs: number;
+  exponentialBackoff: boolean;
+}
+
+// Default retry configuration
+const DEFAULT_RETRY_CONFIG: RetryConfig = {
+  maxRetries: 3,
+  retryDelayMs: 1000,
+  exponentialBackoff: true
+};
+
+// Lifecycle hooks for handoff monitoring
+interface HandoffLifecycleHooks {
+  onHandoffStart?: (sourceAgentId: string, targetAgentId: string, taskId: string) => void;
+  onHandoffComplete?: (sourceAgentId: string, targetAgentId: string, taskId: string, duration: number) => void;
+  onHandoffError?: (sourceAgentId: string, targetAgentId: string, taskId: string, error: Error) => void;
+}
+
 // Handoff configuration
 interface HandoffConfig {
+  // Core functionality flags
   enableOpenAIEvaluation: boolean;
+  enableLAPAMoERouter: boolean;
+  enableContextCompression: boolean;
+  
+  // Decision thresholds
   confidenceThreshold: number;
+  minimumConfidenceForHandoff: number;
   maxHandoffDepth: number;
+  maxConcurrentHandoffs: number;
+  
+  // Performance targets
   latencyTargetMs: number;
+  maxLatencyThresholdMs: number;
+  throughputTargetOpsPerSec: number;
+  
+  // Retry and error handling
+  maxRetryAttempts: number;
+  retryDelayMs: number;
+  exponentialBackoff: boolean;
+  circuitBreakerEnabled: boolean;
+  circuitBreakerFailureThreshold: number;
+  circuitBreakerTimeoutMs: number;
+  
+  // Agent selection
+  loadBalancingStrategy: 'round-robin' | 'least-connections' | 'weighted';
+  agentSelectionAlgorithm: 'confidence-based' | 'workload-based' | 'hybrid';
+  
+  // Fallback mechanisms
+  enableFallbackMechanisms: boolean;
+  fallbackToMoERouterOnOpenAIError: boolean;
+  fallbackToLAPAAgentsOnMoERouterError: boolean;
+  
+  // Logging and monitoring
+  enableDetailedLogging: boolean;
+  logLevel: 'none' | 'error' | 'warn' | 'info' | 'debug';
+  enableMetricsCollection: boolean;
+  metricsCollectionIntervalMs: number;
+  
+  // Security and compliance
+  enableSecurityValidation: boolean;
+  sanitizeContextData: boolean;
+  maxContextSizeBytes: number;
+  
+  // Resource management
+  maxMemoryUsagePercentage: number;
+  enableResourceThrottling: boolean;
+  resourceThrottlingThresholdPercentage: number;
 }
+
+// Configuration validation error
+export class HandoffConfigValidationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'HandoffConfigValidationError';
+  }
+}
+
+// Environment variable mapping
+const ENV_VAR_MAPPING: Record<string, keyof HandoffConfig> = {
+  'HANDOFF_ENABLE_OPENAI_EVALUATION': 'enableOpenAIEvaluation',
+  'HANDOFF_ENABLE_LAPA_MOE_ROUTER': 'enableLAPAMoERouter',
+  'HANDOFF_ENABLE_CONTEXT_COMPRESSION': 'enableContextCompression',
+  'HANDOFF_CONFIDENCE_THRESHOLD': 'confidenceThreshold',
+  'HANDOFF_MINIMUM_CONFIDENCE_FOR_HANDOFF': 'minimumConfidenceForHandoff',
+  'HANDOFF_MAX_HANDOFF_DEPTH': 'maxHandoffDepth',
+  'HANDOFF_MAX_CONCURRENT_HANDOFFS': 'maxConcurrentHandoffs',
+  'HANDOFF_LATENCY_TARGET_MS': 'latencyTargetMs',
+  'HANDOFF_MAX_LATENCY_THRESHOLD_MS': 'maxLatencyThresholdMs',
+  'HANDOFF_THROUGHPUT_TARGET_OPS_PER_SEC': 'throughputTargetOpsPerSec',
+  'HANDOFF_MAX_RETRY_ATTEMPTS': 'maxRetryAttempts',
+  'HANDOFF_RETRY_DELAY_MS': 'retryDelayMs',
+  'HANDOFF_EXPONENTIAL_BACKOFF': 'exponentialBackoff',
+  'HANDOFF_CIRCUIT_BREAKER_ENABLED': 'circuitBreakerEnabled',
+  'HANDOFF_CIRCUIT_BREAKER_FAILURE_THRESHOLD': 'circuitBreakerFailureThreshold',
+  'HANDOFF_CIRCUIT_BREAKER_TIMEOUT_MS': 'circuitBreakerTimeoutMs',
+  'HANDOFF_LOAD_BALANCING_STRATEGY': 'loadBalancingStrategy',
+  'HANDOFF_AGENT_SELECTION_ALGORITHM': 'agentSelectionAlgorithm',
+  'HANDOFF_ENABLE_FALLBACK_MECHANISMS': 'enableFallbackMechanisms',
+  'HANDOFF_FALLBACK_TO_MOE_ROUTER_ON_OPENAI_ERROR': 'fallbackToMoERouterOnOpenAIError',
+  'HANDOFF_FALLBACK_TO_LAPA_AGENTS_ON_MOE_ROUTER_ERROR': 'fallbackToLAPAAgentsOnMoERouterError',
+  'HANDOFF_ENABLE_DETAILED_LOGGING': 'enableDetailedLogging',
+  'HANDOFF_LOG_LEVEL': 'logLevel',
+  'HANDOFF_ENABLE_METRICS_COLLECTION': 'enableMetricsCollection',
+  'HANDOFF_METRICS_COLLECTION_INTERVAL_MS': 'metricsCollectionIntervalMs',
+  'HANDOFF_ENABLE_SECURITY_VALIDATION': 'enableSecurityValidation',
+  'HANDOFF_SANITIZE_CONTEXT_DATA': 'sanitizeContextData',
+  'HANDOFF_MAX_CONTEXT_SIZE_BYTES': 'maxContextSizeBytes',
+  'HANDOFF_MAX_MEMORY_USAGE_PERCENTAGE': 'maxMemoryUsagePercentage',
+  'HANDOFF_ENABLE_RESOURCE_THROTTLING': 'enableResourceThrottling',
+  'HANDOFF_RESOURCE_THROTTLING_THRESHOLD_PERCENTAGE': 'resourceThrottlingThresholdPercentage'
+};
+
+// Loads configuration from environment variables
+function loadConfigFromEnvironment(): Partial<HandoffConfig> {
+  const config: Partial<HandoffConfig> = {};
+  
+  for (const [envVar, configKey] of Object.entries(ENV_VAR_MAPPING)) {
+    const value = process.env[envVar];
+    if (value !== undefined) {
+      // Convert string values to appropriate types
+      switch (configKey) {
+        case 'enableOpenAIEvaluation':
+        case 'enableLAPAMoERouter':
+        case 'enableContextCompression':
+        case 'exponentialBackoff':
+        case 'circuitBreakerEnabled':
+        case 'enableFallbackMechanisms':
+        case 'fallbackToMoERouterOnOpenAIError':
+        case 'fallbackToLAPAAgentsOnMoERouterError':
+        case 'enableDetailedLogging':
+        case 'enableMetricsCollection':
+        case 'enableSecurityValidation':
+        case 'sanitizeContextData':
+        case 'enableResourceThrottling':
+          config[configKey] = value.toLowerCase() === 'true';
+          break;
+          
+        case 'confidenceThreshold':
+        case 'minimumConfidenceForHandoff':
+        case 'maxMemoryUsagePercentage':
+        case 'resourceThrottlingThresholdPercentage':
+          const floatVal = parseFloat(value);
+          if (!isNaN(floatVal)) {
+            config[configKey] = floatVal;
+          }
+          break;
+          
+        case 'maxHandoffDepth':
+        case 'maxConcurrentHandoffs':
+        case 'latencyTargetMs':
+        case 'maxLatencyThresholdMs':
+        case 'throughputTargetOpsPerSec':
+        case 'maxRetryAttempts':
+        case 'retryDelayMs':
+        case 'circuitBreakerFailureThreshold':
+        case 'circuitBreakerTimeoutMs':
+        case 'metricsCollectionIntervalMs':
+        case 'maxContextSizeBytes':
+          const intVal = parseInt(value, 10);
+          if (!isNaN(intVal)) {
+            config[configKey] = intVal;
+          }
+          break;
+          
+        default:
+          // For string enums, use the value directly
+          config[configKey] = value as any;
+      }
+    }
+  }
+  
+  return config;
+}
+
+// Threshold management for handoff decisions
+class HandoffThresholdManager {
+  private config: HandoffConfig;
+  
+  constructor(config: HandoffConfig) {
+    this.config = config;
+  }
+  
+  /**
+   * Determines if a handoff should occur based on confidence and thresholds
+   * @param confidence Confidence score from evaluation (0-1)
+   * @param currentDepth Current handoff depth
+   * @returns Boolean indicating if handoff should occur
+   */
+  shouldHandoff(confidence: number, currentDepth: number): boolean {
+    // Check if confidence meets minimum threshold
+    if (confidence < this.config.minimumConfidenceForHandoff) {
+      return false;
+    }
+    
+    // Check if confidence meets target threshold
+    if (confidence < this.config.confidenceThreshold) {
+      return false;
+    }
+    
+    // Check if max handoff depth has been reached
+    if (currentDepth >= this.config.maxHandoffDepth) {
+      return false;
+    }
+    
+    return true;
+  }
+  
+  /**
+   * Checks if a latency value exceeds configured thresholds
+   * @param latency Latency in milliseconds
+   * @returns Object with threshold violation information
+   */
+  checkLatencyThresholds(latency: number): { exceededTarget: boolean; exceededMax: boolean } {
+    return {
+      exceededTarget: latency > this.config.latencyTargetMs,
+      exceededMax: latency > this.config.maxLatencyThresholdMs
+    };
+  }
+  
+  /**
+   * Updates the configuration
+   * @param newConfig New configuration
+   */
+  updateConfig(newConfig: Partial<HandoffConfig>): void {
+    this.config = { ...this.config, ...newConfig };
+  }
+}
+
+// Validates HandoffConfig
+function validateHandoffConfig(config: Partial<HandoffConfig>): void {
+  const errors: string[] = [];
+  
+  // Validate confidence thresholds
+  if (config.confidenceThreshold !== undefined && (config.confidenceThreshold < 0 || config.confidenceThreshold > 1)) {
+    errors.push('confidenceThreshold must be between 0 and 1');
+  }
+  
+  if (config.minimumConfidenceForHandoff !== undefined && (config.minimumConfidenceForHandoff < 0 || config.minimumConfidenceForHandoff > 1)) {
+    errors.push('minimumConfidenceForHandoff must be between 0 and 1');
+  }
+  
+  // Validate that minimum confidence is not greater than confidence threshold
+  if (config.confidenceThreshold !== undefined && config.minimumConfidenceForHandoff !== undefined &&
+      config.confidenceThreshold < config.minimumConfidenceForHandoff) {
+    errors.push('confidenceThreshold must be greater than or equal to minimumConfidenceForHandoff');
+  }
+  
+  // Validate numeric thresholds
+  if (config.maxHandoffDepth !== undefined && config.maxHandoffDepth < 0) {
+    errors.push('maxHandoffDepth must be non-negative');
+  }
+  
+  if (config.maxConcurrentHandoffs !== undefined && config.maxConcurrentHandoffs < 1) {
+    errors.push('maxConcurrentHandoffs must be at least 1');
+  }
+  
+  if (config.latencyTargetMs !== undefined && config.latencyTargetMs < 0) {
+    errors.push('latencyTargetMs must be non-negative');
+  }
+  
+  if (config.maxLatencyThresholdMs !== undefined && config.maxLatencyThresholdMs < 0) {
+    errors.push('maxLatencyThresholdMs must be non-negative');
+  }
+  
+  // Validate that max latency is not less than target latency
+  if (config.latencyTargetMs !== undefined && config.maxLatencyThresholdMs !== undefined &&
+      config.maxLatencyThresholdMs < config.latencyTargetMs) {
+    errors.push('maxLatencyThresholdMs must be greater than or equal to latencyTargetMs');
+  }
+  
+  if (config.throughputTargetOpsPerSec !== undefined && config.throughputTargetOpsPerSec < 0) {
+    errors.push('throughputTargetOpsPerSec must be non-negative');
+  }
+  
+  if (config.maxRetryAttempts !== undefined && config.maxRetryAttempts < 0) {
+    errors.push('maxRetryAttempts must be non-negative');
+  }
+  
+  if (config.retryDelayMs !== undefined && config.retryDelayMs < 0) {
+    errors.push('retryDelayMs must be non-negative');
+  }
+  
+  if (config.circuitBreakerFailureThreshold !== undefined && config.circuitBreakerFailureThreshold < 0) {
+    errors.push('circuitBreakerFailureThreshold must be non-negative');
+  }
+  
+  if (config.circuitBreakerTimeoutMs !== undefined && config.circuitBreakerTimeoutMs < 0) {
+    errors.push('circuitBreakerTimeoutMs must be non-negative');
+  }
+  
+  if (config.metricsCollectionIntervalMs !== undefined && config.metricsCollectionIntervalMs < 0) {
+    errors.push('metricsCollectionIntervalMs must be non-negative');
+  }
+  
+  if (config.maxContextSizeBytes !== undefined && config.maxContextSizeBytes < 0) {
+    errors.push('maxContextSizeBytes must be non-negative');
+  }
+  
+  if (config.maxMemoryUsagePercentage !== undefined && (config.maxMemoryUsagePercentage < 0 || config.maxMemoryUsagePercentage > 100)) {
+    errors.push('maxMemoryUsagePercentage must be between 0 and 100');
+  }
+  
+  if (config.resourceThrottlingThresholdPercentage !== undefined && (config.resourceThrottlingThresholdPercentage < 0 || config.resourceThrottlingThresholdPercentage > 100)) {
+    errors.push('resourceThrottlingThresholdPercentage must be between 0 and 100');
+  }
+  
+  // Validate enum values
+  if (config.loadBalancingStrategy !== undefined &&
+      !['round-robin', 'least-connections', 'weighted'].includes(config.loadBalancingStrategy)) {
+    errors.push('loadBalancingStrategy must be one of: round-robin, least-connections, weighted');
+  }
+  
+  if (config.agentSelectionAlgorithm !== undefined &&
+      !['confidence-based', 'workload-based', 'hybrid'].includes(config.agentSelectionAlgorithm)) {
+    errors.push('agentSelectionAlgorithm must be one of: confidence-based, workload-based, hybrid');
+  }
+  
+  if (config.logLevel !== undefined &&
+      !['none', 'error', 'warn', 'info', 'debug'].includes(config.logLevel)) {
+    errors.push('logLevel must be one of: none, error, warn, info, debug');
+  }
+  
+  // Throw aggregated error if any validation failed
+  if (errors.length > 0) {
+    throw new HandoffConfigValidationError(`Configuration validation failed:\n${errors.map(e => `- ${e}`).join('\n')}`);
+  }
+}
+
+// Configuration presets for different use cases
+export const HANDOFF_CONFIG_PRESETS = {
+  development: {
+    // Core functionality flags
+    enableOpenAIEvaluation: true,
+    enableLAPAMoERouter: true,
+    enableContextCompression: true,
+    
+    // Decision thresholds
+    confidenceThreshold: 0.7,
+    minimumConfidenceForHandoff: 0.3,
+    maxHandoffDepth: 5,
+    maxConcurrentHandoffs: 20,
+    
+    // Performance targets
+    latencyTargetMs: 3000,
+    maxLatencyThresholdMs: 10000,
+    throughputTargetOpsPerSec: 5,
+    
+    // Retry and error handling
+    maxRetryAttempts: 5,
+    retryDelayMs: 2000,
+    exponentialBackoff: true,
+    circuitBreakerEnabled: true,
+    circuitBreakerFailureThreshold: 10,
+    circuitBreakerTimeoutMs: 120000,
+    
+    // Agent selection
+    loadBalancingStrategy: 'least-connections',
+    agentSelectionAlgorithm: 'hybrid',
+    
+    // Fallback mechanisms
+    enableFallbackMechanisms: true,
+    fallbackToMoERouterOnOpenAIError: true,
+    fallbackToLAPAAgentsOnMoERouterError: true,
+    
+    // Logging and monitoring
+    enableDetailedLogging: true,
+    logLevel: 'debug',
+    enableMetricsCollection: true,
+    metricsCollectionIntervalMs: 10000,
+    
+    // Security and compliance
+    enableSecurityValidation: true,
+    sanitizeContextData: true,
+    maxContextSizeBytes: 2097152, // 2MB
+    
+    // Resource management
+    maxMemoryUsagePercentage: 90,
+    enableResourceThrottling: true,
+    resourceThrottlingThresholdPercentage: 80
+  } as HandoffConfig,
+  
+  production: {
+    // Core functionality flags
+    enableOpenAIEvaluation: true,
+    enableLAPAMoERouter: true,
+    enableContextCompression: true,
+    
+    // Decision thresholds
+    confidenceThreshold: 0.85,
+    minimumConfidenceForHandoff: 0.6,
+    maxHandoffDepth: 3,
+    maxConcurrentHandoffs: 50,
+    
+    // Performance targets
+    latencyTargetMs: 1500,
+    maxLatencyThresholdMs: 4000,
+    throughputTargetOpsPerSec: 20,
+    
+    // Retry and error handling
+    maxRetryAttempts: 3,
+    retryDelayMs: 1000,
+    exponentialBackoff: true,
+    circuitBreakerEnabled: true,
+    circuitBreakerFailureThreshold: 5,
+    circuitBreakerTimeoutMs: 60000,
+    
+    // Agent selection
+    loadBalancingStrategy: 'least-connections',
+    agentSelectionAlgorithm: 'hybrid',
+    
+    // Fallback mechanisms
+    enableFallbackMechanisms: true,
+    fallbackToMoERouterOnOpenAIError: true,
+    fallbackToLAPAAgentsOnMoERouterError: true,
+    
+    // Logging and monitoring
+    enableDetailedLogging: true,
+    logLevel: 'info',
+    enableMetricsCollection: true,
+    metricsCollectionIntervalMs: 30000,
+    
+    // Security and compliance
+    enableSecurityValidation: true,
+    sanitizeContextData: true,
+    maxContextSizeBytes: 1048576, // 1MB
+    
+    // Resource management
+    maxMemoryUsagePercentage: 80,
+    enableResourceThrottling: true,
+    resourceThrottlingThresholdPercentage: 70
+  } as HandoffConfig,
+  
+  highPerformance: {
+    // Core functionality flags
+    enableOpenAIEvaluation: true,
+    enableLAPAMoERouter: true,
+    enableContextCompression: true,
+    
+    // Decision thresholds
+    confidenceThreshold: 0.9,
+    minimumConfidenceForHandoff: 0.7,
+    maxHandoffDepth: 2,
+    maxConcurrentHandoffs: 100,
+    
+    // Performance targets
+    latencyTargetMs: 1000,
+    maxLatencyThresholdMs: 3000,
+    throughputTargetOpsPerSec: 50,
+    
+    // Retry and error handling
+    maxRetryAttempts: 2,
+    retryDelayMs: 500,
+    exponentialBackoff: true,
+    circuitBreakerEnabled: true,
+    circuitBreakerFailureThreshold: 3,
+    circuitBreakerTimeoutMs: 30000,
+    
+    // Agent selection
+    loadBalancingStrategy: 'least-connections',
+    agentSelectionAlgorithm: 'confidence-based',
+    
+    // Fallback mechanisms
+    enableFallbackMechanisms: true,
+    fallbackToMoERouterOnOpenAIError: true,
+    fallbackToLAPAAgentsOnMoERouterError: true,
+    
+    // Logging and monitoring
+    enableDetailedLogging: false,
+    logLevel: 'warn',
+    enableMetricsCollection: true,
+    metricsCollectionIntervalMs: 60000,
+    
+    // Security and compliance
+    enableSecurityValidation: true,
+    sanitizeContextData: true,
+    maxContextSizeBytes: 524288, // 512KB
+    
+    // Resource management
+    maxMemoryUsagePercentage: 70,
+    enableResourceThrottling: true,
+    resourceThrottlingThresholdPercentage: 60
+  } as HandoffConfig
+};
 
 // Default configuration
 const DEFAULT_CONFIG: HandoffConfig = {
+  // Core functionality flags
   enableOpenAIEvaluation: true,
+  enableLAPAMoERouter: true,
+  enableContextCompression: true,
+  
+  // Decision thresholds
   confidenceThreshold: 0.8,
+  minimumConfidenceForHandoff: 0.5,
   maxHandoffDepth: 3,
-  latencyTargetMs: 2000
+  maxConcurrentHandoffs: 10,
+  
+  // Performance targets
+  latencyTargetMs: 2000,
+  maxLatencyThresholdMs: 5000,
+  throughputTargetOpsPerSec: 10,
+  
+  // Retry and error handling
+  maxRetryAttempts: 3,
+  retryDelayMs: 1000,
+  exponentialBackoff: true,
+  circuitBreakerEnabled: true,
+  circuitBreakerFailureThreshold: 5,
+  circuitBreakerTimeoutMs: 60000,
+  
+  // Agent selection
+  loadBalancingStrategy: 'least-connections',
+  agentSelectionAlgorithm: 'hybrid',
+  
+  // Fallback mechanisms
+  enableFallbackMechanisms: true,
+  fallbackToMoERouterOnOpenAIError: true,
+  fallbackToLAPAAgentsOnMoERouterError: true,
+  
+  // Logging and monitoring
+  enableDetailedLogging: true,
+  logLevel: 'info',
+  enableMetricsCollection: true,
+  metricsCollectionIntervalMs: 30000,
+  
+  // Security and compliance
+  enableSecurityValidation: true,
+  sanitizeContextData: true,
+  maxContextSizeBytes: 1048576, // 1MB
+  
+  // Resource management
+  maxMemoryUsagePercentage: 80,
+  enableResourceThrottling: true,
+  resourceThrottlingThresholdPercentage: 70
 };
+
+// Metrics tracking for handoff performance
+interface HandoffMetrics {
+  totalHandoffs: number;
+  successfulHandoffs: number;
+  failedHandoffs: number;
+  averageLatency: number;
+  latencyHistory: number[];
+}
 
 /**
  * LAPA Hybrid Handoff System
@@ -45,11 +579,40 @@ export class HybridHandoffSystem {
   private contextHandoffManager: ContextHandoffManager;
   private openAIAgents: Map<string, OpenAIAgentSDK> = new Map();
   private config: HandoffConfig;
+  private thresholdManager: HandoffThresholdManager;
+  private hooks: HandoffLifecycleHooks = {};
+  private retryConfig: RetryConfig;
+  private metrics: HandoffMetrics;
 
-  constructor(config?: Partial<HandoffConfig>) {
+  constructor(config?: Partial<HandoffConfig>, hooks?: HandoffLifecycleHooks, retryConfig?: Partial<RetryConfig>) {
     this.langGraphOrchestrator = new LangGraphOrchestrator('start');
     this.contextHandoffManager = new ContextHandoffManager();
+    
+    // Validate initial configuration if provided
+    if (config) {
+      validateHandoffConfig(config);
+    }
+    
     this.config = { ...DEFAULT_CONFIG, ...config };
+    this.thresholdManager = new HandoffThresholdManager(this.config);
+    this.hooks = hooks || {};
+    
+    // Use provided retry config or derive from handoff config
+    this.retryConfig = retryConfig
+      ? { ...DEFAULT_RETRY_CONFIG, ...retryConfig }
+      : {
+          maxRetries: this.config.maxRetryAttempts,
+          retryDelayMs: this.config.retryDelayMs,
+          exponentialBackoff: this.config.exponentialBackoff
+        };
+        
+    this.metrics = {
+      totalHandoffs: 0,
+      successfulHandoffs: 0,
+      failedHandoffs: 0,
+      averageLatency: 0,
+      latencyHistory: []
+    };
   }
 
   /**
@@ -71,12 +634,15 @@ export class HybridHandoffSystem {
     try {
       console.log(`Executing task with hybrid handoffs: ${task.id}`);
       
-      // Create initial workflow
+      // Create initial workflow context with LangGraph integration
       const initialContext = {
         task,
         context,
         handoffHistory: [] as string[],
-        startTime: Date.now()
+        startTime: Date.now(),
+        handoffCount: 0,
+        totalDuration: 0,
+        logs: [] as string[]
       };
       
       // Execute workflow with handoff capabilities
@@ -96,8 +662,8 @@ export class HybridHandoffSystem {
    * @returns Promise that resolves with the orchestration result
    */
   private async executeWorkflowWithContext(initialContext: Record<string, any>): Promise<OrchestrationResult> {
-    // For this implementation, we'll create a simple workflow that demonstrates
-    // the integration of LangGraph orchestration with OpenAI Agent evaluations
+    // For this implementation, we'll create a workflow that demonstrates
+    // the integration of LangGraph orchestration with intelligent handoff evaluations
     
     // Add nodes for different processing stages
     const nodes: GraphNode[] = [
@@ -142,35 +708,96 @@ export class HybridHandoffSystem {
     nodes.forEach(node => this.langGraphOrchestrator.addNode(node));
     edges.forEach(edge => this.langGraphOrchestrator.addEdge(edge));
     
-    // Execute workflow
-    return await this.langGraphOrchestrator.executeWorkflow(initialContext);
+    // Execute workflow with handoff optimizations
+    return await this.executeOptimizedWorkflow(initialContext);
   }
 
   /**
-   * Evaluates whether a handoff should occur using OpenAI Agent
+   * Executes optimized workflow with intelligent handoff decisions
+   * @param initialContext Initial workflow context
+   * @returns Promise that resolves with the orchestration result
+   */
+  private async executeOptimizedWorkflow(initialContext: Record<string, any>): Promise<OrchestrationResult> {
+    try {
+      return await this.langGraphOrchestrator.executeWorkflow(initialContext);
+    } catch (error) {
+      console.error('Optimized workflow execution failed:', error);
+      return {
+        success: false,
+        finalState: {} as WorkflowState,
+        output: null,
+        executionPath: [],
+        error: error instanceof Error ? error.message : String(error)
+      };
+    }
+  }
+
+  /**
+   * Processes a node with handoff optimizations
+   * @param node The node to process
    * @param context Current context
+   * @returns Promise that resolves with the processing result
+   */
+  private async processNodeWithHandoffOptimizations(node: GraphNode, context: Record<string, any>): Promise<Record<string, any>> {
+    switch (node.type) {
+      case 'agent':
+        return await this.processAgentNodeWithHandoff(node, context);
+      case 'process':
+        return await this.langGraphOrchestrator['processProcessNode'](node, context);
+      case 'decision':
+        // Special handling for handoff decision node
+        if (node.id === 'handoff') {
+          return await this.evaluateHandoff(context, context.task);
+        }
+        return await this.langGraphOrchestrator['processDecisionNode'](node, context);
+      default:
+        throw new Error(`Unknown node type: ${node.type}`);
+    }
+  }
+
+  /**
+   * Processes an agent node with handoff considerations
+   * @param node The agent node
+   * @param context Current context
+   * @returns Promise that resolves with the agent's output
+   */
+  private async processAgentNodeWithHandoff(node: GraphNode, context: Record<string, any>): Promise<Record<string, any>> {
+    // In a real implementation, this would route to the appropriate agent
+    // For simulation, we'll just return the context with some modifications
+    console.log(`Processing agent node with handoff considerations: ${node.label}`);
+    
+    // Simulate agent processing with variable duration based on workload
+    // In a real implementation, this would consider agent workload for optimization
+    const processingTime = Math.random() * 1000 + 500;
+    await new Promise(resolve => setTimeout(resolve, processingTime));
+    
+    return {
+      ...context,
+      processedBy: node.label,
+      timestamp: new Date().toISOString(),
+      result: `Processed by ${node.label} agent`,
+      processingTime
+    };
+  }
+
+  /**
+   * Evaluates whether a handoff should occur using OpenAI Agent or LAPA MoE Router
+   * @param context Current context
+   * @param task Current task
    * @returns Promise that resolves with the handoff evaluation
    */
-  private async evaluateHandoff(context: Record<string, any>): Promise<HandoffEvaluation> {
-    // If OpenAI evaluation is disabled, use a simple heuristic
+  private async evaluateHandoff(context: Record<string, any>, task: Task): Promise<HandoffEvaluation> {
+    // If OpenAI evaluation is disabled, use LAPA MoE Router for capability-based delegation
     if (!this.config.enableOpenAIEvaluation) {
-      return {
-        shouldHandoff: false,
-        confidence: 0.5,
-        reason: 'OpenAI evaluation disabled, using default policy'
-      };
+      return this.evaluateHandoffWithMoERouter(task);
     }
     
     // Get the first registered OpenAI agent for evaluation
     const evaluatorAgent = Array.from(this.openAIAgents.values())[0];
     
     if (!evaluatorAgent) {
-      console.warn('No OpenAI agent found for handoff evaluation, using default policy');
-      return {
-        shouldHandoff: false,
-        confidence: 0.5,
-        reason: 'No evaluator agent available'
-      };
+      console.warn('No OpenAI agent found for handoff evaluation, using LAPA MoE Router');
+      return this.evaluateHandoffWithMoERouter(task);
     }
     
     // Perform evaluation using OpenAI agent
@@ -178,32 +805,72 @@ export class HybridHandoffSystem {
       // Create a specialized evaluation task for the OpenAI agent
       const evaluationTask = {
         id: `eval-${Date.now()}`,
-        description: 'Evaluate whether a handoff should occur based on context',
-        input: JSON.stringify(context),
+        description: 'Evaluate whether a handoff should occur based on context and task requirements',
+        input: JSON.stringify({ context, task }),
         priority: 'medium'
       };
       
       // Run the evaluation using the OpenAI agent
-      const evaluationResult = await run(evaluatorAgent, `Evaluate this context for handoff: ${evaluationTask.input}`);
+      const evaluationResult: any = await run(evaluatorAgent, `Evaluate this context and task for handoff: ${evaluationTask.input}`);
       
       // Parse the evaluation result (assuming it returns a JSON-like structure)
+      const finalOutput = evaluationResult.finalOutput || evaluationResult;
       const evaluation = {
-        shouldHandoff: evaluationResult.finalOutput?.shouldHandoff || false,
-        targetAgentId: evaluationResult.finalOutput?.targetAgentId,
-        confidence: evaluationResult.finalOutput?.confidence || 0,
-        reason: evaluationResult.finalOutput?.reason || 'No specific reason provided'
+        shouldHandoff: finalOutput?.shouldHandoff || false,
+        targetAgentId: finalOutput?.targetAgentId,
+        confidence: finalOutput?.confidence || 0,
+        reason: finalOutput?.reason || 'No specific reason provided'
       };
       
       console.log(`Handoff evaluation completed: ${evaluation.shouldHandoff ? 'HANDOFF' : 'CONTINUE'}`);
       return evaluation;
     } catch (error) {
-      console.error('Handoff evaluation failed:', error);
+      console.error('Handoff evaluation with OpenAI agent failed:', error);
+      console.warn('Falling back to LAPA MoE Router for handoff evaluation');
+      return this.evaluateHandoffWithMoERouter(task);
+    }
+  }
+
+  /**
+   * Evaluates handoff using LAPA MoE Router for capability-based delegation
+   * @param task Current task
+   * @returns Handoff evaluation result
+   */
+  private evaluateHandoffWithMoERouter(task: Task, currentDepth: number = 0): HandoffEvaluation {
+    try {
+      // Route task using MoE Router to find the most suitable agent
+      const routingResult = moeRouter.routeTask(task);
+      
+      // Use threshold manager to determine if handoff should occur
+      const shouldHandoff = this.thresholdManager.shouldHandoff(routingResult.confidence, currentDepth);
+      
+      return {
+        shouldHandoff,
+        targetAgentId: routingResult.agent.id,
+        confidence: routingResult.confidence,
+        reason: routingResult.reasoning
+      };
+    } catch (error) {
+      console.error('Handoff evaluation with MoE Router failed:', error);
       return {
         shouldHandoff: false,
         confidence: 0,
         reason: `Evaluation error: ${error instanceof Error ? error.message : String(error)}`
       };
     }
+  }
+
+  /**
+   * Balances workload among available agents
+   * @returns Agent with the lowest workload
+   */
+  private selectAgentWithLowestWorkload(): Agent | undefined {
+    const agents = moeRouter.getAgents();
+    if (agents.length === 0) return undefined;
+    
+    // Sort agents by workload (ascending)
+    const sortedAgents = [...agents].sort((a, b) => a.workload - b.workload);
+    return sortedAgents[0];
   }
 
   /**
@@ -220,29 +887,142 @@ export class HybridHandoffSystem {
     taskId: string,
     context: Record<string, any>
   ): Promise<any> {
-    // Find the target OpenAI agent for handoff
-    const targetAgent = this.openAIAgents.get(targetAgentId);
+    // Update metrics
+    this.metrics.totalHandoffs++;
+    const startTime = performance.now();
     
-    if (targetAgent) {
-      // If target is an OpenAI agent, perform handoff using SDK
+    // Log handoff start
+    const handoffStartLog = `Handoff started from ${sourceAgentId} to ${targetAgentId} for task ${taskId}`;
+    console.log(handoffStartLog);
+    
+    // Notify handoff start hook
+    if (this.hooks.onHandoffStart) {
       try {
-        const handoffTask = {
-          id: taskId,
-          description: 'Task handed off from another agent',
-          input: JSON.stringify(context),
-          priority: 'medium'
-        };
-        
-        // Run the task on the target OpenAI agent
-        const result = await run(targetAgent, `Process this task: ${handoffTask.input}`);
-        console.log(`Handoff to OpenAI agent ${targetAgentId} completed successfully`);
-        return result.finalOutput;
+        this.hooks.onHandoffStart(sourceAgentId, targetAgentId, taskId);
       } catch (error) {
-        console.error(`Handoff to OpenAI agent ${targetAgentId} failed:`, error);
-        throw new Error(`Failed to handoff to OpenAI agent: ${error instanceof Error ? error.message : String(error)}`);
+        console.error('Error in onHandoffStart hook:', error);
       }
-    } else {
-      // If target is not an OpenAI agent, use existing context handoff mechanism
+    }
+    
+    try {
+      // Find the target OpenAI agent for handoff
+      const targetAgent = this.openAIAgents.get(targetAgentId);
+      
+      let result: any;
+      if (targetAgent) {
+        // If target is an OpenAI agent, perform handoff using SDK
+        result = await this.handoffToOpenAIAgent(targetAgent, taskId, context, targetAgentId);
+      } else {
+        // If target is not an OpenAI agent, use existing context handoff mechanism
+        result = await this.handoffToLAPAAgent(sourceAgentId, targetAgentId, taskId, context);
+      }
+      
+      // Calculate duration
+      const duration = performance.now() - startTime;
+      
+      // Update metrics
+      this.metrics.successfulHandoffs++;
+      this.updateLatencyMetrics(duration);
+      
+      // Log handoff completion
+      const handoffCompleteLog = `Handoff from ${sourceAgentId} to ${targetAgentId} completed in ${duration}ms`;
+      console.log(handoffCompleteLog);
+      
+      // Check if latency thresholds are met
+      const latencyCheck = this.thresholdManager.checkLatencyThresholds(duration);
+      if (latencyCheck.exceededTarget) {
+        console.warn(`Handoff latency target exceeded: ${duration}ms > ${this.config.latencyTargetMs}ms`);
+      }
+      if (latencyCheck.exceededMax) {
+        console.error(`Handoff latency maximum threshold exceeded: ${duration}ms > ${this.config.maxLatencyThresholdMs}ms`);
+      }
+      
+      // Notify handoff complete hook
+      if (this.hooks.onHandoffComplete) {
+        try {
+          this.hooks.onHandoffComplete(sourceAgentId, targetAgentId, taskId, duration);
+        } catch (error) {
+          console.error('Error in onHandoffComplete hook:', error);
+        }
+      }
+      
+      return result;
+    } catch (error) {
+      // Update metrics
+      this.metrics.failedHandoffs++;
+      
+      console.error(`Handoff from ${sourceAgentId} to ${targetAgentId} failed:`, error);
+      
+      // Log handoff error
+      const handoffErrorLog = `Handoff from ${sourceAgentId} to ${targetAgentId} failed: ${error instanceof Error ? error.message : String(error)}`;
+      console.error(handoffErrorLog);
+      
+      // Notify handoff error hook
+      if (this.hooks.onHandoffError) {
+        try {
+          this.hooks.onHandoffError(sourceAgentId, targetAgentId, taskId, error as Error);
+        } catch (hookError) {
+          console.error('Error in onHandoffError hook:', hookError);
+        }
+      }
+      
+      // Implement fallback mechanism
+      return this.handleHandoffFailure(sourceAgentId, targetAgentId, taskId, context, error);
+    }
+  }
+
+  /**
+   * Handles handoff to an OpenAI agent
+   * @param targetAgent Target OpenAI agent
+   * @param taskId Task ID
+   * @param context Context to handoff
+   * @param sourceAgentId Source agent ID
+   * @param targetAgentId Target agent ID
+   * @returns Promise that resolves with the handoff result
+   */
+  private async handoffToOpenAIAgent(
+    targetAgent: OpenAIAgentSDK,
+    taskId: string,
+    context: Record<string, any>,
+    targetAgentId: string
+  ): Promise<any> {
+    try {
+      const handoffTask = {
+        id: taskId,
+        description: 'Task handed off from another agent',
+        input: JSON.stringify(context),
+        priority: 'medium'
+      };
+      
+      // Run the task on the target OpenAI agent with retry logic
+      const result: any = await this.runWithRetry(
+        () => run(targetAgent, `Process this task: ${handoffTask.input}`),
+        `Handoff to OpenAI agent ${targetAgentId}`
+      );
+      
+      console.log(`Handoff to OpenAI agent ${targetAgentId} completed successfully`);
+      return result.finalOutput || result;
+    } catch (error) {
+      console.error(`Handoff to OpenAI agent ${targetAgentId} failed:`, error);
+      throw new Error(`Failed to handoff to OpenAI agent: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  /**
+   * Handles handoff to a LAPA agent
+   * @param sourceAgentId Source agent ID
+   * @param targetAgentId Target agent ID
+   * @param taskId Task ID
+   * @param context Context to handoff
+   * @returns Promise that resolves with the handoff result
+   */
+  private async handoffToLAPAAgent(
+    sourceAgentId: string,
+    targetAgentId: string,
+    taskId: string,
+    context: Record<string, any>
+  ): Promise<any> {
+    try {
       const request: ContextHandoffRequest = {
         sourceAgentId,
         targetAgentId,
@@ -251,24 +1031,148 @@ export class HybridHandoffSystem {
         priority: 'medium'
       };
       
-      const response = await this.contextHandoffManager.initiateHandoff(request);
+      // Initiate handoff with retry logic
+      const response = await this.runWithRetry(
+        () => this.contextHandoffManager.initiateHandoff(request),
+        `Initiate handoff from ${sourceAgentId} to ${targetAgentId}`
+      );
       
       if (!response.success) {
         throw new Error(`Failed to initiate handoff: ${response.error}`);
       }
+    
+      // Complete handoff on target agent with retry logic
+      const result = await this.runWithRetry(
+        () => this.contextHandoffManager.completeHandoff(response.handoffId, targetAgentId),
+        `Complete handoff to ${targetAgentId}`
+      );
       
-      // Complete handoff on target agent
-      return await this.contextHandoffManager.completeHandoff(response.handoffId, targetAgentId);
+      return result;
+    } catch (error) {
+      console.error(`Handoff to LAPA agent ${targetAgentId} failed:`, error);
+      throw error;
     }
+  }
+
+  /**
+   * Executes an operation with retry logic
+   * @param operation The operation to execute
+   * @param operationName Name of the operation for logging
+   * @returns Promise that resolves with the operation result
+   */
+  private async runWithRetry<T>(operation: () => Promise<T>, operationName: string): Promise<T> {
+    let lastError: Error | undefined;
+
+    for (let attempt = 1; attempt <= this.retryConfig.maxRetries; attempt++) {
+      try {
+        return await operation();
+      } catch (error) {
+        lastError = error as Error;
+        console.warn(`Attempt ${attempt} failed for ${operationName}:`, error);
+
+        // If this is the last attempt, don't retry
+        if (attempt === this.retryConfig.maxRetries) {
+          break;
+        }
+
+        // Calculate delay
+        let delay = this.retryConfig.retryDelayMs;
+        if (this.retryConfig.exponentialBackoff) {
+          delay = Math.pow(2, attempt - 1) * this.retryConfig.retryDelayMs;
+        }
+
+        console.log(`Retrying ${operationName} in ${delay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+
+    // If we get here, all retries failed
+    throw new Error(`Operation ${operationName} failed after ${this.retryConfig.maxRetries} attempts: ${lastError?.message}`);
   }
 
   /**
    * Updates handoff configuration
    * @param newConfig Partial configuration to update
+   * @throws HandoffConfigValidationError if validation fails
    */
   updateConfig(newConfig: Partial<HandoffConfig>): void {
+    // Validate the new configuration
+    validateHandoffConfig(newConfig);
+    
+    // Apply the new configuration
     this.config = { ...this.config, ...newConfig };
+    
+    // Update threshold manager
+    this.thresholdManager.updateConfig(this.config);
+    
+    // Update retry config if related settings changed
+    if (newConfig.maxRetryAttempts !== undefined ||
+        newConfig.retryDelayMs !== undefined ||
+        newConfig.exponentialBackoff !== undefined) {
+      this.retryConfig = {
+        maxRetries: this.config.maxRetryAttempts,
+        retryDelayMs: this.config.retryDelayMs,
+        exponentialBackoff: this.config.exponentialBackoff
+      };
+    }
+    
     console.log('Handoff configuration updated:', this.config);
+  }
+  
+  /**
+   * Loads a configuration preset
+   * @param preset Preset name (development, production, highPerformance)
+   * @throws Error if preset is not found
+   */
+  loadPreset(preset: keyof typeof HANDOFF_CONFIG_PRESETS): void {
+    const config = HANDOFF_CONFIG_PRESETS[preset];
+    if (!config) {
+      throw new Error(`Handoff configuration preset '${preset}' not found`);
+    }
+    
+    // Validate and apply the preset configuration
+    validateHandoffConfig(config);
+    this.config = { ...config };
+    
+    // Update threshold manager
+    this.thresholdManager.updateConfig(this.config);
+    
+    // Update retry config
+    this.retryConfig = {
+      maxRetries: this.config.maxRetryAttempts,
+      retryDelayMs: this.config.retryDelayMs,
+      exponentialBackoff: this.config.exponentialBackoff
+    };
+    
+    console.log(`Handoff configuration loaded from preset: ${preset}`);
+  }
+  
+  /**
+   * Loads configuration from environment variables
+   * @throws HandoffConfigValidationError if validation fails
+   */
+  loadConfigFromEnvironment(): void {
+    const envConfig = loadConfigFromEnvironment();
+    
+    // Validate and apply the environment configuration
+    validateHandoffConfig(envConfig);
+    this.config = { ...this.config, ...envConfig };
+    
+    // Update threshold manager
+    this.thresholdManager.updateConfig(this.config);
+    
+    // Update retry config if related settings changed
+    if (envConfig.maxRetryAttempts !== undefined ||
+        envConfig.retryDelayMs !== undefined ||
+        envConfig.exponentialBackoff !== undefined) {
+      this.retryConfig = {
+        maxRetries: this.config.maxRetryAttempts,
+        retryDelayMs: this.config.retryDelayMs,
+        exponentialBackoff: this.config.exponentialBackoff
+      };
+    }
+    
+    console.log('Handoff configuration loaded from environment variables');
   }
 
   /**
@@ -277,6 +1181,107 @@ export class HybridHandoffSystem {
    */
   getConfig(): HandoffConfig {
     return { ...this.config };
+  }
+  
+  /**
+   * Validates current configuration and returns health status
+   * @returns Object with validation result and any errors
+   */
+  checkConfigHealth(): { isValid: boolean; errors: string[] } {
+    const errors: string[] = [];
+    
+    try {
+      validateHandoffConfig(this.config);
+    } catch (error) {
+      if (error instanceof HandoffConfigValidationError) {
+        // Split the error message into individual errors
+        const errorLines = error.message.split('\n');
+        // Skip the first line which is the general message
+        errors.push(...errorLines.slice(1).map(line => line.startsWith('- ') ? line.substring(2) : line));
+      } else {
+        errors.push(error instanceof Error ? error.message : String(error));
+      }
+    }
+    
+    return {
+      isValid: errors.length === 0,
+      errors
+    };
+  }
+
+  /**
+   * Gets current handoff metrics
+   * @returns Current metrics
+   */
+  getMetrics(): HandoffMetrics {
+    return { ...this.metrics };
+  }
+
+  /**
+   * Updates latency metrics with new measurement
+   * @param latency Latency in milliseconds
+   */
+  private updateLatencyMetrics(latency: number): void {
+    this.metrics.latencyHistory.push(latency);
+    
+    // Keep only the last 100 latency measurements
+    if (this.metrics.latencyHistory.length > 100) {
+      this.metrics.latencyHistory = this.metrics.latencyHistory.slice(-100);
+    }
+    
+    // Calculate average latency
+    const sum = this.metrics.latencyHistory.reduce((a, b) => a + b, 0);
+    this.metrics.averageLatency = sum / this.metrics.latencyHistory.length;
+  }
+
+  /**
+   * Handles handoff failure with fallback mechanisms
+   * @param sourceAgentId Source agent ID
+   * @param targetAgentId Target agent ID
+   * @param taskId Task ID
+   * @param context Context to handoff
+   * @param error Error that caused the failure
+   * @returns Promise that resolves with a fallback result
+   */
+  private async handleHandoffFailure(
+    sourceAgentId: string,
+    targetAgentId: string,
+    taskId: string,
+    context: Record<string, any>,
+    error: unknown
+  ): Promise<any> {
+    console.warn(`Handling handoff failure from ${sourceAgentId} to ${targetAgentId} for task ${taskId}`);
+    
+    // Try to select an alternative agent with lowest workload
+    const alternativeAgent = this.selectAgentWithLowestWorkload();
+    
+    if (alternativeAgent && alternativeAgent.id !== sourceAgentId) {
+      console.log(`Attempting fallback handoff to alternative agent: ${alternativeAgent.id}`);
+      try {
+        // Update target agent ID to alternative agent
+        const fallbackResult = await this.handoffToLAPAAgent(
+          sourceAgentId,
+          alternativeAgent.id,
+          taskId,
+          context
+        );
+        
+        console.log(`Fallback handoff to ${alternativeAgent.id} successful`);
+        return fallbackResult;
+      } catch (fallbackError) {
+        console.error(`Fallback handoff to ${alternativeAgent.id} also failed:`, fallbackError);
+      }
+    }
+    
+    // If no alternative agent or fallback failed, return context with error information
+    console.error('All handoff attempts failed, returning context with error information');
+    return {
+      ...context,
+      handoffError: error instanceof Error ? error.message : String(error),
+      handoffFailed: true,
+      sourceAgentId,
+      attemptedTargetAgentId: targetAgentId
+    };
   }
 }
 

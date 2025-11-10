@@ -16,11 +16,12 @@
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "types": ["jest", "node"]
   },
   "include": [
-    "src/mcp/ctx-zip.integration.ts",
-    "src/test/ctx-zip.test.ts"
+    "src/**/*",
+    "src/__tests__/**/*"
   ],
   "exclude": [
     "node_modules",

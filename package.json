@@ -17,6 +17,9 @@
     "build:test": "tsc -p tsconfig.test.json",
     "test": "echo \"Error: no test specified\" && exit 1",
     "test:ctx-zip": "npm run build:test && node dist/test/ctx-zip.test.js",
+    "test:local-handoffs": "npm run build:test && jest dist/__tests__/local/handoff-performance.local.spec.js",
+    "test:swarm-delegate": "npm run build:test && jest dist/__tests__/swarm/delegate.local.spec.js",
+    "test:local": "npm run build:test && npm run test:local-handoffs && npm run test:swarm-delegate",
     "setup:nim": "bash scripts/install-nim.sh"
   },
   "keywords": [
@@ -31,16 +34,20 @@
   "author": "LAPA Team",
   "license": "MIT",
   "devDependencies": {
+    "@types/jest": "^30.0.0",
     "@types/node": "^24.10.0",
     "@types/vscode": "^1.105.0",
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "@anthropic-ai/claude-sdk": "^1.0.0",
-    "@modelcontextprotocol/server-e2b": "^1.0.0",
-    "@openai/agents-ts": "^1.0.0",
+    "@ai-sdk/openai": "^2.0.62",
+    "@anthropic-ai/sdk": "^0.68.0",
+    "@e2b/mcp-server": "^0.2.1",
+    "@openai/agents": "^0.3.0",
     "@toon-format/toon": "^0.8.0",
-    "ctx-zip": "^0.0.9"
+    "ctx-zip": "^0.0.9",
+    "ollama": "^0.6.2",
+    "ollama-ai-provider": "^1.2.0"
   },
   "files": [
     "src/",
