@@ -1,5 +1,5 @@
 import React from 'react';
-import { Message } from '../state';
+import { Message } from '../state/index.ts';
 
 interface SpeechBubblesProps {
   messages: Message[];

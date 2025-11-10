@@ -1,8 +1,8 @@
 {
   "name": "lapa-core",
-  "version": "0.1.0",
+  "version": "1.2.0",
   "description": "LAPA Core - Local AI Pair Programmer Agent for Cursor",
-  "main": "index.js",
+  "main": "dist/index.js",
   "type": "module",
   "repository": {
     "type": "git",
@@ -12,16 +12,6 @@
     "url": "https://github.com/Menoxcide/Lapa/issues"
   },
   "homepage": "https://github.com/Menoxcide/Lapa#readme",
-  "scripts": {
-    "build": "tsc",
-    "build:test": "tsc -p tsconfig.test.json",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "test:ctx-zip": "npm run build:test && node dist/test/ctx-zip.test.js",
-    "test:local-handoffs": "npm run build:test && jest dist/__tests__/local/handoff-performance.local.spec.js",
-    "test:swarm-delegate": "npm run build:test && jest dist/__tests__/swarm/delegate.local.spec.js",
-    "test:local": "npm run build:test && npm run test:local-handoffs && npm run test:swarm-delegate",
-    "setup:nim": "bash scripts/install-nim.sh"
-  },
   "keywords": [
     "ai",
     "cursor",
@@ -29,36 +19,84 @@
     "ctx-zip",
     "nim",
     "moe",
-    "swarm"
+    "swarm",
+    "autogen",
+    "roo-code"
   ],
   "author": "LAPA Team",
   "license": "MIT",
-  "devDependencies": {
-    "@types/jest": "^30.0.0",
-    "@types/node": "^24.10.0",
-    "@types/vscode": "^1.105.0",
-    "typescript": "^5.9.3"
-  },
-  "dependencies": {
-    "@ai-sdk/openai": "^2.0.62",
-    "@anthropic-ai/sdk": "^0.68.0",
-    "@e2b/mcp-server": "^0.2.1",
-    "@openai/agents": "^0.3.0",
-    "@toon-format/toon": "^0.8.0",
-    "ctx-zip": "^0.0.9",
-    "ollama": "^0.6.2",
-    "ollama-ai-provider": "^1.2.0"
+  "scripts": {
+    "clean": "rimraf dist coverage .lapa/sandbox && rmdir /S /Q dist-* 2>nul || exit 0",
+    "build": "npm run clean && tsc",
+    "build:watch": "tsc --watch",
+    "test": "vitest 'src/__tests__/**/*.test.{ts,tsx}' --passWithNoTests",
+    "test:ui": "vitest 'src/__tests__/ui/**/*'",
+    "test:watch": "vitest 'src/__tests__/**/*.test.{ts,tsx}' --watch",
+    "test:ctx-zip": "vitest src/__tests__/ctx-zip.test.ts",
+    "test:handoffs": "vitest src/__tests__/local/handoff-performance.local.spec.ts",
+    "test:delegate": "vitest src/__tests__/swarm/delegate.local.spec.ts",
+    "test:local": "npm run test:handoffs && npm run test:delegate",
+    "lint": "eslint src --ext .ts,.tsx",
+    "lint:fix": "npm run lint -- --fix",
+    "format": "prettier --write \"src/**/*.{ts,tsx,json,md}\"",
+    "vsix": "vsce package",
+    "vsix:install": "code --install-extension *.vsix",
+    "setup:nim": "bash scripts/install-nim.sh",
+    "dev": "npm run build:watch",
+    "prepublishOnly": "npm run build && npm run test"
   },
   "files": [
+    "dist/",
     "src/",
     "media/",
     "cursor.json",
     "README.md",
     "LICENSE",
     "AGENT.md",
-    "DOCUMENTATION.md"
+    "DOCUMENTATION.md",
+    "LAPA_Master_Plan.toon",
+    "LAPA_v1.2_TOON_SPEC.toon"
   ],
   "publishConfig": {
     "access": "public"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.10.0",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "@types/vscode": "^1.105.0",
+    "@typescript-eslint/eslint-plugin": "^8.46.3",
+    "@typescript-eslint/parser": "^8.46.3",
+    "@vscode/vsce": "^3.7.0",
+    "eslint": "^9.39.1",
+    "jsdom": "^27.1.0",
+    "prettier": "^3.6.2",
+    "rimraf": "^6.1.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.8"
+  },
+  "dependencies": {
+    "@ai-sdk/openai": "^2.0.62",
+    "@anthropic-ai/sdk": "^0.68.0",
+    "@e2b/mcp-server": "^0.2.1",
+    "@openai/agents": "^0.3.0",
+    "@openai/agents-core": "^0.3.0",
+    "@openai/agents-extensions": "^0.3.0",
+    "@openai/agents-openai": "^0.3.0",
+    "@openai/agents-realtime": "^0.3.0",
+    "@toon-format/toon": "^0.8.0",
+    "axios": "^1.13.2",
+    "ctx-zip": "^0.0.9",
+    "e2b": "^2.6.4",
+    "ollama": "^0.6.2",
+    "ollama-ai-provider": "^1.2.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "stripe": "^19.3.0",
+    "uuid": "^13.0.0",
+    "zod": "^3.23.8"
   }
 }

@@ -13,9 +13,9 @@
  * - Integration with AI-Q research assistant
  */
 
-export { RAGPipeline } from './pipeline';
-export { PDFProcessor } from './processors/pdf.processor';
-export { VideoProcessor } from './processors/video.processor';
-export { FileHandler } from './utils/file.handler';
-export { TextPreprocessor } from './utils/text.preprocessor';
-export { RAGConfig } from './config';
+export { RAGPipeline } from './pipeline.ts';
+export { PDFProcessor } from './processors/pdf.processor.ts';
+export { VideoProcessor } from './processors/video.processor.ts';
+export { FileHandler } from './utils/file.handler.ts';
+export { TextPreprocessor } from './utils/text.preprocessor.ts';
+export { RAGConfig } from './config.ts';

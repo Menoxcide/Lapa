@@ -1,25 +1,26 @@
-import { LocalHandoffSystem } from '../../src/orchestrator/handoffs.local';
-import { Task } from '../../src/agents/moe-router';
+import { describe, it, expect } from "vitest";
+import { LocalHandoffSystem } from '../../orchestrator/handoffs.local.ts';
+import { vi } from 'vitest';
 
 // Mock the local inference functions
-jest.mock('../../src/inference/ollama.local', () => {
+vi.mock('../../inference/ollama.local', () => {
   return {
-    sendOllamaChatRequest: jest.fn(),
-    sendOllamaInferenceRequest: jest.fn(),
-    isOllamaAvailable: jest.fn()
+    sendOllamaChatRequest: vi.fn(),
+    sendOllamaInferenceRequest: vi.fn(),
+    isOllamaAvailable: vi.fn()
   };
 });
 
-jest.mock('../../src/inference/nim.local', () => {
+vi.mock('../../inference/nim.local', () => {
   return {
-    sendNIMInferenceRequest: jest.fn(),
-    isNIMAvailable: jest.fn()
+    sendNIMInferenceRequest: vi.fn(),
+    isNIMAvailable: vi.fn()
   };
 });
 
 // Import the mocked functions
-import { sendOllamaChatRequest, isOllamaAvailable } from '../../src/inference/ollama.local';
-import { sendNIMInferenceRequest, isNIMAvailable } from '../../src/inference/nim.local';
+import { sendOllamaChatRequest, isOllamaAvailable } from '../../inference/ollama.local.ts';
+import { sendNIMInferenceRequest, isNIMAvailable } from '../../inference/nim.local.ts';
 
 describe('Local Handoff Performance', () => {
   let handoffSystem: LocalHandoffSystem;
@@ -35,7 +36,7 @@ describe('Local Handoff Performance', () => {
     };
     
     // Clear all mocks before each test
-    jest.clearAllMocks();
+    // All mocks are automatically cleared in vitest
   });
 
   describe('Latency Validation', () => {
@@ -45,7 +46,7 @@ describe('Local Handoff Performance', () => {
       // Mock a quick response
       const mockRunResult = 'Quick task completed by local agent';
       
-      (sendOllamaChatRequest as jest.Mock).mockResolvedValue(mockRunResult);
+      (sendOllamaChatRequest as any).mockResolvedValue(mockRunResult);
       
       const startTime = performance.now();
       
@@ -67,7 +68,7 @@ describe('Local Handoff Performance', () => {
       handoffSystem.registerLocalAgent(mockLocalAgent);
       
       // Mock responses with slight delays to simulate inference latency
-      (sendOllamaChatRequest as jest.Mock).mockImplementation(async () => {
+      (sendOllamaChatRequest as any).mockImplementation(async () => {
         // Simulate typical local inference response time
         await new Promise(resolve => setTimeout(resolve, 100));
         return 'Task completed under moderate local load';
@@ -93,14 +94,14 @@ describe('Local Handoff Performance', () => {
       handoffSystem.registerLocalAgent(mockLocalAgent);
       
       // Mock a response with known delay
-      (sendOllamaChatRequest as jest.Mock).mockImplementation(async () => {
+      (sendOllamaChatRequest as any).mockImplementation(async () => {
         // Simulate a specific delay
         await new Promise(resolve => setTimeout(resolve, 150));
         return 'Local task completed';
       });
       
       // Spy on console.log to capture timing messages
-      const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
+      const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
       
       await (handoffSystem as any).initiateHandoff(
         'source-agent-123',
@@ -115,7 +116,7 @@ describe('Local Handoff Performance', () => {
       );
       
       // Verify warning when latency target is exceeded
-      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       
       // Configure a very short latency target for testing
       handoffSystem.updateConfig({ latencyTargetMs: 100 });
@@ -139,7 +140,7 @@ describe('Local Handoff Performance', () => {
       handoffSystem.registerLocalAgent(mockLocalAgent);
       
       // Mock quick responses for batch processing
-      (sendOllamaChatRequest as jest.Mock).mockResolvedValue('Batch task completed by local');
+      (sendOllamaChatRequest as any).mockResolvedValue('Batch task completed by local');
       
       // Test with 3 concurrent handoffs (smaller batch for unit test)
       const handoffPromises = [];
@@ -179,7 +180,7 @@ describe('Local Handoff Performance', () => {
       handoffSystem.registerLocalAgent(mockLocalAgent);
       
       // Mock responses with realistic delays
-      (sendOllamaChatRequest as jest.Mock).mockImplementation(async () => {
+      (sendOllamaChatRequest as any).mockImplementation(async () => {
         // Simulate variable inference response times
         const delay = 30 + Math.random() * 150;
         await new Promise(resolve => setTimeout(resolve, delay));
@@ -226,7 +227,7 @@ describe('Local Handoff Performance', () => {
       handoffSystem.registerLocalAgent(mockLocalAgent);
       
       // Mock quick responses
-      (sendOllamaChatRequest as jest.Mock).mockResolvedValue('Variable payload task completed by local');
+      (sendOllamaChatRequest as any).mockResolvedValue('Variable payload task completed by local');
       
       // Test with different context sizes
       const testCases = [
@@ -269,7 +270,7 @@ describe('Local Handoff Performance', () => {
       };
       
       // Mock first attempt failing, second succeeding
-      (sendOllamaChatRequest as jest.Mock)
+      (sendOllamaChatRequest as any)
         .mockRejectedValueOnce(new Error('Temporary local inference error'))
         .mockResolvedValueOnce('Task completed after retry');
       
@@ -296,7 +297,7 @@ describe('Local Handoff Performance', () => {
       handoffSystem.registerLocalAgent(mockLocalAgent);
       
       // Mock a slow response that exceeds reasonable limits
-      (sendOllamaChatRequest as jest.Mock).mockImplementation(async () => {
+      (sendOllamaChatRequest as any).mockImplementation(async () => {
         // Simulate a slow response (but not so slow that it times out the test)
         await new Promise(resolve => setTimeout(resolve, 200));
         return 'Slow task completed by local';
@@ -342,11 +343,11 @@ describe('Local Handoff Performance', () => {
       handoffSystem.registerLocalAgent(mockLocalAgent);
       
       // Mock Ollama as unavailable and NIM as available
-      (isOllamaAvailable as jest.Mock).mockResolvedValue(false);
-      (isNIMAvailable as jest.Mock).mockResolvedValue(true);
+      (isOllamaAvailable as any).mockResolvedValue(false);
+      (isNIMAvailable as any).mockResolvedValue(true);
       
       // Mock NIM response
-      (sendNIMInferenceRequest as jest.Mock).mockResolvedValue('Task completed with NIM fallback');
+      (sendNIMInferenceRequest as any).mockResolvedValue('Task completed with NIM fallback');
       
       const startTime = performance.now();
       
@@ -372,11 +373,11 @@ describe('Local Handoff Performance', () => {
       handoffSystem.registerLocalAgent(mockLocalAgent);
       
       // Mock NIM as unavailable and Ollama as available
-      (isNIMAvailable as jest.Mock).mockResolvedValue(false);
-      (isOllamaAvailable as jest.Mock).mockResolvedValue(true);
+      (isNIMAvailable as any).mockResolvedValue(false);
+      (isOllamaAvailable as any).mockResolvedValue(true);
       
       // Mock Ollama response
-      (sendOllamaChatRequest as jest.Mock).mockResolvedValue('Task completed with Ollama fallback');
+      (sendOllamaChatRequest as any).mockResolvedValue('Task completed with Ollama fallback');
       
       const startTime = performance.now();
       

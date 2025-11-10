@@ -1,8 +1,9 @@
-import { MoERouter, Agent, Task } from '../../src/agents/moe-router';
-import { RayParallelExecutor } from '../../src/agents/ray-parallel';
-import { ConsensusVotingSystem } from '../../src/swarm/consensus.voting';
-import { ContextHandoffManager } from '../../src/swarm/context.handoff';
-import { LangGraphOrchestrator } from '../../src/swarm/langgraph.orchestrator';
+import { describe, it, expect } from "vitest";
+import { MoERouter, Agent, Task } from '../../agents/moe-router.ts';
+import { RayParallelExecutor } from '../../agents/ray-parallel.ts';
+import { ConsensusVotingSystem } from '../../swarm/consensus.voting.ts';
+import { ContextHandoffManager } from '../../swarm/context.handoff.ts';
+import { LangGraphOrchestrator } from '../../swarm/langgraph.orchestrator.ts';
 
 describe('Swarm Orchestration Performance Benchmarks', () => {
   describe('MoE Router Performance', () => {
@@ -355,7 +356,7 @@ describe('Swarm Orchestration Performance Benchmarks', () => {
 
     it('should handle high-volume context handoffs', async () => {
       const handoffCount = 200;
-      const handoffs = [];
+      const handoffs: any[] = [];
       
       // Create varied contexts
       for (let i = 0; i < handoffCount; i++) {
@@ -375,7 +376,7 @@ describe('Swarm Orchestration Performance Benchmarks', () => {
               value: Math.random() * 1000
             }))
           },
-          priority: i % 3 === 0 ? 'high' : i % 3 === 1 ? 'medium' : 'low'
+          priority: (i % 3 === 0 ? 'high' : i % 3 === 1 ? 'medium' : 'low') as 'high' | 'medium' | 'low'
         });
       }
       
@@ -502,13 +503,13 @@ describe('Swarm Orchestration Performance Benchmarks', () => {
       
       // Create a complex workflow graph
       const nodeCount = 50;
-      const nodes = [];
+      const nodes: Array<{ id: string; type: 'agent' | 'process' | 'decision'; label: string; agentType?: string }> = [];
       
       // Create nodes
       for (let i = 0; i < nodeCount; i++) {
         nodes.push({
           id: `node-${i}`,
-          type: i % 3 === 0 ? 'agent' : i % 3 === 1 ? 'process' : 'decision',
+          type: (i % 3 === 0 ? 'agent' : i % 3 === 1 ? 'process' : 'decision') as 'agent' | 'process' | 'decision',
           label: `Node ${i}`,
           agentType: i % 3 === 0 ? 'coder' : undefined
         });
@@ -574,11 +575,11 @@ describe('Swarm Orchestration Performance Benchmarks', () => {
       const orchestrator = new LangGraphOrchestrator('start');
       
       // Create workflow with many decision points
-      const decisionNodes = [];
+      const decisionNodes: Array<{ id: string; type: 'decision'; label: string }> = [];
       for (let i = 0; i < 20; i++) {
         decisionNodes.push({
           id: `decision-${i}`,
-          type: 'decision',
+          type: 'decision' as 'decision',
           label: `Decision Point ${i}`
         });
       }
@@ -586,7 +587,7 @@ describe('Swarm Orchestration Performance Benchmarks', () => {
       // Add to orchestrator
       orchestrator.addNode({
         id: 'start',
-        type: 'process',
+        type: 'process' as 'process',
         label: 'Start'
       });
       
@@ -594,7 +595,7 @@ describe('Swarm Orchestration Performance Benchmarks', () => {
       
       orchestrator.addNode({
         id: 'end',
-        type: 'process',
+        type: 'process' as 'process',
         label: 'End'
       });
       

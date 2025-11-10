@@ -1,4 +1,6 @@
-import { AuditLogger, AuditLogEntry } from '../../src/premium/audit.logger';
+import { describe, it, expect } from "vitest";
+import { AuditLogger, AuditLogEntry } from '../../premium/audit.logger.ts';
+import { vi } from 'vitest';
 
 describe('AuditLogger', () => {
   let auditLogger: AuditLogger;
@@ -67,7 +69,7 @@ describe('AuditLogger', () => {
       };
 
       // Spy on console.log to capture output
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
       
       await auditLogger.log(entry);
       

@@ -1,4 +1,5 @@
-import { PersonaManager, Persona } from '../../src/agents/persona.manager';
+import { describe, it, expect } from "vitest";
+import { PersonaManager, Persona } from '../../agents/persona.manager.ts';
 
 describe('PersonaManager', () => {
   let personaManager: PersonaManager;

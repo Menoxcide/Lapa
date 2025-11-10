@@ -6,13 +6,13 @@
  * voting algorithms and handles conflict resolution.
  */
 
-import { Agent } from '../agents/moe-router';
+import { Agent } from '../agents/moe-router.ts';
 
 // Vote option
 export interface VoteOption {
   id: string;
   label: string;
-  value: any;
+  value: unknown;
 }
 
 // Vote record
@@ -207,22 +207,10 @@ export class ConsensusVotingSystem {
    * @returns Consensus result
    */
   private calculateConsensusResult(
-    session: VotingSession, 
-    algorithm: VotingAlgorithm, 
+    session: VotingSession,
+    algorithm: VotingAlgorithm,
     threshold: number
   ): ConsensusResult {
-    if (session.votes.length === 0) {
-      return {
-        sessionId: session.id,
-        winningOption: null,
-        confidence: 0,
-        voteDistribution: {},
-        consensusReached: false,
-        resolutionMethod: 'majority',
-        details: 'No votes cast'
-      };
-    }
-    
     // Calculate vote distribution
     const voteDistribution: Record<string, number> = {};
     let totalWeight = 0;
@@ -237,6 +225,18 @@ export class ConsensusVotingSystem {
       voteDistribution[vote.optionId] = (voteDistribution[vote.optionId] || 0) + vote.weight;
       totalWeight += vote.weight;
     });
+    
+    if (session.votes.length === 0) {
+      return {
+        sessionId: session.id,
+        winningOption: null,
+        confidence: 0,
+        voteDistribution, // Use the initialized distribution
+        consensusReached: false,
+        resolutionMethod: 'majority',
+        details: 'No votes cast'
+      };
+    }
     
     // Check quorum if specified
     if (session.quorum && session.votes.length < session.quorum) {
@@ -254,7 +254,7 @@ export class ConsensusVotingSystem {
     // Determine winner based on algorithm
     switch (algorithm) {
       case 'simple-majority':
-        return this.calculateSimpleMajority(session, voteDistribution, totalWeight);
+        return this.calculateSimpleMajority(session, voteDistribution);
       case 'weighted-majority':
         return this.calculateWeightedMajority(session, voteDistribution, totalWeight);
       case 'supermajority':
@@ -262,7 +262,7 @@ export class ConsensusVotingSystem {
       case 'consensus-threshold':
         return this.calculateConsensusThreshold(session, voteDistribution, totalWeight, threshold);
       default:
-        return this.calculateSimpleMajority(session, voteDistribution, totalWeight);
+        return this.calculateSimpleMajority(session, voteDistribution);
     }
   }
   
@@ -271,28 +271,35 @@ export class ConsensusVotingSystem {
    */
   private calculateSimpleMajority(
     session: VotingSession,
-    voteDistribution: Record<string, number>,
-    totalWeight: number
+    _voteDistribution: Record<string, number> // Parameter not used as we create our own distribution for actual vote counts
   ): ConsensusResult {
-    // Count votes (ignoring weights for simple majority)
-    const voteCounts: Record<string, number> = {};
+    // For simple majority, we need to count actual votes, not weighted votes
+    // So we create a new distribution from session.votes ignoring weights
+    const actualVoteCounts: Record<string, number> = {};
+    
+    // Initialize with all options to ensure all options appear in distribution
+    session.options.forEach(option => {
+      actualVoteCounts[option.id] = 0;
+    });
+    
+    // Count actual votes (not weighted)
     session.votes.forEach(vote => {
-      voteCounts[vote.optionId] = (voteCounts[vote.optionId] || 0) + 1;
+      actualVoteCounts[vote.optionId] += 1;
     });
     
     const totalVotes = session.votes.length;
     let winningOptionId: string | null = null;
     let maxVotes = 0;
     
-    Object.entries(voteCounts).forEach(([optionId, count]) => {
+    Object.entries(actualVoteCounts).forEach(([optionId, count]) => {
       if (count > maxVotes) {
         maxVotes = count;
         winningOptionId = optionId;
       }
     });
     
-    const winningOption = winningOptionId 
-      ? session.options.find(opt => opt.id === winningOptionId) || null 
+    const winningOption = winningOptionId
+      ? session.options.find(opt => opt.id === winningOptionId) || null
       : null;
     
     const confidence = totalVotes > 0 ? maxVotes / totalVotes : 0;
@@ -302,7 +309,7 @@ export class ConsensusVotingSystem {
       sessionId: session.id,
       winningOption,
       confidence,
-      voteDistribution: voteCounts,
+      voteDistribution: actualVoteCounts, // Return the actual vote counts, not the weighted distribution
       consensusReached,
       resolutionMethod: 'majority',
       details: `Simple majority: ${maxVotes}/${totalVotes} votes`

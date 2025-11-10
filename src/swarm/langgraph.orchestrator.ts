@@ -6,7 +6,7 @@
  * transitions, and workflow execution using a graph-based approach.
  */
 
-import { Agent, Task } from '../agents/moe-router';
+import { z } from 'zod';
 
 // Graph node representing an agent or process
 export interface GraphNode {
@@ -29,12 +29,12 @@ export interface GraphEdge {
 // Workflow state
 export interface WorkflowState {
   nodeId: string;
-  context: Record<string, any>;
+  context: Record<string, unknown>;
   history: Array<{
     nodeId: string;
     timestamp: Date;
-    input: any;
-    output: any;
+    input?: unknown;
+    output?: unknown;
   }>;
 }
 
@@ -42,10 +42,58 @@ export interface WorkflowState {
 export interface OrchestrationResult {
   success: boolean;
   finalState: WorkflowState;
-  output: any;
+  output?: unknown;
   executionPath: string[];
   error?: string;
 }
+
+// Zod schema for GraphNode validation
+const graphNodeSchema = z.object({
+  id: z.string(),
+  type: z.enum(['agent', 'process', 'decision']),
+  label: z.string(),
+  agentType: z.string().optional(),
+  metadata: z.record(z.unknown()).optional()
+});
+
+// Zod schema for GraphEdge validation
+const graphEdgeSchema = z.object({
+  id: z.string(),
+  source: z.string(),
+  target: z.string(),
+  condition: z.string().optional(),
+  metadata: z.record(z.unknown()).optional()
+});
+
+// Zod schema for WorkflowState validation
+const workflowStateSchema = z.object({
+  nodeId: z.string(),
+  context: z.record(z.unknown()),
+  history: z.array(z.object({
+    nodeId: z.string(),
+    timestamp: z.date(),
+    input: z.unknown().optional(),
+    output: z.unknown().optional()
+  }))
+});
+
+// Zod schema for validating state transitions
+const stateTransitionSchema = z.object({
+  fromNodeId: z.string(),
+  toNodeId: z.string(),
+  timestamp: z.date(),
+  contextBefore: z.record(z.unknown()),
+  contextAfter: z.record(z.unknown())
+});
+
+// Zod schema for OrchestrationResult validation
+const orchestrationResultSchema = z.object({
+  success: z.boolean(),
+  finalState: workflowStateSchema, // Use the actual schema instead of z.any()
+  output: z.unknown().optional(),
+  executionPath: z.array(z.string()),
+  error: z.string().optional()
+});
 
 /**
  * LAPA LangGraph Orchestrator
@@ -56,6 +104,10 @@ export class LangGraphOrchestrator {
   private initialState: string;
   
   constructor(initialState: string) {
+    // Validate initial state is not empty
+    if (!initialState || initialState.trim() === '') {
+      throw new Error('Initial state cannot be empty');
+    }
     this.initialState = initialState;
   }
   
@@ -64,8 +116,10 @@ export class LangGraphOrchestrator {
    * @param node The node to add
    */
   addNode(node: GraphNode): void {
-    this.nodes.set(node.id, node);
-    console.log(`Added node: ${node.label} (${node.id})`);
+    // Validate node with Zod schema
+    const validatedNode = graphNodeSchema.parse(node);
+    this.nodes.set(validatedNode.id, validatedNode);
+    console.log(`Added node: ${validatedNode.label} (${validatedNode.id})`);
   }
   
   /**
@@ -73,8 +127,10 @@ export class LangGraphOrchestrator {
    * @param edge The edge to add
    */
   addEdge(edge: GraphEdge): void {
-    this.edges.set(edge.id, edge);
-    console.log(`Added edge: ${edge.source} -> ${edge.target}`);
+    // Validate edge with Zod schema
+    const validatedEdge = graphEdgeSchema.parse(edge);
+    this.edges.set(validatedEdge.id, validatedEdge);
+    console.log(`Added edge: ${validatedEdge.source} -> ${validatedEdge.target}`);
   }
   
   /**
@@ -82,7 +138,9 @@ export class LangGraphOrchestrator {
    * @returns Array of nodes
    */
   getNodes(): GraphNode[] {
-    return Array.from(this.nodes.values());
+    // Validate all nodes conform to the schema before returning
+    const nodes = Array.from(this.nodes.values());
+    return nodes.map(node => graphNodeSchema.parse(node));
   }
   
   /**
@@ -90,7 +148,9 @@ export class LangGraphOrchestrator {
    * @returns Array of edges
    */
   getEdges(): GraphEdge[] {
-    return Array.from(this.edges.values());
+    // Validate all edges conform to the schema before returning
+    const edges = Array.from(this.edges.values());
+    return edges.map(edge => graphEdgeSchema.parse(edge));
   }
   
   /**
@@ -99,7 +159,9 @@ export class LangGraphOrchestrator {
    * @returns Array of outbound edges
    */
   getOutboundEdges(nodeId: string): GraphEdge[] {
-    return Array.from(this.edges.values()).filter(edge => edge.source === nodeId);
+    const outboundEdges = Array.from(this.edges.values()).filter(edge => edge.source === nodeId);
+    // Validate all outbound edges conform to the schema before returning
+    return outboundEdges.map(edge => graphEdgeSchema.parse(edge));
   }
   
   /**
@@ -107,7 +169,7 @@ export class LangGraphOrchestrator {
    * @param initialContext Initial context for the workflow
    * @returns Promise that resolves with the orchestration result
    */
-  async executeWorkflow(initialContext: Record<string, any>): Promise<OrchestrationResult> {
+  async executeWorkflow(initialContext: Record<string, unknown>): Promise<OrchestrationResult> {
     try {
       const executionPath: string[] = [];
       let currentState: WorkflowState = {
@@ -116,9 +178,18 @@ export class LangGraphOrchestrator {
         history: []
       };
       
+      // Validate initial state with Zod schema
+      workflowStateSchema.parse(currentState);
+      
       // Validate initial state exists
       if (!this.nodes.has(this.initialState)) {
         throw new Error(`Initial state node '${this.initialState}' not found in graph`);
+      }
+      
+      // Validate that the initial state node is properly formed
+      const initialNode = this.nodes.get(this.initialState);
+      if (initialNode) {
+        graphNodeSchema.parse(initialNode);
       }
       
       console.log(`Starting workflow execution from node: ${this.initialState}`);
@@ -147,22 +218,41 @@ export class LangGraphOrchestrator {
           output: result
         });
         
+        // Validate updated state with Zod schema
+        workflowStateSchema.parse(currentState);
+        
         // Determine next node
         const outboundEdges = this.getOutboundEdges(currentState.nodeId);
         if (outboundEdges.length === 0) {
           // End of workflow
-          console.log(`Workflow completed at node: ${currentNode.label}`);
-          return {
-            success: true,
-            finalState: currentState,
-            output: result,
-            executionPath
-          };
+         console.log(`Workflow completed at node: ${currentNode.label}`);
+         
+         const finalResult: OrchestrationResult = {
+           success: true,
+           finalState: currentState,
+           output: result,
+           executionPath: executionPath,
+           error: undefined
+         };
+         
+         // Validate result with Zod schema
+         return orchestrationResultSchema.parse(finalResult);
         }
         
         // For simplicity, we'll follow the first edge
         // In a real implementation, this would use conditions to select the appropriate edge
         const nextEdge = outboundEdges[0];
+        
+        // Validate state transition
+        const transition = {
+          fromNodeId: currentState.nodeId,
+          toNodeId: nextEdge.target,
+          timestamp: new Date(),
+          contextBefore: { ...currentState.context },
+          contextAfter: { ...result }
+        };
+        stateTransitionSchema.parse(transition);
+        
         currentState.nodeId = nextEdge.target;
         currentState.context = { ...result }; // Pass result as context to next node
         
@@ -172,13 +262,21 @@ export class LangGraphOrchestrator {
       throw new Error(`Workflow exceeded maximum iterations (${maxIterations})`);
     } catch (error) {
       console.error('Workflow execution failed:', error);
-      return {
+      
+      const result: OrchestrationResult = {
         success: false,
-        finalState: {} as WorkflowState,
+        finalState: {
+          nodeId: '',
+          context: {},
+          history: []
+        },
         output: null,
         executionPath: [],
         error: error instanceof Error ? error.message : String(error)
       };
+      
+      // Validate result with Zod schema
+      return orchestrationResultSchema.parse(result);
     }
   }
   
@@ -188,7 +286,7 @@ export class LangGraphOrchestrator {
    * @param context Current context
    * @returns Promise that resolves with the processing result
    */
-  private async processNode(node: GraphNode, context: Record<string, any>): Promise<Record<string, any>> {
+  private async processNode(node: GraphNode, context: Record<string, unknown>): Promise<Record<string, unknown>> {
     switch (node.type) {
       case 'agent':
         return await this.processAgentNode(node, context);
@@ -207,7 +305,7 @@ export class LangGraphOrchestrator {
    * @param context Current context
    * @returns Promise that resolves with the agent's output
    */
-  private async processAgentNode(node: GraphNode, context: Record<string, any>): Promise<Record<string, any>> {
+  private async processAgentNode(node: GraphNode, context: Record<string, unknown>): Promise<Record<string, unknown>> {
     // In a real implementation, this would route to the appropriate agent
     // For simulation, we'll just return the context with some modifications
     console.log(`Processing agent node: ${node.label}`);
@@ -229,7 +327,7 @@ export class LangGraphOrchestrator {
    * @param context Current context
    * @returns Promise that resolves with the process output
    */
-  private async processProcessNode(node: GraphNode, context: Record<string, any>): Promise<Record<string, any>> {
+  private async processProcessNode(node: GraphNode, context: Record<string, unknown>): Promise<Record<string, unknown>> {
     console.log(`Processing process node: ${node.label}`);
     
     // Simulate process execution
@@ -249,7 +347,7 @@ export class LangGraphOrchestrator {
    * @param context Current context
    * @returns Promise that resolves with the decision output
    */
-  private async processDecisionNode(node: GraphNode, context: Record<string, any>): Promise<Record<string, any>> {
+  private async processDecisionNode(node: GraphNode, context: Record<string, unknown>): Promise<Record<string, unknown>> {
     console.log(`Processing decision node: ${node.label}`);
     
     // Simulate decision making

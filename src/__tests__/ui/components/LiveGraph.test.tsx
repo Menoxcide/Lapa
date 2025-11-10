@@ -1,7 +1,8 @@
-import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import LiveGraph from '../../../src/ui/components/LiveGraph';
-import { GraphNode, GraphEdge } from '../../../src/ui/state';
+import { describe, it, expect } from "vitest";
+import { render, screen } from '@testing-library/react';
+import { vi } from 'vitest';
+import LiveGraph from '../../../ui/components/LiveGraph.tsx';
+import { GraphNode, GraphEdge } from '../../../ui/state/index.ts';
 
 describe('LiveGraph', () => {
   const mockNodes: GraphNode[] = [
@@ -30,12 +31,10 @@ describe('LiveGraph', () => {
 
   const mockEdges: GraphEdge[] = [
     {
-      id: 'edge-1',
       source: 'node-1',
       target: 'node-2'
     },
     {
-      id: 'edge-2',
       source: 'node-2',
       target: 'node-3'
     }
@@ -107,7 +106,6 @@ describe('LiveGraph', () => {
   it('should handle edges with missing nodes', () => {
     const incompleteEdges: GraphEdge[] = [
       {
-        id: 'edge-invalid',
         source: 'non-existent-source',
         target: 'non-existent-target'
       }
@@ -122,7 +120,7 @@ describe('LiveGraph', () => {
   });
 
   it('should call onNodeClick when node is clicked', () => {
-    const mockOnNodeClick = jest.fn();
+    const mockOnNodeClick = vi.fn();
     render(<LiveGraph nodes={[mockNodes[0]]} edges={[]} onNodeClick={mockOnNodeClick} />);
     
     // We can't easily simulate clicking SVG elements in the current implementation
@@ -163,7 +161,6 @@ describe('LiveGraph', () => {
     const incompleteEdge: GraphEdge[] = [
       // @ts-ignore - Testing missing properties
       {
-        id: 'incomplete-edge'
         // Missing source, target
       }
     ];
@@ -190,7 +187,6 @@ describe('LiveGraph', () => {
       // Create edges between consecutive nodes
       if (i > 0) {
         manyEdges.push({
-          id: `edge-${i}`,
           source: `node-${i-1}`,
           target: `node-${i}`
         });

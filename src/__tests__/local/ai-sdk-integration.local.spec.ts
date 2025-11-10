@@ -1,25 +1,27 @@
-import { LocalHandoffSystem } from '../../src/orchestrator/handoffs.local';
-import { Task } from '../../src/agents/moe-router';
+import { describe, it, expect } from "vitest";
+import { LocalHandoffSystem } from '../../orchestrator/handoffs.local.ts';
+import { Task } from '../../agents/moe-router.ts';
+import { vi } from 'vitest';
 
 // Mock the local inference functions
-jest.mock('../../src/inference/ollama.local', () => {
+vi.mock('../../inference/ollama.local', () => {
   return {
-    sendOllamaChatRequest: jest.fn(),
-    sendOllamaInferenceRequest: jest.fn(),
-    isOllamaAvailable: jest.fn()
+    sendOllamaChatRequest: vi.fn(),
+    sendOllamaInferenceRequest: vi.fn(),
+    isOllamaAvailable: vi.fn()
   };
 });
 
-jest.mock('../../src/inference/nim.local', () => {
+vi.mock('../../inference/nim.local', () => {
   return {
-    sendNIMInferenceRequest: jest.fn(),
-    isNIMAvailable: jest.fn()
+    sendNIMInferenceRequest: vi.fn(),
+    isNIMAvailable: vi.fn()
   };
 });
 
 // Import the mocked functions
-import { sendOllamaChatRequest, isOllamaAvailable } from '../../src/inference/ollama.local';
-import { sendNIMInferenceRequest, isNIMAvailable } from '../../src/inference/nim.local';
+import { sendOllamaChatRequest, isOllamaAvailable } from '../../inference/ollama.local.ts';
+import { sendNIMInferenceRequest, isNIMAvailable } from '../../inference/nim.local.ts';
 
 describe('AI SDK Integration Tests', () => {
   let handoffSystem: LocalHandoffSystem;
@@ -43,12 +45,12 @@ describe('AI SDK Integration Tests', () => {
     };
     
     // Clear all mocks before each test
-    jest.clearAllMocks();
+    // All mocks are automatically cleared in vitest
   });
 
   describe('Client Creation', () => {
     it('should create OpenAI client for NIM endpoint', () => {
-      const { createOpenAI } = require('../../src/orchestrator/handoffs.local');
+      const { createOpenAI } = require('../../orchestrator/handoffs.local');
       const client = createOpenAI('http://localhost:8000/v1');
       
       expect(client).toBeDefined();
@@ -56,7 +58,7 @@ describe('AI SDK Integration Tests', () => {
     });
 
     it('should create Ollama client', () => {
-      const { createOllama } = require('../../src/orchestrator/handoffs.local');
+      const { createOllama } = require('../../orchestrator/handoffs.local');
       const client = createOllama('http://localhost:11434/api');
       
       expect(client).toBeDefined();
@@ -68,11 +70,11 @@ describe('AI SDK Integration Tests', () => {
       handoffSystem.registerLocalAgent(mockOllamaAgent);
       
       // Mock Ollama as unavailable and NIM as available
-      (isOllamaAvailable as jest.Mock).mockResolvedValue(false);
-      (isNIMAvailable as jest.Mock).mockResolvedValue(true);
+      (isOllamaAvailable as any).mockResolvedValue(false);
+      (isNIMAvailable as any).mockResolvedValue(true);
       
       // Mock NIM response
-      (sendNIMInferenceRequest as jest.Mock).mockResolvedValue('Task completed with NIM fallback using AI SDK');
+      (sendNIMInferenceRequest as any).mockResolvedValue('Task completed with NIM fallback using AI SDK');
       
       const result = await (handoffSystem as any).handoffToLocalAgent(
         mockOllamaAgent,
@@ -90,11 +92,11 @@ describe('AI SDK Integration Tests', () => {
       handoffSystem.registerLocalAgent(mockNIMAgent);
       
       // Mock NIM as unavailable and Ollama as available
-      (isNIMAvailable as jest.Mock).mockResolvedValue(false);
-      (isOllamaAvailable as jest.Mock).mockResolvedValue(true);
+      (isNIMAvailable as any).mockResolvedValue(false);
+      (isOllamaAvailable as any).mockResolvedValue(true);
       
       // Mock Ollama response
-      (sendOllamaChatRequest as jest.Mock).mockResolvedValue('Task completed with Ollama fallback using AI SDK');
+      (sendOllamaChatRequest as any).mockResolvedValue('Task completed with Ollama fallback using AI SDK');
       
       const result = await (handoffSystem as any).handoffToLocalAgent(
         mockNIMAgent,
@@ -114,13 +116,13 @@ describe('AI SDK Integration Tests', () => {
       handoffSystem.registerLocalAgent(mockOllamaAgent);
       
       // Mock a successful response
-      (sendOllamaChatRequest as jest.Mock).mockResolvedValue('Zero-key handoff task completed');
+      (sendOllamaChatRequest as any).mockResolvedValue('Zero-key handoff task completed');
       
       const task: Task = {
         id: 'zero-key-task-123',
         description: 'Test zero-key handoff',
-        input: 'Test input data',
-        priority: 'medium'
+        type: 'test',
+        priority: 5 // Medium priority on a scale of 1-10
       };
       
       const result = await handoffSystem.localHandoff(task, { testData: 'zero-key context' });
@@ -135,13 +137,13 @@ describe('AI SDK Integration Tests', () => {
       handoffSystem.registerLocalAgent(mockOllamaAgent);
       
       // Mock a quick response
-      (sendOllamaChatRequest as jest.Mock).mockResolvedValue('Quick zero-key task completed');
+      (sendOllamaChatRequest as any).mockResolvedValue('Quick zero-key task completed');
       
       const task: Task = {
         id: 'performance-task-123',
         description: 'Test performance target',
-        input: 'Test input data',
-        priority: 'medium'
+        type: 'test',
+        priority: 5 // Medium priority on a scale of 1-10
       };
       
       const startTime = performance.now();
@@ -154,4 +156,4 @@ describe('AI SDK Integration Tests', () => {
       expect(result.handoffMetrics.latencyWithinTarget).toBe(true);
     }, 10000);
   });
-});
+});

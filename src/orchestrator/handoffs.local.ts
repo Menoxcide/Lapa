@@ -6,12 +6,12 @@
  * Implements zero-key handoff functionality for offline operation with <2s latency target.
  */
 
-import { LangGraphOrchestrator, GraphNode, GraphEdge, WorkflowState, OrchestrationResult } from '../swarm/langgraph.orchestrator';
-import { ContextHandoffManager, ContextHandoffRequest } from '../swarm/context.handoff';
-import { Agent, Task, moeRouter } from '../agents/moe-router';
+import { LangGraphOrchestrator, GraphNode, GraphEdge, WorkflowState, OrchestrationResult } from '../swarm/langgraph.orchestrator.ts';
+import { ContextHandoffManager, ContextHandoffRequest } from '../swarm/context.handoff.ts';
+import { Agent, Task, moeRouter } from '../agents/moe-router.ts';
 import { performance } from 'perf_hooks';
-import { sendOllamaChatRequest, sendOllamaInferenceRequest, isOllamaAvailable } from '../inference/ollama.local';
-import { sendNIMInferenceRequest, isNIMAvailable } from '../inference/nim.local';
+import { sendOllamaChatRequest, sendOllamaInferenceRequest, isOllamaAvailable } from '../inference/ollama.local.ts';
+import { sendNIMInferenceRequest, isNIMAvailable } from '../inference/nim.local.ts';
 
 // AI SDK imports for local clients (using existing infrastructure)
 // import { ProviderV1 } from '@ai-sdk/provider';
@@ -954,7 +954,7 @@ export class LocalHandoffSystem {
       let result: any;
       if (targetAgent) {
         // If target is a local agent, perform handoff using local inference
-        result = await this.handoffToLocalAgent(targetAgent, taskId, context, sourceAgentId, targetAgentId);
+        result = await this.handoffToLocalAgent(targetAgent, taskId, context, targetAgentId);
       } else {
         // If target is not a local agent, use existing context handoff mechanism
         result = await this.handoffToLAPAAgent(sourceAgentId, targetAgentId, taskId, context);
@@ -1027,7 +1027,6 @@ export class LocalHandoffSystem {
     targetAgent: LocalAgent,
     taskId: string,
     context: Record<string, any>,
-    sourceAgentId: string,
     targetAgentId: string
   ): Promise<any> {
     try {
@@ -1140,7 +1139,6 @@ export class LocalHandoffSystem {
         targetAgent,
         task.id,
         context,
-        'current-agent', // source agent
         targetAgentId
       );
       
@@ -1453,14 +1451,13 @@ export const localHandoffSystem = new LocalHandoffSystem();
 /**
  * Creates a local OpenAI-compatible client for NIM endpoint
  * @param baseURL Custom base URL for the NIM endpoint (default: http://localhost:8000/v1)
- * @param apiKey API key (optional for local endpoints)
  * @returns Gateway instance configured for NIM
  */
-export function createOpenAI(baseURL: string = 'http://localhost:8000/v1', apiKey?: string): any {
+export function createOpenAI(baseURL: string = 'http://localhost:8000/v1'): any {
   // For local NIM, we use the AI SDK OpenAI provider
   return createOpenAIClient({
     baseURL,
-    apiKey: apiKey || 'dummy-key', // Not required for local endpoints
+    // apiKey is not required for local endpoints
   });
 }
 

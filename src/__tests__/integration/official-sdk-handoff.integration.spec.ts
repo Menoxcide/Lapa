@@ -1,13 +1,15 @@
-import { HybridHandoffSystem } from '../../src/orchestrator/handoffs';
-import { LangGraphOrchestrator } from '../../src/swarm/langgraph.orchestrator';
-import { ContextHandoffManager } from '../../src/swarm/context.handoff';
-import { moeRouter, Task, Agent } from '../../src/agents/moe-router';
+import { describe, it, expect } from "vitest";
+import { HybridHandoffSystem } from '../../orchestrator/handoffs.ts';
+import { LangGraphOrchestrator } from '../../swarm/langgraph.orchestrator.ts';
+import { ContextHandoffManager } from '../../swarm/context.handoff.ts';
+import { moeRouter, Task, Agent } from '../../agents/moe-router.ts';
 import { Agent as OpenAIAgent, run } from '@openai/agents';
+import { vi } from 'vitest';
 
 // Mock the OpenAI agents SDK
-jest.mock('@openai/agents', () => {
+vi.mock('@openai/agents', () => {
   return {
-    run: jest.fn()
+    run: vi.fn()
   };
 });
 
@@ -27,11 +29,11 @@ describe('Official SDK Handoff Integration', () => {
       instructions: 'Test instructions for official SDK',
       tools: [],
       model: 'gpt-4'
-    } as OpenAIAgent;
+    } as unknown as OpenAIAgent;
     
     // Clear all mocks before each test
-    jest.clearAllMocks();
-    
+    // All mocks are automatically cleared in vitest
+
     // Register a few LAPA agents for testing
     const lapaAgents: Agent[] = [
       {
@@ -61,7 +63,7 @@ describe('Official SDK Handoff Integration', () => {
   afterEach(() => {
     // Clean up registered agents
     const agents = moeRouter.getAgents();
-    agents.forEach(agent => {
+    agents.forEach((agent: any) => {
       moeRouter.unregisterAgent(agent.id);
     });
   });
@@ -81,7 +83,7 @@ describe('Official SDK Handoff Integration', () => {
         }
       };
       
-      (run as jest.Mock).mockResolvedValue(mockEvaluationResult);
+            (run as any).mockResolvedValue(mockEvaluationResult);
       
       // Create a task
       const task: Task = {
@@ -120,11 +122,11 @@ describe('Official SDK Handoff Integration', () => {
         }
       };
       
-      (run as jest.Mock).mockResolvedValueOnce(mockEvaluationResult);
+            (run as any).mockResolvedValueOnce(mockEvaluationResult);
       
-      // Mock the context handoff manager methods
-      const initiateHandoffSpy = jest.spyOn(contextManager, 'initiateHandoff');
-      const completeHandoffSpy = jest.spyOn(contextManager, 'completeHandoff');
+            // Mock the context handoff manager methods
+            const initiateHandoffSpy = vi.spyOn(contextManager, 'initiateHandoff');
+            const completeHandoffSpy = vi.spyOn(contextManager, 'completeHandoff');
       
       // Replace the contextHandoffManager in handoffSystem with our spy-enabled version
       (handoffSystem as any).contextHandoffManager = contextManager;
@@ -175,7 +177,7 @@ describe('Official SDK Handoff Integration', () => {
         }
       };
       
-      (run as jest.Mock).mockResolvedValueOnce(mockEvaluationResult);
+            (run as any).mockResolvedValueOnce(mockEvaluationResult);
       
       const task: Task = {
         id: 'moe-routing-task-123',
@@ -204,8 +206,8 @@ describe('Official SDK Handoff Integration', () => {
       
       // Mock the context handoff manager
       const mockContextHandoffManager = {
-        initiateHandoff: jest.fn(),
-        completeHandoff: jest.fn()
+        initiateHandoff: vi.fn(),
+        completeHandoff: vi.fn()
       };
       
       // Inject the mock
@@ -234,7 +236,7 @@ describe('Official SDK Handoff Integration', () => {
         }
       };
       
-      (run as jest.Mock).mockResolvedValueOnce(mockEvaluationResult);
+            (run as any).mockResolvedValueOnce(mockEvaluationResult);
       
       const task: Task = {
         id: 'mixed-handoff-task-123',
@@ -265,7 +267,7 @@ describe('Official SDK Handoff Integration', () => {
         finalOutput: { result: 'Quick task completed with official SDK' }
       };
       
-      (run as jest.Mock).mockResolvedValue(mockRunResult);
+            (run as any).mockResolvedValue(mockRunResult);
       
       const startTime = performance.now();
       

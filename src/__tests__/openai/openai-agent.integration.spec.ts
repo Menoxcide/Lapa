@@ -1,10 +1,13 @@
-import { HybridHandoffSystem } from '../../src/orchestrator/handoffs';
-import { Agent } from '@openai/agents';
+import { describe, it, expect } from "vitest";
+import { HybridHandoffSystem } from '../../orchestrator/handoffs.ts';
+import { LangGraphOrchestrator } from '../../swarm/langgraph.orchestrator.js';
+import { Agent as OpenAIAgent } from '@openai/agents';
+import { vi } from 'vitest';
 
 // Mock the OpenAI agents SDK
-jest.mock('@openai/agents', () => {
+vi.mock('@openai/agents', () => {
   return {
-    run: jest.fn()
+    run: vi.fn()
   };
 });
 
@@ -13,20 +16,22 @@ import { run } from '@openai/agents';
 
 describe('OpenAI Agent Integration', () => {
   let handoffSystem: HybridHandoffSystem;
-  let mockOpenAIAgent: Agent;
+  let orchestrator: LangGraphOrchestrator;
+  let mockOpenAIAgent: OpenAIAgent;
 
   beforeEach(() => {
     handoffSystem = new HybridHandoffSystem();
+    orchestrator = new LangGraphOrchestrator('start');
     mockOpenAIAgent = {
       id: 'openai-agent-1',
       name: 'Test OpenAI Agent',
       instructions: 'Test instructions',
       tools: [],
       model: 'gpt-4'
-    } as Agent;
+    } as unknown as OpenAIAgent;
     
     // Clear all mocks before each test
-    jest.clearAllMocks();
+    // All mocks are automatically cleared in vitest
   });
 
   describe('OpenAI Agent Registration', () => {
@@ -46,7 +51,7 @@ describe('OpenAI Agent Integration', () => {
         instructions: 'Test instructions 2',
         tools: [],
         model: 'gpt-4'
-      } as Agent;
+      } as unknown as OpenAIAgent;
       
       handoffSystem.registerOpenAIAgent(mockOpenAIAgent);
       handoffSystem.registerOpenAIAgent(mockOpenAIAgent2);
@@ -64,7 +69,7 @@ describe('OpenAI Agent Integration', () => {
         instructions: 'Updated instructions',
         tools: [],
         model: 'gpt-4-turbo'
-      } as Agent;
+      } as unknown as OpenAIAgent;
       
       handoffSystem.registerOpenAIAgent(mockOpenAIAgent);
       handoffSystem.registerOpenAIAgent(updatedMockAgent);
@@ -88,7 +93,7 @@ describe('OpenAI Agent Integration', () => {
         }
       };
       
-      (run as jest.Mock).mockResolvedValue(mockEvaluationResult);
+            (run as any).mockResolvedValue(mockEvaluationResult);
       
       const testContext = {
         task: {
@@ -124,7 +129,7 @@ describe('OpenAI Agent Integration', () => {
         }
       };
       
-      (run as jest.Mock).mockResolvedValue(mockEvaluationResult);
+            (run as any).mockResolvedValue(mockEvaluationResult);
       
       const testContext = {
         task: {
@@ -150,7 +155,7 @@ describe('OpenAI Agent Integration', () => {
         finalOutput: null // Malformed response
       };
       
-      (run as jest.Mock).mockResolvedValue(mockEvaluationResult);
+            (run as any).mockResolvedValue(mockEvaluationResult);
       
       const testContext = {
         task: {
@@ -182,7 +187,7 @@ describe('OpenAI Agent Integration', () => {
         }
       };
       
-      (run as jest.Mock).mockResolvedValue(mockExecutionResult);
+            (run as any).mockResolvedValue(mockExecutionResult);
       
       const result = await (handoffSystem as any).initiateHandoff(
         'source-agent-123',
@@ -210,7 +215,7 @@ describe('OpenAI Agent Integration', () => {
         finalOutput: {} // Empty response
       };
       
-      (run as jest.Mock).mockResolvedValue(mockExecutionResult);
+            (run as any).mockResolvedValue(mockExecutionResult);
       
       const result = await (handoffSystem as any).initiateHandoff(
         'source-agent-123',
@@ -225,7 +230,7 @@ describe('OpenAI Agent Integration', () => {
     it('should reject when OpenAI agent execution throws error', async () => {
       handoffSystem.registerOpenAIAgent(mockOpenAIAgent);
       
-      (run as jest.Mock).mockRejectedValue(new Error('OpenAI API rate limit exceeded'));
+            (run as any).mockRejectedValue(new Error('OpenAI API rate limit exceeded'));
       
       await expect(
         (handoffSystem as any).initiateHandoff(
@@ -263,7 +268,7 @@ describe('OpenAI Agent Integration', () => {
         finalOutput: { result: 'Task completed' }
       };
       
-      (run as jest.Mock).mockResolvedValue(mockExecutionResult);
+            (run as any).mockResolvedValue(mockExecutionResult);
       
       // Try to handoff to non-existent agent
       await expect(
@@ -279,7 +284,7 @@ describe('OpenAI Agent Integration', () => {
     it('should handle evaluation when OpenAI agent throws error', async () => {
       handoffSystem.registerOpenAIAgent(mockOpenAIAgent);
       
-      (run as jest.Mock).mockRejectedValue(new Error('Network connectivity issue'));
+            (run as any).mockRejectedValue(new Error('Network connectivity issue'));
       
       const testContext = {
         task: { id: 'task-123', description: 'Test task' },

@@ -5,11 +5,11 @@
  * using NVIDIA NeMo Retriever for document processing.
  */
 
-import { RAGConfig, DEFAULT_RAG_CONFIG } from './config';
-import { PDFProcessor } from './processors/pdf.processor';
-import { VideoProcessor } from './processors/video.processor';
-import { FileHandler } from './utils/file.handler';
-import { TextPreprocessor } from './utils/text.preprocessor';
+import { RAGConfig, DEFAULT_RAG_CONFIG } from './config.ts';
+import { PDFProcessor } from './processors/pdf.processor.ts';
+import { VideoProcessor } from './processors/video.processor.ts';
+import { FileHandler } from './utils/file.handler.ts';
+import { TextPreprocessor } from './utils/text.preprocessor.ts';
 
 export interface ProcessedDocument {
   /**

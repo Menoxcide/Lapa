@@ -6,9 +6,9 @@
  * intelligent summarization to ensure spawned agents have relevant information.
  */
 
-import { Agent, AgentType, Task } from '../agents/moe-router';
-import { compressContext } from '../mcp/ctx-zip.integration';
-import { sendNIMInferenceRequest } from '../inference/nim.local';
+import { Agent, AgentType, Task } from '../agents/moe-router.ts';
+import { compressContext } from '../mcp/ctx-zip.integration.ts';
+import { sendNIMInferenceRequest } from '../inference/nim.local.ts';
 
 // Spawn request
 export interface SpawnRequest {

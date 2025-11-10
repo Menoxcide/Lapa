@@ -21,7 +21,7 @@ export interface Task {
   description: string;
   type: string;
   priority: number;
-  context?: any;
+  context?: Record<string, unknown>;
 }
 
 // Define an agent with its capabilities

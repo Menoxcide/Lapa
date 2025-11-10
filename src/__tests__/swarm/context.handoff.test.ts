@@ -1,4 +1,5 @@
-import { ContextHandoffManager, ContextHandoffRequest } from '../../src/swarm/context.handoff';
+import { describe, it, expect } from "vitest";
+import { ContextHandoffManager, ContextHandoffRequest } from '../../swarm/context.handoff.ts';
 
 describe('ContextHandoffManager', () => {
   let handoffManager: ContextHandoffManager;

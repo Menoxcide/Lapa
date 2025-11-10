@@ -1,13 +1,14 @@
-import { localHandoff } from '../../src/orchestrator/handoffs.local';
-import { Task } from '../../src/agents/moe-router';
+import { describe, it, expect } from "vitest";
+import { localHandoff } from '../../orchestrator/handoffs.local.ts';
+import { Task } from '../../agents/moe-router.ts';
 
 describe('Basic Local Handoff', () => {
   it('should execute localHandoff function', async () => {
     const task: Task = {
       id: 'test-task-123',
       description: 'Test task for local handoff',
-      input: 'Test input data',
-      priority: 'medium'
+      type: 'test',
+      priority: 2
     };
     
     const context = { testData: 'simple context data for local' };

@@ -1,4 +1,5 @@
-import { LangGraphOrchestrator, GraphNode, GraphEdge } from '../../src/swarm/langgraph.orchestrator';
+import { describe, it, expect } from "vitest";
+import { LangGraphOrchestrator, GraphNode, GraphEdge } from '../../swarm/langgraph.orchestrator.ts';
 
 describe('LangGraphOrchestrator', () => {
   let orchestrator: LangGraphOrchestrator;

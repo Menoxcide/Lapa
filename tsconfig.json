@@ -1,26 +1,33 @@
 {
 	"compilerOptions": {
-		"module": "ES2020",
-		"target": "ES2020",
-		"outDir": "dist",
-		"lib": [
-			"ES2020",
-			"DOM"
-		],
-		"sourceMap": true,
-		"rootDir": "src",
-		"strict": true,
-		"noImplicitReturns": true,
-		"noFallthroughCasesInSwitch": true,
-		"noUnusedParameters": true,
-		"esModuleInterop": true,
-		"allowSyntheticDefaultImports": true,
-		"skipLibCheck": true,
-		"forceConsistentCasingInFileNames": true,
-		"moduleResolution": "node"
+	  "target": "ES2022",
+	  "module": "NodeNext",
+	  "moduleResolution": "NodeNext",
+	  "outDir": "dist",
+	  "rootDir": "src",
+	  "lib": ["ES2022", "DOM"],
+	  "sourceMap": true,
+	  "strict": true,
+	  "noImplicitReturns": true,
+	  "noFallthroughCasesInSwitch": true,
+	  "noUnusedParameters": true,
+	  "esModuleInterop": true,
+	  "allowSyntheticDefaultImports": true,
+	  "skipLibCheck": true,
+	  "forceConsistentCasingInFileNames": true,
+	  "jsx": "react-jsx",
+	  "resolveJsonModule": true,
+	  "types": ["node", "react", "react-dom", "vitest/globals"],
+	  "noEmit": true,
+	  "allowImportingTsExtensions": true
 	},
+	"include": ["src/**/*"],
 	"exclude": [
-		"node_modules",
-		".vscode-test"
+	  "node_modules",
+	  "dist",
+	  "dist-*",
+	  "coverage",
+	  ".lapa",
+	  "**/__tests__/**/*.js"
 	]
-}
+  }

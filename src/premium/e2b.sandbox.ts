@@ -1,12 +1,12 @@
 /**
  * E2B Sandbox Integration for LAPA Premium
- * 
+ *
  * This module provides integration with E2B sandbox environments for
  * secure code execution and isolated computing tasks.
  */
 
 // Import necessary modules
-import { Sandbox } from '@e2b/sdk';
+import { Sandbox } from '@e2b/code-interpreter';
 
 /**
  * E2B Sandbox Integration class
@@ -16,7 +16,9 @@ export class E2BSandboxIntegration {
     private defaultTemplate: string;
     
     constructor(apiKey?: string, defaultTemplate?: string) {
-        this.apiKey = apiKey || process.env.E2B_API_KEY || '';
+        // Handle both Node.js and browser environments
+        const envApiKey = typeof process !== 'undefined' && process.env ? process.env.E2B_API_KEY : undefined;
+        this.apiKey = apiKey || envApiKey || '';
         this.defaultTemplate = defaultTemplate || 'base';
         
         if (!this.apiKey) {
@@ -32,7 +34,8 @@ export class E2BSandboxIntegration {
      */
     async createSandbox(template?: string, options?: any): Promise<Sandbox> {
         try {
-            const sandbox = await Sandbox.create(template || this.defaultTemplate, {
+            const sandbox = await Sandbox.create({
+                template: template || this.defaultTemplate,
                 apiKey: this.apiKey,
                 ...options
             });
@@ -52,15 +55,12 @@ export class E2BSandboxIntegration {
      */
     async executeCommand(sandbox: Sandbox, command: string): Promise<any> {
         try {
-            const process = await sandbox.process.start({
-                cmd: command,
-            });
-            
-            const output = await process.wait();
+            // Use the correct API to run commands in foreground mode
+            const result = await sandbox.commands.run(command);
             return {
-                stdout: output.stdout,
-                stderr: output.stderr,
-                exitCode: output.exitCode,
+                stdout: result.stdout,
+                stderr: result.stderr,
+                exitCode: result.exitCode,
             };
         } catch (error) {
             console.error('Failed to execute command in E2B sandbox:', error);
@@ -77,7 +77,13 @@ export class E2BSandboxIntegration {
      */
     async uploadFile(sandbox: Sandbox, path: string, data: string | Buffer): Promise<void> {
         try {
-            await sandbox.files.write(path, data);
+            // Convert Buffer to a format compatible with E2B
+            if (Buffer.isBuffer(data)) {
+                // Convert Buffer to string - this should work for most cases
+                await sandbox.files.write(path, data.toString('utf8'));
+            } else {
+                await sandbox.files.write(path, data);
+            }
         } catch (error) {
             console.error('Failed to upload file to E2B sandbox:', error);
             throw error;
@@ -143,7 +149,8 @@ export class E2BSandboxIntegration {
      */
     async closeSandbox(sandbox: Sandbox): Promise<void> {
         try {
-            await sandbox.close();
+            // Use the correct method to kill/stop the sandbox
+            await sandbox.kill();
         } catch (error) {
             console.error('Failed to close E2B sandbox:', error);
             throw error;

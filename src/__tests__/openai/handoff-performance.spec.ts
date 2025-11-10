@@ -1,10 +1,13 @@
-import { HybridHandoffSystem } from '../../src/orchestrator/handoffs';
-import { Agent } from '@openai/agents';
+import { describe, it, expect } from "vitest";
+import { HybridHandoffSystem } from '../../orchestrator/handoffs.ts';
+import { LangGraphOrchestrator } from '../../swarm/langgraph.orchestrator.js';
+import { Agent as OpenAIAgent } from '@openai/agents';
+import { vi } from 'vitest';
 
 // Mock the OpenAI agents SDK
-jest.mock('@openai/agents', () => {
+vi.mock('@openai/agents', () => {
   return {
-    run: jest.fn()
+    run: vi.fn()
   };
 });
 
@@ -13,20 +16,22 @@ import { run } from '@openai/agents';
 
 describe('OpenAI Handoff Performance', () => {
   let handoffSystem: HybridHandoffSystem;
-  let mockOpenAIAgent: Agent;
+  let orchestrator: LangGraphOrchestrator;
+  let mockOpenAIAgent: OpenAIAgent;
 
   beforeEach(() => {
     handoffSystem = new HybridHandoffSystem();
+    orchestrator = new LangGraphOrchestrator('start');
     mockOpenAIAgent = {
       id: 'openai-agent-1',
       name: 'Test OpenAI Agent',
       instructions: 'Test instructions',
       tools: [],
       model: 'gpt-4'
-    } as Agent;
+    } as unknown as OpenAIAgent;
     
     // Clear all mocks before each test
-    jest.clearAllMocks();
+    // All mocks are automatically cleared in vitest
   });
 
   describe('Latency Validation', () => {
@@ -38,7 +43,7 @@ describe('OpenAI Handoff Performance', () => {
         finalOutput: { result: 'Quick task completed by OpenAI' }
       };
       
-      (run as jest.Mock).mockResolvedValue(mockRunResult);
+            (run as any).mockResolvedValue(mockRunResult);
       
       const startTime = performance.now();
       
@@ -60,7 +65,7 @@ describe('OpenAI Handoff Performance', () => {
       handoffSystem.registerOpenAIAgent(mockOpenAIAgent);
       
       // Mock responses with slight delays to simulate API latency
-      (run as jest.Mock).mockImplementation(async () => {
+      (run as any).mockImplementation(async () => {
         // Simulate typical OpenAI API response time
         await new Promise(resolve => setTimeout(resolve, 150));
         return {
@@ -88,7 +93,7 @@ describe('OpenAI Handoff Performance', () => {
       handoffSystem.registerOpenAIAgent(mockOpenAIAgent);
       
       // Mock a response with known delay
-      (run as jest.Mock).mockImplementation(async () => {
+      (run as any).mockImplementation(async () => {
         // Simulate a specific delay
         await new Promise(resolve => setTimeout(resolve, 200));
         return {
@@ -97,7 +102,7 @@ describe('OpenAI Handoff Performance', () => {
       });
       
       // Spy on console.log to capture timing messages
-      const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
+      const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
       
       await (handoffSystem as any).initiateHandoff(
         'source-agent-123',
@@ -112,7 +117,7 @@ describe('OpenAI Handoff Performance', () => {
       );
       
       // Verify warning when latency target is exceeded
-      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       
       // Configure a very short latency target for testing
       handoffSystem.updateConfig({ latencyTargetMs: 100 });
@@ -136,7 +141,7 @@ describe('OpenAI Handoff Performance', () => {
       handoffSystem.registerOpenAIAgent(mockOpenAIAgent);
       
       // Mock quick responses for batch processing
-      (run as jest.Mock).mockResolvedValue({
+      (run as any).mockResolvedValue({
         finalOutput: { result: 'Batch task completed by OpenAI' }
       });
       
@@ -178,7 +183,7 @@ describe('OpenAI Handoff Performance', () => {
       handoffSystem.registerOpenAIAgent(mockOpenAIAgent);
       
       // Mock responses with realistic delays
-      (run as jest.Mock).mockImplementation(async () => {
+      (run as any).mockImplementation(async () => {
         // Simulate variable API response times
         const delay = 50 + Math.random() * 200;
         await new Promise(resolve => setTimeout(resolve, delay));
@@ -227,7 +232,7 @@ describe('OpenAI Handoff Performance', () => {
       handoffSystem.registerOpenAIAgent(mockOpenAIAgent);
       
       // Mock quick responses
-      (run as jest.Mock).mockResolvedValue({
+      (run as any).mockResolvedValue({
         finalOutput: { result: 'Variable payload task completed by OpenAI' }
       });
       
@@ -272,7 +277,7 @@ describe('OpenAI Handoff Performance', () => {
       };
       
       // Mock first attempt failing, second succeeding
-      (run as jest.Mock)
+      (run as any)
         .mockRejectedValueOnce(new Error('Temporary OpenAI API error'))
         .mockResolvedValueOnce({
           finalOutput: { result: 'Task completed after retry' }
@@ -301,7 +306,7 @@ describe('OpenAI Handoff Performance', () => {
       handoffSystem.registerOpenAIAgent(mockOpenAIAgent);
       
       // Mock a slow response that exceeds reasonable limits
-      (run as jest.Mock).mockImplementation(async () => {
+      (run as any).mockImplementation(async () => {
         // Simulate a slow response (but not so slow that it times out the test)
         await new Promise(resolve => setTimeout(resolve, 300));
         return {

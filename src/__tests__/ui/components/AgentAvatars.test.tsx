@@ -1,7 +1,8 @@
-import React from 'react';
+import { describe, it, expect } from "vitest";
 import { render, screen, fireEvent } from '@testing-library/react';
-import AgentAvatars from '../../../src/ui/components/AgentAvatars';
-import { Agent } from '../../../src/ui/state';
+import { vi } from 'vitest';
+import AgentAvatars from '../../../ui/components/AgentAvatars.tsx';
+import { Agent } from '../../../ui/state/index.ts';
 
 describe('AgentAvatars', () => {
   const mockAgents: Agent[] = [
@@ -74,7 +75,7 @@ describe('AgentAvatars', () => {
   });
 
   it('should call onAgentClick when agent is clicked', () => {
-    const mockOnClick = jest.fn();
+    const mockOnClick = vi.fn();
     render(<AgentAvatars agents={[mockAgents[0]]} onAgentClick={mockOnClick} />);
     
     const agentCard = screen.getByText('Code Generator');

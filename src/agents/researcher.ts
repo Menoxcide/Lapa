@@ -5,7 +5,7 @@
  * It supports both traditional text-based search and multimodal search using Nemotron-Vision.
  */
 
-import { sendNIMInferenceRequest, sendNemotronVisionInferenceRequest } from '../inference/nim.local';
+import { sendNIMInferenceRequest, sendNemotronVisionInferenceRequest } from '../inference/nim.local.ts';
 
 // Type definitions
 export interface ResearchResult {

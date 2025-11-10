@@ -1,27 +1,29 @@
-import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
-import Dashboard from '../../src/ui/Dashboard';
+import { describe, it, expect } from "vitest";
+import { render, screen } from '@testing-library/react';
+import { vi } from 'vitest';
+import Dashboard from '../../ui/Dashboard.tsx';
+import '@testing-library/jest-dom';
 
 // Mock child components
-jest.mock('../../src/ui/components/LiveGraph', () => {
+vi.mock('../../src/ui/components/LiveGraph', () => {
   return function MockLiveGraph() {
     return <div data-testid="live-graph">Live Graph Component</div>;
   };
 });
 
-jest.mock('../../src/ui/components/ControlPanel', () => {
+vi.mock('../../src/ui/components/ControlPanel', () => {
   return function MockControlPanel() {
     return <div data-testid="control-panel">Control Panel Component</div>;
   };
 });
 
-jest.mock('../../src/ui/components/AgentAvatars', () => {
+vi.mock('../../src/ui/components/AgentAvatars', () => {
   return function MockAgentAvatars() {
     return <div data-testid="agent-avatars">Agent Avatars Component</div>;
   };
 });
 
-jest.mock('../../src/ui/components/SpeechBubbles', () => {
+vi.mock('../../src/ui/components/SpeechBubbles', () => {
   return function MockSpeechBubbles() {
     return <div data-testid="speech-bubbles">Speech Bubbles Component</div>;
   };
@@ -135,7 +137,7 @@ describe('Dashboard', () => {
 
   it('should not crash with missing components', () => {
     // Temporarily mock components to throw errors
-    jest.mock('../../src/ui/components/LiveGraph', () => {
+    vi.mock('../../src/ui/components/LiveGraph', () => {
       return function MockLiveGraph() {
         throw new Error('Component failed to load');
         return <div>Should not reach here</div>;
@@ -143,7 +145,7 @@ describe('Dashboard', () => {
     });
     
     // Reset the Dashboard import to use the new mock
-    jest.resetModules();
+    vi.resetModules();
     
     // For this test, we'll just verify the dashboard renders without our mocks
     // In a real scenario, we'd want to test error boundaries

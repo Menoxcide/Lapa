@@ -1,11 +1,14 @@
-import { HybridHandoffSystem } from '../../src/orchestrator/handoffs';
-import { Task } from '../../src/agents/moe-router';
-import { Agent } from '@openai/agents';
+import { describe, it, expect } from "vitest";
+import { Task } from '../../agents/moe-router.ts';
+import { HybridHandoffSystem } from '../../orchestrator/handoffs.ts';
+import { LangGraphOrchestrator } from '../../swarm/langgraph.orchestrator.ts';
+import { Agent as OpenAIAgent } from '@openai/agents';
+import { vi } from 'vitest';
 
 // Mock the OpenAI agents SDK
-jest.mock('@openai/agents', () => {
+vi.mock('@openai/agents', () => {
   return {
-    run: jest.fn()
+    run: vi.fn()
   };
 });
 
@@ -14,20 +17,22 @@ import { run } from '@openai/agents';
 
 describe('Hybrid Handoff System Integration', () => {
   let handoffSystem: HybridHandoffSystem;
-  let mockOpenAIAgent: Agent;
+  let orchestrator: LangGraphOrchestrator;
+  let mockOpenAIAgent: OpenAIAgent;
 
   beforeEach(() => {
     handoffSystem = new HybridHandoffSystem();
+    orchestrator = new LangGraphOrchestrator('start');
     mockOpenAIAgent = {
       id: 'openai-agent-1',
       name: 'Test OpenAI Agent',
       instructions: 'Test instructions',
       tools: [],
       model: 'gpt-4'
-    } as Agent;
+    } as unknown as OpenAIAgent;
     
     // Clear all mocks before each test
-    jest.clearAllMocks();
+    // All mocks are automatically cleared in vitest
   });
 
   describe('End-to-End Task Execution', () => {
@@ -53,15 +58,15 @@ describe('Hybrid Handoff System Integration', () => {
         }
       };
       
-      (run as jest.Mock)
-        .mockResolvedValueOnce(mockEvaluationResult)
+            (run as any)
+              .mockResolvedValueOnce(mockEvaluationResult)
         .mockResolvedValueOnce(mockExecutionResult);
       
       const task: Task = {
         id: 'complex-task-123',
         description: 'Advanced data processing task',
-        input: 'Process customer feedback dataset',
-        priority: 'high'
+        type: 'data-processing',
+        priority: 3 // high priority
       };
       
       const result = await handoffSystem.executeTaskWithHandoffs(task, {
@@ -100,13 +105,13 @@ describe('Hybrid Handoff System Integration', () => {
         }
       };
       
-      (run as jest.Mock).mockResolvedValueOnce(mockEvaluationResult);
+            (run as any).mockResolvedValueOnce(mockEvaluationResult);
       
       const task: Task = {
         id: 'simple-task-123',
         description: 'Routine data processing',
-        input: 'Update user profile information',
-        priority: 'low'
+        type: 'data-update',
+        priority: 1 // low priority
       };
       
       const result = await handoffSystem.executeTaskWithHandoffs(task, {
@@ -129,7 +134,7 @@ describe('Hybrid Handoff System Integration', () => {
       handoffSystem.registerOpenAIAgent(mockOpenAIAgent);
       
       // Mock multiple evaluations - first recommends handoff, second does not
-      (run as jest.Mock)
+      (run as any)
         .mockResolvedValueOnce({
           finalOutput: {
             shouldHandoff: true,
@@ -155,8 +160,8 @@ describe('Hybrid Handoff System Integration', () => {
       const task: Task = {
         id: 'multi-stage-task-123',
         description: 'Multi-stage processing with conditional handoffs',
-        input: 'Process research data with validation',
-        priority: 'medium'
+        type: 'multi-stage',
+        priority: 2 // medium priority
       };
       
       const result = await handoffSystem.executeTaskWithHandoffs(task, {
@@ -189,13 +194,13 @@ describe('Hybrid Handoff System Integration', () => {
         }
       };
       
-      (run as jest.Mock).mockResolvedValue(mockEvaluationResult);
+            (run as any).mockResolvedValue(mockEvaluationResult);
       
       const task: Task = {
         id: 'threshold-task-123',
         description: 'Task with confidence below threshold',
-        input: 'Standard processing request',
-        priority: 'medium'
+        type: 'standard-processing',
+        priority: 2 // medium priority
       };
       
       const result = await handoffSystem.executeTaskWithHandoffs(task, {
@@ -221,13 +226,13 @@ describe('Hybrid Handoff System Integration', () => {
         }
       };
       
-      (run as jest.Mock).mockResolvedValue(mockEvaluationResult);
+            (run as any).mockResolvedValue(mockEvaluationResult);
       
       const task: Task = {
         id: 'edge-case-task-123',
         description: 'Task with exact threshold confidence',
-        input: 'Boundary condition test',
-        priority: 'medium'
+        type: 'boundary-test',
+        priority: 2 // medium priority
       };
       
       const result = await handoffSystem.executeTaskWithHandoffs(task, {
@@ -245,7 +250,7 @@ describe('Hybrid Handoff System Integration', () => {
       handoffSystem.registerOpenAIAgent(mockOpenAIAgent);
       
       // Mock evaluation error, then successful execution
-      (run as jest.Mock)
+      (run as any)
         .mockRejectedValueOnce(new Error('OpenAI API timeout'))
         .mockResolvedValueOnce({
           finalOutput: {
@@ -257,8 +262,8 @@ describe('Hybrid Handoff System Integration', () => {
       const task: Task = {
         id: 'recovery-task-123',
         description: 'Task with evaluation error recovery',
-        input: 'Process with fallback strategy',
-        priority: 'high'
+        type: 'recovery',
+        priority: 3 // high priority
       };
       
       const result = await handoffSystem.executeTaskWithHandoffs(task, {
@@ -275,15 +280,15 @@ describe('Hybrid Handoff System Integration', () => {
       handoffSystem.registerOpenAIAgent(mockOpenAIAgent);
       
       // Mock consecutive errors
-      (run as jest.Mock)
+      (run as any)
         .mockRejectedValueOnce(new Error('Evaluation service unavailable'))
         .mockRejectedValueOnce(new Error('Execution service unavailable'));
       
       const task: Task = {
         id: 'error-task-123',
         description: 'Task with consecutive OpenAI errors',
-        input: 'Process with error handling',
-        priority: 'medium'
+        type: 'error-handling',
+        priority: 2 // medium priority
       };
       
       await expect(
@@ -302,8 +307,8 @@ describe('Hybrid Handoff System Integration', () => {
       
       // Mock the context handoff manager
       const mockContextHandoffManager = {
-        initiateHandoff: jest.fn(),
-        completeHandoff: jest.fn()
+        initiateHandoff: vi.fn(),
+        completeHandoff: vi.fn()
       };
       
       // Inject the mock
@@ -332,13 +337,13 @@ describe('Hybrid Handoff System Integration', () => {
         }
       };
       
-      (run as jest.Mock).mockResolvedValueOnce(mockEvaluationResult);
+            (run as any).mockResolvedValueOnce(mockEvaluationResult);
       
       const task: Task = {
         id: 'mixed-handoff-task-123',
         description: 'Task requiring mixed agent handoff',
-        input: 'Process with specialized LAPA capabilities',
-        priority: 'high'
+        type: 'mixed-handoff',
+        priority: 3 // high priority
       };
       
       const result = await handoffSystem.executeTaskWithHandoffs(task, {
@@ -361,8 +366,8 @@ describe('Hybrid Handoff System Integration', () => {
       const task: Task = {
         id: 'disabled-eval-task-123',
         description: 'Task with OpenAI evaluation disabled',
-        input: 'Process without OpenAI evaluation',
-        priority: 'medium'
+        type: 'disabled-eval',
+        priority: 2 // medium priority
       };
       
       const result = await handoffSystem.executeTaskWithHandoffs(task, {
@@ -396,13 +401,13 @@ describe('Hybrid Handoff System Integration', () => {
         }
       };
       
-      (run as jest.Mock).mockResolvedValue(mockEvaluationResult);
+            (run as any).mockResolvedValue(mockEvaluationResult);
       
       const task: Task = {
         id: 'depth-limited-task-123',
         description: 'Task with depth limitation',
-        input: 'Process with depth constraint',
-        priority: 'high'
+        type: 'depth-limited',
+        priority: 3 // high priority
       };
       
       const result = await handoffSystem.executeTaskWithHandoffs(task, {

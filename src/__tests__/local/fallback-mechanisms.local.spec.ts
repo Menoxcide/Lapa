@@ -1,25 +1,27 @@
-import { LocalHandoffSystem } from '../../src/orchestrator/handoffs.local';
-import { Task } from '../../src/agents/moe-router';
+import { describe, it, expect } from "vitest";
+import { LocalHandoffSystem } from '../../orchestrator/handoffs.local.ts';
+import { Task } from '../../agents/moe-router.ts';
+import { vi } from 'vitest';
 
 // Mock the local inference functions
-jest.mock('../../src/inference/ollama.local', () => {
+vi.mock('../../src/inference/ollama.local', () => {
   return {
-    sendOllamaChatRequest: jest.fn(),
-    sendOllamaInferenceRequest: jest.fn(),
-    isOllamaAvailable: jest.fn()
+    sendOllamaChatRequest: vi.fn(),
+    sendOllamaInferenceRequest: vi.fn(),
+    isOllamaAvailable: vi.fn()
   };
 });
 
-jest.mock('../../src/inference/nim.local', () => {
+vi.mock('../../src/inference/nim.local', () => {
   return {
-    sendNIMInferenceRequest: jest.fn(),
-    isNIMAvailable: jest.fn()
+    sendNIMInferenceRequest: vi.fn(),
+    isNIMAvailable: vi.fn()
   };
 });
 
 // Import the mocked functions
-import { sendOllamaChatRequest, isOllamaAvailable } from '../../src/inference/ollama.local';
-import { sendNIMInferenceRequest, isNIMAvailable } from '../../src/inference/nim.local';
+import { sendOllamaChatRequest, isOllamaAvailable } from '../../inference/ollama.local.ts';
+import { sendNIMInferenceRequest, isNIMAvailable } from '../../inference/nim.local.ts';
 
 describe('Fallback Mechanisms Tests', () => {
   let handoffSystem: LocalHandoffSystem;
@@ -43,7 +45,7 @@ describe('Fallback Mechanisms Tests', () => {
     };
     
     // Clear all mocks before each test
-    jest.clearAllMocks();
+    // All mocks are automatically cleared in vitest
   });
 
   describe('Ollama to NIM Fallback', () => {
@@ -51,17 +53,17 @@ describe('Fallback Mechanisms Tests', () => {
       handoffSystem.registerLocalAgent(mockOllamaAgent);
       
       // Mock Ollama as unavailable initially, then NIM as available
-      (isOllamaAvailable as jest.Mock)
+      (isOllamaAvailable as any)
         .mockResolvedValueOnce(false)  // First check - Ollama unavailable
         .mockResolvedValueOnce(true);   // Second check - Ollama available
       
-      (isNIMAvailable as jest.Mock).mockResolvedValue(true);
+            (isNIMAvailable as any).mockResolvedValue(true);
       
       // Mock NIM response
-      (sendNIMInferenceRequest as jest.Mock).mockResolvedValue('Task completed with NIM fallback');
+      (sendNIMInferenceRequest as any).mockResolvedValue('Task completed with NIM fallback');
       
       // Mock Ollama failure then success (for retry)
-      (sendOllamaChatRequest as jest.Mock)
+      (sendOllamaChatRequest as any)
         .mockRejectedValueOnce(new Error('Ollama temporarily unavailable'))
         .mockResolvedValueOnce('Task completed after Ollama recovery');
       
@@ -82,17 +84,17 @@ describe('Fallback Mechanisms Tests', () => {
       handoffSystem.registerLocalAgent(mockNIMAgent);
       
       // Mock NIM as unavailable initially, then Ollama as available
-      (isNIMAvailable as jest.Mock)
+      (isNIMAvailable as any)
         .mockResolvedValueOnce(false)  // First check - NIM unavailable
         .mockResolvedValueOnce(true);   // Second check - NIM available
       
-      (isOllamaAvailable as jest.Mock).mockResolvedValue(true);
+            (isOllamaAvailable as any).mockResolvedValue(true);
       
       // Mock Ollama response
-      (sendOllamaChatRequest as jest.Mock).mockResolvedValue('Task completed with Ollama fallback');
+      (sendOllamaChatRequest as any).mockResolvedValue('Task completed with Ollama fallback');
       
       // Mock NIM failure then success (for retry)
-      (sendNIMInferenceRequest as jest.Mock)
+      (sendNIMInferenceRequest as any)
         .mockRejectedValueOnce(new Error('NIM temporarily unavailable'))
         .mockResolvedValueOnce('Task completed after NIM recovery');
       
@@ -115,17 +117,17 @@ describe('Fallback Mechanisms Tests', () => {
       handoffSystem.registerLocalAgent(mockOllamaAgent);
       
       // Mock both providers as temporarily unavailable, then available
-      (isOllamaAvailable as jest.Mock).mockResolvedValue(true);
-      (isNIMAvailable as jest.Mock).mockResolvedValue(true);
+      (isOllamaAvailable as any).mockResolvedValue(true);
+      (isNIMAvailable as any).mockResolvedValue(true);
       
       // Mock failures on first attempts, success on retry
-      (sendOllamaChatRequest as jest.Mock)
+      (sendOllamaChatRequest as any)
         .mockRejectedValueOnce(new Error('Ollama connection error'))
         .mockRejectedValueOnce(new Error('Ollama timeout'))
         .mockResolvedValueOnce('Task completed after multiple fallbacks');
       
-      (sendNIMInferenceRequest as jest.Mock)
-        .mockRejectedValueOnce(new Error('NIM model loading'))
+            (sendNIMInferenceRequest as any)
+              .mockRejectedValueOnce(new Error('NIM model loading'))
         .mockResolvedValueOnce('Task completed with NIM on second attempt');
       
       const result = await (handoffSystem as any).handoffToLocalAgent(
@@ -146,12 +148,12 @@ describe('Fallback Mechanisms Tests', () => {
       handoffSystem.registerLocalAgent(mockOllamaAgent);
       
       // Mock both providers as unavailable
-      (isOllamaAvailable as jest.Mock).mockResolvedValue(false);
-      (isNIMAvailable as jest.Mock).mockResolvedValue(false);
+      (isOllamaAvailable as any).mockResolvedValue(false);
+      (isNIMAvailable as any).mockResolvedValue(false);
       
       // Mock all attempts to fail
-      (sendOllamaChatRequest as jest.Mock).mockRejectedValue(new Error('All Ollama attempts failed'));
-      (sendNIMInferenceRequest as jest.Mock).mockRejectedValue(new Error('All NIM attempts failed'));
+      (sendOllamaChatRequest as any).mockRejectedValue(new Error('All Ollama attempts failed'));
+      (sendNIMInferenceRequest as any).mockRejectedValue(new Error('All NIM attempts failed'));
       
       await expect((handoffSystem as any).handoffToLocalAgent(
         mockOllamaAgent,
@@ -198,14 +200,14 @@ describe('Fallback Mechanisms Tests', () => {
       handoffSystem.registerLocalAgent(mockOllamaAgent);
       
       // Mock Ollama as unavailable and NIM as available
-      (isOllamaAvailable as jest.Mock).mockResolvedValue(false);
-      (isNIMAvailable as jest.Mock).mockResolvedValue(true);
+      (isOllamaAvailable as any).mockResolvedValue(false);
+      (isNIMAvailable as any).mockResolvedValue(true);
       
       // Mock NIM response
-      (sendNIMInferenceRequest as jest.Mock).mockResolvedValue('Task completed with fallback');
+      (sendNIMInferenceRequest as any).mockResolvedValue('Task completed with fallback');
       
       // Spy on console.warn
-      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       
       await (handoffSystem as any).handoffToLocalAgent(
         mockOllamaAgent,
@@ -221,4 +223,4 @@ describe('Fallback Mechanisms Tests', () => {
       consoleWarnSpy.mockRestore();
     }, 10000);
   });
-});
+});

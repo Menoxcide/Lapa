@@ -5,9 +5,9 @@
  * with OpenAI Agent intelligent decision-making for task delegation between agents.
  */
 
-import { LangGraphOrchestrator, GraphNode, GraphEdge, WorkflowState, OrchestrationResult } from '../swarm/langgraph.orchestrator';
-import { ContextHandoffManager, ContextHandoffRequest } from '../swarm/context.handoff';
-import { Agent, Task, moeRouter } from '../agents/moe-router';
+import { LangGraphOrchestrator, GraphNode, GraphEdge, WorkflowState, OrchestrationResult } from '../swarm/langgraph.orchestrator.ts';
+import { ContextHandoffManager, ContextHandoffRequest } from '../swarm/context.handoff.ts';
+import { Agent, Task, moeRouter } from '../agents/moe-router.ts';
 import { Agent as OpenAIAgent, run } from '@openai/agents';
 import { performance } from 'perf_hooks';
 

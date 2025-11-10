@@ -1,5 +1,6 @@
-import { SwarmDelegate, delegateTask } from '../../swarm/delegate';
-import { Task } from '../../agents/moe-router';
+import { describe, it, expect } from "vitest";
+import { SwarmDelegate, delegateTask } from '../../swarm/delegate.ts';
+import { Task } from '../../agents/moe-router.ts';
 
 // Mock the local inference functions
 jest.mock('../../inference/ollama.local', () => {
@@ -18,8 +19,8 @@ jest.mock('../../inference/nim.local', () => {
 });
 
 // Import the mocked functions
-import { sendOllamaChatRequest, isOllamaAvailable } from '../../inference/ollama.local';
-import { sendNIMInferenceRequest, isNIMAvailable } from '../../inference/nim.local';
+import { sendOllamaChatRequest, isOllamaAvailable } from '../../inference/ollama.local.ts';
+import { sendNIMInferenceRequest, isNIMAvailable } from '../../inference/nim.local.ts';
 
 describe('Swarm Delegate Local Integration', () => {
   let swarmDelegate: SwarmDelegate;

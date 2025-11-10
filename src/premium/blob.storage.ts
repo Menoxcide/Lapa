@@ -1,14 +1,12 @@
 /**
  * Vercel Blob Storage Integration for LAPA Premium
- * 
+ *
  * This module provides integration with Vercel Blob storage for storing
  * and retrieving files in a scalable cloud storage solution.
  */
 
 // Import necessary modules
 import { put, del, list, head } from '@vercel/blob';
-import { createReadStream } from 'fs';
-import { pipeline } from 'stream/promises';
 import { LRUCache } from 'lru-cache';
 
 /**
@@ -39,43 +37,26 @@ export class VercelBlobStorage {
      * @param options Upload options
      * @returns Uploaded blob information
      */
-    /**
-     * Uploads a file to Vercel Blob storage with streaming support
-     * @param filename Name of the file
-     * @param data File data as Buffer, string, or ReadableStream
-     * @param options Upload options
-     * @returns Uploaded blob information
-     */
     async uploadFile(
         filename: string,
-        data: Buffer | string | NodeJS.ReadableStream,
+        data: Buffer | string,
         options?: {
             contentType?: string;
             cacheControlMaxAge?: number;
             addRandomSuffix?: boolean;
             access?: 'public' | 'private';
-            onProgress?: (progress: number) => void;
         }
     ): Promise<any> {
         try {
-            // Handle streaming uploads
-            if (typeof data === 'object' && data !== null && 'pipe' in data) {
-                // For streaming uploads, we need to buffer the data first
-                // In a more advanced implementation, we could use a multipart upload
-                const chunks: Buffer[] = [];
-                for await (const chunk of data) {
-                    chunks.push(chunk);
-                }
-                data = Buffer.concat(chunks);
-            }
-            
-            const blob = await put(filename, data, {
+            // Prepare options for the put command
+            const putOptions: any = {
                 contentType: options?.contentType,
                 cacheControlMaxAge: options?.cacheControlMaxAge,
                 addRandomSuffix: options?.addRandomSuffix ?? true,
-                access: options?.access || 'public',
-            });
+                access: options?.access as any || 'public',
+            };
             
+            const blob = await put(filename, data, putOptions);
             return blob;
         } catch (error) {
             console.error('Failed to upload file to Vercel Blob storage:', error);
@@ -86,11 +67,6 @@ export class VercelBlobStorage {
     /**
      * Downloads a file from Vercel Blob storage
      * @param url URL of the blob to download
-     * @returns File content as Buffer
-     */
-    /**
-     * Downloads a file from Vercel Blob storage with streaming support
-     * @param url URL of the blob to download
      * @param options Download options
      * @returns File content as Buffer or ReadableStream
      */
@@ -98,9 +74,8 @@ export class VercelBlobStorage {
         url: string,
         options?: {
             stream?: boolean;
-            onProgress?: (loaded: number, total: number) => void;
         }
-    ): Promise<Buffer | NodeJS.ReadableStream> {
+    ): Promise<Buffer | ReadableStream> {
         try {
             const response = await fetch(url);
             
@@ -110,7 +85,8 @@ export class VercelBlobStorage {
             
             // Return stream if requested
             if (options?.stream) {
-                return response.body as NodeJS.ReadableStream;
+                // Convert to unknown first to avoid TypeScript error, then cast to ReadableStream
+                return response.body as unknown as ReadableStream;
             }
             
             // Return buffer by default
@@ -137,31 +113,23 @@ export class VercelBlobStorage {
     }
     
     /**
-     * Lists files in Vercel Blob storage
-     * @param options Listing options
-     * @returns List of blobs
-     */
-    /**
      * Lists files in Vercel Blob storage with pagination
-     * @param options Listing options
-     * @returns List of blobs with pagination info
-     */
-    /**
-     * Lists files in Vercel Blob storage with pagination and LRU eviction
      * @param options Listing options
      * @returns List of blobs with pagination info
      */
     async listFiles(options?: {
         prefix?: string;
         limit?: number;
-        after?: string;
-    }): Promise<{ blobs: any[]; hasMore: boolean; nextAfter?: string }> {
+        cursor?: string;
+    }): Promise<{ blobs: any[]; hasMore: boolean; cursor?: string }> {
         try {
-            const result = await list({
+            const listOptions: any = {
                 prefix: options?.prefix,
                 limit: options?.limit,
-                after: options?.after,
-            });
+                cursor: options?.cursor,
+            };
+            
+            const result: any = await list(listOptions);
             
             // Update LRU cache with accessed blobs
             for (const blob of result.blobs) {
@@ -171,7 +139,7 @@ export class VercelBlobStorage {
             return {
                 blobs: result.blobs,
                 hasMore: result.hasMore,
-                nextAfter: result.nextAfter,
+                cursor: result.cursor,
             };
         } catch (error) {
             console.error('Failed to list files in Vercel Blob storage:', error);
@@ -186,7 +154,7 @@ export class VercelBlobStorage {
      */
     async getFileMetadata(url: string): Promise<any> {
         try {
-            const metadata = await head(url);
+            const metadata: any = await head(url);
             return metadata;
         } catch (error) {
             console.error('Failed to get file metadata from Vercel Blob storage:', error);

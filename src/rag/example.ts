@@ -5,8 +5,8 @@
  * for PDF and video processing.
  */
 
-import { RAGPipeline } from './pipeline';
-import { AIQResearchAssistant } from './ai-q';
+import { RAGPipeline } from './pipeline.ts';
+import { AIQResearchAssistant } from './ai-q/index.ts';
 
 async function example() {
   // Create RAG pipeline with default configuration

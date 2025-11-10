@@ -1,8 +1,9 @@
-import { MoERouter, Agent, Task } from '../../src/agents/moe-router';
-import { RayParallelExecutor } from '../../src/agents/ray-parallel';
-import { ConsensusVotingSystem, VoteOption } from '../../src/swarm/consensus.voting';
-import { ContextHandoffManager } from '../../src/swarm/context.handoff';
-import { LangGraphOrchestrator, GraphNode, GraphEdge } from '../../src/swarm/langgraph.orchestrator';
+import { describe, it, expect } from "vitest";
+import { MoERouter, Agent, Task } from '../../agents/moe-router.ts';
+import { RayParallelExecutor } from '../../agents/ray-parallel.ts';
+import { ConsensusVotingSystem, VoteOption } from '../../swarm/consensus.voting.ts';
+import { ContextHandoffManager } from '../../swarm/context.handoff.ts';
+import { LangGraphOrchestrator, GraphNode, GraphEdge } from '../../swarm/langgraph.orchestrator.ts';
 
 describe('Swarm Workflow Integration', () => {
   let moeRouter: MoERouter;

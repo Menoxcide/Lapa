@@ -1,9 +1,11 @@
-import React from 'react';
+import { describe, it, expect } from "vitest";
 import { render, screen } from '@testing-library/react';
-import Root from '../../src/ui/Root';
+import { vi } from 'vitest';
+import Root from '../../ui/Root.tsx';
+import '@testing-library/jest-dom';
 
 // Mock the Dashboard component to isolate Root tests
-jest.mock('../../src/ui/Dashboard', () => {
+vi.mock('../../src/ui/Dashboard', () => {
   return function MockDashboard() {
     return <div data-testid="dashboard">Mock Dashboard Component</div>;
   };

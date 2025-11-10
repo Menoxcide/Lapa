@@ -1,8 +1,8 @@
+import { describe, it, expect } from "vitest";
 // Simple test to verify local handoff functionality
 
 // Use the dist-local directory for imports
-import { LocalHandoffSystem } from '../../../dist-local/orchestrator/handoffs.local';
-import { Task } from '../../../dist-local/agents/moe-router';
+import { LocalHandoffSystem } from '../../orchestrator/handoffs.local.ts';
 
 describe('Simple Local Handoff Test', () => {
   it('should create LocalHandoffSystem instance', () => {

@@ -1,4 +1,5 @@
-import { MoERouter, Agent, Task } from '../../src/agents/moe-router';
+import { describe, it, expect } from "vitest";
+import { MoERouter, Agent, Task } from '../../agents/moe-router.ts';
 
 describe('MoERouter', () => {
   let router: MoERouter;

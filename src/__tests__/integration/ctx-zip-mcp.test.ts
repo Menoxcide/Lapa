@@ -1,3 +1,4 @@
+import { describe, it, expect } from "vitest";
 import {
   compressContext,
   decompressContext,
@@ -8,8 +9,8 @@ import {
   recordCompressionFeedback,
   analyzeCompressionEffectiveness,
   CtxZipFeedbackController
-} from '../../src/mcp/ctx-zip.integration';
-import { ContextHandoffManager } from '../../src/swarm/context.handoff';
+} from '../../mcp/ctx-zip.integration.ts';
+import { ContextHandoffManager } from '../../swarm/context.handoff.ts';
 
 describe('ctx-zip and MCP Integration', () => {
   describe('Context Compression in Handoff Workflow', () => {

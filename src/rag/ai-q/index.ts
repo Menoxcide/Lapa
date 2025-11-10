@@ -5,8 +5,8 @@
  * for processing PDF and video documents.
  */
 
-import { RAGPipeline, ProcessedDocument } from '../pipeline';
-import { RAGConfig } from '../config';
+import { RAGPipeline, ProcessedDocument } from '../pipeline.ts';
+import { RAGConfig } from '../config.ts';
 
 export interface ResearchQuery {
   /**

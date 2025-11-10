@@ -1,10 +1,13 @@
-import { HybridHandoffSystem } from '../../src/orchestrator/handoffs';
-import { Agent } from '@openai/agents';
+import { describe, it, expect } from "vitest";
+import { HybridHandoffSystem } from '../../orchestrator/handoffs.ts';
+import { LangGraphOrchestrator } from '../../swarm/langgraph.orchestrator.js';
+import { Agent as OpenAIAgent } from '@openai/agents';
+import { vi } from 'vitest';
 
 // Mock the OpenAI agents SDK
-jest.mock('@openai/agents', () => {
+vi.mock('@openai/agents', () => {
   return {
-    run: jest.fn()
+    run: vi.fn()
   };
 });
 
@@ -13,28 +16,30 @@ import { run } from '@openai/agents';
 
 describe('OpenAI Handoff Lifecycle Hooks', () => {
   let handoffSystem: HybridHandoffSystem;
-  let mockOpenAIAgent: Agent;
+  let orchestrator: LangGraphOrchestrator;
+  let mockOpenAIAgent: OpenAIAgent;
 
   beforeEach(() => {
     handoffSystem = new HybridHandoffSystem();
+    orchestrator = new LangGraphOrchestrator('start');
     mockOpenAIAgent = {
       id: 'openai-agent-1',
       name: 'Test OpenAI Agent',
       instructions: 'Test instructions',
       tools: [],
       model: 'gpt-4'
-    } as Agent;
+    } as unknown as OpenAIAgent;
     
     // Clear all mocks before each test
-    jest.clearAllMocks();
+    // All mocks are automatically cleared in vitest
   });
 
   describe('Hook Registration and Execution', () => {
     it('should execute onHandoffStart hook when OpenAI handoff begins', async () => {
       const hooks = {
-        onHandoffStart: jest.fn(),
-        onHandoffComplete: jest.fn(),
-        onHandoffError: jest.fn()
+        onHandoffStart: vi.fn(),
+        onHandoffComplete: vi.fn(),
+        onHandoffError: vi.fn()
       };
       
       handoffSystem = new HybridHandoffSystem({}, hooks);
@@ -44,7 +49,7 @@ describe('OpenAI Handoff Lifecycle Hooks', () => {
         finalOutput: { result: 'Task completed' }
       };
       
-      (run as jest.Mock).mockResolvedValue(mockRunResult);
+            (run as any).mockResolvedValue(mockRunResult);
       
       await (handoffSystem as any).initiateHandoff(
         'source-agent-123',
@@ -73,9 +78,9 @@ describe('OpenAI Handoff Lifecycle Hooks', () => {
 
     it('should execute onHandoffComplete hook with accurate timing information', async () => {
       const hooks = {
-        onHandoffStart: jest.fn(),
-        onHandoffComplete: jest.fn(),
-        onHandoffError: jest.fn()
+        onHandoffStart: vi.fn(),
+        onHandoffComplete: vi.fn(),
+        onHandoffError: vi.fn()
       };
       
       handoffSystem = new HybridHandoffSystem({}, hooks);
@@ -85,8 +90,8 @@ describe('OpenAI Handoff Lifecycle Hooks', () => {
         finalOutput: { result: 'Task completed' }
       };
       
-      (run as jest.Mock).mockImplementation(async () => {
-        // Simulate processing time
+            (run as any).mockImplementation(async () => {
+              // Simulate processing time
         await new Promise(resolve => setTimeout(resolve, 100));
         return mockRunResult;
       });
@@ -113,16 +118,16 @@ describe('OpenAI Handoff Lifecycle Hooks', () => {
 
     it('should execute onHandoffError hook when OpenAI handoff fails', async () => {
       const hooks = {
-        onHandoffStart: jest.fn(),
-        onHandoffComplete: jest.fn(),
-        onHandoffError: jest.fn()
+        onHandoffStart: vi.fn(),
+        onHandoffComplete: vi.fn(),
+        onHandoffError: vi.fn()
       };
       
       handoffSystem = new HybridHandoffSystem({}, hooks);
       handoffSystem.registerOpenAIAgent(mockOpenAIAgent);
       
       const errorMessage = 'OpenAI API authentication failed';
-      (run as jest.Mock).mockRejectedValue(new Error(errorMessage));
+      (run as any).mockRejectedValue(new Error(errorMessage));
       
       await expect(
         (handoffSystem as any).initiateHandoff(
@@ -148,7 +153,7 @@ describe('OpenAI Handoff Lifecycle Hooks', () => {
         expect.any(Error)
       );
       
-      const errorArg = (hooks.onHandoffError as jest.Mock).mock.calls[0][3];
+            const errorArg = (hooks.onHandoffError as any).mock.calls[0][3];
       expect(errorArg.message).toBe(`Failed to handoff to OpenAI agent: ${errorMessage}`);
       
       // Complete hook should not be called
@@ -159,24 +164,24 @@ describe('OpenAI Handoff Lifecycle Hooks', () => {
   describe('Hook Error Handling', () => {
     it('should continue OpenAI handoff execution even if onHandoffStart hook throws', async () => {
       const hooks = {
-        onHandoffStart: jest.fn(() => {
+        onHandoffStart: vi.fn(() => {
           throw new Error('Hook start error');
         }),
-        onHandoffComplete: jest.fn(),
-        onHandoffError: jest.fn()
+        onHandoffComplete: vi.fn(),
+        onHandoffError: vi.fn()
       };
       
       handoffSystem = new HybridHandoffSystem({}, hooks);
       handoffSystem.registerOpenAIAgent(mockOpenAIAgent);
       
       // Spy on console.error to verify hook error is logged
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       
       const mockRunResult = {
         finalOutput: { result: 'Task completed despite hook error' }
       };
       
-      (run as jest.Mock).mockResolvedValue(mockRunResult);
+            (run as any).mockResolvedValue(mockRunResult);
       
       const result = await (handoffSystem as any).initiateHandoff(
         'source-agent-123',
@@ -216,24 +221,24 @@ describe('OpenAI Handoff Lifecycle Hooks', () => {
 
     it('should continue OpenAI handoff execution even if onHandoffComplete hook throws', async () => {
       const hooks = {
-        onHandoffStart: jest.fn(),
-        onHandoffComplete: jest.fn(() => {
+        onHandoffStart: vi.fn(),
+        onHandoffComplete: vi.fn(() => {
           throw new Error('Hook complete error');
         }),
-        onHandoffError: jest.fn()
+        onHandoffError: vi.fn()
       };
       
       handoffSystem = new HybridHandoffSystem({}, hooks);
       handoffSystem.registerOpenAIAgent(mockOpenAIAgent);
       
       // Spy on console.error to verify hook error is logged
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       
       const mockRunResult = {
         finalOutput: { result: 'Task completed despite complete hook error' }
       };
       
-      (run as jest.Mock).mockResolvedValue(mockRunResult);
+            (run as any).mockResolvedValue(mockRunResult);
       
       const result = await (handoffSystem as any).initiateHandoff(
         'source-agent-123',
@@ -273,9 +278,9 @@ describe('OpenAI Handoff Lifecycle Hooks', () => {
 
     it('should handle errors in onHandoffError hook without affecting error reporting', async () => {
       const hooks = {
-        onHandoffStart: jest.fn(),
-        onHandoffComplete: jest.fn(),
-        onHandoffError: jest.fn(() => {
+        onHandoffStart: vi.fn(),
+        onHandoffComplete: vi.fn(),
+        onHandoffError: vi.fn(() => {
           throw new Error('Hook error handler error');
         })
       };
@@ -284,10 +289,10 @@ describe('OpenAI Handoff Lifecycle Hooks', () => {
       handoffSystem.registerOpenAIAgent(mockOpenAIAgent);
       
       // Spy on console.error to verify hook error is logged
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       
       const errorMessage = 'OpenAI service unavailable';
-      (run as jest.Mock).mockRejectedValue(new Error(errorMessage));
+      (run as any).mockRejectedValue(new Error(errorMessage));
       
       await expect(
         (handoffSystem as any).initiateHandoff(
@@ -331,13 +336,13 @@ describe('OpenAI Handoff Lifecycle Hooks', () => {
       const executionOrder: string[] = [];
       
       const hooks = {
-        onHandoffStart: jest.fn(() => {
+        onHandoffStart: vi.fn(() => {
           executionOrder.push('start');
         }),
-        onHandoffComplete: jest.fn(() => {
+        onHandoffComplete: vi.fn(() => {
           executionOrder.push('complete');
         }),
-        onHandoffError: jest.fn(() => {
+        onHandoffError: vi.fn(() => {
           executionOrder.push('error');
         })
       };
@@ -349,7 +354,7 @@ describe('OpenAI Handoff Lifecycle Hooks', () => {
         finalOutput: { result: 'Task completed' }
       };
       
-      (run as jest.Mock).mockResolvedValue(mockRunResult);
+            (run as any).mockResolvedValue(mockRunResult);
       
       await (handoffSystem as any).initiateHandoff(
         'source-agent-123',
@@ -366,13 +371,13 @@ describe('OpenAI Handoff Lifecycle Hooks', () => {
       const executionOrder: string[] = [];
       
       const hooks = {
-        onHandoffStart: jest.fn(() => {
+        onHandoffStart: vi.fn(() => {
           executionOrder.push('start');
         }),
-        onHandoffComplete: jest.fn(() => {
+        onHandoffComplete: vi.fn(() => {
           executionOrder.push('complete');
         }),
-        onHandoffError: jest.fn(() => {
+        onHandoffError: vi.fn(() => {
           executionOrder.push('error');
         })
       };
@@ -380,7 +385,7 @@ describe('OpenAI Handoff Lifecycle Hooks', () => {
       handoffSystem = new HybridHandoffSystem({}, hooks);
       handoffSystem.registerOpenAIAgent(mockOpenAIAgent);
       
-      (run as jest.Mock).mockRejectedValue(new Error('OpenAI API error'));
+            (run as any).mockRejectedValue(new Error('OpenAI API error'));
       
       await expect(
         (handoffSystem as any).initiateHandoff(
@@ -397,9 +402,9 @@ describe('OpenAI Handoff Lifecycle Hooks', () => {
 
     it('should execute hooks with correct parameters for complex handoff scenarios', async () => {
       const hooks = {
-        onHandoffStart: jest.fn(),
-        onHandoffComplete: jest.fn(),
-        onHandoffError: jest.fn()
+        onHandoffStart: vi.fn(),
+        onHandoffComplete: vi.fn(),
+        onHandoffError: vi.fn()
       };
       
       handoffSystem = new HybridHandoffSystem({}, hooks);
@@ -416,7 +421,7 @@ describe('OpenAI Handoff Lifecycle Hooks', () => {
         }
       };
       
-      (run as jest.Mock).mockResolvedValue(mockRunResult);
+            (run as any).mockResolvedValue(mockRunResult);
       
       const complexContext = {
         userData: { id: 'user-456', preferences: { theme: 'dark' } },
@@ -461,9 +466,9 @@ describe('OpenAI Handoff Lifecycle Hooks', () => {
   describe('Hook Integration with Retry Logic', () => {
     it('should execute hooks appropriately during OpenAI handoff retries', async () => {
       const hooks = {
-        onHandoffStart: jest.fn(),
-        onHandoffComplete: jest.fn(),
-        onHandoffError: jest.fn()
+        onHandoffStart: vi.fn(),
+        onHandoffComplete: vi.fn(),
+        onHandoffError: vi.fn()
       };
       
       handoffSystem = new HybridHandoffSystem({}, hooks);
@@ -477,7 +482,7 @@ describe('OpenAI Handoff Lifecycle Hooks', () => {
       };
       
       // Fail twice, then succeed
-      (run as jest.Mock)
+      (run as any)
         .mockRejectedValueOnce(new Error('First attempt failed'))
         .mockRejectedValueOnce(new Error('Second attempt failed'))
         .mockResolvedValueOnce({
@@ -518,9 +523,9 @@ describe('OpenAI Handoff Lifecycle Hooks', () => {
       const errorHookCalls: any[] = [];
       
       const hooks = {
-        onHandoffStart: jest.fn(),
-        onHandoffComplete: jest.fn(),
-        onHandoffError: jest.fn((source, target, taskId, error) => {
+        onHandoffStart: vi.fn(),
+        onHandoffComplete: vi.fn(),
+        onHandoffError: vi.fn((source, target, taskId, error) => {
           errorHookCalls.push({ source, target, taskId, error: error.message });
         })
       };
@@ -536,7 +541,7 @@ describe('OpenAI Handoff Lifecycle Hooks', () => {
       };
       
       // Fail all attempts
-      (run as jest.Mock)
+      (run as any)
         .mockRejectedValueOnce(new Error('Attempt 1: Network error'))
         .mockRejectedValueOnce(new Error('Attempt 2: Timeout'))
         .mockRejectedValueOnce(new Error('Attempt 3: Service unavailable'));

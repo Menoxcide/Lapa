@@ -1,28 +1,32 @@
-import React from 'react';
+import { describe, it, expect } from "vitest";
 import { render, screen, fireEvent } from '@testing-library/react';
-import SpeechBubbles from '../../../src/ui/components/SpeechBubbles';
+import { vi } from 'vitest';
+import SpeechBubbles from '../../../ui/components/SpeechBubbles.tsx';
 
 describe('SpeechBubbles', () => {
   const mockMessages = [
     {
       id: 'msg-1',
       agentId: 'agent-1',
+      agentName: 'Analysis Agent',
       content: 'Hello, I am starting the task analysis.',
-      type: 'info' as const,
+      type: 'thought' as const,
       timestamp: new Date(Date.now() - 30000) // 30 seconds ago
     },
     {
       id: 'msg-2',
       agentId: 'agent-2',
+      agentName: 'Security Agent',
       content: 'I found a potential bug in the authentication module.',
-      type: 'warning' as const,
+      type: 'action' as const,
       timestamp: new Date(Date.now() - 15000) // 15 seconds ago
     },
     {
       id: 'msg-3',
       agentId: 'agent-3',
+      agentName: 'Completion Agent',
       content: 'Task completed successfully!',
-      type: 'success' as const,
+      type: 'result' as const,
       timestamp: new Date(Date.now() - 5000) // 5 seconds ago
     }
   ];
@@ -54,7 +58,7 @@ describe('SpeechBubbles', () => {
     render(<SpeechBubbles messages={[]} />);
     
     // Should render container but no messages
-    expect(screen.getByText('Agent Communications')).toBeInTheDocument();
+    expect(screen.getByText('Agent Conversations')).toBeInTheDocument();
     
     // No message content should be present
     expect(screen.queryByText('Hello')).not.toBeInTheDocument();
@@ -70,7 +74,7 @@ describe('SpeechBubbles', () => {
   });
 
   it('should call onMessageClick when message is clicked', () => {
-    const mockOnClick = jest.fn();
+    const mockOnClick = vi.fn();
     render(<SpeechBubbles messages={[mockMessages[0]]} onMessageClick={mockOnClick} />);
     
     const messageBubble = screen.getByText('Hello, I am starting the task analysis.');
@@ -92,7 +96,7 @@ describe('SpeechBubbles', () => {
   it('should apply correct CSS classes', () => {
     render(<SpeechBubbles messages={mockMessages} />);
     
-    const container = screen.getByText('Agent Communications').closest('.speech-bubbles-container');
+    const container = screen.getByText('Agent Conversations').closest('.speech-bubbles-container');
     expect(container).toBeInTheDocument();
     
     // Check message bubbles have appropriate classes
@@ -105,15 +109,17 @@ describe('SpeechBubbles', () => {
       {
         id: 'special-msg-1',
         agentId: 'agent-special',
+        agentName: 'Special Characters Agent',
         content: 'Message with "quotes" and <script>alert("xss")</script>',
-        type: 'info' as const,
+        type: 'thought' as const,
         timestamp: new Date()
       },
       {
         id: 'special-msg-2',
         agentId: 'agent-unicode',
+        agentName: 'Unicode Agent',
         content: 'Unicode message: ¡Hola! 🚀🌟',
-        type: 'success' as const,
+        type: 'result' as const,
         timestamp: new Date()
       }
     ];
@@ -129,8 +135,9 @@ describe('SpeechBubbles', () => {
     const longMessage = {
       id: 'long-msg',
       agentId: 'agent-long',
+      agentName: 'Long Message Agent',
       content: 'This is a very long message that contains a lot of content which should be properly displayed in the speech bubble component without any truncation issues.'.repeat(3),
-      type: 'info' as const,
+      type: 'thought' as const,
       timestamp: new Date()
     };
     
@@ -145,29 +152,33 @@ describe('SpeechBubbles', () => {
       {
         id: 'error-msg',
         agentId: 'agent-error',
+        agentName: 'Error Agent',
         content: 'This is an error message',
-        type: 'error' as const,
+        type: 'thought' as const,
         timestamp: new Date()
       },
       {
         id: 'info-msg',
         agentId: 'agent-info',
+        agentName: 'Info Agent',
         content: 'This is an info message',
-        type: 'info' as const,
+        type: 'thought' as const,
         timestamp: new Date()
       },
       {
         id: 'warning-msg',
         agentId: 'agent-warning',
+        agentName: 'Warning Agent',
         content: 'This is a warning message',
-        type: 'warning' as const,
+        type: 'action' as const,
         timestamp: new Date()
       },
       {
         id: 'success-msg',
         agentId: 'agent-success',
+        agentName: 'Success Agent',
         content: 'This is a success message',
-        type: 'success' as const,
+        type: 'result' as const,
         timestamp: new Date()
       }
     ];
@@ -207,15 +218,17 @@ describe('SpeechBubbles', () => {
       {
         id: 'msg-1',
         agentId: 'agent-1',
+        agentName: 'Agent 1',
         content: 'First message from agent 1',
-        type: 'info' as const,
+        type: 'thought' as const,
         timestamp: new Date(Date.now() - 10000)
       },
       {
         id: 'msg-2',
         agentId: 'agent-1',
+        agentName: 'Agent 1',
         content: 'Second message from agent 1',
-        type: 'info' as const,
+        type: 'thought' as const,
         timestamp: new Date(Date.now() - 5000)
       }
     ];
@@ -230,7 +243,7 @@ describe('SpeechBubbles', () => {
     const { rerender } = render(<SpeechBubbles messages={[]} />);
     
     // Initial empty state
-    expect(screen.getByText('Agent Communications')).toBeInTheDocument();
+    expect(screen.getByText('Agent Conversations')).toBeInTheDocument();
     
     // Update with messages
     rerender(<SpeechBubbles messages={[mockMessages[0]]} />);

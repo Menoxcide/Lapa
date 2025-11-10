@@ -1,8 +1,9 @@
-import { MoERouter, Agent, Task } from '../../src/agents/moe-router';
-import { RayParallelExecutor } from '../../src/agents/ray-parallel';
-import { ConsensusVotingSystem } from '../../src/swarm/consensus.voting';
-import { ContextHandoffManager } from '../../src/swarm/context.handoff';
-import { LangGraphOrchestrator } from '../../src/swarm/langgraph.orchestrator';
+import { describe, it, expect } from "vitest";
+import { MoERouter, Agent, Task } from '../../agents/moe-router.ts';
+import { RayParallelExecutor } from '../../agents/ray-parallel.ts';
+import { ConsensusVotingSystem } from '../../swarm/consensus.voting.ts';
+import { ContextHandoffManager } from '../../swarm/context.handoff.ts';
+import { LangGraphOrchestrator } from '../../swarm/langgraph.orchestrator.ts';
 
 describe('Swarm Orchestration Stress Tests', () => {
   describe('MoE Router Stress Tests', () => {
@@ -29,7 +30,7 @@ describe('Swarm Orchestration Stress Tests', () => {
       
       // Create extreme number of tasks
       const taskCount = 50000;
-      const tasks: Task[] = [];
+      const tasks: any[] = [];
       for (let i = 0; i < taskCount; i++) {
         tasks.push({
           id: `extreme-task-${i}`,
@@ -76,9 +77,9 @@ describe('Swarm Orchestration Stress Tests', () => {
       for (let i = 0; i < 1000; i++) {
         router.registerAgent({
           id: `pressure-agent-${i}`,
-          type: i % 4 === 0 ? 'planner' : 
-                 i % 4 === 1 ? 'coder' : 
-                 i % 4 === 2 ? 'reviewer' : 'debugger',
+          type: i % 4 === 0 ? 'planner' as const :
+                 i % 4 === 1 ? 'coder' as const :
+                 i % 4 === 2 ? 'reviewer' as const : 'debugger' as const,
           name: `Pressure Agent ${i}`,
           expertise: [`domain-${Math.floor(i / 100)}`, `skill-${i % 10}`],
           workload: i % 20,
@@ -113,7 +114,7 @@ describe('Swarm Orchestration Stress Tests', () => {
         // Small delay to prevent overwhelming the system
         if (routeCount % 1000 === 0) {
           // eslint-disable-next-line no-await-in-loop
-          jest.advanceTimersByTime(1);
+          vi.advanceTimersByTime(1);
         }
       }
       
@@ -144,16 +145,16 @@ describe('Swarm Orchestration Stress Tests', () => {
 
     it('should handle massive parallel task execution', async () => {
       const taskCount = 10000; // Massive task load
-      const tasks: Task[] = [];
+      const tasks: any[] = [];
       
       // Create varied tasks
       for (let i = 0; i < taskCount; i++) {
         tasks.push({
           id: `massive-task-${i}`,
           description: `Massive parallel task ${i} with complex data`,
-          type: i % 4 === 0 ? 'code_generation' : 
-                 i % 4 === 1 ? 'code_review' : 
-                 i % 4 === 2 ? 'bug_fix' : 'optimization',
+          type: i % 4 === 0 ? 'code_generation' as const :
+                 i % 4 === 1 ? 'code_review' as const :
+                 i % 4 === 2 ? 'bug_fix' as const : 'optimization' as const,
           priority: i % 5 + 1,
           context: {
             data: `Complex context data for task ${i}`.repeat(20),
@@ -216,7 +217,7 @@ describe('Swarm Orchestration Stress Tests', () => {
       });
       
       const taskCount = 1000; // Still large number of tasks
-      const tasks: Task[] = [];
+      const tasks: any[] = [];
       
       // Create tasks that take varying amounts of time
       for (let i = 0; i < taskCount; i++) {
@@ -442,7 +443,7 @@ describe('Swarm Orchestration Stress Tests', () => {
       const handoffCount = 10000; // Extreme volume
       
       // Create varied handoff requests
-      const handoffRequests = [];
+      const handoffRequests: any[] = [];
       for (let i = 0; i < handoffCount; i++) {
         handoffRequests.push({
           sourceAgentId: `source-${i}`,
@@ -485,7 +486,7 @@ describe('Swarm Orchestration Stress Tests', () => {
       const start = performance.now();
       
       // Initiate all handoffs
-      const initiationResults = [];
+      const initiationResults: any[] = [];
       for (const request of handoffRequests) {
         try {
           // eslint-disable-next-line no-await-in-loop
@@ -500,14 +501,14 @@ describe('Swarm Orchestration Stress Tests', () => {
       
       // Complete successful handoffs
       const completionStart = performance.now();
-      const completionResults = [];
+      const completionResults: any[] = [];
       
       for (const { request, result } of initiationResults) {
         if (result.success) {
           try {
             // eslint-disable-next-line no-await-in-loop
             const context = await handoffManager.completeHandoff(
-              result.handoffId,
+              result.handoffId!,
               request.targetAgentId
             );
             completionResults.push({ success: true, context });
@@ -548,12 +549,12 @@ describe('Swarm Orchestration Stress Tests', () => {
       
       // Simulate concurrent handoffs
       const concurrentOperations = 1000;
-      const promises = [];
+      const promises: any[] = [];
       
       for (let i = 0; i < concurrentOperations; i++) {
         const operation = async () => {
           const requestId = `concurrent-${i}-${Date.now()}`;
-          const handoffRequest = {
+          const handoffRequest: any = {
             sourceAgentId: `concurrent-source-${i}`,
             targetAgentId: `concurrent-target-${i % 50}`,
             taskId: `concurrent-task-${i}`,
@@ -572,7 +573,7 @@ describe('Swarm Orchestration Stress Tests', () => {
           if (initiationResult.success) {
             // Complete handoff
             const completionResult = await handoffManager.completeHandoff(
-              initiationResult.handoffId,
+              initiationResult.handoffId!,
               handoffRequest.targetAgentId
             );
             
@@ -612,8 +613,8 @@ describe('Swarm Orchestration Stress Tests', () => {
       // Verify data consistency
       const successfulResults = results.filter(r => r.success);
       for (const result of successfulResults) {
-        expect(result.completion.id).toBe(result.initiation.handoffId.split('_')[1]);
-        expect(result.completion.data).toContain('Concurrent handoff data');
+        expect(result.completion!.id).toBe(result.initiation.handoffId.split('_')[1]);
+        expect(result.completion!.data).toContain('Concurrent handoff data');
       }
       
       // Assertions for concurrent consistency
@@ -628,13 +629,13 @@ describe('Swarm Orchestration Stress Tests', () => {
       
       // Create an extremely complex graph
       const nodeCount = 1000;
-      const nodes = [];
+      const nodes: any[] = [];
       
       // Create diverse node types
       for (let i = 0; i < nodeCount; i++) {
         nodes.push({
           id: `complex-node-${i}`,
-          type: i % 3 === 0 ? 'agent' : i % 3 === 1 ? 'process' : 'decision',
+          type: i % 3 === 0 ? 'agent' as const : i % 3 === 1 ? 'process' as const : 'decision' as const,
           label: `Complex Node ${i}`,
           agentType: i % 3 === 0 ? (i % 6 === 0 ? 'planner' : i % 6 === 3 ? 'coder' : 'reviewer') : undefined
         });
@@ -646,7 +647,7 @@ describe('Swarm Orchestration Stress Tests', () => {
       const nodeAddTime = performance.now() - nodeAddStart;
       
       // Create complex edge structure
-      const edges = [];
+      const edges: any[] = [];
       
       // Connect nodes in various patterns
       for (let i = 0; i < nodeCount - 1; i++) {
@@ -742,14 +743,14 @@ describe('Swarm Orchestration Stress Tests', () => {
           
           // Create a moderately complex workflow
           const nodes = [
-            { id: 'start', type: 'process', label: 'Start' },
-            { id: 'analyze', type: 'agent', label: 'Analyzer', agentType: 'planner' },
-            { id: 'process', type: 'agent', label: 'Processor', agentType: 'coder' },
-            { id: 'validate', type: 'agent', label: 'Validator', agentType: 'reviewer' },
-            { id: 'end', type: 'process', label: 'End' }
+            { id: 'start', type: 'process' as const, label: 'Start' },
+            { id: 'analyze', type: 'agent' as const, label: 'Analyzer', agentType: 'planner' },
+            { id: 'process', type: 'agent' as const, label: 'Processor', agentType: 'coder' },
+            { id: 'validate', type: 'agent' as const, label: 'Validator', agentType: 'reviewer' },
+            { id: 'end', type: 'process' as const, label: 'End' }
           ];
           
-          const edges = [
+          const edges: any[] = [
             { id: 'e1', source: 'start', target: 'analyze' },
             { id: 'e2', source: 'analyze', target: 'process' },
             { id: 'e3', source: 'process', target: 'validate' },
@@ -813,10 +814,10 @@ describe('Swarm Orchestration Stress Tests', () => {
       for (let i = 0; i < agentCount; i++) {
         const agent: Agent = {
           id: `swarm-agent-${i}`,
-          type: i % 5 === 0 ? 'planner' : 
-                i % 5 === 1 ? 'coder' : 
-                i % 5 === 2 ? 'reviewer' : 
-                i % 5 === 3 ? 'debugger' : 'optimizer',
+          type: i % 5 === 0 ? 'planner' as const :
+                i % 5 === 1 ? 'coder' as const :
+                i % 5 === 2 ? 'reviewer' as const :
+                i % 5 === 3 ? 'debugger' as const : 'optimizer' as const,
           name: `Swarm Agent ${i}`,
           expertise: [`skill-${i % 100}`, `domain-${Math.floor(i / 100)}`],
           workload: i % 50,
@@ -838,9 +839,9 @@ describe('Swarm Orchestration Stress Tests', () => {
           const task: Task = {
             id: `swarm-task-${i}`,
             description: `Integrated swarm task ${i} requiring skill-${i % 100}`,
-            type: i % 4 === 0 ? 'planning' : 
-                  i % 4 === 1 ? 'code_generation' : 
-                  i % 4 === 2 ? 'code_review' : 'bug_fix',
+            type: i % 4 === 0 ? 'planning' as const :
+                  i % 4 === 1 ? 'code_generation' as const :
+                  i % 4 === 2 ? 'code_review' as const : 'bug_fix' as const,
             priority: i % 5 + 1,
             context: {
               workflowId: `swarm-${i}`,
@@ -857,7 +858,7 @@ describe('Swarm Orchestration Stress Tests', () => {
           
           // 3. Handoff context if successful
           if (executionResult.success) {
-            const handoffRequest = {
+            const handoffRequest: any = {
               sourceAgentId: routingResult.agent.id,
               targetAgentId: `swarm-agent-${(i + 1) % agentCount}`,
               taskId: task.id,
@@ -875,7 +876,7 @@ describe('Swarm Orchestration Stress Tests', () => {
             if (handoffResult.success) {
               // eslint-disable-next-line no-await-in-loop
               await handoffManager.completeHandoff(
-                handoffResult.handoffId,
+                handoffResult.handoffId!,
                 handoffRequest.targetAgentId
               );
             }

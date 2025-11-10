@@ -6,10 +6,19 @@
  * while maintaining compatibility with existing swarm consensus and voting mechanisms.
  */
 
-import { LocalHandoffSystem, localHandoff } from '../orchestrator/handoffs.local';
-import { ConsensusVotingSystem, VoteOption } from './consensus.voting';
-import { ContextHandoffManager } from './context.handoff';
-import { Task, Agent } from '../agents/moe-router';
+import { LocalHandoffSystem, localHandoff } from '../orchestrator/handoffs.local.ts';
+import { ConsensusVotingSystem, VoteOption } from './consensus.voting.ts';
+import { ContextHandoffManager } from './context.handoff.ts';
+import { Task, Agent } from '../agents/moe-router.ts';
+import { z } from 'zod';
+
+// Zod schema for SwarmDelegateConfig validation
+const swarmDelegateConfigSchema = z.object({
+  enableLocalInference: z.boolean(),
+  latencyTargetMs: z.number().min(0),
+  maxConcurrentDelegations: z.number().min(1),
+  enableConsensusVoting: z.boolean()
+});
 
 // Type definitions for swarm delegate
 export interface SwarmDelegateConfig {
@@ -19,17 +28,46 @@ export interface SwarmDelegateConfig {
   enableConsensusVoting: boolean;
 }
 
+// Context interface for tasks
+export interface TaskContext {
+  [key: string]: unknown;
+}
+
+// Zod schema for DelegationResult validation
+const delegationResultSchema = z.object({
+  success: z.boolean(),
+  taskId: z.string(),
+  delegatedToAgentId: z.string().optional(),
+  result: z.unknown().optional(),
+  error: z.string().optional(),
+  metrics: z.object({
+    duration: z.number(),
+    latencyWithinTarget: z.boolean()
+  }).optional()
+});
+
 export interface DelegationResult {
   success: boolean;
   taskId: string;
   delegatedToAgentId?: string;
-  result?: any;
+  result?: unknown;
   error?: string;
   metrics?: {
     duration: number;
     latencyWithinTarget: boolean;
   };
 }
+
+// Zod schema for SwarmAgent validation
+const swarmAgentSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  capabilities: z.array(z.string()),
+  workload: z.number(),
+  isLocal: z.boolean(),
+  type: z.string(),
+  capacity: z.number()
+});
 
 export interface SwarmAgent {
   id: string;
@@ -59,13 +97,16 @@ export class SwarmDelegate {
     this.consensusVotingSystem = new ConsensusVotingSystem();
     this.contextHandoffManager = new ContextHandoffManager();
     
-    this.config = {
+    // Validate config with Zod schema
+    const validatedConfig = swarmDelegateConfigSchema.parse({
       enableLocalInference: true,
       latencyTargetMs: 2000,
       maxConcurrentDelegations: 10,
       enableConsensusVoting: true,
       ...config
-    };
+    });
+    
+    this.config = validatedConfig;
   }
   
   /**
@@ -73,16 +114,19 @@ export class SwarmDelegate {
    * @param agent Swarm agent instance
    */
   registerAgent(agent: SwarmAgent): void {
-    this.registeredAgents.set(agent.id, agent);
+    // Validate agent with Zod schema
+    const validatedAgent = swarmAgentSchema.parse(agent);
+    
+    this.registeredAgents.set(validatedAgent.id, validatedAgent);
     this.consensusVotingSystem.registerAgent({
-      id: agent.id,
-      name: agent.name,
-      expertise: agent.capabilities,
-      workload: agent.workload,
-      type: agent.type,
-      capacity: agent.capacity
+      id: validatedAgent.id,
+      name: validatedAgent.name,
+      expertise: validatedAgent.capabilities,
+      workload: validatedAgent.workload,
+      type: validatedAgent.type,
+      capacity: validatedAgent.capacity
     } as Agent);
-    console.log(`Registered swarm agent: ${agent.name} (${agent.id})`);
+    console.log(`Registered swarm agent: ${validatedAgent.name} (${validatedAgent.id})`);
   }
   
   /**
@@ -91,7 +135,7 @@ export class SwarmDelegate {
    * @param context Context for the task
    * @returns Promise that resolves with the delegation result
    */
-  async delegateTask(task: Task, context: Record<string, any>): Promise<DelegationResult> {
+  async delegateTask(task: Task, context: TaskContext): Promise<DelegationResult> {
     const startTime = performance.now();
     
     try {
@@ -104,13 +148,16 @@ export class SwarmDelegate {
           const endTime = performance.now();
           const duration = endTime - startTime;
           
-          return {
+          const result = {
             ...localResult,
             metrics: {
               duration,
               latencyWithinTarget: duration <= this.config.latencyTargetMs
             }
           };
+          
+          // Validate result with Zod schema
+          return delegationResultSchema.parse(result);
         }
       }
       
@@ -119,20 +166,23 @@ export class SwarmDelegate {
       const endTime = performance.now();
       const duration = endTime - startTime;
       
-      return {
+      const result = {
         ...consensusResult,
         metrics: {
           duration,
           latencyWithinTarget: duration <= this.config.latencyTargetMs
         }
       };
+      
+      // Validate result with Zod schema
+      return delegationResultSchema.parse(result);
     } catch (error) {
       const endTime = performance.now();
       const duration = endTime - startTime;
       
       console.error(`Task delegation failed for ${task.id}:`, error);
       
-      return {
+      const result = {
         success: false,
         taskId: task.id,
         error: error instanceof Error ? error.message : String(error),
@@ -141,6 +191,9 @@ export class SwarmDelegate {
           latencyWithinTarget: duration <= this.config.latencyTargetMs
         }
       };
+      
+      // Validate result with Zod schema
+      return delegationResultSchema.parse(result);
     }
   }
   
@@ -150,7 +203,7 @@ export class SwarmDelegate {
    * @param context Context for the task
    * @returns Promise that resolves with the delegation result
    */
-  private async delegateToLocalAgent(task: Task, context: Record<string, any>): Promise<DelegationResult> {
+  private async delegateToLocalAgent(task: Task, context: TaskContext): Promise<DelegationResult> {
     try {
       console.log(`Attempting local delegation for task: ${task.id}`);
       
@@ -184,7 +237,7 @@ export class SwarmDelegate {
    * @param context Context for the task
    * @returns Promise that resolves with the delegation result
    */
-  private async delegateViaConsensus(task: Task, context: Record<string, any>): Promise<DelegationResult> {
+  private async delegateViaConsensus(task: Task, context: TaskContext): Promise<DelegationResult> {
     if (!this.config.enableConsensusVoting) {
       return {
         success: false,
@@ -335,6 +388,6 @@ export const swarmDelegate = new SwarmDelegate();
  * @param context Context for the task
  * @returns Promise that resolves with the delegation result
  */
-export async function delegateTask(task: Task, context: Record<string, any>): Promise<DelegationResult> {
+export async function delegateTask(task: Task, context: TaskContext): Promise<DelegationResult> {
   return await swarmDelegate.delegateTask(task, context);
 }

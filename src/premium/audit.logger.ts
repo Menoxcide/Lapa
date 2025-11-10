@@ -347,17 +347,6 @@ export class AuditLogger extends EventEmitter {
             this.logStream.end();
         }
     }
-    
-    /**
-     * Emits an event (simplified implementation)
-     * @param event Event name
-     * @param data Event data
-     */
-    private emit(event: string, data: any): void {
-        // In a real implementation, this would integrate with an event system
-        // For now, we'll just log the event
-        console.log(`[EVENT] ${event}:`, data);
-    }
 }
 
 // Export singleton instance

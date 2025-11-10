@@ -1,10 +1,13 @@
-import { HybridHandoffSystem } from '../../src/orchestrator/handoffs';
-import { Agent } from '@openai/agents';
+import { describe, it, expect } from "vitest";
+import { HybridHandoffSystem } from '../../orchestrator/handoffs.ts';
+import { LangGraphOrchestrator } from '../../swarm/langgraph.orchestrator.js';
+import { Agent as OpenAIAgent } from '@openai/agents';
+import { vi } from 'vitest';
 
 // Mock the OpenAI agents SDK
-jest.mock('@openai/agents', () => {
+vi.mock('@openai/agents', () => {
   return {
-    run: jest.fn()
+    run: vi.fn()
   };
 });
 
@@ -13,20 +16,22 @@ import { run } from '@openai/agents';
 
 describe('OpenAI Handoff Error Handling', () => {
   let handoffSystem: HybridHandoffSystem;
-  let mockOpenAIAgent: Agent;
+  let orchestrator: LangGraphOrchestrator;
+  let mockOpenAIAgent: OpenAIAgent;
 
   beforeEach(() => {
     handoffSystem = new HybridHandoffSystem();
+    orchestrator = new LangGraphOrchestrator('start');
     mockOpenAIAgent = {
       id: 'openai-agent-1',
       name: 'Test OpenAI Agent',
       instructions: 'Test instructions',
       tools: [],
       model: 'gpt-4'
-    } as Agent;
+    } as unknown as OpenAIAgent;
     
     // Clear all mocks before each test
-    jest.clearAllMocks();
+    // All mocks are automatically cleared in vitest
   });
 
   describe('Retry Logic Validation', () => {
@@ -41,7 +46,7 @@ describe('OpenAI Handoff Error Handling', () => {
       };
       
       // Fail twice, then succeed
-      (run as jest.Mock)
+      (run as any)
         .mockRejectedValueOnce(new Error('Network timeout'))
         .mockRejectedValueOnce(new Error('Service unavailable'))
         .mockResolvedValueOnce({
@@ -70,7 +75,7 @@ describe('OpenAI Handoff Error Handling', () => {
       };
       
       // Fail twice, then succeed
-      (run as jest.Mock)
+      (run as any)
         .mockRejectedValueOnce(new Error('Rate limit exceeded'))
         .mockRejectedValueOnce(new Error('API quota exceeded'))
         .mockResolvedValueOnce({
@@ -99,7 +104,7 @@ describe('OpenAI Handoff Error Handling', () => {
       };
       
       // Always fail
-      (run as jest.Mock).mockRejectedValue(new Error('Persistent OpenAI API error'));
+      (run as any).mockRejectedValue(new Error('Persistent OpenAI API error'));
       
       await expect(
         (handoffSystem as any).initiateHandoff(
@@ -124,7 +129,7 @@ describe('OpenAI Handoff Error Handling', () => {
       };
       
       // Fail once, then succeed
-      (run as jest.Mock)
+      (run as any)
         .mockRejectedValueOnce(new Error('Temporary error'))
         .mockResolvedValueOnce({
           finalOutput: { result: 'Task completed after delay' }
@@ -155,7 +160,7 @@ describe('OpenAI Handoff Error Handling', () => {
       handoffSystem.registerOpenAIAgent(mockOpenAIAgent);
       
       // Mock transient errors followed by success
-      (run as jest.Mock)
+      (run as any)
         .mockRejectedValueOnce(new Error('Connection reset by peer'))
         .mockRejectedValueOnce(new Error('Timeout reading response'))
         .mockResolvedValueOnce({
@@ -189,7 +194,7 @@ describe('OpenAI Handoff Error Handling', () => {
       ];
       
       let callCount = 0;
-      (run as jest.Mock).mockImplementation(() => {
+      (run as any).mockImplementation(() => {
         if (callCount < errorTypes.length) {
           return Promise.reject(errorTypes[callCount++]);
         }
@@ -213,7 +218,7 @@ describe('OpenAI Handoff Error Handling', () => {
       handoffSystem.registerOpenAIAgent(mockOpenAIAgent);
       
       // Mock malformed responses followed by valid response
-      (run as jest.Mock)
+      (run as any)
         .mockResolvedValueOnce({}) // Missing finalOutput
         .mockResolvedValueOnce({ finalOutput: null }) // Null finalOutput
         .mockResolvedValueOnce({ finalOutput: {} }) // Empty finalOutput
@@ -251,7 +256,7 @@ describe('OpenAI Handoff Error Handling', () => {
       handoffSystem.registerOpenAIAgent(mockOpenAIAgent);
       
       // Mock API error with specific message
-      (run as jest.Mock).mockRejectedValue(new Error('Invalid API key provided'));
+      (run as any).mockRejectedValue(new Error('Invalid API key provided'));
       
       await expect(
         (handoffSystem as any).initiateHandoff(
@@ -269,10 +274,10 @@ describe('OpenAI Handoff Error Handling', () => {
       handoffSystem.registerOpenAIAgent(mockOpenAIAgent);
       
       // Spy on console.error
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       
       // Mock API error
-      (run as jest.Mock).mockRejectedValue(new Error('OpenAI service overloaded'));
+      (run as any).mockRejectedValue(new Error('OpenAI service overloaded'));
       
       await expect(
         (handoffSystem as any).initiateHandoff(
@@ -296,7 +301,7 @@ describe('OpenAI Handoff Error Handling', () => {
       handoffSystem.registerOpenAIAgent(mockOpenAIAgent);
       
       // Mock throwing a string instead of an Error object
-      (run as jest.Mock).mockRejectedValue('String error from OpenAI SDK');
+      (run as any).mockRejectedValue('String error from OpenAI SDK');
       
       await expect(
         (handoffSystem as any).initiateHandoff(
@@ -322,7 +327,7 @@ describe('OpenAI Handoff Error Handling', () => {
         exponentialBackoff: false
       };
       
-      (run as jest.Mock).mockRejectedValue(new Error('Immediate failure with zero retries'));
+            (run as any).mockRejectedValue(new Error('Immediate failure with zero retries'));
       
       await expect(
         (handoffSystem as any).initiateHandoff(
@@ -346,8 +351,8 @@ describe('OpenAI Handoff Error Handling', () => {
         exponentialBackoff: false
       };
       
-      (run as jest.Mock)
-        .mockRejectedValueOnce(new Error('First failure'))
+            (run as any)
+              .mockRejectedValueOnce(new Error('First failure'))
         .mockResolvedValueOnce({
           finalOutput: { result: 'Completed despite negative delay' }
         });
@@ -375,7 +380,7 @@ describe('OpenAI Handoff Error Handling', () => {
       
       // Fail first few times then succeed
       let callCount = 0;
-      (run as jest.Mock).mockImplementation(() => {
+      (run as any).mockImplementation(() => {
         callCount++;
         if (callCount <= 5) {
           return Promise.reject(new Error(`Failure ${callCount}`));

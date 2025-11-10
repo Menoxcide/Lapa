@@ -1,10 +1,13 @@
-import { HybridHandoffSystem } from '../../src/orchestrator/handoffs';
-import { Agent } from '@openai/agents';
+import { describe, it, expect } from "vitest";
+import { HybridHandoffSystem } from '../../orchestrator/handoffs.ts';
+import { LangGraphOrchestrator } from '../../swarm/langgraph.orchestrator.ts';
+import { Agent as OpenAIAgent } from '@openai/agents';
+import { vi } from 'vitest';
 
 // Mock the OpenAI agents SDK
-jest.mock('@openai/agents', () => {
+vi.mock('@openai/agents', () => {
   return {
-    run: jest.fn()
+    run: vi.fn()
   };
 });
 
@@ -13,20 +16,22 @@ import { run } from '@openai/agents';
 
 describe('HybridHandoffSystem', () => {
   let handoffSystem: HybridHandoffSystem;
-  let mockOpenAIAgent: Agent;
+  let orchestrator: LangGraphOrchestrator;
+  let mockOpenAIAgent: OpenAIAgent;
 
   beforeEach(() => {
     handoffSystem = new HybridHandoffSystem();
+    orchestrator = new LangGraphOrchestrator('start');
     mockOpenAIAgent = {
-      id: 'test-agent',
+      id: 'openai-agent-1',
       name: 'Test OpenAI Agent',
       instructions: 'Test instructions',
       tools: [],
       model: 'gpt-4'
-    } as Agent;
+    } as unknown as OpenAIAgent;
     
     // Clear all mocks before each test
-    jest.clearAllMocks();
+    // All mocks are automatically cleared in vitest
   });
 
   describe('Handoff Evaluation', () => {
@@ -44,7 +49,7 @@ describe('HybridHandoffSystem', () => {
         }
       };
       
-      (run as jest.Mock).mockResolvedValue(mockEvaluationResult);
+            (run as any).mockResolvedValue(mockEvaluationResult);
       
       // Create a test context
       const testContext = {
@@ -106,7 +111,7 @@ describe('HybridHandoffSystem', () => {
       handoffSystem.registerOpenAIAgent(mockOpenAIAgent);
       
       // Mock an error response from the OpenAI agent
-      (run as jest.Mock).mockRejectedValue(new Error('API timeout'));
+      (run as any).mockRejectedValue(new Error('API timeout'));
       
       const testContext = {
         task: { id: 'task-123', description: 'Test task' },
@@ -129,7 +134,7 @@ describe('HybridHandoffSystem', () => {
         finalOutput: { result: 'Task completed successfully' }
       };
       
-      (run as jest.Mock).mockResolvedValue(mockRunResult);
+            (run as any).mockResolvedValue(mockRunResult);
       
       const result = await (handoffSystem as any).initiateHandoff(
         'source-agent-123',
@@ -153,7 +158,7 @@ describe('HybridHandoffSystem', () => {
       };
       
       // Fail twice, then succeed
-      (run as jest.Mock)
+      (run as any)
         .mockRejectedValueOnce(new Error('Network error'))
         .mockRejectedValueOnce(new Error('Timeout'))
         .mockResolvedValueOnce({
@@ -182,7 +187,7 @@ describe('HybridHandoffSystem', () => {
       };
       
       // Always fail
-      (run as jest.Mock).mockRejectedValue(new Error('Persistent error'));
+      (run as any).mockRejectedValue(new Error('Persistent error'));
       
       await expect(
         (handoffSystem as any).initiateHandoff(
@@ -199,8 +204,8 @@ describe('HybridHandoffSystem', () => {
     it('should initiate handoff to regular LAPA agent when target is not an OpenAI agent', async () => {
       // Mock the context handoff manager
       const mockContextHandoffManager = {
-        initiateHandoff: jest.fn(),
-        completeHandoff: jest.fn()
+        initiateHandoff: vi.fn(),
+        completeHandoff: vi.fn()
       };
       
       // Inject the mock
@@ -236,9 +241,9 @@ describe('HybridHandoffSystem', () => {
     it('should call lifecycle hooks during handoff process', async () => {
       // Create handoff system with hooks
       const hooks = {
-        onHandoffStart: jest.fn(),
-        onHandoffComplete: jest.fn(),
-        onHandoffError: jest.fn()
+        onHandoffStart: vi.fn(),
+        onHandoffComplete: vi.fn(),
+        onHandoffError: vi.fn()
       };
       
       handoffSystem = new HybridHandoffSystem({}, hooks);
@@ -248,7 +253,7 @@ describe('HybridHandoffSystem', () => {
         finalOutput: { result: 'Task completed' }
       };
       
-      (run as jest.Mock).mockResolvedValue(mockRunResult);
+            (run as any).mockResolvedValue(mockRunResult);
       
       await (handoffSystem as any).initiateHandoff(
         'source-agent-123',
@@ -275,16 +280,16 @@ describe('HybridHandoffSystem', () => {
 
     it('should call error hook when handoff fails', async () => {
       const hooks = {
-        onHandoffStart: jest.fn(),
-        onHandoffComplete: jest.fn(),
-        onHandoffError: jest.fn()
+        onHandoffStart: vi.fn(),
+        onHandoffComplete: vi.fn(),
+        onHandoffError: vi.fn()
       };
       
       handoffSystem = new HybridHandoffSystem({}, hooks);
       handoffSystem.registerOpenAIAgent(mockOpenAIAgent);
       
       // Mock an error
-      (run as jest.Mock).mockRejectedValue(new Error('Handoff failed'));
+      (run as any).mockRejectedValue(new Error('Handoff failed'));
       
       await expect(
         (handoffSystem as any).initiateHandoff(
@@ -324,14 +329,14 @@ describe('HybridHandoffSystem', () => {
       };
       
       // Mock a slow response
-      (run as jest.Mock).mockImplementation(async () => {
+      (run as any).mockImplementation(async () => {
         // Simulate a delay longer than the target
         await new Promise(resolve => setTimeout(resolve, 10));
         return mockRunResult;
       });
       
       // Spy on console.warn
-      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       
       await (handoffSystem as any).initiateHandoff(
         'source-agent-123',
@@ -346,7 +351,7 @@ describe('HybridHandoffSystem', () => {
       
       consoleWarnSpy.mockRestore();
     });
-
+    
     it('should meet latency target for fast handoffs', async () => {
       handoffSystem.registerOpenAIAgent(mockOpenAIAgent);
       
@@ -358,10 +363,10 @@ describe('HybridHandoffSystem', () => {
       };
       
       // Mock a fast response
-      (run as jest.Mock).mockResolvedValue(mockRunResult);
+      (run as any).mockResolvedValue(mockRunResult);
       
       // Spy on console.warn to ensure it's not called
-      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       
       await (handoffSystem as any).initiateHandoff(
         'source-agent-123',
@@ -375,6 +380,33 @@ describe('HybridHandoffSystem', () => {
       );
       
       consoleWarnSpy.mockRestore();
+    });
+    
+    it('should complete handoff in under 2 seconds', async () => {
+      handoffSystem.registerOpenAIAgent(mockOpenAIAgent);
+      
+      const mockRunResult = {
+        finalOutput: { result: 'Task completed' }
+      };
+      
+      // Mock a response
+      (run as any).mockResolvedValue(mockRunResult);
+      
+      // Measure execution time
+      const startTime = Date.now();
+      
+      await (handoffSystem as any).initiateHandoff(
+        'source-agent-123',
+        'Test OpenAI Agent',
+        'task-456',
+        { testData: 'sample context data' }
+      );
+      
+      const endTime = Date.now();
+      const duration = endTime - startTime;
+      
+      // Should complete in under 2 seconds
+      expect(duration).toBeLessThan(2000);
     });
   });
 

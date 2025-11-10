@@ -1,4 +1,5 @@
-import { HybridHandoffSystem, HandoffConfigValidationError, HANDOFF_CONFIG_PRESETS } from '../../src/orchestrator/handoffs';
+import { describe, it, expect } from "vitest";
+import { HybridHandoffSystem, HandoffConfigValidationError, HANDOFF_CONFIG_PRESETS } from '../../orchestrator/handoffs.ts';
 
 describe('Handoff Configuration Enhancements', () => {
   let handoffSystem: HybridHandoffSystem;

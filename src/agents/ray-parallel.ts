@@ -7,7 +7,7 @@
  */
 
 import { Worker, isMainThread, parentPort, workerData } from 'worker_threads';
-import { Task } from './moe-router';
+import { Task } from './moe-router.ts';
 
 // Task execution result
 export interface TaskResult {
@@ -255,3 +255,5 @@ if (!isMainThread) {
 
 // Export singleton instance
 export const rayParallelExecutor = new RayParallelExecutor();
+
+export { Task };

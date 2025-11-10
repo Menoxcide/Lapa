@@ -1,12 +1,14 @@
-import { HybridHandoffSystem } from '../../src/orchestrator/handoffs';
-import { LangGraphOrchestrator } from '../../src/swarm/langgraph.orchestrator';
-import { Agent, Task } from '../../src/agents/moe-router';
+import { describe, it, expect } from "vitest";
+import { HybridHandoffSystem } from '../../orchestrator/handoffs.js';
+import { LangGraphOrchestrator } from '../../swarm/langgraph.orchestrator.js';
+import { Task } from '../../agents/moe-router.js';
 import { Agent as OpenAIAgent } from '@openai/agents';
+import { vi } from 'vitest';
 
 // Mock the OpenAI agents SDK
-jest.mock('@openai/agents', () => {
+vi.mock('@openai/agents', () => {
   return {
-    run: jest.fn()
+    run: vi.fn()
   };
 });
 
@@ -27,10 +29,10 @@ describe('Handoffs with LangGraph Integration', () => {
       instructions: 'Test instructions',
       tools: [],
       model: 'gpt-4'
-    } as OpenAIAgent;
+    } as unknown as OpenAIAgent;
     
     // Clear all mocks before each test
-    jest.clearAllMocks();
+    // All mocks are automatically cleared in vitest
   });
 
   describe('Workflow Integration', () => {
@@ -48,14 +50,14 @@ describe('Handoffs with LangGraph Integration', () => {
         }
       };
       
-      (run as jest.Mock).mockResolvedValue(mockEvaluationResult);
+            (run as any).mockResolvedValue(mockEvaluationResult);
       
       // Create a task
       const task: Task = {
         id: 'integration-task-123',
         description: 'Complex analysis task requiring handoff',
-        input: 'Analyze this dataset',
-        priority: 'high'
+        type: 'analysis',
+        priority: 3
       };
       
       // Execute task with handoffs
@@ -76,7 +78,7 @@ describe('Handoffs with LangGraph Integration', () => {
       handoffSystem.registerOpenAIAgent(mockOpenAIAgent);
       
       // Mock alternating responses - first recommends handoff, second does not
-      (run as jest.Mock)
+      (run as any)
         .mockResolvedValueOnce({
           finalOutput: {
             shouldHandoff: true,
@@ -94,8 +96,8 @@ describe('Handoffs with LangGraph Integration', () => {
       const task: Task = {
         id: 'multi-stage-task-123',
         description: 'Multi-stage task with multiple handoff opportunities',
-        input: 'Process this complex request',
-        priority: 'medium'
+        type: 'processing',
+        priority: 2
       };
       
       const result = await handoffSystem.executeTaskWithHandoffs(task, {
@@ -120,13 +122,13 @@ describe('Handoffs with LangGraph Integration', () => {
         }
       };
       
-      (run as jest.Mock).mockResolvedValue(mockEvaluationResult);
+            (run as any).mockResolvedValue(mockEvaluationResult);
       
       const task: Task = {
         id: 'no-handoff-task-123',
         description: 'Simple task that should not require handoff',
-        input: 'Simple processing request',
-        priority: 'low'
+        type: 'simple',
+        priority: 1
       };
       
       const result = await handoffSystem.executeTaskWithHandoffs(task, {
@@ -145,7 +147,7 @@ describe('Handoffs with LangGraph Integration', () => {
       handoffSystem.registerOpenAIAgent(mockOpenAIAgent);
       
       // Mock an error on the first call (evaluation), success on second (execution)
-      (run as jest.Mock)
+      (run as any)
         .mockRejectedValueOnce(new Error('Evaluation service unavailable'))
         .mockResolvedValueOnce({
           finalOutput: {
@@ -156,8 +158,8 @@ describe('Handoffs with LangGraph Integration', () => {
       const task: Task = {
         id: 'error-recovery-task-123',
         description: 'Task that experiences evaluation error',
-        input: 'Process with error recovery',
-        priority: 'medium'
+        type: 'error-recovery',
+        priority: 2
       };
       
       const result = await handoffSystem.executeTaskWithHandoffs(task, {
@@ -174,7 +176,7 @@ describe('Handoffs with LangGraph Integration', () => {
       handoffSystem.registerOpenAIAgent(mockOpenAIAgent);
       
       // Mock evaluation recommending handoff, then execution failure
-      (run as jest.Mock)
+      (run as any)
         .mockResolvedValueOnce({
           finalOutput: {
             shouldHandoff: true,
@@ -188,8 +190,8 @@ describe('Handoffs with LangGraph Integration', () => {
       const task: Task = {
         id: 'execution-failure-task-123',
         description: 'Task that fails during OpenAI execution',
-        input: 'Process with execution failure',
-        priority: 'high'
+        type: 'execution-failure',
+        priority: 3
       };
       
       await expect(
@@ -220,13 +222,13 @@ describe('Handoffs with LangGraph Integration', () => {
         }
       };
       
-      (run as jest.Mock).mockResolvedValue(mockEvaluationResult);
+            (run as any).mockResolvedValue(mockEvaluationResult);
       
       const task: Task = {
         id: 'threshold-task-123',
         description: 'Task with confidence below threshold',
-        input: 'Process with confidence check',
-        priority: 'medium'
+        type: 'threshold-check',
+        priority: 2
       };
       
       const result = await handoffSystem.executeTaskWithHandoffs(task, {
@@ -254,13 +256,13 @@ describe('Handoffs with LangGraph Integration', () => {
         }
       };
       
-      (run as jest.Mock).mockResolvedValue(mockEvaluationResult);
+            (run as any).mockResolvedValue(mockEvaluationResult);
       
       const task: Task = {
         id: 'depth-limit-task-123',
         description: 'Task that might trigger deep handoff recursion',
-        input: 'Process with depth limit',
-        priority: 'high'
+        type: 'depth-limit',
+        priority: 3
       };
       
       const result = await handoffSystem.executeTaskWithHandoffs(task, {

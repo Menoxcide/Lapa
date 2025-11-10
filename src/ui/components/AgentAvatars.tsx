@@ -1,5 +1,5 @@
 import React from 'react';
-import { Agent } from '../state';
+import { Agent } from '../state/index.ts';
 
 interface AgentAvatarsProps {
   agents: Agent[];

@@ -1,10 +1,13 @@
-import { HybridHandoffSystem } from '../../src/orchestrator/handoffs';
-import { Agent } from '@openai/agents';
+import { describe, it, expect } from "vitest";
+import { HybridHandoffSystem } from '../../orchestrator/handoffs.ts';
+import { LangGraphOrchestrator } from '../../swarm/langgraph.orchestrator.js';
+import { Agent as OpenAIAgent } from '@openai/agents';
+import { vi } from 'vitest';
 
 // Mock the OpenAI agents SDK
-jest.mock('@openai/agents', () => {
+vi.mock('@openai/agents', () => {
   return {
-    run: jest.fn()
+    run: vi.fn()
   };
 });
 
@@ -13,20 +16,22 @@ import { run } from '@openai/agents';
 
 describe('OpenAI-LAPA Compatibility', () => {
   let handoffSystem: HybridHandoffSystem;
-  let mockOpenAIAgent: Agent;
+  let orchestrator: LangGraphOrchestrator;
+  let mockOpenAIAgent: OpenAIAgent;
 
   beforeEach(() => {
     handoffSystem = new HybridHandoffSystem();
+    orchestrator = new LangGraphOrchestrator('start');
     mockOpenAIAgent = {
       id: 'openai-agent-1',
       name: 'Test OpenAI Agent',
       instructions: 'Test instructions',
       tools: [],
       model: 'gpt-4'
-    } as Agent;
+    } as unknown as OpenAIAgent;
     
     // Clear all mocks before each test
-    jest.clearAllMocks();
+    // All mocks are automatically cleared in vitest
   });
 
   describe('Mixed Agent Environment', () => {
@@ -35,8 +40,8 @@ describe('OpenAI-LAPA Compatibility', () => {
       
       // Mock the context handoff manager for LAPA agents
       const mockContextHandoffManager = {
-        initiateHandoff: jest.fn(),
-        completeHandoff: jest.fn()
+        initiateHandoff: vi.fn(),
+        completeHandoff: vi.fn()
       };
       
       // Inject the mock
@@ -65,7 +70,7 @@ describe('OpenAI-LAPA Compatibility', () => {
         }
       };
       
-      (run as jest.Mock).mockResolvedValueOnce(mockEvaluationResult);
+            (run as any).mockResolvedValueOnce(mockEvaluationResult);
       
       const result = await (handoffSystem as any).initiateHandoff(
         'openai-agent-1',
@@ -89,8 +94,8 @@ describe('OpenAI-LAPA Compatibility', () => {
       
       // Mock the context handoff manager for LAPA agents
       const mockContextHandoffManager = {
-        initiateHandoff: jest.fn(),
-        completeHandoff: jest.fn()
+        initiateHandoff: vi.fn(),
+        completeHandoff: vi.fn()
       };
       
       // Inject the mock
@@ -113,7 +118,7 @@ describe('OpenAI-LAPA Compatibility', () => {
         }
       };
       
-      (run as jest.Mock).mockResolvedValueOnce(mockOpenAIResult);
+            (run as any).mockResolvedValueOnce(mockOpenAIResult);
       
       // Mock completion of handoff back to LAPA agent
       mockContextHandoffManager.completeHandoff.mockResolvedValue({
@@ -155,8 +160,8 @@ describe('OpenAI-LAPA Compatibility', () => {
       
       // Mock the context handoff manager
       const mockContextHandoffManager = {
-        initiateHandoff: jest.fn(),
-        completeHandoff: jest.fn()
+        initiateHandoff: vi.fn(),
+        completeHandoff: vi.fn()
       };
       
       // Inject the mock
@@ -187,7 +192,7 @@ describe('OpenAI-LAPA Compatibility', () => {
         }
       };
       
-      (run as jest.Mock).mockResolvedValueOnce(mockEvaluationResult);
+            (run as any).mockResolvedValueOnce(mockEvaluationResult);
       
       // Complex context with nested structures
       const complexContext = {
@@ -251,8 +256,8 @@ describe('OpenAI-LAPA Compatibility', () => {
       
       // Mock the context handoff manager
       const mockContextHandoffManager = {
-        initiateHandoff: jest.fn(),
-        completeHandoff: jest.fn()
+        initiateHandoff: vi.fn(),
+        completeHandoff: vi.fn()
       };
       
       // Inject the mock
@@ -281,7 +286,7 @@ describe('OpenAI-LAPA Compatibility', () => {
         }
       };
       
-      (run as jest.Mock).mockResolvedValueOnce(mockEvaluationResult);
+            (run as any).mockResolvedValueOnce(mockEvaluationResult);
       
       const result = await (handoffSystem as any).initiateHandoff(
         'modern-openai-agent',
@@ -303,10 +308,10 @@ describe('OpenAI-LAPA Compatibility', () => {
       
       // Mock the context handoff manager with older interface
       const mockContextHandoffManager = {
-        initiateHandoff: jest.fn(),
-        completeHandoff: jest.fn(),
+        initiateHandoff: vi.fn(),
+        completeHandoff: vi.fn(),
         // Older interface might have additional methods
-        getStatus: jest.fn()
+        getStatus: vi.fn()
       };
       
       // Inject the mock
@@ -337,7 +342,7 @@ describe('OpenAI-LAPA Compatibility', () => {
         }
       };
       
-      (run as jest.Mock).mockResolvedValueOnce(mockEvaluationResult);
+            (run as any).mockResolvedValueOnce(mockEvaluationResult);
       
       const result = await (handoffSystem as any).initiateHandoff(
         'openai-agent-1',
@@ -359,8 +364,8 @@ describe('OpenAI-LAPA Compatibility', () => {
       
       // Mock the context handoff manager
       const mockContextHandoffManager = {
-        initiateHandoff: jest.fn(),
-        completeHandoff: jest.fn()
+        initiateHandoff: vi.fn(),
+        completeHandoff: vi.fn()
       };
       
       // Inject the mock
@@ -393,7 +398,7 @@ describe('OpenAI-LAPA Compatibility', () => {
         }
       };
       
-      (run as jest.Mock).mockResolvedValueOnce(mockEvaluationResult);
+            (run as any).mockResolvedValueOnce(mockEvaluationResult);
       
       const startTime = performance.now();
       
@@ -424,8 +429,8 @@ describe('OpenAI-LAPA Compatibility', () => {
       
       // Mock the context handoff manager
       const mockContextHandoffManager = {
-        initiateHandoff: jest.fn(),
-        completeHandoff: jest.fn()
+        initiateHandoff: vi.fn(),
+        completeHandoff: vi.fn()
       };
       
       // Inject the mock
@@ -471,7 +476,7 @@ describe('OpenAI-LAPA Compatibility', () => {
         }
       };
       
-      (run as jest.Mock).mockResolvedValueOnce(mockEvaluationResult);
+            (run as any).mockResolvedValueOnce(mockEvaluationResult);
       
       const result = await (handoffSystem as any).initiateHandoff(
         'openai-security-agent',
@@ -498,8 +503,8 @@ describe('OpenAI-LAPA Compatibility', () => {
       
       // Mock the context handoff manager
       const mockContextHandoffManager = {
-        initiateHandoff: jest.fn(),
-        completeHandoff: jest.fn()
+        initiateHandoff: vi.fn(),
+        completeHandoff: vi.fn()
       };
       
       // Inject the mock
@@ -529,7 +534,7 @@ describe('OpenAI-LAPA Compatibility', () => {
         }
       };
       
-      (run as jest.Mock).mockResolvedValueOnce(mockEvaluationResult);
+            (run as any).mockResolvedValueOnce(mockEvaluationResult);
       
       const result = await (handoffSystem as any).initiateHandoff(
         'openai-initial-agent',

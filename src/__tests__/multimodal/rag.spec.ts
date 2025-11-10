@@ -1,23 +1,25 @@
 /**
  * Comprehensive test suite for multimodal RAG functionality
- * 
+ *
  * Tests PDF processing, video processing, text extraction, preprocessing,
  * AI-Q research assistant integration, error handling, and configuration options.
  */
 
-import { RAGPipeline, ProcessedDocument } from '../../rag/pipeline';
-import { PDFProcessor } from '../../rag/processors/pdf.processor';
-import { VideoProcessor } from '../../rag/processors/video.processor';
-import { TextPreprocessor } from '../../rag/utils/text.preprocessor';
-import { FileHandler } from '../../rag/utils/file.handler';
-import { AIQResearchAssistant, ResearchQuery, ResearchResult } from '../../rag/ai-q';
-import { DEFAULT_RAG_CONFIG, RAGConfig } from '../../rag/config';
-import { Researcher } from '../../agents/researcher';
+import { describe, it, expect } from "vitest";
+import { RAGPipeline, ProcessedDocument } from '../../rag/pipeline.ts';
+import { PDFProcessor } from '../../rag/processors/pdf.processor.ts';
+import { VideoProcessor } from '../../rag/processors/video.processor.ts';
+import { TextPreprocessor } from '../../rag/utils/text.preprocessor.ts';
+import { FileHandler } from '../../rag/utils/file.handler.ts';
+import { AIQResearchAssistant, ResearchQuery, ResearchResult } from '../../rag/ai-q/index.ts';
+import { DEFAULT_RAG_CONFIG, RAGConfig } from '../../rag/config.ts';
+import { Researcher } from '../../agents/researcher.ts';
+import { vi } from 'vitest';
 
 // Mock implementations for external dependencies
-jest.mock('../../inference/nim.local', () => ({
-  sendNIMInferenceRequest: jest.fn().mockResolvedValue('Mocked text search result'),
-  sendNemotronVisionInferenceRequest: jest.fn().mockResolvedValue('Mocked multimodal search result')
+vi.mock('../../inference/nim.local', () => ({
+  sendNIMInferenceRequest: vi.fn().mockResolvedValue('Mocked text search result'),
+  sendNemotronVisionInferenceRequest: vi.fn().mockResolvedValue('Mocked multimodal search result')
 }));
 
 describe('Multimodal RAG Functionality', () => {
@@ -33,13 +35,13 @@ describe('Multimodal RAG Functionality', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    // Clear all mocks
   });
 
   describe('PDF Processing', () => {
     it('should successfully process a PDF file', async () => {
       // Mock file handler to bypass actual file system operations
-      const mockValidateFile = jest.spyOn(ragPipeline['fileHandler'], 'validateFile')
+      const mockValidateFile = vi.spyOn(ragPipeline['fileHandler'], 'validateFile')
         .mockResolvedValue({
           path: './example/sample.pdf',
           name: 'sample',
@@ -49,7 +51,7 @@ describe('Multimodal RAG Functionality', () => {
         });
 
       // Mock PDF processor to return sample text
-      const mockExtractText = jest.spyOn(ragPipeline['pdfProcessor'], 'extractText')
+      const mockExtractText = vi.spyOn(ragPipeline['pdfProcessor'], 'extractText')
         .mockResolvedValue('Sample PDF text content for testing.');
 
       const result = await ragPipeline.processDocument('./example/sample.pdf');
@@ -81,7 +83,7 @@ describe('Multimodal RAG Functionality', () => {
       const pipelineWithoutPdf = new RAGPipeline(configWithoutPdf);
 
       // Mock file handler to bypass actual file system operations
-      const mockValidateFile = jest.spyOn(pipelineWithoutPdf['fileHandler'], 'validateFile')
+      const mockValidateFile = vi.spyOn(pipelineWithoutPdf['fileHandler'], 'validateFile')
         .mockResolvedValue({
           path: './example/sample.pdf',
           name: 'sample',
@@ -100,7 +102,7 @@ describe('Multimodal RAG Functionality', () => {
 
     it('should handle PDF processing errors gracefully', async () => {
       // Mock file handler to bypass actual file system operations
-      const mockValidateFile = jest.spyOn(ragPipeline['fileHandler'], 'validateFile')
+      const mockValidateFile = vi.spyOn(ragPipeline['fileHandler'], 'validateFile')
         .mockResolvedValue({
           path: './example/sample.pdf',
           name: 'sample',
@@ -110,7 +112,7 @@ describe('Multimodal RAG Functionality', () => {
         });
 
       // Mock PDF processor to throw an error
-      const mockExtractText = jest.spyOn(ragPipeline['pdfProcessor'], 'extractText')
+      const mockExtractText = vi.spyOn(ragPipeline['pdfProcessor'], 'extractText')
         .mockRejectedValue(new Error('Network error during PDF processing'));
 
       await expect(ragPipeline.processDocument('./example/sample.pdf'))
@@ -126,7 +128,7 @@ describe('Multimodal RAG Functionality', () => {
   describe('Video Processing', () => {
     it('should successfully process a video file', async () => {
       // Mock file handler to bypass actual file system operations
-      const mockValidateFile = jest.spyOn(ragPipeline['fileHandler'], 'validateFile')
+      const mockValidateFile = vi.spyOn(ragPipeline['fileHandler'], 'validateFile')
         .mockResolvedValue({
           path: './example/sample.mp4',
           name: 'sample',
@@ -136,7 +138,7 @@ describe('Multimodal RAG Functionality', () => {
         });
 
       // Mock video processor to return sample text
-      const mockExtractText = jest.spyOn(ragPipeline['videoProcessor'], 'extractText')
+      const mockExtractText = vi.spyOn(ragPipeline['videoProcessor'], 'extractText')
         .mockResolvedValue('Sample video text content for testing.');
 
       const result = await ragPipeline.processDocument('./example/sample.mp4');
@@ -168,7 +170,7 @@ describe('Multimodal RAG Functionality', () => {
       const pipelineWithoutVideo = new RAGPipeline(configWithoutVideo);
 
       // Mock file handler to bypass actual file system operations
-      const mockValidateFile = jest.spyOn(pipelineWithoutVideo['fileHandler'], 'validateFile')
+      const mockValidateFile = vi.spyOn(pipelineWithoutVideo['fileHandler'], 'validateFile')
         .mockResolvedValue({
           path: './example/sample.mp4',
           name: 'sample',
@@ -187,7 +189,7 @@ describe('Multimodal RAG Functionality', () => {
 
     it('should handle video processing errors gracefully', async () => {
       // Mock file handler to bypass actual file system operations
-      const mockValidateFile = jest.spyOn(ragPipeline['fileHandler'], 'validateFile')
+      const mockValidateFile = vi.spyOn(ragPipeline['fileHandler'], 'validateFile')
         .mockResolvedValue({
           path: './example/sample.mp4',
           name: 'sample',
@@ -197,7 +199,7 @@ describe('Multimodal RAG Functionality', () => {
         });
 
       // Mock video processor to throw an error
-      const mockExtractText = jest.spyOn(ragPipeline['videoProcessor'], 'extractText')
+      const mockExtractText = vi.spyOn(ragPipeline['videoProcessor'], 'extractText')
         .mockRejectedValue(new Error('Network error during video processing'));
 
       await expect(ragPipeline.processDocument('./example/sample.mp4'))
@@ -253,7 +255,7 @@ describe('Multimodal RAG Functionality', () => {
   describe('AI-Q Research Assistant Integration', () => {
     it('should process research query with document analysis', async () => {
       // Mock the RAG pipeline processDocuments method
-      const mockProcessDocuments = jest.spyOn(aiqResearchAssistant['ragPipeline'], 'processDocuments')
+      const mockProcessDocuments = vi.spyOn(aiqResearchAssistant['ragPipeline'], 'processDocuments')
         .mockResolvedValue([
           {
             filePath: './example/sample.pdf',
@@ -322,7 +324,7 @@ describe('Multimodal RAG Functionality', () => {
 
     it('should handle unsupported file types gracefully', async () => {
       // Mock file handler to bypass actual file system operations
-      const mockValidateFile = jest.spyOn(ragPipeline['fileHandler'], 'validateFile')
+      const mockValidateFile = vi.spyOn(ragPipeline['fileHandler'], 'validateFile')
         .mockResolvedValue({
           path: './example/sample.txt',
           name: 'sample',
@@ -353,7 +355,7 @@ describe('Multimodal RAG Functionality', () => {
 
     it('should handle file not found errors', async () => {
       // Mock file handler to simulate file not found
-      const mockValidateFile = jest.spyOn(ragPipeline['fileHandler'], 'validateFile')
+      const mockValidateFile = vi.spyOn(ragPipeline['fileHandler'], 'validateFile')
         .mockRejectedValue(new Error('ENOENT: no such file or directory'));
 
       await expect(ragPipeline.processDocument('./nonexistent/file.pdf'))
@@ -366,7 +368,7 @@ describe('Multimodal RAG Functionality', () => {
 
     it('should handle concurrent document processing', async () => {
       // Mock file handler to bypass actual file system operations
-      const mockValidateFile = jest.spyOn(ragPipeline['fileHandler'], 'validateFile')
+      const mockValidateFile = vi.spyOn(ragPipeline['fileHandler'], 'validateFile')
         .mockImplementation((filePath: string) => Promise.resolve({
           path: filePath,
           name: filePath.split('/').pop()?.split('.')[0] || 'unknown',
@@ -376,7 +378,7 @@ describe('Multimodal RAG Functionality', () => {
         }));
 
       // Mock PDF processor to return sample text
-      const mockExtractText = jest.spyOn(ragPipeline['pdfProcessor'], 'extractText')
+      const mockExtractText = vi.spyOn(ragPipeline['pdfProcessor'], 'extractText')
         .mockImplementation((filePath: string) => Promise.resolve(`Content of ${filePath}`));
 
       const filePaths = [

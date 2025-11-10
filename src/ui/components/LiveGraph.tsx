@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { GraphNode, GraphEdge } from '../state';
+import { GraphNode, GraphEdge } from '../state/index.ts';
 
 interface LiveGraphProps {
   nodes: GraphNode[];

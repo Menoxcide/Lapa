@@ -6,7 +6,7 @@
  * and integration details.
  */
 
-import { Agent, AgentType } from './moe-router';
+import { Agent, AgentType } from './moe-router.ts';
 import { writeFile } from 'fs/promises';
 import { join } from 'path';
 

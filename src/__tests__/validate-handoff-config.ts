@@ -1,4 +1,5 @@
-import { HybridHandoffSystem, HandoffConfigValidationError, HANDOFF_CONFIG_PRESETS } from '../orchestrator/handoffs';
+import { describe, it, expect } from "vitest";
+import { HybridHandoffSystem, HandoffConfigValidationError, HANDOFF_CONFIG_PRESETS } from '../orchestrator/handoffs.ts';
 
 async function testHandoffConfiguration() {
   console.log('Testing Handoff Configuration Enhancements...\n');

@@ -1,13 +1,14 @@
-import React from 'react';
+import { describe, it, expect } from "vitest";
 import { render, screen, fireEvent } from '@testing-library/react';
-import ControlPanel from '../../../src/ui/components/ControlPanel';
+import { vi } from 'vitest';
+import ControlPanel from '../../../ui/components/ControlPanel.tsx';
 
 describe('ControlPanel', () => {
   const mockHandlers = {
-    onPause: jest.fn(),
-    onResume: jest.fn(),
-    onRedirect: jest.fn(),
-    onReset: jest.fn()
+    onPause: vi.fn(),
+    onResume: vi.fn(),
+    onRedirect: vi.fn(),
+    onReset: vi.fn()
   };
 
   beforeEach(() => {
