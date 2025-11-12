@@ -1,11 +1,12 @@
-# START HERE: LAPA v1.2 Protocol-Resonant Nexus — Phase 10 In Progress
+# START HERE: LAPA v1.2 Protocol-Resonant Nexus — Phase 11 In Progress
 
 ## Resume State
 - **v1.1 Phase 9 COMPLETE**: Claude TDD loop, E2B MCP sandbox, OpenAI handoffs
-- **v1.2 Phase 10 IN PROGRESS**: AutoGen Core + Roo Modes
+- **v1.2 Phase 10 COMPLETE**: AutoGen Core + Roo Modes (event-bus.ts, modes.ts, agent-tool.ts)
+- **v1.2 Phase 11 IN PROGRESS**: MCP + A2A Connectors
 - **Branch**: `v1.2-nexus-loop`
-- **Resume Files**: `src/orchestrator/handoffs.ts`, `src/swarm/delegate.ts`
-- **Next**: Phase 11 — MCP + A2A Connectors
+- **Resume Files**: `src/orchestrator/a2a-mediator.ts`, `src/swarm/a2a-mediator.ts`
+- **Next**: Phase 11 — MCP + A2A Connectors (mcp-connector.ts, handshake.ts)
 
 ## Core Rules
 - **TOON-only** — raw reasoning

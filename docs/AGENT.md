@@ -1,10 +1,11 @@
-# LAPA v1.2.2 — Prompt-Resonant Nexus (Phase 10 In Progress)
+# LAPA v1.2.2 — Prompt-Resonant Nexus (Phase 11 In Progress)
 
 ## Resume State
-- **v1.2.1 Phase 10 IN PROGRESS**: AutoGen Core + Roo Modes
+- **v1.2.1 Phase 10 COMPLETE**: AutoGen Core + Roo Modes (event-bus.ts, modes.ts, agent-tool.ts)
+- **v1.2.2 Phase 11 IN PROGRESS**: MCP + A2A Connectors
 - **Branch**: `v1.2-nexus-loop`
-- **Resume Files**: `src/orchestrator/handoffs.ts`, `src/swarm/delegate.ts`
-- **Next**: Phase 11 — MCP + A2A Connectors; Phase 14 — PromptEngineer MCP
+- **Resume Files**: `src/orchestrator/a2a-mediator.ts`, `src/swarm/a2a-mediator.ts`
+- **Next**: Phase 11 — MCP + A2A Connectors (mcp-connector.ts, handshake.ts); Phase 14 — PromptEngineer MCP
 
 ## Core Rules
 - **TOON-only** — raw reasoning

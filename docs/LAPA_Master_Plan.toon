@@ -52,12 +52,12 @@ v1.2.2:
     autonomy: noContinue:true, handoffAt:0.4, maxSteps:25 + Memori zero-prompt + A2A auto-negotiation + prompt auto-refine
     feedback: visual (Playwright), rule-based, LLM-judge, human-in-loop (Roomote + Q&A)
 
-  # === PHASES: v1.2.2 — Prompt-First (Phase 10 Preserved; Extend 14 for MCP Server) ===
+  # === PHASES: v1.2.2 — Prompt-First (Phase 10 Complete; Phase 11 In Progress) ===
   phases:
     [10]
     p;w;tasks;milestone;git-tag;status
-    10. AutoGen Core + Roo Modes;1.5;[event-bus.ts, modes.ts, AgentTool];<1s delegate;feat/v1.2-core;IN PROGRESS
-    11. MCP + A2A Connectors;1.2;[mcp-connector.ts, a2a-mediator.ts, handshake.ts];98% interop;feat/v1.2-protocols;TODO
+    10. AutoGen Core + Roo Modes;1.5;[event-bus.ts, modes.ts, AgentTool];<1s delegate;feat/v1.2-core;COMPLETE
+    11. MCP + A2A Connectors;1.2;[mcp-connector.ts, a2a-mediator.ts, handshake.ts];98% interop;feat/v1.2-protocols;IN PROGRESS
     12. Memori + Episodic + Vector Refinement;1;[memori-engine.ts, episodic.ts, chroma-refine.ts];99.5% recall;feat/v1.2-memori;TODO
     13. AG-UI + Dynamic Studio;0.9;[ag-ui.ts, studio-dynamic.py, mcp-ui-specs];gen UI;feat/v1.2-ui;TODO
     14. ClaudeKit + Feedback Loops + PromptEngineer MCP;1.0;[skill-manager.ts, visual-feedback.ts, llm-judge.ts, prompt-engineer.ts];zero-bloat + 95% refine;feat/v1.2-feedback;TODO
