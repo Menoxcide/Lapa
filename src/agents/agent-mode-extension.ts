@@ -55,6 +55,12 @@ export interface ModeAwareAgent extends Agent {
    * @returns Promise that resolves with the task result
    */
   executeTaskWithModeAdaptation(task: Task): Promise<any>;
+  
+  /**
+   * Get the current mode
+   * @returns Current mode
+   */
+  getCurrentMode(): RooMode;
 }
 
 /**

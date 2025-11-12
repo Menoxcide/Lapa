@@ -8,6 +8,7 @@ describe('SpeechBubbles', () => {
   const mockMessages: Message[] = [
     {
       id: 'msg-1',
+      agentId: 'agent-1',
       agentName: 'Code Generator',
       content: 'I am generating the code for the new feature.',
       type: 'thought',
@@ -15,6 +16,7 @@ describe('SpeechBubbles', () => {
     },
     {
       id: 'msg-2',
+      agentId: 'agent-1',
       agentName: 'Code Generator',
       content: 'Executing code generation task.',
       type: 'action',
@@ -22,6 +24,7 @@ describe('SpeechBubbles', () => {
     },
     {
       id: 'msg-3',
+      agentId: 'agent-1',
       agentName: 'Code Generator',
       content: 'Code generation completed successfully.',
       type: 'result',
@@ -108,6 +111,7 @@ describe('SpeechBubbles', () => {
   it('should handle message with unknown type', () => {
     const unknownTypeMessage: Message[] = [{
       id: 'msg-4',
+      agentId: 'agent-2',
       agentName: 'Unknown Agent',
       content: 'Unknown message type.',
       // @ts-ignore - Testing invalid type
@@ -137,6 +141,7 @@ describe('SpeechBubbles', () => {
     const specialCharMessages: Message[] = [
       {
         id: 'msg-special',
+        agentId: 'agent-3',
         agentName: 'Special Agent',
         content: 'Message with special characters: @#$%^&*()_+-=[]{}|;:,.<>?`~"',
         type: 'thought',
@@ -153,6 +158,7 @@ describe('SpeechBubbles', () => {
     const multilineMessage: Message[] = [
       {
         id: 'msg-multiline',
+        agentId: 'agent-4',
         agentName: 'Multiline Agent',
         content: 'This is line 1\nThis is line 2\nThis is line 3',
         type: 'thought',
@@ -187,6 +193,7 @@ describe('SpeechBubbles', () => {
   it('should handle large number of messages', () => {
     const manyMessages: Message[] = Array.from({ length: 50 }, (_, i) => ({
       id: `msg-${i}`,
+      agentId: `agent-${i}`,
       agentName: `Agent ${i}`,
       content: `Message content ${i}`,
       type: 'thought',

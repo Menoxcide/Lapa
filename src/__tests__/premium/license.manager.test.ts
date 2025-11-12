@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, type Mock } from "vitest";
 import { LicenseManager, LicenseData } from '../../premium/license.manager.ts';
 import { randomBytes } from 'crypto';
 import { validate as validateUuid } from 'uuid';
@@ -25,14 +25,14 @@ describe('LicenseManager', () => {
     vi.clearAllMocks();
     
     // Setup default mock behaviors
-    (randomBytes as vi.Mock)
-      .mockImplementation((size) => {
+    (randomBytes as Mock)
+      .mockImplementation((size: number) => {
         if (size === 16) return Buffer.from('abcdefghijklmnop');
         if (size === 32) return Buffer.from('abcdefghijklmnopqrstuvwxyz123456');
         return Buffer.from('test');
       });
     
-    (validateUuid as vi.Mock).mockReturnValue(true);
+    (validateUuid as Mock).mockReturnValue(true);
     
     // Mock process.env for testing
     (process as any).env = {
@@ -153,7 +153,7 @@ describe('LicenseManager', () => {
     });
 
     it('should validate UUID format when applicable', () => {
-      (validateUuid as vi.Mock).mockReturnValue(false);
+      (validateUuid as Mock).mockReturnValue(false);
       
       expect(() => licenseManager.generateLicense('123e4567-e89b-12d3-a456-426614174000', 'product', ['feature']))
         .toThrow('userId must be a valid UUID if provided in UUID format');

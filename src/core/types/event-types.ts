@@ -184,6 +184,106 @@ export interface PerformanceMetricEvent extends LAPAEvent {
   };
 }
 
+// Mode events
+export interface ModeChangedEvent extends LAPAEvent {
+  type: 'mode.changed';
+  payload: {
+    fromMode: string;
+    toMode: string;
+    reason?: string;
+    context?: Record<string, any>;
+  };
+}
+
+export interface ModeChangeRequestEvent extends LAPAEvent {
+  type: 'mode.change.request';
+  payload: {
+    fromMode: string;
+    toMode: string;
+    reason?: string;
+    context?: Record<string, any>;
+  };
+}
+
+export interface ModeControllerInitializedEvent extends LAPAEvent {
+  type: 'mode.controller.initialized';
+  payload: {
+    initialMode: string;
+  };
+}
+
+// Tool execution events
+export interface ToolExecutionStartedEvent extends LAPAEvent {
+  type: 'tool.execution.started';
+  payload: {
+    toolName: string;
+    agentId: string;
+    taskId: string;
+    timestamp: number;
+  };
+}
+
+export interface ToolExecutionCompletedEvent extends LAPAEvent {
+  type: 'tool.execution.completed';
+  payload: {
+    toolName: string;
+    agentId: string;
+    taskId: string;
+    success: boolean;
+    executionTime: number;
+    timestamp: number;
+  };
+}
+
+export interface ToolExecutionFailedEvent extends LAPAEvent {
+  type: 'tool.execution.failed';
+  payload: {
+    toolName: string;
+    agentId: string;
+    taskId: string;
+    error: string;
+    executionTime: number;
+    timestamp: number;
+  };
+}
+
+// Context preservation events
+export interface ContextPreservedEvent extends LAPAEvent {
+  type: 'context.preserved';
+  payload: {
+    contextSize: number;
+  };
+}
+
+export interface ContextPreservationFailedEvent extends LAPAEvent {
+  type: 'context.preservation.failed';
+  payload: {
+    handoffId: string;
+    error: string;
+  };
+}
+
+// Event processing events
+export interface EventProcessedEvent extends LAPAEvent {
+  type: 'event.processed';
+  payload: {
+    taskId: string;
+    description: string;
+    type: string;
+    priority: number;
+    context: Record<string, any>;
+  };
+}
+
+export interface EventProcessingFailedEvent extends LAPAEvent {
+  type: 'event.processing.failed';
+  payload: {
+    error: string;
+    stackTrace?: string;
+    component: string;
+  };
+}
+
 // Event map for type-safe event handling
 export interface LAPAEventMap {
   'handoff.initiated': HandoffInitiatedEvent;
@@ -207,6 +307,7 @@ export interface LAPAEventMap {
   // Mode events
   'mode.changed': any; // TODO: Define proper interface
   'mode.change.request': any; // TODO: Define proper interface
+  'mode.change.failed': any; // TODO: Define proper interface
   'mode.controller.initialized': any; // TODO: Define proper interface
   
   // Tool execution events
@@ -252,6 +353,25 @@ export interface LAPAEventMap {
   // Event processing events
   'event.processed': any; // TODO: Define proper interface
   'event.processing.failed': any; // TODO: Define proper interface
+  
+  // A2A handshake events
+  'a2a.handshake.request': any; // TODO: Define proper interface
+  'a2a.handshake.response': any; // TODO: Define proper interface
+  'a2a.task.negotiation.request': any; // TODO: Define proper interface
+  'a2a.task.negotiation.response': any; // TODO: Define proper interface
+  'a2a.state.sync.request': any; // TODO: Define proper interface
+  'a2a.state.sync.response': any; // TODO: Define proper interface
+  
+  // AG-UI events
+  'ag-ui.message': any; // TODO: Define proper interface
+  'ag-ui.stream.start': any; // TODO: Define proper interface
+  'ag-ui.stream.end': any; // TODO: Define proper interface
+  
+  // Delegate events
+  'delegate.task.request': any; // TODO: Define proper interface
+  'delegate.task.started': any; // TODO: Define proper interface
+  'delegate.task.completed': any; // TODO: Define proper interface
+  'delegate.task.failed': any; // TODO: Define proper interface
 }
 
 // Union type of all event types

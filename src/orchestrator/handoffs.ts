@@ -9,6 +9,7 @@ import { LangGraphOrchestrator, GraphNode, GraphEdge, WorkflowState, Orchestrati
 import { ContextHandoffManager, ContextHandoffRequest } from '../swarm/context.handoff.ts';
 import { Agent, Task, moeRouter } from '../agents/moe-router.ts';
 import { Agent as OpenAIAgent, run } from '@openai/agents';
+import { a2aMediator, A2AHandshakeRequest } from './a2a-mediator.ts';
 import { performance } from 'perf_hooks';
 
 // OpenAI Agent type (using actual SDK)
@@ -1277,7 +1278,7 @@ export class HybridHandoffSystem {
   }
 
   /**
-   * Initiates a context handoff between agents
+   * Initiates a context handoff between agents with A2A handshake
    * @param sourceAgentId Source agent ID
    * @param targetAgentId Target agent ID
    * @param taskId Task ID
@@ -1297,6 +1298,34 @@ export class HybridHandoffSystem {
     // Log handoff start
     const handoffStartLog = `Handoff started from ${sourceAgentId} to ${targetAgentId} for task ${taskId}`;
     console.log(handoffStartLog);
+    
+    // A2A handshake before handoff (Phase 10 requirement)
+    try {
+      const task = context.task as Task | undefined;
+      const handshakeRequest: A2AHandshakeRequest = {
+        sourceAgentId,
+        targetAgentId,
+        taskId,
+        taskDescription: task?.description || 'Task handoff',
+        capabilities: task ? this.extractCapabilitiesFromTask(task) : [],
+        context,
+        priority: task?.priority && ['low', 'medium', 'high'].includes(task.priority.toString())
+          ? task.priority.toString() as 'low' | 'medium' | 'high'
+          : 'medium'
+      };
+      
+      console.log(`Initiating A2A handshake before handoff: ${taskId}`);
+      const handshakeResponse = await a2aMediator.initiateHandshake(handshakeRequest);
+      
+      if (!handshakeResponse.accepted) {
+        throw new Error(`A2A handshake rejected: ${handshakeResponse.reason || 'Unknown reason'}`);
+      }
+      
+      console.log(`A2A handshake accepted for task ${taskId}`);
+    } catch (error) {
+      console.warn(`A2A handshake failed, proceeding with handoff anyway:`, error);
+      // Continue with handoff even if handshake fails (graceful degradation)
+    }
     
     // Notify handoff start hook
     let hookErrorOccurred = false;
@@ -1687,6 +1716,35 @@ export class HybridHandoffSystem {
    * Updates latency metrics with new measurement
    * @param latency Latency in milliseconds
    */
+  /**
+   * Extracts capabilities from a task description
+   * @param task Task to extract capabilities from
+   * @returns Array of capability strings
+   */
+  private extractCapabilitiesFromTask(task: Task): string[] {
+    const capabilities: string[] = [];
+    const description = task.description.toLowerCase();
+    
+    // Simple keyword-based capability extraction
+    if (description.includes('code') || description.includes('implement')) {
+      capabilities.push('code_generation');
+    }
+    if (description.includes('review') || description.includes('analyze')) {
+      capabilities.push('code_review');
+    }
+    if (description.includes('test') || description.includes('testing')) {
+      capabilities.push('testing');
+    }
+    if (description.includes('debug') || description.includes('fix')) {
+      capabilities.push('debugging');
+    }
+    if (description.includes('design') || description.includes('architecture')) {
+      capabilities.push('architecture_planning');
+    }
+    
+    return capabilities.length > 0 ? capabilities : ['general'];
+  }
+  
   /**
    * Removes circular references from an object
    * @param obj Object to process

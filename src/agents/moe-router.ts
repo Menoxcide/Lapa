@@ -14,7 +14,9 @@ export type AgentType =
   | 'debugger'     // Bug detection and fixing
   | 'optimizer'    // Performance optimization
   | 'tester'       // Test creation and execution
-  | 'researcher';  // Research and information gathering
+  | 'researcher'   // Research and information gathering
+  | 'custom'       // Custom agent type for specialized tasks
+  | 'removable';   // Removable agent type for temporary agents
 
 // Define a task with its characteristics
 export interface Task {

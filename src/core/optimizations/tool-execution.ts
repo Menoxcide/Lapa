@@ -6,14 +6,14 @@
  * resource management optimizations.
  */
 
-import { 
-  AgentToolExecutionContext, 
+import {
+  AgentToolExecutionContext,
   AgentToolExecutionResult,
   AgentTool
-} from '../types/agent-types.ts';
+} from '../types/agent-types.js';
 import { performance } from 'perf_hooks';
 import { lapaCacheManager } from './caching.ts';
-import { ToolExecutorResult } from '../utils/tool-executor.ts';
+import { ToolExecutorResult } from '../utils/tool-executor.js';
 
 // Tool execution optimization configuration
 interface ToolExecutionConfig {
@@ -257,11 +257,11 @@ export class OptimizedToolExecutor {
 
       // Execute tool
       tool.execute(context)
-        .then(result => {
+        .then((result: AgentToolExecutionResult) => {
           clearTimeout(timeout);
           resolve(result);
         })
-        .catch(error => {
+        .catch((error: any) => {
           clearTimeout(timeout);
           reject(error);
         });
@@ -385,7 +385,7 @@ export class OptimizedBatchToolExecutor {
       }
 
       // Execute tool
-      const result = await this.executor.executeTool(tool, context);
+      const result: ToolExecutorResult = await this.executor.executeTool(tool, context);
       results.push(result);
 
       // Store result for future dependencies

@@ -14,7 +14,7 @@ import {
   AgentToolType,
   agentToolRegistry
 } from '../../core/agent-tool.ts';
-import { ToolExecutor } from '../../core/utils/tool-executor.ts';
+import { ToolExecutor, ToolExecutorResult } from '../../core/utils/tool-executor.js';
 
 // Mock tool for testing
 class MockTool extends BaseAgentTool {
@@ -162,7 +162,7 @@ describe('AgentTool Integration with Event Bus', () => {
       context: {}
     };
 
-    const result = await toolExecutor.executeTool(failingTool, context);
+    const result: ToolExecutorResult = await toolExecutor.executeTool(failingTool, context);
     
     // Check that the result indicates failure
     expect(result.success).toBe(false);
@@ -247,7 +247,7 @@ describe('AgentTool Integration with Event Bus', () => {
     // Override the eventBus in ToolExecutor to use our test instance
     (timeoutExecutor as any).eventBus = eventBus;
 
-    const result = await timeoutExecutor.executeTool(slowTool, context);
+    const result: ToolExecutorResult = await timeoutExecutor.executeTool(slowTool, context);
     
     // Check that the result indicates timeout failure
     expect(result.success).toBe(false);

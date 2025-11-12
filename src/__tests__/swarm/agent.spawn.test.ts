@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, type Mock } from "vitest";
 import { AgentSpawningSystem, SpawnRequest, SpawnResult, AgentTemplate } from '../../swarm/agent.spawn.ts';
 import { AgentType, Task } from '../../agents/moe-router.ts';
 import { sendNIMInferenceRequest } from '../../inference/nim.local.ts';
@@ -118,7 +118,7 @@ describe('AgentSpawningSystem', () => {
 
     it('should handle NIM summarization failure gracefully', async () => {
       // Mock NIM failure
-      (sendNIMInferenceRequest as vi.Mock).mockRejectedValue(new Error('NIM unavailable'));
+      (sendNIMInferenceRequest as Mock).mockRejectedValue(new Error('NIM unavailable'));
       
       const request: SpawnRequest = {
         parentId: 'parent-1',

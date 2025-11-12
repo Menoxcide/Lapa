@@ -46,7 +46,7 @@ describe('Validation Integration', () => {
       // 3. Simulate tool execution with potential failure and recovery
       const mockTool: AgentTool = {
         name: 'handoff-tool',
-        type: 'handoff',
+        type: 'testing',
         description: 'Tool for handling handoffs',
         version: '1.0.0',
         execute: jest.fn()

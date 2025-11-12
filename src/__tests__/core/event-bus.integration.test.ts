@@ -316,7 +316,7 @@ describe('LAPA Core Event Bus Integration', () => {
   describe('Cross-Language Compatibility', () => {
     it('should serialize and deserialize events for interop', async () => {
       // Import the serialization functions
-      const { serializeEventForInterop, deserializeEventFromInterop } = await import('../../core/types/event-types');
+      const { serializeEventForInterop, deserializeEventFromInterop } = await import('../../core/types/event-types.js');
 
       // Create a test event
       const testEvent: TaskCreatedEvent = {

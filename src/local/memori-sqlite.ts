@@ -88,8 +88,8 @@ export class AutoGenMemoriSQLite {
       
       // Initialize database
       this.db = new Database(this.config.dbPath);
-      const dbRun = promisify(this.db.run.bind(this.db));
-      const dbSerialize = promisify(this.db.serialize.bind(this.db));
+      const dbRun = promisify(this.db.run.bind(this.db)) as (sql: string, ...params: any[]) => Promise<void>;
+      const dbSerialize = promisify(this.db.serialize.bind(this.db)) as (callback: () => void) => Promise<void>;
       
       // Create tables
       await dbSerialize(() => {
@@ -150,7 +150,7 @@ export class AutoGenMemoriSQLite {
     }
     
     try {
-      const dbRun = promisify(this.db.run.bind(this.db));
+      const dbRun = promisify(this.db.run.bind(this.db)) as (sql: string, ...params: any[]) => Promise<void>;
       await dbRun(
         `INSERT OR REPLACE INTO entities (id, type, value, confidence, timestamp, source_agent_id, task_id)
          VALUES (?, ?, ?, ?, ?, ?, ?)`,
@@ -182,7 +182,7 @@ export class AutoGenMemoriSQLite {
     }
     
     try {
-      const dbAll = promisify(this.db.all.bind(this.db));
+      const dbAll = promisify(this.db.all.bind(this.db)) as (sql: string, ...params: any[]) => Promise<any[]>;
       const rows = await dbAll(
         `SELECT id, type, value, confidence, timestamp, source_agent_id, task_id
          FROM entities
@@ -193,7 +193,7 @@ export class AutoGenMemoriSQLite {
         limit
       );
       
-      return rows.map(row => ({
+      return rows.map((row: any) => ({
         id: row.id,
         type: row.type,
         value: row.value,
@@ -219,7 +219,7 @@ export class AutoGenMemoriSQLite {
     }
     
     try {
-      const dbRun = promisify(this.db.run.bind(this.db));
+      const dbRun = promisify(this.db.run.bind(this.db)) as (sql: string, ...params: any[]) => Promise<void>;
       await dbRun(
         `INSERT INTO conversation_history (id, agent_id, task_id, role, content, timestamp)
          VALUES (?, ?, ?, ?, ?, ?)`,
@@ -253,7 +253,7 @@ export class AutoGenMemoriSQLite {
     }
     
     try {
-      const dbAll = promisify(this.db.all.bind(this.db));
+      const dbAll = promisify(this.db.all.bind(this.db)) as (sql: string, ...params: any[]) => Promise<any[]>;
       const rows = await dbAll(
         `SELECT id, agent_id, task_id, role, content, timestamp
          FROM conversation_history
@@ -264,7 +264,7 @@ export class AutoGenMemoriSQLite {
         limit
       );
       
-      return rows.map(row => ({
+      return rows.map((row: any) => ({
         id: row.id,
         agentId: row.agent_id,
         taskId: row.task_id,
@@ -289,7 +289,7 @@ export class AutoGenMemoriSQLite {
     }
     
     try {
-      const dbRun = promisify(this.db.run.bind(this.db));
+      const dbRun = promisify(this.db.run.bind(this.db)) as (sql: string, ...params: any[]) => Promise<void>;
       await dbRun(
         `INSERT INTO performance_metrics (id, agent_id, task_id, metric_type, value, timestamp)
          VALUES (?, ?, ?, ?, ?, ?)`,
@@ -324,7 +324,7 @@ export class AutoGenMemoriSQLite {
     }
     
     try {
-      const dbAll = promisify(this.db.all.bind(this.db));
+      const dbAll = promisify(this.db.all.bind(this.db)) as (sql: string, ...params: any[]) => Promise<any[]>;
       let query = `SELECT id, agent_id, task_id, metric_type, value, timestamp
                    FROM performance_metrics
                    WHERE agent_id = ?`;
@@ -340,7 +340,7 @@ export class AutoGenMemoriSQLite {
       
       const rows = await dbAll(query, ...params);
       
-      return rows.map(row => ({
+      return rows.map((row: any) => ({
         id: row.id,
         agentId: row.agent_id,
         taskId: row.task_id,
@@ -365,7 +365,7 @@ export class AutoGenMemoriSQLite {
     }
     
     try {
-      const dbRun = promisify(this.db.run.bind(this.db));
+      const dbRun = promisify(this.db.run.bind(this.db)) as (sql: string, ...params: any[]) => Promise<void>;
       
       // Delete oldest entries if we exceed the maximum
       await dbRun(
@@ -473,7 +473,7 @@ export class AutoGenMemoriSQLite {
    */
   async close(): Promise<void> {
     if (this.db) {
-      const dbClose = promisify(this.db.close.bind(this.db));
+      const dbClose = promisify(this.db.close.bind(this.db)) as () => Promise<void>;
       await dbClose();
       this.db = null;
       this.isInitialized = false;

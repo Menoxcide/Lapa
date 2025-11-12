@@ -107,7 +107,7 @@ export class CompatibleMoERouter {
    */
   registerAgent(agent: LegacyAgent | NewAgent): void {
     // If it's a new agent, adapt it to legacy format
-    if (this isNewAgent(agent)) {
+    if (this.isNewAgent(agent)) {
       const adapter = new NewAgentAdapter(agent);
       this.legacyRouter.registerAgent(adapter);
     } else {

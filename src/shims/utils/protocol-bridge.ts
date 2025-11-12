@@ -6,7 +6,7 @@
  */
 
 import { LAPAEventBus, eventBus } from '../../core/event-bus.ts';
-import { LAPAEvent, CrossLanguageEvent } from '../../core/types/event-types.ts';
+import { LAPAEvent, CrossLanguageEvent, LAPAEventMap } from '../../core/types/event-types.ts';
 import { serializeEventForInterop, deserializeEventFromInterop, isValidCrossLanguageEvent } from '../types/serialization.ts';
 
 /**
@@ -53,14 +53,14 @@ export abstract class ProtocolBridge {
    * Subscribe to events from the event bus for forwarding to external systems
    * @param eventType The type of event to subscribe to
    */
-  protected subscribeToEvents(eventType: string): void {
+  protected subscribeToEvents(eventType: keyof LAPAEventMap): void {
     this.eventBus.subscribe(eventType, async (event: LAPAEvent) => {
       if (this.isInitialized) {
         try {
           const serializedEvent = serializeEventForInterop(event);
           await this.sendEvent(serializedEvent);
         } catch (error) {
-          console.error(`Error sending event of type ${eventType} to external system:`, error);
+          console.error(`Error sending event of type ${String(eventType)} to external system:`, error);
         }
       }
     });

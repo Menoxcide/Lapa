@@ -1,8 +1,8 @@
 /**
- * Swarm Delegate for LAPA v1.1 Local-First Implementation
+ * Swarm Delegate for LAPA v1.2 Protocol-Resonant Nexus — Phase 10
  * 
- * This module implements the swarm delegate that integrates local client functionality
- * into swarm operations. It enables swarm-level handoff functionality using local inference
+ * This module implements the swarm delegate with AutoGen Core integration and Roo Mode support.
+ * It enables swarm-level handoff functionality using local inference with <1s latency target
  * while maintaining compatibility with existing swarm consensus and voting mechanisms.
  */
 
@@ -10,14 +10,21 @@ import { LocalHandoffSystem, localHandoff } from '../orchestrator/handoffs.local
 import { ConsensusVotingSystem, VoteOption } from './consensus.voting.ts';
 import { ContextHandoffManager } from './context.handoff.ts';
 import { Task, Agent } from '../agents/moe-router.ts';
+import { rooModeController, RooModeController } from '../modes/modes.ts';
+import { RooMode } from '../modes/types/mode-types.ts';
+import { eventBus, LAPAEventBus } from '../core/event-bus.ts';
 import { z } from 'zod';
+import { performance } from 'perf_hooks';
 
 // Zod schema for SwarmDelegateConfig validation
 const swarmDelegateConfigSchema = z.object({
   enableLocalInference: z.boolean(),
   latencyTargetMs: z.number().min(0),
   maxConcurrentDelegations: z.number().min(1),
-  enableConsensusVoting: z.boolean()
+  enableConsensusVoting: z.boolean(),
+  enableAutoGenCore: z.boolean(),
+  enableRooModeIntegration: z.boolean(),
+  enableFastPath: z.boolean() // Fast path for <1s delegate
 });
 
 // Type definitions for swarm delegate
@@ -26,6 +33,9 @@ export interface SwarmDelegateConfig {
   latencyTargetMs: number;
   maxConcurrentDelegations: number;
   enableConsensusVoting: boolean;
+  enableAutoGenCore: boolean;
+  enableRooModeIntegration: boolean;
+  enableFastPath: boolean;
 }
 
 // Context interface for tasks
@@ -80,33 +90,53 @@ export interface SwarmAgent {
 }
 
 /**
- * LAPA Swarm Delegate
+ * LAPA Swarm Delegate with AutoGen Core + Roo Mode Integration
  * 
  * Manages delegation of tasks within the swarm using local inference when available,
- * integrating with consensus mechanisms for collective decision-making.
+ * integrating with AutoGen Core, Roo Modes, and consensus mechanisms for collective decision-making.
+ * Optimized for <1s handoff latency.
  */
 export class SwarmDelegate {
   private localHandoffSystem: LocalHandoffSystem;
   private consensusVotingSystem: ConsensusVotingSystem;
   private contextHandoffManager: ContextHandoffManager;
+  private rooModeController: RooModeController;
+  private eventBus: LAPAEventBus;
   private config: SwarmDelegateConfig;
   private registeredAgents: Map<string, SwarmAgent> = new Map();
+  private autogenCoreAgents: Map<string, SwarmAgent> = new Map();
+  private fastPathCache: Map<string, { agentId: string; timestamp: number }> = new Map();
+  private readonly FAST_PATH_TTL = 5000; // 5 seconds cache TTL
   
-  constructor(config?: Partial<SwarmDelegateConfig>) {
+  constructor(config?: Partial<SwarmDelegateConfig>, eventBusInstance?: LAPAEventBus, modeController?: RooModeController) {
     this.localHandoffSystem = new LocalHandoffSystem();
     this.consensusVotingSystem = new ConsensusVotingSystem();
     this.contextHandoffManager = new ContextHandoffManager();
+    this.eventBus = eventBusInstance || eventBus;
+    this.rooModeController = modeController || rooModeController;
     
     // Validate config with Zod schema
     const validatedConfig = swarmDelegateConfigSchema.parse({
       enableLocalInference: true,
-      latencyTargetMs: 2000,
+      latencyTargetMs: 1000, // <1s target for Phase 10
       maxConcurrentDelegations: 10,
       enableConsensusVoting: true,
+      enableAutoGenCore: true,
+      enableRooModeIntegration: true,
+      enableFastPath: true,
       ...config
     });
     
     this.config = validatedConfig;
+    
+    // Subscribe to mode change events for Roo mode integration
+    if (this.config.enableRooModeIntegration) {
+      this.eventBus.subscribe('mode.changed', async (event) => {
+        // Clear fast path cache on mode change
+        this.fastPathCache.clear();
+        console.log('Fast path cache cleared due to mode change');
+      });
+    }
   }
   
   /**
@@ -130,7 +160,8 @@ export class SwarmDelegate {
   }
   
   /**
-   * Delegates a task to the most appropriate agent using local inference when possible
+   * Delegates a task to the most appropriate agent using AutoGen Core + Roo Mode integration
+   * Optimized for <1s handoff latency with fast path caching
    * @param task Task to delegate
    * @param context Context for the task
    * @returns Promise that resolves with the delegation result
@@ -139,14 +170,71 @@ export class SwarmDelegate {
     const startTime = performance.now();
     
     try {
-      console.log(`Delegating task: ${task.id} using swarm delegate`);
+      console.log(`Delegating task: ${task.id} using swarm delegate (AutoGen Core + Roo Mode)`);
       
-      // If local inference is enabled and we have local agents, try local delegation first
+      // Fast path: Check cache for recent similar task delegations (<1s optimization)
+      if (this.config.enableFastPath) {
+        const cached = this.getFastPathAgent(task);
+        if (cached) {
+          console.log(`Using fast path cache for task: ${task.id}`);
+          const fastResult = await this.delegateToCachedAgent(task, context, cached.agentId);
+          if (fastResult.success) {
+            const endTime = performance.now();
+            const duration = endTime - startTime;
+            
+            const result = {
+              ...fastResult,
+              metrics: {
+                duration,
+                latencyWithinTarget: duration <= this.config.latencyTargetMs
+              }
+            };
+            
+            return delegationResultSchema.parse(result);
+          }
+        }
+      }
+      
+      // Get current Roo mode for mode-aware delegation
+      const currentMode = this.config.enableRooModeIntegration 
+        ? this.rooModeController.getCurrentMode() 
+        : null;
+      
+      // AutoGen Core integration: Try AutoGen agents first if enabled
+      if (this.config.enableAutoGenCore && this.hasAutoGenAgents()) {
+        const autogenResult = await this.delegateToAutoGenAgent(task, context, currentMode);
+        if (autogenResult.success) {
+          const endTime = performance.now();
+          const duration = endTime - startTime;
+          
+          // Cache successful delegation for fast path
+          if (this.config.enableFastPath && autogenResult.delegatedToAgentId) {
+            this.setFastPathAgent(task, autogenResult.delegatedToAgentId);
+          }
+          
+          const result = {
+            ...autogenResult,
+            metrics: {
+              duration,
+              latencyWithinTarget: duration <= this.config.latencyTargetMs
+            }
+          };
+          
+          return delegationResultSchema.parse(result);
+        }
+      }
+      
+      // If local inference is enabled and we have local agents, try local delegation
       if (this.config.enableLocalInference && this.hasLocalAgents()) {
         const localResult = await this.delegateToLocalAgent(task, context);
         if (localResult.success) {
           const endTime = performance.now();
           const duration = endTime - startTime;
+          
+          // Cache successful delegation for fast path
+          if (this.config.enableFastPath && localResult.delegatedToAgentId) {
+            this.setFastPathAgent(task, localResult.delegatedToAgentId);
+          }
           
           const result = {
             ...localResult,
@@ -156,15 +244,19 @@ export class SwarmDelegate {
             }
           };
           
-          // Validate result with Zod schema
           return delegationResultSchema.parse(result);
         }
       }
       
-      // Fall back to consensus-based delegation if local delegation failed or is disabled
+      // Fall back to consensus-based delegation if other methods failed or are disabled
       const consensusResult = await this.delegateViaConsensus(task, context);
       const endTime = performance.now();
       const duration = endTime - startTime;
+      
+      // Cache successful delegation for fast path
+      if (this.config.enableFastPath && consensusResult.delegatedToAgentId) {
+        this.setFastPathAgent(task, consensusResult.delegatedToAgentId);
+      }
       
       const result = {
         ...consensusResult,
@@ -174,7 +266,6 @@ export class SwarmDelegate {
         }
       };
       
-      // Validate result with Zod schema
       return delegationResultSchema.parse(result);
     } catch (error) {
       const endTime = performance.now();
@@ -192,7 +283,6 @@ export class SwarmDelegate {
         }
       };
       
-      // Validate result with Zod schema
       return delegationResultSchema.parse(result);
     }
   }
@@ -376,6 +466,242 @@ export class SwarmDelegate {
    */
   getRegisteredAgents(): SwarmAgent[] {
     return Array.from(this.registeredAgents.values());
+  }
+  
+  /**
+   * Registers an AutoGen Core agent
+   * @param agent AutoGen Core agent instance
+   */
+  registerAutoGenAgent(agent: SwarmAgent): void {
+    const validatedAgent = swarmAgentSchema.parse(agent);
+    this.autogenCoreAgents.set(validatedAgent.id, validatedAgent);
+    this.registeredAgents.set(validatedAgent.id, validatedAgent);
+    console.log(`Registered AutoGen Core agent: ${validatedAgent.name} (${validatedAgent.id})`);
+  }
+  
+  /**
+   * Delegates a task to an AutoGen Core agent with Roo mode awareness
+   * @param task Task to delegate
+   * @param context Context for the task
+   * @param currentMode Current Roo mode (if available)
+   * @returns Promise that resolves with the delegation result
+   */
+  private async delegateToAutoGenAgent(
+    task: Task, 
+    context: TaskContext, 
+    currentMode: RooMode | null
+  ): Promise<DelegationResult> {
+    try {
+      console.log(`Attempting AutoGen Core delegation for task: ${task.id}${currentMode ? ` (mode: ${currentMode})` : ''}`);
+      
+      // Select best AutoGen agent based on task and current mode
+      const selectedAgent = this.selectAutoGenAgent(task, currentMode);
+      
+      if (!selectedAgent) {
+        return {
+          success: false,
+          taskId: task.id,
+          error: 'No suitable AutoGen Core agent found'
+        };
+      }
+      
+      // Enhance context with mode information if available
+      const enhancedContext = currentMode 
+        ? { ...context, rooMode: currentMode, modeCapabilities: this.rooModeController.getModeConfig(currentMode)?.capabilities }
+        : context;
+      
+      // Use local handoff system with AutoGen Core integration
+      const result = await localHandoff(task, enhancedContext);
+      
+      const targetAgentId = result.handoffMetrics?.providerUsed || selectedAgent.id;
+      
+      console.log(`AutoGen Core delegation successful for task: ${task.id}`);
+      
+      return {
+        success: true,
+        taskId: task.id,
+        delegatedToAgentId: targetAgentId,
+        result
+      };
+    } catch (error) {
+      console.error(`AutoGen Core delegation failed for task ${task.id}:`, error);
+      return {
+        success: false,
+        taskId: task.id,
+        error: error instanceof Error ? error.message : String(error)
+      };
+    }
+  }
+  
+  /**
+   * Selects the best AutoGen Core agent for a task based on capabilities and current mode
+   * @param task Task to delegate
+   * @param currentMode Current Roo mode (if available)
+   * @returns Selected agent or undefined
+   */
+  private selectAutoGenAgent(task: Task, currentMode: RooMode | null): SwarmAgent | undefined {
+    const agents = Array.from(this.autogenCoreAgents.values());
+    
+    if (agents.length === 0) {
+      return undefined;
+    }
+    
+    // If mode is available, filter agents by mode capabilities
+    if (currentMode) {
+      const modeConfig = this.rooModeController.getModeConfig(currentMode);
+      const modeCapabilities = modeConfig?.capabilities || [];
+      
+      // Find agents with matching capabilities
+      const matchingAgents = agents.filter(agent => 
+        modeCapabilities.some(cap => agent.capabilities.includes(cap))
+      );
+      
+      if (matchingAgents.length > 0) {
+        // Select agent with lowest workload
+        return matchingAgents.reduce((best, current) => 
+          current.workload < best.workload ? current : best
+        );
+      }
+    }
+    
+    // Fallback: Select agent with matching task capabilities or lowest workload
+    const taskKeywords = task.description.toLowerCase().split(/\s+/);
+    const matchingAgents = agents.filter(agent =>
+      agent.capabilities.some(cap => 
+        taskKeywords.some(keyword => cap.toLowerCase().includes(keyword))
+      )
+    );
+    
+    if (matchingAgents.length > 0) {
+      return matchingAgents.reduce((best, current) => 
+        current.workload < best.workload ? current : best
+      );
+    }
+    
+    // Final fallback: Lowest workload agent
+    return agents.reduce((best, current) => 
+      current.workload < best.workload ? current : best
+    );
+  }
+  
+  /**
+   * Checks if there are any AutoGen Core agents registered
+   * @returns Boolean indicating if AutoGen agents exist
+   */
+  private hasAutoGenAgents(): boolean {
+    return this.autogenCoreAgents.size > 0;
+  }
+  
+  /**
+   * Fast path: Get cached agent for similar task
+   * @param task Task to delegate
+   * @returns Cached agent info or undefined
+   */
+  private getFastPathAgent(task: Task): { agentId: string; timestamp: number } | undefined {
+    const cacheKey = this.getTaskCacheKey(task);
+    const cached = this.fastPathCache.get(cacheKey);
+    
+    if (cached && (Date.now() - cached.timestamp) < this.FAST_PATH_TTL) {
+      return cached;
+    }
+    
+    // Remove expired cache entry
+    if (cached) {
+      this.fastPathCache.delete(cacheKey);
+    }
+    
+    return undefined;
+  }
+  
+  /**
+   * Fast path: Cache agent for similar task
+   * @param task Task that was delegated
+   * @param agentId Agent ID that handled the task
+   */
+  private setFastPathAgent(task: Task, agentId: string): void {
+    const cacheKey = this.getTaskCacheKey(task);
+    this.fastPathCache.set(cacheKey, {
+      agentId,
+      timestamp: Date.now()
+    });
+  }
+  
+  /**
+   * Delegates to a cached agent (fast path)
+   * @param task Task to delegate
+   * @param context Context for the task
+   * @param agentId Cached agent ID
+   * @returns Promise that resolves with the delegation result
+   */
+  private async delegateToCachedAgent(
+    task: Task, 
+    context: TaskContext, 
+    agentId: string
+  ): Promise<DelegationResult> {
+    const agent = this.registeredAgents.get(agentId);
+    
+    if (!agent) {
+      return {
+        success: false,
+        taskId: task.id,
+        error: `Cached agent ${agentId} not found`
+      };
+    }
+    
+    try {
+      const handoffRequest = {
+        sourceAgentId: 'swarm-delegate',
+        targetAgentId: agentId,
+        taskId: task.id,
+        context,
+        priority: (task.priority && ['low', 'medium', 'high'].includes(task.priority.toString()))
+                 ? task.priority.toString() as 'low' | 'medium' | 'high'
+                 : 'medium'
+      };
+      
+      const handoffResponse = await this.contextHandoffManager.initiateHandoff(handoffRequest);
+      
+      if (!handoffResponse.success) {
+        throw new Error(`Failed to initiate handoff: ${handoffResponse.error}`);
+      }
+      
+      const handoffResult = await this.contextHandoffManager.completeHandoff(
+        handoffResponse.handoffId,
+        agentId
+      );
+      
+      return {
+        success: true,
+        taskId: task.id,
+        delegatedToAgentId: agentId,
+        result: handoffResult
+      };
+    } catch (error) {
+      return {
+        success: false,
+        taskId: task.id,
+        error: error instanceof Error ? error.message : String(error)
+      };
+    }
+  }
+  
+  /**
+   * Generates a cache key for a task based on its characteristics
+   * @param task Task to generate key for
+   * @returns Cache key string
+   */
+  private getTaskCacheKey(task: Task): string {
+    // Use task description keywords and current mode for cache key
+    const mode = this.config.enableRooModeIntegration 
+      ? this.rooModeController.getCurrentMode() 
+      : 'default';
+    const keywords = task.description.toLowerCase()
+      .split(/\s+/)
+      .filter(word => word.length > 3)
+      .slice(0, 5)
+      .join('-');
+    
+    return `${mode}-${keywords}`;
   }
 }
 

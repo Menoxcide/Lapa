@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from "vitest";
 import { GitWorktreeManager, WorktreeOptions, WorktreeResult } from '../../swarm/worktree.isolation.ts';
 import { exec } from 'child_process';
 import { existsSync, mkdirSync } from 'fs';
@@ -30,7 +30,7 @@ describe('GitWorktreeManager', () => {
     vi.clearAllMocks();
     
     // Setup default mock behaviors
-    (existsSync as vi.Mock).mockReturnValue(true);
+    (existsSync as Mock).mockReturnValue(true);
   });
 
   afterEach(() => {
@@ -40,7 +40,7 @@ describe('GitWorktreeManager', () => {
 
   describe('constructor', () => {
     it('should create worktree manager with default path', () => {
-      (existsSync as vi.Mock).mockReturnValue(false);
+      (existsSync as Mock).mockReturnValue(false);
       const defaultManager = new GitWorktreeManager();
       
       expect(existsSync).toHaveBeenCalledWith('.lapa/worktrees');
@@ -48,7 +48,7 @@ describe('GitWorktreeManager', () => {
     });
 
     it('should create worktree manager with custom path', () => {
-      (existsSync as vi.Mock).mockReturnValue(false);
+      (existsSync as Mock).mockReturnValue(false);
       const customManager = new GitWorktreeManager('/custom/path');
       
       expect(existsSync).toHaveBeenCalledWith('/custom/path');
@@ -56,7 +56,7 @@ describe('GitWorktreeManager', () => {
     });
 
     it('should not create directory if it already exists', () => {
-      (existsSync as vi.Mock).mockReturnValue(true);
+      (existsSync as Mock).mockReturnValue(true);
       const manager = new GitWorktreeManager('/existing/path');
       
       expect(existsSync).toHaveBeenCalledWith('/existing/path');

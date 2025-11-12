@@ -24,7 +24,6 @@ describe('LiveGraph', () => {
 
   const mockEdges: GraphEdge[] = [
     {
-      id: 'edge-1',
       source: 'node-1',
       target: 'node-2'
     }
@@ -82,7 +81,6 @@ describe('LiveGraph', () => {
   it('should handle edges with missing nodes gracefully', () => {
     const invalidEdges: GraphEdge[] = [
       {
-        id: 'invalid-edge',
         source: 'non-existent-node',
         target: 'also-non-existent'
       }

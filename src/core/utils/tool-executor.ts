@@ -6,14 +6,14 @@
  * bus for communication and monitoring.
  */
 
-import { LAPAEventBus, eventBus } from '../event-bus';
+import { LAPAEventBus, eventBus } from '../event-bus.ts';
 import { 
   AgentToolExecutionContext, 
   AgentToolExecutionResult,
   AgentTool
-} from '../types/agent-types';
+} from '../types/agent-types.ts';
 import { performance } from 'perf_hooks';
-import { BaseAgentTool } from '../agent-tool';
+import { BaseAgentTool } from '../agent-tool.ts';
 
 /**
  * Tool Executor Options
