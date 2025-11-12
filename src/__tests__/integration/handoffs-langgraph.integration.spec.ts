@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { HybridHandoffSystem } from '../../orchestrator/handoffs.js';
+import { HybridHandoffSystem } from '../../orchestrator/handoffs.ts';
 import { LangGraphOrchestrator } from '../../swarm/langgraph.orchestrator.js';
 import { Task } from '../../agents/moe-router.js';
 import { Agent as OpenAIAgent } from '@openai/agents';
@@ -32,7 +32,9 @@ describe('Handoffs with LangGraph Integration', () => {
     } as unknown as OpenAIAgent;
     
     // Clear all mocks before each test
-    // All mocks are automatically cleared in vitest
+    vi.clearAllMocks();
+    // Reset the run mock specifically
+    (run as any).mockReset();
   });
 
   describe('Workflow Integration', () => {

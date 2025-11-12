@@ -8,26 +8,15 @@
 	  "lib": ["ES2022", "DOM"],
 	  "sourceMap": true,
 	  "strict": true,
-	  "noImplicitReturns": true,
-	  "noFallthroughCasesInSwitch": true,
-	  "noUnusedParameters": true,
 	  "esModuleInterop": true,
-	  "allowSyntheticDefaultImports": true,
 	  "skipLibCheck": true,
 	  "forceConsistentCasingInFileNames": true,
 	  "jsx": "react-jsx",
 	  "resolveJsonModule": true,
 	  "types": ["node", "react", "react-dom", "vitest/globals"],
-	  "noEmit": true,
-	  "allowImportingTsExtensions": true
+	  "allowImportingTsExtensions": true,
+	  "noEmit": true
 	},
 	"include": ["src/**/*"],
-	"exclude": [
-	  "node_modules",
-	  "dist",
-	  "dist-*",
-	  "coverage",
-	  ".lapa",
-	  "**/__tests__/**/*.js"
-	]
+	"exclude": ["node_modules", "dist", "extension/dist"]
   }

@@ -109,7 +109,10 @@ export class ContextHandoffManager {
       this.updateHandoffStatus(handoffId, 'pending', 0);
       
       // Serialize context
+      console.log(`[ContextHandoffManager] Serializing context for handoff ${handoffId}`);
       const contextString = JSON.stringify(request.context);
+      console.log(`[ContextHandoffManager] Context serialized, length: ${contextString.length}`);
+      console.log(`[ContextHandoffManager] Context sample: ${contextString.substring(0, 100)}...`);
       
       // Compress context using ctx-zip
       const startTime = Date.now();
@@ -196,7 +199,16 @@ export class ContextHandoffManager {
       const decompressionTime = Date.now() - startTime;
       
       // Parse context
-      const context = JSON.parse(contextString);
+      console.log(`[ContextHandoffManager] Decompressed context length: ${contextString.length}`);
+      console.log(`[ContextHandoffManager] Decompressed context sample: ${contextString.substring(0, 100)}...`);
+      let context: Record<string, any>;
+      try {
+        context = JSON.parse(contextString);
+      } catch (parseError) {
+        console.error(`[ContextHandoffManager] Failed to parse JSON: ${parseError}`);
+        console.error(`[ContextHandoffManager] Full context string: ${contextString}`);
+        throw new Error(`Failed to parse decompressed context as JSON: ${parseError instanceof Error ? parseError.message : String(parseError)}`);
+      }
       
       // Clean up
       contextRepository.removeContext(handoffId);

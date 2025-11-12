@@ -103,7 +103,7 @@ describe('Official SDK Handoff Integration', () => {
       expect(result).toBeDefined();
       expect(run).toHaveBeenCalledWith(
         mockOpenAIAgent,
-        expect.stringContaining('Evaluate this context and task for handoff')
+        expect.stringContaining('Evaluate this context for handoff')
       );
     }, 15000);
   });

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { LocalHandoffSystem } from '../../orchestrator/handoffs.local.ts';
+import { LocalHandoffSystem, createOpenAI, createOllama } from '../../orchestrator/handoffs.local.ts';
 import { Task } from '../../agents/moe-router.ts';
 import { vi } from 'vitest';
 
@@ -50,7 +50,6 @@ describe('AI SDK Integration Tests', () => {
 
   describe('Client Creation', () => {
     it('should create OpenAI client for NIM endpoint', () => {
-      const { createOpenAI } = require('../../orchestrator/handoffs.local');
       const client = createOpenAI('http://localhost:8000/v1');
       
       expect(client).toBeDefined();
@@ -58,7 +57,6 @@ describe('AI SDK Integration Tests', () => {
     });
 
     it('should create Ollama client', () => {
-      const { createOllama } = require('../../orchestrator/handoffs.local');
       const client = createOllama('http://localhost:11434/api');
       
       expect(client).toBeDefined();

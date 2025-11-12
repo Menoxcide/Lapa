@@ -108,7 +108,7 @@ describe('OpenAI Agent Integration', () => {
         }
       };
       
-      const evaluation = await (handoffSystem as any).evaluateHandoff(testContext);
+      const evaluation = await (handoffSystem as any).evaluateHandoff(testContext, testContext.task);
       
       expect(evaluation.shouldHandoff).toBe(true);
       expect(evaluation.targetAgentId).toBe('specialized-agent-789');
@@ -141,7 +141,7 @@ describe('OpenAI Agent Integration', () => {
         context: {}
       };
       
-      const evaluation = await (handoffSystem as any).evaluateHandoff(testContext);
+      const evaluation = await (handoffSystem as any).evaluateHandoff(testContext, testContext.task);
       
       expect(evaluation.shouldHandoff).toBe(false);
       expect(evaluation.confidence).toBe(0); // Default when not provided
@@ -167,7 +167,7 @@ describe('OpenAI Agent Integration', () => {
         context: {}
       };
       
-      const evaluation = await (handoffSystem as any).evaluateHandoff(testContext);
+      const evaluation = await (handoffSystem as any).evaluateHandoff(testContext, testContext.task);
       
       expect(evaluation.shouldHandoff).toBe(false);
       expect(evaluation.confidence).toBe(0);
@@ -254,7 +254,7 @@ describe('OpenAI Agent Integration', () => {
         context: {}
       };
       
-      const evaluation = await (handoffSystem as any).evaluateHandoff(testContext);
+      const evaluation = await (handoffSystem as any).evaluateHandoff(testContext, testContext.task);
       
       expect(evaluation.shouldHandoff).toBe(false);
       expect(evaluation.confidence).toBe(0.5);
@@ -291,7 +291,7 @@ describe('OpenAI Agent Integration', () => {
         context: {}
       };
       
-      const evaluation = await (handoffSystem as any).evaluateHandoff(testContext);
+      const evaluation = await (handoffSystem as any).evaluateHandoff(testContext, testContext.task);
       
       expect(evaluation.shouldHandoff).toBe(false);
       expect(evaluation.confidence).toBe(0);

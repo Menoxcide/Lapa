@@ -1,11 +1,7 @@
-// src/__tests__/setup.ts
 import '@testing-library/jest-dom';
-import { afterEach } from 'vitest';
 import { cleanup } from '@testing-library/react';
+import { afterEach } from 'vitest';
 
-// Only run cleanup if it's available
-if (typeof cleanup === 'function') {
-  afterEach(() => {
-    cleanup();
-  });
-}
+afterEach(() => {
+  cleanup();
+});

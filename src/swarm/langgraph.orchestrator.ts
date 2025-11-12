@@ -199,6 +199,8 @@ export class LangGraphOrchestrator {
       let iterations = 0;
       
       while (iterations < maxIterations) {
+        console.log(`Iteration ${iterations}: Processing node ${currentState.nodeId}`);
+        
         const currentNode = this.nodes.get(currentState.nodeId);
         if (!currentNode) {
           throw new Error(`Node '${currentState.nodeId}' not found during execution`);
@@ -209,6 +211,7 @@ export class LangGraphOrchestrator {
         
         // Process node based on type
         const result = await this.processNode(currentNode, currentState.context);
+        console.log(`Node ${currentNode.id} processed with result keys:`, Object.keys(result));
         
         // Update state history
         currentState.history.push({
@@ -223,25 +226,28 @@ export class LangGraphOrchestrator {
         
         // Determine next node
         const outboundEdges = this.getOutboundEdges(currentState.nodeId);
+        console.log(`Found ${outboundEdges.length} outbound edges from node ${currentState.nodeId}`);
+        
         if (outboundEdges.length === 0) {
           // End of workflow
-         console.log(`Workflow completed at node: ${currentNode.label}`);
-         
-         const finalResult: OrchestrationResult = {
-           success: true,
-           finalState: currentState,
-           output: result,
-           executionPath: executionPath,
-           error: undefined
-         };
-         
-         // Validate result with Zod schema
-         return orchestrationResultSchema.parse(finalResult);
+          console.log(`Workflow completed at node: ${currentNode.label}`);
+          
+          const finalResult: OrchestrationResult = {
+            success: true,
+            finalState: currentState,
+            output: result,
+            executionPath: executionPath,
+            error: undefined
+          };
+          
+          // Validate result with Zod schema
+          return orchestrationResultSchema.parse(finalResult);
         }
         
         // For simplicity, we'll follow the first edge
         // In a real implementation, this would use conditions to select the appropriate edge
         const nextEdge = outboundEdges[0];
+        console.log(`Following edge from ${nextEdge.source} to ${nextEdge.target}`);
         
         // Validate state transition
         const transition = {
@@ -257,6 +263,7 @@ export class LangGraphOrchestrator {
         currentState.context = { ...result }; // Pass result as context to next node
         
         iterations++;
+        console.log(`Completed iteration ${iterations}`);
       }
       
       throw new Error(`Workflow exceeded maximum iterations (${maxIterations})`);
@@ -310,8 +317,8 @@ export class LangGraphOrchestrator {
     // For simulation, we'll just return the context with some modifications
     console.log(`Processing agent node: ${node.label}`);
     
-    // Simulate agent processing
-    await new Promise(resolve => setTimeout(resolve, Math.random() * 1000 + 500));
+    // Simulate agent processing with reduced delay for testing
+    await new Promise(resolve => setTimeout(resolve, Math.random() * 100 + 50));
     
     return {
       ...context,
@@ -330,8 +337,8 @@ export class LangGraphOrchestrator {
   private async processProcessNode(node: GraphNode, context: Record<string, unknown>): Promise<Record<string, unknown>> {
     console.log(`Processing process node: ${node.label}`);
     
-    // Simulate process execution
-    await new Promise(resolve => setTimeout(resolve, Math.random() * 500 + 250));
+    // Simulate process execution with reduced delay for testing
+    await new Promise(resolve => setTimeout(resolve, Math.random() * 50 + 25));
     
     return {
       ...context,
@@ -350,8 +357,8 @@ export class LangGraphOrchestrator {
   private async processDecisionNode(node: GraphNode, context: Record<string, unknown>): Promise<Record<string, unknown>> {
     console.log(`Processing decision node: ${node.label}`);
     
-    // Simulate decision making
-    await new Promise(resolve => setTimeout(resolve, Math.random() * 300 + 150));
+    // Simulate decision making with reduced delay for testing
+    await new Promise(resolve => setTimeout(resolve, Math.random() * 30 + 15));
     
     // For simulation, we'll make a random decision
     const decision = Math.random() > 0.5 ? 'positive' : 'negative';

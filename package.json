@@ -2,8 +2,22 @@
   "name": "lapa-core",
   "version": "1.2.0",
   "description": "LAPA Core - Local AI Pair Programmer Agent for Cursor",
-  "main": "dist/index.js",
+  "main": "extension/dist/index.js",
   "type": "module",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "lapa.startSwarm",
+        "title": "LAPA: Start Swarm"
+      }
+    ]
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/Menoxcide/Lapa.git"
@@ -26,12 +40,14 @@
   "author": "LAPA Team",
   "license": "MIT",
   "scripts": {
-    "clean": "rimraf dist coverage .lapa/sandbox && rmdir /S /Q dist-* 2>nul || exit 0",
-    "build": "npm run clean && tsc",
+    "clean": "rimraf extension/dist coverage .lapa/sandbox",
+    "build": "npm run clean && tsc -p tsconfig.build.json",
     "build:watch": "tsc --watch",
-    "test": "vitest 'src/__tests__/**/*.test.{ts,tsx}' --passWithNoTests",
-    "test:ui": "vitest 'src/__tests__/ui/**/*'",
-    "test:watch": "vitest 'src/__tests__/**/*.test.{ts,tsx}' --watch",
+    "test": "vitest",
+    "test:log": "vitest --reporter=verbose --reporter=json > vitest-report.json 2>&1",
+    "test:debug": "node --inspect-brk node_modules/vitest/vitest.mjs",
+    "test:ui": "vitest 'src/__tests__/ui/**/*' --reporter=verbose",
+    "test:watch": "vitest --watch",
     "test:ctx-zip": "vitest src/__tests__/ctx-zip.test.ts",
     "test:handoffs": "vitest src/__tests__/local/handoff-performance.local.spec.ts",
     "test:delegate": "vitest src/__tests__/swarm/delegate.local.spec.ts",
@@ -39,15 +55,14 @@
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "npm run lint -- --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx,json,md}\"",
-    "vsix": "vsce package",
-    "vsix:install": "code --install-extension *.vsix",
+    "vsix": "npm run build && vsce package --no-dependencies",
+    "vsix:install": "cmd /c \"\"C:\\Program Files\\Microsoft VS Code\\bin\\code\" --install-extension *.vsix --force\"",
     "setup:nim": "bash scripts/install-nim.sh",
     "dev": "npm run build:watch",
     "prepublishOnly": "npm run build && npm run test"
   },
   "files": [
-    "dist/",
-    "src/",
+    "extension/dist/",
     "media/",
     "cursor.json",
     "README.md",
@@ -67,7 +82,7 @@
     "@types/node": "^24.10.0",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
-    "@types/vscode": "^1.105.0",
+    "@types/vscode": "^1.85.0",
     "@typescript-eslint/eslint-plugin": "^8.46.3",
     "@typescript-eslint/parser": "^8.46.3",
     "@vscode/vsce": "^3.7.0",
@@ -93,10 +108,11 @@
     "e2b": "^2.6.4",
     "ollama": "^0.6.2",
     "ollama-ai-provider": "^1.2.0",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "stripe": "^19.3.0",
     "uuid": "^13.0.0",
+    "winget": "^0.0.1",
     "zod": "^3.23.8"
   }
 }

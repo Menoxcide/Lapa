@@ -31,7 +31,12 @@ describe('OpenAI Handoff Lifecycle Hooks', () => {
     } as unknown as OpenAIAgent;
     
     // Clear all mocks before each test
-    // All mocks are automatically cleared in vitest
+    vi.clearAllMocks();
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   describe('Hook Registration and Execution', () => {
@@ -112,8 +117,11 @@ describe('OpenAI Handoff Lifecycle Hooks', () => {
         'source-agent-123',
         'Test OpenAI Agent',
         'timing-test-task-456',
-        expect.closeTo(actualDuration, 50) // Allow 50ms tolerance
+        expect.closeTo(actualDuration, 100) // Allow 100ms tolerance for test environments
       );
+      
+      // Wait for any asynchronous operations
+      await vi.waitFor(() => expect(hooks.onHandoffComplete).toHaveBeenCalled());
     });
 
     it('should execute onHandoffError hook when OpenAI handoff fails', async () => {
@@ -506,7 +514,7 @@ describe('OpenAI Handoff Lifecycle Hooks', () => {
         'retry-hook-test-task-456'
       );
       
-      // Error hook should be called twice (for first two failures)
+      // Error hook should be called for each failure attempt
       expect(hooks.onHandoffError).toHaveBeenCalledTimes(2);
       
       // Complete hook should be called once (for final success)

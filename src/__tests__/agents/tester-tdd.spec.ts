@@ -9,16 +9,52 @@ import { Tester, TDDCycleResult } from '../../agents/tester.ts';
 
 // Mock Anthropic API responses
 vi.mock('@anthropic-ai/sdk', () => {
+  // Store the current implementation
+  let currentImplementation: any = null;
+  let nextImplementation: any = null;
+  
+  // Create the constructor function
+  const MockAnthropic: any = function(...args: any[]) {
+    // If we have a next implementation, use it and clear it
+    if (nextImplementation) {
+      const impl = nextImplementation;
+      nextImplementation = null;
+      return new impl(...args);
+    }
+    
+    // If we have a current implementation, use it
+    if (currentImplementation) {
+      return new currentImplementation(...args);
+    }
+    
+    // Default implementation
+    return {
+      messages: {
+        create: vi.fn().mockResolvedValue({
+          content: [{ type: 'text', text: 'Mocked response' }]
+        })
+      }
+    };
+  };
+  
+  // Add mockImplementation method
+  MockAnthropic.mockImplementation = vi.fn((impl) => {
+    currentImplementation = impl;
+    return MockAnthropic;
+  });
+  
+  // Add mockImplementationOnce method
+  MockAnthropic.mockImplementationOnce = vi.fn((impl) => {
+    nextImplementation = impl;
+    return MockAnthropic;
+  });
+  
+  // Attach the mock constructor to the global object so tests can access it
+  (global as any).mockAnthropicConstructor = MockAnthropic;
+  
   return {
-    Anthropic: vi.fn().mockImplementation(() => {
-      return {
-        messages: {
-          create: vi.fn().mockResolvedValue({
-            content: [{ type: 'text', text: 'Mocked response' }]
-          })
-        }
-      };
-    })
+    Anthropic: MockAnthropic,
+    default: MockAnthropic
   };
 });
 
@@ -47,15 +83,25 @@ describe('Tester Agent - TDD Capabilities', () => {
     });
 
     it('should throw an error if Anthropic API fails', async () => {
-      // Mock API failure
-      const mockAnthropic = require('@anthropic-ai/sdk').Anthropic;
-      mockAnthropic.mockImplementationOnce(() => {
-        return {
-          messages: {
-            create: vi.fn().mockRejectedValue(new Error('API Error'))
-          }
-        };
-      });
+      // Mock API failure by modifying the existing mock
+      // Create a mock failure instance
+      const mockFailureInstance = {
+        messages: {
+          create: vi.fn().mockRejectedValue(new Error('API Error'))
+        }
+      };
+      
+      // Create a mock implementation that returns an instance with failure messages
+      class MockFailureAnthropic {
+        messages: any;
+        
+        constructor() {
+          this.messages = mockFailureInstance.messages;
+        }
+      }
+      
+      // Apply the mock implementation for this specific test
+      (global as any).mockAnthropicConstructor.mockImplementationOnce(MockFailureAnthropic);
 
       const testerWithError = new Tester({ anthropicApiKey: 'test-key' });
       const code = 'function add(a, b) { return a + b; }';
@@ -106,15 +152,25 @@ describe('Tester Agent - TDD Capabilities', () => {
     });
 
     it('should handle API errors during implementation fixing', async () => {
-      // Mock API failure
-      const mockAnthropic = require('@anthropic-ai/sdk').Anthropic;
-      mockAnthropic.mockImplementationOnce(() => {
-        return {
-          messages: {
-            create: vi.fn().mockRejectedValue(new Error('API Error'))
-          }
-        };
-      });
+      // Mock API failure by modifying the existing mock
+      // Create a mock failure instance
+      const mockFailureInstance = {
+        messages: {
+          create: vi.fn().mockRejectedValue(new Error('API Error'))
+        }
+      };
+      
+      // Create a mock implementation that returns an instance with failure messages
+      class MockFailureAnthropic {
+        messages: any;
+        
+        constructor() {
+          this.messages = mockFailureInstance.messages;
+        }
+      }
+      
+      // Apply the mock implementation for this specific test
+      (global as any).mockAnthropicConstructor.mockImplementationOnce(MockFailureAnthropic);
 
       const testerWithError = new Tester({ anthropicApiKey: 'test-key' });
       const failingTest = 'assert(subtract(5, 3) === 2);';

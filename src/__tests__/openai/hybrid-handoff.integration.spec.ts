@@ -32,7 +32,12 @@ describe('Hybrid Handoff System Integration', () => {
     } as unknown as OpenAIAgent;
     
     // Clear all mocks before each test
-    // All mocks are automatically cleared in vitest
+    vi.clearAllMocks();
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   describe('End-to-End Task Execution', () => {
@@ -78,14 +83,15 @@ describe('Hybrid Handoff System Integration', () => {
       const result = await handoffSystem.executeTaskWithHandoffs(task, {
         userData: { id: 'user-456', preferences: { language: 'en' } },
         history: [],
-        dataset: 'customer_feedback_q4_2025.csv'
+        dataset: 'customer_feedback_q4_2025.csv',
+        handoffCount: 0
       });
       const endTime = Date.now();
       console.log('Task execution completed with result:', result, 'in', endTime - startTime, 'ms');
       
       expect(result.result).toBe('Task completed successfully with OpenAI assistance');
       expect(result.analysis).toBe('Processed 1000 data points');
-      expect(result.confidence).toBe(0.98);
+      expect(result.confidence).toBeCloseTo(0.98, 2);
       
       // Verify both evaluation and execution calls were made
       expect(run).toHaveBeenCalledTimes(2);
@@ -99,6 +105,9 @@ describe('Hybrid Handoff System Integration', () => {
         mockOpenAIAgent,
         expect.stringContaining('Process this task:')
       );
+      
+      // Wait for any asynchronous operations
+      await vi.waitFor(() => expect(run).toHaveBeenCalledTimes(2));
     }, 15000);
 
     it('should execute task without handoff when not recommended', async () => {
@@ -127,7 +136,8 @@ describe('Hybrid Handoff System Integration', () => {
       
       const result = await handoffSystem.executeTaskWithHandoffs(task, {
         userData: { id: 'user-456' },
-        history: []
+        history: [],
+        handoffCount: 0
       });
       
       const endTime = Date.now();
@@ -136,12 +146,15 @@ describe('Hybrid Handoff System Integration', () => {
       // Since no handoff was recommended, the system should return the evaluation result
       expect(result).toEqual({
         shouldHandoff: false,
-        confidence: 0.65,
+        confidence: expect.closeTo(0.65, 1),
         reason: 'Task can be handled by current processing pipeline'
       });
       
       // Only evaluation call should be made
       expect(run).toHaveBeenCalledTimes(1);
+      
+      // Wait for any asynchronous operations
+      await vi.waitFor(() => expect(run).toHaveBeenCalledTimes(1));
     }, 15000);
 
     it('should handle task execution with multiple handoff evaluations', async () => {
@@ -180,7 +193,8 @@ describe('Hybrid Handoff System Integration', () => {
       
       const result = await handoffSystem.executeTaskWithHandoffs(task, {
         stage: 1,
-        data: 'raw_research_data.json'
+        data: 'raw_research_data.json',
+        handoffCount: 0
       });
       
       // Should have called run three times
@@ -188,7 +202,7 @@ describe('Hybrid Handoff System Integration', () => {
       
       // Final result should be the last evaluation
       expect(result.shouldHandoff).toBe(false);
-      expect(result.confidence).toBe(0.72);
+      expect(result.confidence).toBeCloseTo(0.72, 1);
     }, 15000);
   });
 
@@ -219,12 +233,13 @@ describe('Hybrid Handoff System Integration', () => {
       
       const result = await handoffSystem.executeTaskWithHandoffs(task, {
         userData: { id: 'user-456' },
-        history: []
+        history: [],
+        handoffCount: 0
       });
       
       // Even with confidence below threshold, if shouldHandoff is true, it should proceed
       expect(result).toBeDefined();
-      expect(run).toHaveBeenCalledTimes(1);
+      expect(run).toHaveBeenCalledTimes(1); // Verify call count
     }, 15000);
 
     it('should handle edge case with exactly threshold confidence', async () => {
@@ -251,11 +266,12 @@ describe('Hybrid Handoff System Integration', () => {
       
       const result = await handoffSystem.executeTaskWithHandoffs(task, {
         userData: { id: 'user-456' },
-        history: []
+        history: [],
+        handoffCount: 0
       });
       
       expect(result).toBeDefined();
-      expect(run).toHaveBeenCalledTimes(1);
+      expect(run).toHaveBeenCalledTimes(1); // Verify call count
     }, 15000);
   });
 
@@ -282,11 +298,12 @@ describe('Hybrid Handoff System Integration', () => {
       
       const result = await handoffSystem.executeTaskWithHandoffs(task, {
         userData: { id: 'user-456' },
-        history: []
+        history: [],
+        handoffCount: 0
       });
       
       // Should have called run twice - one failed evaluation, one successful execution
-      expect(run).toHaveBeenCalledTimes(2);
+      expect(run).toHaveBeenCalledTimes(2); // Verify call count
       expect(result.result).toBe('Task completed after evaluation error recovery');
     }, 15000);
 
@@ -308,12 +325,13 @@ describe('Hybrid Handoff System Integration', () => {
       await expect(
         handoffSystem.executeTaskWithHandoffs(task, {
           userData: { id: 'user-456' },
-          history: []
+          history: [],
+          handoffCount: 0
         })
       ).rejects.toThrow('Failed to handoff to OpenAI agent: Execution service unavailable');
       
       // Should have called run twice
-      expect(run).toHaveBeenCalledTimes(2);
+      expect(run).toHaveBeenCalledTimes(2); // Verify call count
     }, 15000);
 
     it('should handle mixed LAPA and OpenAI agent handoffs', async () => {
@@ -362,11 +380,12 @@ describe('Hybrid Handoff System Integration', () => {
       
       const result = await handoffSystem.executeTaskWithHandoffs(task, {
         userData: { id: 'user-456' },
-        history: []
+        history: [],
+        handoffCount: 0
       });
       
       expect(result.result).toBe('Handoff to LAPA agent completed successfully');
-      expect(run).toHaveBeenCalledTimes(1);
+      expect(run).toHaveBeenCalledTimes(1); // Verify call count
       expect(mockContextHandoffManager.initiateHandoff).toHaveBeenCalled();
       expect(mockContextHandoffManager.completeHandoff).toHaveBeenCalled();
     }, 15000);
@@ -391,7 +410,8 @@ describe('Hybrid Handoff System Integration', () => {
       console.log('Executing task with handoffs');
       const result = await handoffSystem.executeTaskWithHandoffs(task, {
         userData: { id: 'user-456' },
-        history: []
+        history: [],
+        handoffCount: 0
       });
       
       const endTime = Date.now();
@@ -400,7 +420,7 @@ describe('Hybrid Handoff System Integration', () => {
       // Should use default policy when evaluation is disabled
       expect(result).toEqual({
         shouldHandoff: false,
-        confidence: 0.5,
+        confidence: expect.closeTo(0.5, 1),
         reason: 'OpenAI evaluation disabled, using default policy'
       });
       
@@ -442,7 +462,8 @@ describe('Hybrid Handoff System Integration', () => {
       console.log('Executing task with handoffs');
       const result = await handoffSystem.executeTaskWithHandoffs(task, {
         userData: { id: 'user-456' },
-        history: []
+        history: [],
+        handoffCount: 0
       });
       
       const endTime = Date.now();

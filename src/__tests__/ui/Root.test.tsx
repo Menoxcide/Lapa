@@ -2,18 +2,31 @@ import { describe, it, expect } from "vitest";
 import { render, screen } from '@testing-library/react';
 import { vi } from 'vitest';
 import Root from '../../ui/Root.tsx';
-import '@testing-library/jest-dom';
+import { DashboardProvider } from '../../ui/state/dashboard.context.tsx';
+import React from 'react';
 
 // Mock the Dashboard component to isolate Root tests
-vi.mock('../../src/ui/Dashboard', () => {
-  return function MockDashboard() {
+vi.mock('../../ui/Dashboard.tsx', () => ({
+  default: function MockDashboard() {
     return <div data-testid="dashboard">Mock Dashboard Component</div>;
-  };
-});
+  }
+}));
+
+// Helper to render with provider
+const renderWithProvider = (component: React.ReactElement) => {
+  return render(<DashboardProvider>{component}</DashboardProvider>);
+};
+
+// Mock the Dashboard component to isolate Root tests
+vi.mock('../../ui/Dashboard.tsx', () => ({
+  default: function MockDashboard() {
+    return <div data-testid="dashboard">Mock Dashboard Component</div>;
+  }
+}));
 
 describe('Root', () => {
   it('should render the root application wrapper', () => {
-    render(<Root />);
+    renderWithProvider(<Root />);
     
     // Check that the root element is rendered
     expect(screen.getByTestId('dashboard')).toBeInTheDocument();
@@ -23,7 +36,7 @@ describe('Root', () => {
   });
 
   it('should apply correct structural wrapping', () => {
-    render(<Root />);
+    renderWithProvider(<Root />);
     
     // Check that content is wrapped properly
     const dashboard = screen.getByTestId('dashboard');
@@ -34,27 +47,27 @@ describe('Root', () => {
   });
 
   it('should maintain consistent rendering', () => {
-    const { rerender } = render(<Root />);
+    const { rerender } = renderWithProvider(<Root />);
     
     // Initial render
     expect(screen.getByTestId('dashboard')).toBeInTheDocument();
     
     // Re-render
-    rerender(<Root />);
+    rerender(<DashboardProvider><Root /></DashboardProvider>);
     
     // Should still be present
     expect(screen.getByTestId('dashboard')).toBeInTheDocument();
   });
 
   it('should handle empty props gracefully', () => {
-    render(<Root />);
+    renderWithProvider(<Root />);
     
     // Should render without any props
     expect(screen.getByTestId('dashboard')).toBeInTheDocument();
   });
 
   it('should not introduce additional DOM nesting', () => {
-    render(<Root />);
+    renderWithProvider(<Root />);
     
     // Root should be a minimal wrapper
     const dashboard = screen.getByTestId('dashboard');
@@ -64,7 +77,7 @@ describe('Root', () => {
   });
 
   it('should preserve component hierarchy', () => {
-    render(<Root />);
+    renderWithProvider(<Root />);
     
     // Verify the component hierarchy is maintained
     const dashboardElement = screen.getByTestId('dashboard');
@@ -74,7 +87,7 @@ describe('Root', () => {
 
   it('should support React rendering conventions', () => {
     // Test that Root can be rendered in different contexts
-    const { container, unmount } = render(<Root />);
+    const { container, unmount } = renderWithProvider(<Root />);
     
     // Should render to DOM
     expect(container).toBeInTheDocument();
