@@ -4,6 +4,7 @@
 - **v1.1 Phase 9 COMPLETE**: Claude TDD loop, E2B MCP sandbox, OpenAI handoffs
 - **v1.2 Phase 10 COMPLETE**: AutoGen Core + Roo Modes (event-bus.ts, modes.ts, agent-tool.ts)
 - **v1.2 Phase 11 COMPLETE**: MCP + A2A Connectors
+- **v1.2 Phase 12 COMPLETE**: Memori + Episodic + Vector Refinement (memori-engine.ts, episodic.ts, chroma-refine.ts)
 - **v1.2 Phase 13 COMPLETE**: AG-UI + Dynamic Studio
 - **Branch**: `v1.2-nexus-loop`
 - **Resume Files**: `src/core/ag-ui.ts`, `src/ui/mcp-ui-specs.ts`, `src/ui/studio-dynamic.py`
@@ -28,5 +29,7 @@
 | Protocol | Status | File |
 |--------|--------|------|
 | **MCP** | Live (Phase 9) | `mcp-connector.ts` |
-| **A2A** | Phase 11 | `a2a-mediator.ts` |
+| **A2A** | Phase 11 COMPLETE | `a2a-mediator.ts` |
+| **Memori** | Phase 12 COMPLETE | `memori-engine.ts`, `episodic.ts` |
+| **Chroma** | Phase 12 COMPLETE | `chroma-refine.ts` |
 | **AG-UI** | Phase 13 COMPLETE | `ag-ui.ts`, `mcp-ui-specs.ts`, `studio-dynamic.py` |

@@ -58,7 +58,7 @@ v1.2.2:
     p;w;tasks;milestone;git-tag;status
     10. AutoGen Core + Roo Modes;1.5;[event-bus.ts, modes.ts, AgentTool];<1s delegate;feat/v1.2-core;COMPLETE
     11. MCP + A2A Connectors;1.2;[mcp-connector.ts, a2a-mediator.ts, handshake.ts];98% interop;feat/v1.2-protocols;IN PROGRESS
-    12. Memori + Episodic + Vector Refinement;1;[memori-engine.ts, episodic.ts, chroma-refine.ts];99.5% recall;feat/v1.2-memori;TODO
+    12. Memori + Episodic + Vector Refinement;1;[memori-engine.ts, episodic.ts, chroma-refine.ts];99.5% recall;feat/v1.2-memori;COMPLETE
     13. AG-UI + Dynamic Studio;0.9;[ag-ui.ts, studio-dynamic.py, mcp-ui-specs];gen UI;feat/v1.2-ui;TODO
     14. ClaudeKit + Feedback Loops + PromptEngineer MCP;1.0;[skill-manager.ts, visual-feedback.ts, llm-judge.ts, prompt-engineer.ts];zero-bloat + 95% refine;feat/v1.2-feedback;TODO
     15. Codegen + Observability;1;[repo-rules.ts, langsmith.ts, prometheus.ts];99.5% fidelity;feat/v1.2-obs;TODO
