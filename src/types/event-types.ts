@@ -363,9 +363,102 @@ export interface LAPAEvent {
   'a2a.state.sync.response': any; // TODO: Define proper interface
   
   // AG-UI events
-    'ag-ui.message': any; // TODO: Define proper interface
-    'ag-ui.stream.start': any; // TODO: Define proper interface
-    'ag-ui.stream.end': any; // TODO: Define proper interface
+  'ag-ui.message': {
+    eventId: string;
+    eventType: string;
+    timestamp: number;
+    payload: Record<string, unknown>;
+  };
+  'ag-ui.stream.start': {
+    streamId: string;
+    config: Record<string, unknown>;
+    timestamp: number;
+  };
+  'ag-ui.stream.end': {
+    streamId: string;
+    timestamp: number;
+  };
+  'ui.component.update': {
+    componentId: string;
+    componentType: string;
+    props: Record<string, unknown>;
+    timestamp: number;
+  };
+  'ui.component.create': {
+    componentId: string;
+    componentType: string;
+    props: Record<string, unknown>;
+    timestamp: number;
+  };
+  'ui.component.delete': {
+    componentId: string;
+    componentType: string;
+    timestamp: number;
+  };
+  'ui.state.update': {
+    key: string;
+    value: unknown;
+    state: Record<string, unknown>;
+    timestamp: number;
+  };
+  'ui.task.progress': {
+    taskId: string;
+    progress: number;
+    timestamp: number;
+  };
+  'ui.task.complete': {
+    taskId: string;
+    result: unknown;
+    timestamp: number;
+  };
+  'ui.error': {
+    agentId: string;
+    error: string;
+    timestamp: number;
+  };
+  'ui.stream.start': {
+    streamId: string;
+    config: Record<string, unknown>;
+    timestamp: number;
+  };
+  'ui.stream.stop': {
+    streamId: string;
+    timestamp: number;
+  };
+  'ui.mcp.tool.call': {
+    tool: string;
+    args: Record<string, unknown>;
+    timestamp: number;
+  };
+  'ui.mcp.tool.response': {
+    tool: string;
+    response: {
+      success: boolean;
+      data?: unknown;
+      error?: string;
+      components?: unknown[];
+    };
+    timestamp: number;
+  };
+  'ui.studio.update': {
+    componentId: string;
+    component: Record<string, unknown>;
+    timestamp: number;
+  };
+  'ui.studio.stream': {
+    streamId: string;
+    data: unknown;
+    timestamp: number;
+  };
+  'ui.openjson.render': {
+    component: Record<string, unknown>;
+    timestamp: number;
+  };
+  'ui.openjson.update': {
+    componentId: string;
+    component: Record<string, unknown>;
+    timestamp: number;
+  };
     
     // Delegate events
     'delegate.task.request': any; // TODO: Define proper interface

@@ -10,6 +10,7 @@ import { PDFProcessor } from './processors/pdf.processor.ts';
 import { VideoProcessor } from './processors/video.processor.ts';
 import { FileHandler } from './utils/file.handler.ts';
 import { TextPreprocessor } from './utils/text.preprocessor.ts';
+import { chromaRefine } from './chroma-refine.ts';
 
 export interface ProcessedDocument {
   /**
@@ -59,6 +60,7 @@ export class RAGPipeline {
   private videoProcessor: VideoProcessor;
   private fileHandler: FileHandler;
   private textPreprocessor: TextPreprocessor;
+  private chromaInitialized: boolean;
   
   constructor(config?: Partial<RAGConfig>) {
     this.config = { ...DEFAULT_RAG_CONFIG, ...config };
@@ -66,6 +68,20 @@ export class RAGPipeline {
     this.textPreprocessor = new TextPreprocessor(this.config.preprocessing);
     this.pdfProcessor = new PDFProcessor(this.config.nemoRetriever);
     this.videoProcessor = new VideoProcessor(this.config.nemoRetriever);
+    this.chromaInitialized = false;
+  }
+
+  /**
+   * Initializes the RAG pipeline including Chroma integration (Phase 12)
+   */
+  async initialize(): Promise<void> {
+    try {
+      await chromaRefine.initialize();
+      this.chromaInitialized = true;
+    } catch (error) {
+      console.warn('Chroma initialization failed, continuing without vector search:', error);
+      this.chromaInitialized = false;
+    }
   }
   
   /**
@@ -107,8 +123,8 @@ export class RAGPipeline {
     const chunks = this.textPreprocessor.splitText(text);
     
     const processingTime = Date.now() - startTime;
-    
-    return {
+
+    const processedDoc = {
       filePath,
       text,
       metadata: {
@@ -119,6 +135,30 @@ export class RAGPipeline {
       },
       chunks
     };
+
+    // Phase 12: Index document in Chroma for vector search
+    if (this.chromaInitialized) {
+      try {
+        // Index each chunk as a separate document
+        for (let i = 0; i < chunks.length; i++) {
+          await chromaRefine.indexDocument({
+            id: `rag_${filePath}_chunk_${i}`,
+            content: chunks[i],
+            metadata: {
+              filePath,
+              fileType: fileInfo.type,
+              chunkIndex: i,
+              timestamp: new Date(),
+              source: 'rag'
+            }
+          });
+        }
+      } catch (error) {
+        console.warn('Failed to index document in Chroma:', error);
+      }
+    }
+    
+    return processedDoc;
   }
   
   /**
@@ -141,6 +181,36 @@ export class RAGPipeline {
     return results;
   }
   
+  /**
+   * Searches for similar content using Chroma vector search (Phase 12)
+   * @param query Search query
+   * @param limit Maximum number of results
+   * @returns Array of similar document chunks
+   */
+  async searchSimilar(query: string, limit: number = 10): Promise<Array<{
+    content: string;
+    filePath: string;
+    chunkIndex: number;
+    similarity: number;
+  }>> {
+    if (!this.chromaInitialized) {
+      return [];
+    }
+
+    try {
+      const results = await chromaRefine.searchSimilar(query, { limit });
+      return results.map(result => ({
+        content: result.document.content,
+        filePath: result.document.metadata.filePath || '',
+        chunkIndex: result.document.metadata.chunkIndex || 0,
+        similarity: result.similarity
+      }));
+    } catch (error) {
+      console.error('Failed to search similar content:', error);
+      return [];
+    }
+  }
+
   /**
    * Update configuration
    * @param newConfig Partial configuration to update

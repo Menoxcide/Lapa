@@ -48,3 +48,13 @@ export {
   serializeEventForInterop, 
   deserializeEventFromInterop 
 } from './types/event-types.ts';
+
+// Export repository rules manager (Phase 15)
+export { RepoRulesManager, repoRulesManager } from './repo-rules.ts';
+export type {
+  RepoRule,
+  DirectoryRule,
+  LayerDependencyRule,
+  CodeGenRuleResult,
+  RepoRuleViolation
+} from './repo-rules.ts';

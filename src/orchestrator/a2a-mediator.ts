@@ -1,16 +1,18 @@
 /**
- * A2A (Agent-to-Agent) Mediator for LAPA v1.2 Protocol-Resonant Nexus — Phase 10
+ * A2A (Agent-to-Agent) Mediator for LAPA v1.2 Protocol-Resonant Nexus — Phase 11
  * 
  * This module implements the A2A handshake foundation for agent-to-agent communication.
  * It provides handshake, task negotiation, and state synchronization capabilities
  * for seamless agent coordination within the swarm.
  * 
- * Phase 11 will extend this with full MCP + A2A Connectors integration.
+ * Phase 11: MCP + A2A Connectors integration - COMPLETE
  */
 
 import { eventBus } from '../core/event-bus.ts';
 import { Task } from '../agents/moe-router.ts';
 import { z } from 'zod';
+import { MCPConnector, createMCPConnector, MCPConnectorConfig } from '../mcp/mcp-connector.ts';
+import { A2AHandshakeProtocol, a2aHandshakeProtocol } from './handshake.ts';
 
 // Zod schema for A2A handshake request validation (protocolVersion is optional)
 // Note: We'll validate after ensuring protocolVersion is set
@@ -106,6 +108,8 @@ export interface A2AMediatorConfig {
   enableStateSync: boolean;
   protocolVersion: string;
   maxConcurrentHandshakes: number;
+  enableMCPIntegration: boolean;
+  mcpConfig?: Partial<MCPConnectorConfig>;
 }
 
 // Default configuration
@@ -115,7 +119,13 @@ const DEFAULT_CONFIG: A2AMediatorConfig = {
   enableTaskNegotiation: true,
   enableStateSync: true,
   protocolVersion: '1.0',
-  maxConcurrentHandshakes: 10
+  maxConcurrentHandshakes: 10,
+  enableMCPIntegration: true,
+  mcpConfig: {
+    transportType: 'stdio',
+    enableToolDiscovery: true,
+    enableProgressiveDisclosure: true
+  }
 };
 
 /**
@@ -134,9 +144,16 @@ export class A2AMediator {
     protocolVersion: string;
     lastHandshake: number;
   }> = new Map();
+  private mcpConnector: MCPConnector | null = null;
+  private isMCPConnected: boolean = false;
 
   constructor(config?: Partial<A2AMediatorConfig>) {
     this.config = { ...DEFAULT_CONFIG, ...config };
+    
+    // Initialize MCP connector if enabled
+    if (this.config.enableMCPIntegration && this.config.mcpConfig) {
+      this.mcpConnector = createMCPConnector(this.config.mcpConfig);
+    }
     
     // Subscribe to A2A events
     eventBus.subscribe('a2a.handshake.request', async (event) => {
@@ -153,6 +170,58 @@ export class A2AMediator {
       const request = event.payload as A2AStateSyncRequest;
       await this.handleStateSyncRequest(request);
     });
+
+    // Subscribe to MCP events
+    if (this.mcpConnector) {
+      eventBus.subscribe('mcp.connector.connected', async () => {
+        this.isMCPConnected = true;
+        console.log('MCP connector connected in A2A mediator');
+      });
+
+      eventBus.subscribe('mcp.connector.disconnected', async () => {
+        this.isMCPConnected = false;
+        console.log('MCP connector disconnected in A2A mediator');
+      });
+    }
+  }
+
+  /**
+   * Initializes the MCP connector
+   * @returns Promise that resolves when MCP connector is initialized
+   */
+  async initializeMCP(): Promise<void> {
+    if (!this.config.enableMCPIntegration || !this.mcpConnector) {
+      console.log('MCP integration is disabled');
+      return;
+    }
+
+    try {
+      await this.mcpConnector.connect();
+      this.isMCPConnected = true;
+      console.log('MCP connector initialized in A2A mediator');
+    } catch (error) {
+      console.error('Failed to initialize MCP connector:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Disconnects the MCP connector
+   * @returns Promise that resolves when MCP connector is disconnected
+   */
+  async disconnectMCP(): Promise<void> {
+    if (!this.mcpConnector) {
+      return;
+    }
+
+    try {
+      await this.mcpConnector.disconnect();
+      this.isMCPConnected = false;
+      console.log('MCP connector disconnected in A2A mediator');
+    } catch (error) {
+      console.error('Failed to disconnect MCP connector:', error);
+      throw error;
+    }
   }
 
   /**
@@ -191,58 +260,70 @@ export class A2AMediator {
         };
       }
       
-      // Generate handshake ID
-      const handshakeId = this.generateHandshakeId();
-      
       // Store active handshake
+      const handshakeId = this.generateHandshakeId();
       this.activeHandshakes.set(handshakeId, validatedRequest);
       
-      // Publish handshake request event
-      await eventBus.publish({
-        id: `a2a-handshake-${handshakeId}`,
-        type: 'a2a.handshake.request',
-        timestamp: Date.now(),
-        source: 'a2a-mediator',
-        payload: validatedRequest
-      });
+      // Use handshake protocol for actual handshake (Phase 11 integration)
+      let response: A2AHandshakeResponse;
       
-      // Simulate handshake response (in Phase 11, this will be async with actual agent communication)
-      const response: A2AHandshakeResponse = {
-        success: true,
-        handshakeId,
-        accepted: true,
-        capabilities: validatedRequest.capabilities,
-        protocolVersion: validatedRequest.protocolVersion || this.config.protocolVersion,
-        reason: 'Handshake accepted successfully'
-      };
+      if (this.config.enableMCPIntegration && this.isMCPConnected && this.mcpConnector) {
+        // Use MCP connector for handshake communication
+        try {
+          // Call MCP tool for handshake if available
+          const tools = this.mcpConnector.getTools();
+          if (tools.includes('a2a_handshake')) {
+            const result = await this.mcpConnector.callTool('a2a_handshake', {
+              sourceAgentId: validatedRequest.sourceAgentId,
+              targetAgentId: validatedRequest.targetAgentId,
+              capabilities: validatedRequest.capabilities,
+              protocolVersion: protocolVersion
+            }) as A2AHandshakeResponse;
+            
+            response = result;
+          } else {
+            // Fall back to handshake protocol
+            response = await a2aHandshakeProtocol.initiateHandshake(validatedRequest);
+          }
+        } catch (error) {
+          console.warn('MCP handshake failed, falling back to protocol:', error);
+          // Fall back to handshake protocol
+          response = await a2aHandshakeProtocol.initiateHandshake(validatedRequest);
+        }
+      } else {
+        // Use handshake protocol directly
+        response = await a2aHandshakeProtocol.initiateHandshake(validatedRequest);
+      }
       
       // Validate response with Zod schema
       const validatedResponse = a2aHandshakeResponseSchema.parse(response);
       
       // Store handshake history
-      this.handshakeHistory.set(handshakeId, validatedResponse);
+      this.handshakeHistory.set(validatedResponse.handshakeId || handshakeId, validatedResponse);
       
       // Register agent capabilities
-      this.registerAgent(validatedRequest.targetAgentId, {
-        agentId: validatedRequest.targetAgentId,
-        capabilities: validatedRequest.capabilities,
-        protocolVersion: validatedRequest.protocolVersion,
-        lastHandshake: Date.now()
-      });
+      if (validatedResponse.accepted) {
+        this.registerAgent(validatedRequest.targetAgentId, {
+          agentId: validatedRequest.targetAgentId,
+          capabilities: validatedResponse.capabilities || validatedRequest.capabilities,
+          protocolVersion: validatedResponse.protocolVersion || protocolVersion,
+          lastHandshake: Date.now()
+        });
+      }
       
       // Remove from active handshakes
       this.activeHandshakes.delete(handshakeId);
       
       // Publish handshake response event
       await eventBus.publish({
-        id: `a2a-handshake-response-${handshakeId}`,
+        id: `a2a-handshake-response-${validatedResponse.handshakeId || handshakeId}`,
         type: 'a2a.handshake.response',
         timestamp: Date.now(),
         source: 'a2a-mediator',
         payload: validatedResponse
       });
       
-      console.log(`A2A handshake completed: ${handshakeId}`);
+      console.log(`A2A handshake completed: ${validatedResponse.handshakeId || handshakeId}`);
       
       return validatedResponse;
     } catch (error) {
@@ -398,8 +479,23 @@ export class A2AMediator {
    * @param request Handshake request
    */
   private async handleHandshakeRequest(request: A2AHandshakeRequest): Promise<void> {
-    // In Phase 11, this will handle actual handshake logic
-    console.log('Handling handshake request:', request);
+    // Phase 11: Use handshake protocol for actual handshake
+    try {
+      const response = await a2aHandshakeProtocol.handleHandshakeRequest(request);
+      
+      // Publish handshake response event
+      await eventBus.publish({
+        id: `a2a-handshake-response-${response.handshakeId || Date.now()}`,
+        type: 'a2a.handshake.response',
+        timestamp: Date.now(),
+        source: 'a2a-mediator',
+        payload: response
+      });
+      
+      console.log('Handshake request handled:', response);
+    } catch (error) {
+      console.error('Error handling handshake request:', error);
+    }
   }
 
   /**
@@ -477,6 +573,22 @@ export class A2AMediator {
   updateConfig(newConfig: Partial<A2AMediatorConfig>): void {
     this.config = { ...this.config, ...newConfig };
     console.log('A2A mediator configuration updated:', this.config);
+  }
+
+  /**
+   * Gets MCP connector instance
+   * @returns MCP connector or null if not enabled
+   */
+  getMCPConnector(): MCPConnector | null {
+    return this.mcpConnector;
+  }
+
+  /**
+   * Checks if MCP is connected
+   * @returns Boolean indicating MCP connection status
+   */
+  isMCPConnectedStatus(): boolean {
+    return this.isMCPConnected;
   }
 
   /**

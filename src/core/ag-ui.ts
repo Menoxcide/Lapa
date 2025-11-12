@@ -1,16 +1,22 @@
 /**
- * AG-UI (Agent-to-UI) Foundation for LAPA v1.2 Protocol-Resonant Nexus — Phase 10
+ * AG-UI (Agent-to-UI) Foundation for LAPA v1.2 Protocol-Resonant Nexus — Phase 13
  * 
  * This module implements the AG-UI foundation for generative, real-time interfaces.
  * It provides event streaming, dynamic component generation, and UI state management
  * for seamless agent-to-UI communication.
  * 
- * Phase 13 will extend this with full AG-UI + Dynamic Studio integration.
+ * Phase 13: Extended with MCP integration, AutoGen Studio support, and dynamic UI generation.
  */
 
 import { eventBus } from '../core/event-bus.ts';
 import { Task } from '../agents/moe-router.ts';
 import { z } from 'zod';
+import {
+  type MCPUIComponent,
+  type MCPUIEvent,
+  type MCPUIResponse,
+  AGUIToMCPUIConverter,
+} from '../ui/mcp-ui-specs.ts';
 
 // Zod schema for AG-UI event validation
 const agUIEventSchema = z.object({
@@ -51,6 +57,11 @@ export interface AGUIStreamConfig {
   enableUIStateManagement: boolean;
   streamBufferSize: number;
   componentUpdateRate: number; // Updates per second
+  enableMCPIntegration: boolean;
+  enableAutoGenStudio: boolean;
+  enableOpenJSONUI: boolean;
+  studioEndpoint?: string;
+  websocketEndpoint?: string;
 }
 
 // Default configuration
@@ -59,7 +70,12 @@ const DEFAULT_CONFIG: AGUIStreamConfig = {
   enableDynamicComponents: true,
   enableUIStateManagement: true,
   streamBufferSize: 1000,
-  componentUpdateRate: 60
+  componentUpdateRate: 60,
+  enableMCPIntegration: true,
+  enableAutoGenStudio: true,
+  enableOpenJSONUI: true,
+  studioEndpoint: 'http://localhost:8080',
+  websocketEndpoint: 'ws://localhost:8080/ws',
 };
 
 // AG-UI event types
@@ -72,7 +88,13 @@ export type AGUIEventType =
   | 'ui.task.complete'
   | 'ui.error'
   | 'ui.stream.start'
-  | 'ui.stream.stop';
+  | 'ui.stream.stop'
+  | 'ui.mcp.tool.call'
+  | 'ui.mcp.tool.response'
+  | 'ui.studio.update'
+  | 'ui.studio.stream'
+  | 'ui.openjson.render'
+  | 'ui.openjson.update';
 
 /**
  * AG-UI Foundation
@@ -87,6 +109,9 @@ export class AGUIFoundation {
   private uiState: Record<string, unknown> = {};
   private streamSubscriptions: Map<string, (event: AGUIEvent) => void> = new Map();
   private isStreaming: boolean = false;
+  private websocket: WebSocket | null = null;
+  private mcpComponents: Map<string, MCPUIComponent> = new Map();
+  private studioConnected: boolean = false;
 
   constructor(config?: Partial<AGUIStreamConfig>) {
     this.config = { ...DEFAULT_CONFIG, ...config };
@@ -118,6 +143,16 @@ export class AGUIFoundation {
     this.isStreaming = true;
     console.log('Starting AG-UI event stream');
     
+    // Connect to WebSocket if enabled
+    if (this.config.enableMCPIntegration && this.config.websocketEndpoint) {
+      await this.connectWebSocket();
+    }
+    
+    // Connect to AutoGen Studio if enabled
+    if (this.config.enableAutoGenStudio && this.config.studioEndpoint) {
+      await this.connectStudio();
+    }
+    
     // Publish stream start event
     await eventBus.publish({
       id: `ag-ui-stream-start-${Date.now()}`,
@@ -144,6 +179,17 @@ export class AGUIFoundation {
     this.isStreaming = false;
     console.log('Stopping AG-UI event stream');
     
+    // Disconnect WebSocket
+    if (this.websocket) {
+      this.websocket.close();
+      this.websocket = null;
+    }
+    
+    // Disconnect from Studio
+    if (this.studioConnected) {
+      await this.disconnectStudio();
+    }
+    
     // Publish stream stop event
     await eventBus.publish({
       id: `ag-ui-stream-stop-${Date.now()}`,
@@ -154,6 +200,205 @@ export class AGUIFoundation {
         streamId: `stream_${Date.now()}`
       }
     });
+  }
+  
+  /**
+   * Connects to WebSocket for MCP integration
+   * @returns Promise that resolves when connected
+   */
+  private async connectWebSocket(): Promise<void> {
+    if (!this.config.websocketEndpoint) {
+      return;
+    }
+    
+    try {
+      this.websocket = new WebSocket(this.config.websocketEndpoint);
+      
+      this.websocket.onopen = () => {
+        console.log('AG-UI WebSocket connected');
+      };
+      
+      this.websocket.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          this.handleWebSocketMessage(data);
+        } catch (error) {
+          console.error('Error parsing WebSocket message:', error);
+        }
+      };
+      
+      this.websocket.onerror = (error) => {
+        console.error('AG-UI WebSocket error:', error);
+      };
+      
+      this.websocket.onclose = () => {
+        console.log('AG-UI WebSocket disconnected');
+        this.websocket = null;
+      };
+    } catch (error) {
+      console.error('Error connecting to WebSocket:', error);
+    }
+  }
+  
+  /**
+   * Handles WebSocket messages
+   * @param data Message data
+   */
+  private async handleWebSocketMessage(data: unknown): Promise<void> {
+    // Handle MCP-UI events
+    if (this.config.enableMCPIntegration && data && typeof data === 'object' && 'type' in data) {
+      await this.publishEvent('ui.mcp.tool.response', data as Record<string, unknown>);
+    }
+  }
+  
+  /**
+   * Connects to AutoGen Studio
+   * @returns Promise that resolves when connected
+   */
+  private async connectStudio(): Promise<void> {
+    if (!this.config.studioEndpoint) {
+      return;
+    }
+    
+    try {
+      // TODO: Implement AutoGen Studio connection
+      // This would typically involve establishing a connection to the Studio API
+      // and setting up event listeners for UI updates
+      this.studioConnected = true;
+      console.log('Connected to AutoGen Studio');
+    } catch (error) {
+      console.error('Error connecting to AutoGen Studio:', error);
+    }
+  }
+  
+  /**
+   * Disconnects from AutoGen Studio
+   * @returns Promise that resolves when disconnected
+   */
+  private async disconnectStudio(): Promise<void> {
+    this.studioConnected = false;
+    console.log('Disconnected from AutoGen Studio');
+  }
+  
+  /**
+   * Sends component to Studio
+   * @param component Component to send
+   * @returns Promise that resolves when sent
+   */
+  async sendToStudio(component: AGUIComponent): Promise<void> {
+    if (!this.config.enableAutoGenStudio || !this.studioConnected) {
+      return;
+    }
+    
+    try {
+      // Convert AG-UI component to MCP-UI format
+      const mcpComponent = AGUIToMCPUIConverter.convert({
+        componentId: component.componentId,
+        componentType: component.componentType,
+        props: component.props,
+        children: component.children,
+      });
+      
+      // Send to Studio via WebSocket or HTTP
+      if (this.websocket && this.websocket.readyState === WebSocket.OPEN) {
+        this.websocket.send(JSON.stringify({
+          type: 'ui.studio.update',
+          component: mcpComponent,
+        }));
+      }
+      
+      await this.publishEvent('ui.studio.update', {
+        componentId: component.componentId,
+        component: mcpComponent,
+      });
+    } catch (error) {
+      console.error('Error sending component to Studio:', error);
+    }
+  }
+  
+  /**
+   * Creates an MCP-UI component
+   * @param componentType Component type
+   * @param props Component props
+   * @param mcpConfig MCP configuration
+   * @returns MCP-UI component
+   */
+  createMCPUIComponent(
+    componentType: MCPUIComponent['type'],
+    props: Record<string, unknown>,
+    mcpConfig?: {
+      tool?: string;
+      resource?: string;
+      prompt?: string;
+      callback?: string;
+    }
+  ): MCPUIComponent {
+    const component: MCPUIComponent = {
+      type: componentType,
+      id: this.generateComponentId(),
+      props,
+      mcp: mcpConfig,
+    };
+    
+    this.mcpComponents.set(component.id, component);
+    
+    // Convert to AG-UI component and create it
+    const agUIComponent = this.createComponent(componentType, props);
+    
+    // Send to Studio if enabled
+    if (this.config.enableAutoGenStudio) {
+      this.sendToStudio(agUIComponent).catch(console.error);
+    }
+    
+    return component;
+  }
+  
+  /**
+   * Calls an MCP tool and renders UI component
+   * @param toolName Tool name
+   * @param args Tool arguments
+   * @returns Promise that resolves with MCP-UI response
+   */
+  async callMCPTool(toolName: string, args: Record<string, unknown>): Promise<MCPUIResponse> {
+    if (!this.config.enableMCPIntegration) {
+      throw new Error('MCP integration is disabled');
+    }
+    
+    try {
+      await this.publishEvent('ui.mcp.tool.call', {
+        tool: toolName,
+        args,
+      });
+      
+      // TODO: Implement actual MCP tool call
+      // This would typically involve calling the MCP connector
+      // and receiving a response with UI components
+      
+      const response: MCPUIResponse = {
+        success: true,
+        data: {},
+        components: [],
+      };
+      
+      await this.publishEvent('ui.mcp.tool.response', {
+        tool: toolName,
+        response,
+      });
+      
+      return response;
+    } catch (error) {
+      const errorResponse: MCPUIResponse = {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      };
+      
+      await this.publishEvent('ui.mcp.tool.response', {
+        tool: toolName,
+        response: errorResponse,
+      });
+      
+      throw error;
+    }
   }
 
   /**

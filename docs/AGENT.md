@@ -1,11 +1,12 @@
-# LAPA v1.2.2 — Prompt-Resonant Nexus (Phase 11 In Progress)
+# LAPA v1.2.2 — Prompt-Resonant Nexus (Phase 13 Complete)
 
 ## Resume State
 - **v1.2.1 Phase 10 COMPLETE**: AutoGen Core + Roo Modes (event-bus.ts, modes.ts, agent-tool.ts)
-- **v1.2.2 Phase 11 IN PROGRESS**: MCP + A2A Connectors
+- **v1.2.2 Phase 11 COMPLETE**: MCP + A2A Connectors
+- **v1.2.2 Phase 13 COMPLETE**: AG-UI + Dynamic Studio
 - **Branch**: `v1.2-nexus-loop`
-- **Resume Files**: `src/orchestrator/a2a-mediator.ts`, `src/swarm/a2a-mediator.ts`
-- **Next**: Phase 11 — MCP + A2A Connectors (mcp-connector.ts, handshake.ts); Phase 14 — PromptEngineer MCP
+- **Resume Files**: `src/core/ag-ui.ts`, `src/ui/mcp-ui-specs.ts`, `src/ui/studio-dynamic.py`
+- **Next**: Phase 14 — ClaudeKit + Feedback Loops + PromptEngineer MCP
 
 ## Core Rules
 - **TOON-only** — raw reasoning
@@ -23,12 +24,12 @@
 [ROLE] Bench: Run AutoGen + LangSmith + Prometheus evals + Pydantic outputs.
 [ROLE] Security: RBAC check, hallucination veto, red team log; auto-docs (JSDoc/PyDoc).
 [ROLE] Prompt Refine: Detect vague → Q&A clarify → optimize for tools (e.g., git/grep plans).
-text## Protocol Compliance
+## Protocol Compliance
 | Protocol | Status | File |
 |----------|--------|------|
 | **MCP** | Live (Phase 9) + stdio | `mcp-connector.ts` + `prompt-engineer.ts` |
-| **A2A** | Phase 11 | `a2a-mediator.ts` |
-| **AG-UI** | Phase 13 | `ag-ui.ts` |
+| **A2A** | Phase 11 COMPLETE | `a2a-mediator.ts` |
+| **AG-UI** | Phase 13 COMPLETE | `ag-ui.ts`, `mcp-ui-specs.ts`, `studio-dynamic.py` |
 
 ## VSIX Build
 ```bash

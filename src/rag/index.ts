@@ -11,6 +11,7 @@
  * - Text preprocessing pipelines
  * - Configuration management
  * - Integration with AI-Q research assistant
+ * - Chroma vector refinement (Phase 12)
  */
 
 export { RAGPipeline } from './pipeline.ts';
@@ -19,3 +20,7 @@ export { VideoProcessor } from './processors/video.processor.ts';
 export { FileHandler } from './utils/file.handler.ts';
 export { TextPreprocessor } from './utils/text.preprocessor.ts';
 export { RAGConfig } from './config.ts';
+
+// Phase 12: Chroma Vector Refinement
+export { ChromaRefine, chromaRefine } from './chroma-refine.ts';
+export type { ChromaRefineConfig, VectorDocument, VectorSearchResult } from './chroma-refine.ts';
