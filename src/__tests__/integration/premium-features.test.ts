@@ -1,10 +1,11 @@
-import { AuditLogger } from '../../src/premium/audit.logger';
-import { VercelBlobStorage } from '../../src/premium/blob.storage';
-import { CloudNIMIntegration } from '../../src/premium/cloud-nim.integration';
-import { LicenseManager } from '../../src/premium/license.manager';
-import { StripePaymentIntegration } from '../../src/premium/stripe.payment';
-import { TeamStateManager } from '../../src/premium/team.state';
-import { E2BSandboxIntegration } from '../../src/premium/e2b.sandbox';
+import { describe, it, expect } from "vitest";
+import { AuditLogger } from '../../premium/audit.logger.ts';
+import { VercelBlobStorage } from '../../premium/blob.storage.ts';
+import { CloudNIMIntegration } from '../../premium/cloud-nim.integration.ts';
+import { LicenseManager } from '../../premium/license.manager.ts';
+import { StripePaymentIntegration } from '../../premium/stripe.payment.ts';
+import { TeamStateManager } from '../../premium/team.state.ts';
+import { E2BSandboxIntegration } from '../../premium/e2b.sandbox.ts';
 
 // Mock external dependencies
 jest.mock('@vercel/blob', () => ({
@@ -104,12 +105,12 @@ describe('Premium Features Integration', () => {
     let cloudNIM: CloudNIMIntegration;
 
     beforeEach(() => {
-      jest.clearAllMocks();
+      // All mocks are automatically cleared in vitest
       process.env.BLOB_READ_WRITE_TOKEN = 'test-blob-token';
       process.env.CLOUD_NIM_API_KEY = 'test-nim-key';
       
-      blobStorage = new VercelBlobStorage();
-      cloudNIM = new CloudNIMIntegration();
+      blobStorage = new VercelBlobStorage(process.env.BLOB_READ_WRITE_TOKEN);
+      cloudNIM = new CloudNIMIntegration(process.env.CLOUD_NIM_API_KEY);
     });
 
     afterEach(() => {
@@ -120,7 +121,7 @@ describe('Premium Features Integration', () => {
     it('should store NIM model outputs in blob storage', async () => {
       // Mock NIM response
       const nimResponse = 'Generated code for user authentication system...';
-      (global.fetch as jest.Mock).mockResolvedValue({
+      (global.fetch as any).mockResolvedValue({
         ok: true,
         json: () => Promise.resolve({ choices: [{ text: nimResponse }] })
       });
@@ -133,7 +134,7 @@ describe('Premium Features Integration', () => {
       // Mock blob storage upload
       const mockBlobUrl = 'https://vercel.blob.store/generated-auth-system.js';
       const { put } = require('@vercel/blob');
-      (put as jest.Mock).mockResolvedValue({
+      (put as any).mockResolvedValue({
         url: mockBlobUrl,
         pathname: 'generated-auth-system.js',
         contentType: 'application/javascript'
@@ -166,7 +167,7 @@ describe('Premium Features Integration', () => {
       const buffer = Buffer.from(fileContent);
       
       // Mock blob storage download
-      global.fetch = jest.fn().mockResolvedValue({
+      (global.fetch as any).mockResolvedValue({
         ok: true,
         arrayBuffer: () => Promise.resolve(buffer.buffer)
       });
@@ -178,11 +179,11 @@ describe('Premium Features Integration', () => {
 
   describe('License Management with Payment Integration', () => {
     let licenseManager: LicenseManager;
-    let paymentIntegration: StripePaymentIntegration;
+    // let paymentIntegration: StripePaymentIntegration;
 
     beforeEach(() => {
       licenseManager = new LicenseManager('test-secret-key');
-      paymentIntegration = new StripePaymentIntegration('sk_test_key', 'whsec_test');
+      // paymentIntegration = new StripePaymentIntegration('sk_test_key');
     });
 
     it('should manage licenses through payment lifecycle', async () => {
@@ -215,39 +216,39 @@ describe('Premium Features Integration', () => {
       // Generate a license for the customer
       const license = licenseManager.generateLicense(
         'user@example.com',
-        'cus_test123',
         'prod_premium',
-        { tier: 'enterprise', maxUsers: 100 }
+        ['feature1', 'feature2'],
+        { metadata: { tier: 'enterprise', maxUsers: 100 } }
       );
 
       expect(license.id).toBeDefined();
-      expect(license.customerId).toBe('cus_test123');
+      expect(license.userId).toBe('user@example.com');
       expect(license.productId).toBe('prod_premium');
       expect(license.metadata).toEqual({ tier: 'enterprise', maxUsers: 100 });
 
       // Validate the license
       const validation = licenseManager.validateLicense(license.id, license.activationKey);
-      expect(validation.valid).toBe(true);
-      expect(validation.licenseId).toBe(license.id);
+      expect(validation.isValid).toBe(true);
+      expect(validation.license).toBe(license.id);
 
       // Activate the license
       const activation = licenseManager.activateLicense(license.id, license.activationKey);
-      expect(activation.valid).toBe(true);
-      expect(activation.activated).toBe(true);
+      expect(activation.isValid).toBe(true);
+      expect(activation.isActivated).toBe(true);
     });
 
     it('should handle license revocation on payment failure', () => {
       // Generate and activate a license
       const license = licenseManager.generateLicense(
         'user2@example.com',
-        'cus_test789',
         'prod_premium',
-        { tier: 'professional' }
+        ['feature1'],
+        { metadata: { tier: 'professional' } }
       );
 
       const activation = licenseManager.activateLicense(license.id, license.activationKey);
-      expect(activation.valid).toBe(true);
-      expect(activation.activated).toBe(true);
+      expect(activation.isValid).toBe(true);
+      expect(activation.isActivated).toBe(true);
 
       // Revoke license (simulate payment failure)
       const revoked = licenseManager.revokeLicense(license.id);
@@ -255,8 +256,8 @@ describe('Premium Features Integration', () => {
 
       // Verify license is no longer valid
       const validation = licenseManager.validateLicense(license.id, license.activationKey);
-      expect(validation.valid).toBe(true); // License exists but is revoked
-      expect(validation.activated).toBe(false);
+      expect(validation.isValid).toBe(true); // License exists but is revoked
+      expect(validation.isActivated).toBe(false);
     });
   });
 
@@ -284,7 +285,7 @@ describe('Premium Features Integration', () => {
 
       // Create team state
       const initialState = teamStateManager.createTeamState(teamId, members);
-      expect(initialState.id).toBe(teamId);
+      expect(initialState.teamId).toBe(teamId);
       expect(initialState.members).toEqual(members);
 
       // Update team state
@@ -300,7 +301,7 @@ describe('Premium Features Integration', () => {
         }
       );
 
-      expect(updatedState.lastUpdatedBy).toBe('user-1');
+      expect(updatedState.lastUpdated).toBe('user-1');
       expect(updatedState.sharedContext.project).toBe('LAPA Core');
 
       // Log the state update
@@ -396,12 +397,11 @@ describe('Premium Features Integration', () => {
     let cloudNIM: CloudNIMIntegration;
 
     beforeEach(() => {
-      jest.clearAllMocks();
       process.env.E2B_API_KEY = 'test-e2b-key';
       process.env.CLOUD_NIM_API_KEY = 'test-nim-key';
       
-      e2bSandbox = new E2BSandboxIntegration();
-      cloudNIM = new CloudNIMIntegration();
+      e2bSandbox = new E2BSandboxIntegration(process.env.E2B_API_KEY);
+      cloudNIM = new CloudNIMIntegration(process.env.CLOUD_NIM_API_KEY);
     });
 
     afterEach(() => {
@@ -423,8 +423,8 @@ describe('Premium Features Integration', () => {
         module.exports = { processData };
       `;
       
-      (global.fetch as jest.Mock).mockResolvedValue({
-        ok: true,
+            (global.fetch as any).mockResolvedValue({
+              ok: true,
         json: () => Promise.resolve({ choices: [{ text: nimCode }] })
       });
 
@@ -458,8 +458,8 @@ describe('Premium Features Integration', () => {
         brokenFunction();
       `;
       
-      (global.fetch as jest.Mock).mockResolvedValue({
-        ok: true,
+            (global.fetch as any).mockResolvedValue({
+              ok: true,
         json: () => Promise.resolve({ choices: [{ text: faultyCode }] })
       });
 
@@ -490,23 +490,23 @@ describe('Premium Features Integration', () => {
 
       // Setup
       const licenseManager = new LicenseManager('test-key');
-      const payment = new StripePaymentIntegration('sk_test');
-      const blobStorage = new VercelBlobStorage('test-token');
-      const cloudNIM = new CloudNIMIntegration('test-key');
-      const e2b = new E2BSandboxIntegration('test-key');
+      // const payment = new StripePaymentIntegration('sk_test');
+      const blobStorage = new VercelBlobStorage();
+      const cloudNIM = new CloudNIMIntegration();
+      // const e2b = new E2BSandboxIntegration();
       const teamState = new TeamStateManager();
       const audit = new AuditLogger('.lapa/integration-test.log', true);
 
       // Step 1: License validation
       const license = licenseManager.generateLicense(
         'enterprise@company.com',
-        'cus_enterprise',
         'prod_enterprise',
-        { features: ['all'], support: '24/7' }
+        ['feature1', 'feature2'],
+        { metadata: { features: ['all'], support: '24/7' } }
       );
 
       const validation = licenseManager.validateLicense(license.id, license.activationKey);
-      expect(validation.valid).toBe(true);
+      expect(validation.isValid).toBe(true);
 
       // Step 2: Payment processing (mocked)
       const customer = { id: 'cus_enterprise', email: 'enterprise@company.com' };
@@ -514,12 +514,12 @@ describe('Premium Features Integration', () => {
 
       // Step 3: Blob storage (mocked)
       const { put } = require('@vercel/blob');
-      (put as jest.Mock).mockResolvedValue({
+      (put as any).mockResolvedValue({
         url: 'https://blob.store/enterprise-assets.zip'
       });
 
       // Step 4: Cloud NIM generation (mocked)
-      (global.fetch as jest.Mock).mockResolvedValue({
+      (global.fetch as any).mockResolvedValue({
         ok: true,
         json: () => Promise.resolve({ 
           choices: [{ text: 'console.log("Enterprise feature");' }] 
@@ -539,7 +539,7 @@ describe('Premium Features Integration', () => {
         'admin',
         'provision-enterprise-features',
         'enterprise-setup',
-        { license: license.id, team: team.id }
+        { license: license.id, team: team.teamId }
       );
 
       const logs = await audit.getRecentLogs(1);

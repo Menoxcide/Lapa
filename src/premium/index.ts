@@ -11,10 +11,10 @@
  * - Audit logging
  */
 
-export { CloudNIMIntegration } from './cloud-nim.integration';
-export { VercelBlobStorage } from './blob.storage';
-export { E2BSandboxIntegration } from './e2b.sandbox';
-export { StripePaymentIntegration } from './stripe.payment';
-export { LicenseManager } from './license.manager';
-export { TeamStateManager } from './team.state';
-export { AuditLogger } from './audit.logger';
+export { CloudNIMIntegration } from './cloud-nim.integration.ts';
+export { VercelBlobStorage } from './blob.storage.ts';
+export { E2BSandboxIntegration } from './e2b.sandbox.ts';
+export { StripePaymentIntegration } from './stripe.payment.ts';
+export { LicenseManager } from './license.manager.ts';
+export { TeamStateManager } from './team.state.ts';
+export { AuditLogger } from './audit.logger.ts';

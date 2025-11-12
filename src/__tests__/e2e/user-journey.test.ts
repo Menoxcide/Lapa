@@ -1,14 +1,15 @@
-import { MoERouter, Agent, Task } from '../../src/agents/moe-router';
-import { RayParallelExecutor } from '../../src/agents/ray-parallel';
-import { ConsensusVotingSystem } from '../../src/swarm/consensus.voting';
-import { ContextHandoffManager } from '../../src/swarm/context.handoff';
-import { LangGraphOrchestrator } from '../../src/swarm/langgraph.orchestrator';
-import { PersonaManager } from '../../src/agents/persona.manager';
+import { describe, it, expect } from "vitest";
+import { MoERouter, Agent, Task } from '../../agents/moe-router.ts';
+import { RayParallelExecutor } from '../../agents/ray-parallel.ts';
+import { ConsensusVotingSystem } from '../../swarm/consensus.voting.ts';
+import { ContextHandoffManager } from '../../swarm/context.handoff.ts';
+import { LangGraphOrchestrator } from '../../swarm/langgraph.orchestrator.ts';
+import { PersonaManager } from '../../agents/persona.manager.ts';
 import {
   compressContext,
   decompressContext,
   testCtxZipCompression
-} from '../../src/mcp/ctx-zip.integration';
+} from '../../mcp/ctx-zip.integration.ts';
 
 describe('End-to-End User Journeys', () => {
   describe('Complete Feature Development Journey', () => {

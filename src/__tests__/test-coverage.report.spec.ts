@@ -1,3 +1,4 @@
+import { describe, it, expect } from "vitest";
 import { writeFileSync, existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 

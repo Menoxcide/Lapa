@@ -6,8 +6,8 @@
  * collaboration by preserving and transmitting relevant information.
  */
 
-import { compressContext, decompressContext } from '../mcp/ctx-zip.integration';
-import { Task } from '../agents/moe-router';
+import { compressContext, decompressContext } from '../mcp/ctx-zip.integration.ts';
+import { Task } from '../agents/moe-router.ts';
 
 // Context handoff request
 export interface ContextHandoffRequest {
@@ -40,7 +40,7 @@ export interface HandoffStatus {
 // Context repository for storing handoff data
 class ContextRepository {
   private contexts: Map<string, Buffer> = new Map();
-  private metadata: Map<string, any> = new Map();
+  private metadata: Map<string, unknown> = new Map();
   
   /**
    * Stores compressed context data
@@ -48,7 +48,7 @@ class ContextRepository {
    * @param compressedData Compressed context buffer
    * @param metadata Additional metadata
    */
-  storeContext(handoffId: string, compressedData: Buffer, metadata: any): void {
+  storeContext(handoffId: string, compressedData: Buffer, metadata: unknown): void {
     this.contexts.set(handoffId, compressedData);
     this.metadata.set(handoffId, metadata);
     console.log(`Stored context for handoff: ${handoffId}`);
@@ -68,7 +68,7 @@ class ContextRepository {
    * @param handoffId Unique handoff identifier
    * @returns Metadata or undefined if not found
    */
-  getMetadata(handoffId: string): any | undefined {
+  getMetadata(handoffId: string): unknown | undefined {
     return this.metadata.get(handoffId);
   }
   
@@ -109,7 +109,10 @@ export class ContextHandoffManager {
       this.updateHandoffStatus(handoffId, 'pending', 0);
       
       // Serialize context
+      console.log(`[ContextHandoffManager] Serializing context for handoff ${handoffId}`);
       const contextString = JSON.stringify(request.context);
+      console.log(`[ContextHandoffManager] Context serialized, length: ${contextString.length}`);
+      console.log(`[ContextHandoffManager] Context sample: ${contextString.substring(0, 100)}...`);
       
       // Compress context using ctx-zip
       const startTime = Date.now();
@@ -196,7 +199,16 @@ export class ContextHandoffManager {
       const decompressionTime = Date.now() - startTime;
       
       // Parse context
-      const context = JSON.parse(contextString);
+      console.log(`[ContextHandoffManager] Decompressed context length: ${contextString.length}`);
+      console.log(`[ContextHandoffManager] Decompressed context sample: ${contextString.substring(0, 100)}...`);
+      let context: Record<string, any>;
+      try {
+        context = JSON.parse(contextString);
+      } catch (parseError) {
+        console.error(`[ContextHandoffManager] Failed to parse JSON: ${parseError}`);
+        console.error(`[ContextHandoffManager] Full context string: ${contextString}`);
+        throw new Error(`Failed to parse decompressed context as JSON: ${parseError instanceof Error ? parseError.message : String(parseError)}`);
+      }
       
       // Clean up
       contextRepository.removeContext(handoffId);

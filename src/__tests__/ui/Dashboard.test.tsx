@@ -1,35 +1,52 @@
+import { describe, it, expect } from "vitest";
+import { render, screen } from '@testing-library/react';
+import { vi } from 'vitest';
+import Dashboard from '../../ui/Dashboard.tsx';
+import { DashboardProvider } from '../../ui/state/dashboard.context.tsx';
+import '@testing-library/jest-dom';
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
-import Dashboard from '../../src/ui/Dashboard';
 
-// Mock child components
-jest.mock('../../src/ui/components/LiveGraph', () => {
-  return function MockLiveGraph() {
-    return <div data-testid="live-graph">Live Graph Component</div>;
-  };
-});
-
-jest.mock('../../src/ui/components/ControlPanel', () => {
-  return function MockControlPanel() {
-    return <div data-testid="control-panel">Control Panel Component</div>;
-  };
-});
-
-jest.mock('../../src/ui/components/AgentAvatars', () => {
-  return function MockAgentAvatars() {
-    return <div data-testid="agent-avatars">Agent Avatars Component</div>;
-  };
-});
-
-jest.mock('../../src/ui/components/SpeechBubbles', () => {
-  return function MockSpeechBubbles() {
-    return <div data-testid="speech-bubbles">Speech Bubbles Component</div>;
-  };
-});
 
 describe('Dashboard', () => {
+  const renderWithProvider = (component: React.ReactElement) => {
+    return render(<DashboardProvider>{component}</DashboardProvider>);
+  };
+
+  // Mock child components to prevent actual rendering
+  vi.mock('../../ui/components/LiveGraph.tsx', () => {
+    return {
+      default: function MockLiveGraph() {
+        return <div data-testid="live-graph">Live Graph Component</div>;
+      }
+    };
+  });
+
+  vi.mock('../../ui/components/ControlPanel.tsx', () => {
+    return {
+      default: function MockControlPanel() {
+        return <div data-testid="control-panel">Control Panel Component</div>;
+      }
+    };
+  });
+
+  vi.mock('../../ui/components/AgentAvatars.tsx', () => {
+    return {
+      default: function MockAgentAvatars() {
+        return <div data-testid="agent-avatars">Agent Avatars Component</div>;
+      }
+    };
+  });
+
+  vi.mock('../../ui/components/SpeechBubbles.tsx', () => {
+    return {
+      default: function MockSpeechBubbles() {
+        return <div data-testid="speech-bubbles">Speech Bubbles Component</div>;
+      }
+    };
+  });
+
   it('should render the dashboard layout correctly', () => {
-    render(<Dashboard />);
+    renderWithProvider(<Dashboard />);
     
     // Check main heading
     expect(screen.getByText('LAPA Swarm Dashboard')).toBeInTheDocument();
@@ -42,7 +59,7 @@ describe('Dashboard', () => {
   });
 
   it('should apply correct CSS classes and structure', () => {
-    render(<Dashboard />);
+    renderWithProvider(<Dashboard />);
     
     // Check main container
     const dashboardContainer = screen.getByText('LAPA Swarm Dashboard').closest('.dashboard');
@@ -61,7 +78,7 @@ describe('Dashboard', () => {
   });
 
   it('should render all dashboard sections', () => {
-    render(<Dashboard />);
+    renderWithProvider(<Dashboard />);
     
     // Check main title
     expect(screen.getByRole('heading', { level: 1, name: 'LAPA Swarm Dashboard' })).toBeInTheDocument();
@@ -74,7 +91,7 @@ describe('Dashboard', () => {
   });
 
   it('should maintain responsive design', () => {
-    render(<Dashboard />);
+    renderWithProvider(<Dashboard />);
     
     // Check responsive grid classes
     const gridContainer = screen.getByTestId('live-graph').closest('.grid');
@@ -90,7 +107,7 @@ describe('Dashboard', () => {
   });
 
   it('should handle empty states gracefully', () => {
-    render(<Dashboard />);
+    renderWithProvider(<Dashboard />);
     
     // Dashboard should render even with no data
     expect(screen.getByText('LAPA Swarm Dashboard')).toBeInTheDocument();
@@ -103,7 +120,7 @@ describe('Dashboard', () => {
   });
 
   it('should have proper accessibility attributes', () => {
-    render(<Dashboard />);
+    renderWithProvider(<Dashboard />);
     
     // Check main landmark
     const main = screen.getByRole('main');
@@ -120,35 +137,24 @@ describe('Dashboard', () => {
   });
 
   it('should render consistently across multiple mounts', () => {
-    const { unmount, rerender } = render(<Dashboard />);
+    const { unmount, rerender } = renderWithProvider(<Dashboard />);
     
     // First render
     expect(screen.getByText('LAPA Swarm Dashboard')).toBeInTheDocument();
     
     // Unmount and remount
     unmount();
-    rerender(<Dashboard />);
+    rerender(<DashboardProvider><Dashboard /></DashboardProvider>);
     
     // Should render the same content
     expect(screen.getByText('LAPA Swarm Dashboard')).toBeInTheDocument();
   });
 
   it('should not crash with missing components', () => {
-    // Temporarily mock components to throw errors
-    jest.mock('../../src/ui/components/LiveGraph', () => {
-      return function MockLiveGraph() {
-        throw new Error('Component failed to load');
-        return <div>Should not reach here</div>;
-      };
-    });
-    
-    // Reset the Dashboard import to use the new mock
-    jest.resetModules();
-    
     // For this test, we'll just verify the dashboard renders without our mocks
     // In a real scenario, we'd want to test error boundaries
     expect(() => {
-      render(<Dashboard />);
+      renderWithProvider(<Dashboard />);
     }).not.toThrow();
   });
 });

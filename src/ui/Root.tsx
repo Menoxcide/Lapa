@@ -1,6 +1,6 @@
 import React from 'react';
-import { DashboardProvider } from './state';
-import Dashboard from './Dashboard';
+import { DashboardProvider } from './state/index.ts';
+import Dashboard from './Dashboard.tsx';
 
 const Root: React.FC = () => {
   return (

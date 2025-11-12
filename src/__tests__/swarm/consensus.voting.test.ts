@@ -1,5 +1,6 @@
-import { ConsensusVotingSystem, VoteOption, VotingAlgorithm } from '../../src/swarm/consensus.voting';
-import { Agent } from '../../src/agents/moe-router';
+import { describe, it, expect } from "vitest";
+import { ConsensusVotingSystem, VoteOption } from '../../swarm/consensus.voting.ts';
+import { Agent } from '../../agents/moe-router.ts';
 
 describe('ConsensusVotingSystem', () => {
   let votingSystem: ConsensusVotingSystem;

@@ -1,7 +1,9 @@
-import { CloudNIMIntegration } from '../../src/premium/cloud-nim.integration';
+import { describe, it, expect } from "vitest";
+import { CloudNIMIntegration } from '../../premium/cloud-nim.integration.ts';
+import { vi } from 'vitest';
 
 // Mock the fetch function
-global.fetch = jest.fn();
+global.fetch = vi.fn();
 
 describe('CloudNIMIntegration', () => {
   let cloudNIM: CloudNIMIntegration;
@@ -11,7 +13,7 @@ describe('CloudNIMIntegration', () => {
 
   beforeEach(() => {
     // Clear all mocks before each test
-    jest.clearAllMocks();
+    // All mocks are automatically cleared in vitest
     
     // Set environment variables
     process.env.CLOUD_NIM_API_KEY = mockApiKey;
@@ -52,7 +54,7 @@ describe('CloudNIMIntegration', () => {
         choices: [{ text: 'Generated response content' }]
       };
       
-      (global.fetch as jest.Mock).mockResolvedValue({
+      (global.fetch as any).mockResolvedValue({
         ok: true,
         json: () => Promise.resolve(mockResponse)
       });
@@ -81,7 +83,7 @@ describe('CloudNIMIntegration', () => {
         choices: [{ text: 'Custom model response' }]
       };
       
-      (global.fetch as jest.Mock).mockResolvedValue({
+      (global.fetch as any).mockResolvedValue({
         ok: true,
         json: () => Promise.resolve(mockResponse)
       });
@@ -112,7 +114,7 @@ describe('CloudNIMIntegration', () => {
     });
 
     it('should handle HTTP errors gracefully', async () => {
-      (global.fetch as jest.Mock).mockResolvedValue({
+      (global.fetch as any).mockResolvedValue({
         ok: false,
         status: 401,
         statusText: 'Unauthorized'
@@ -123,14 +125,14 @@ describe('CloudNIMIntegration', () => {
     });
 
     it('should handle network errors gracefully', async () => {
-      (global.fetch as jest.Mock).mockRejectedValue(new Error('Network error'));
+      (global.fetch as any).mockRejectedValue(new Error('Network error'));
       
       await expect(cloudNIM.sendInferenceRequest('Test prompt'))
         .rejects.toThrow('Network error');
     });
 
     it('should handle malformed response', async () => {
-      (global.fetch as jest.Mock).mockResolvedValue({
+      (global.fetch as any).mockResolvedValue({
         ok: true,
         json: () => Promise.resolve({}) // Missing choices array
       });
@@ -149,10 +151,10 @@ describe('CloudNIMIntegration', () => {
         ]
       };
       
-      (global.fetch as jest.Mock).mockResolvedValue({
-        ok: true,
-        json: () => Promise.resolve(mockModels)
-      });
+            (global.fetch as any).mockResolvedValue({
+              ok: true,
+              json: () => Promise.resolve(mockModels)
+            });
       
       const result = await cloudNIM.listModels();
       
@@ -169,7 +171,7 @@ describe('CloudNIMIntegration', () => {
     });
 
     it('should handle list models HTTP errors', async () => {
-      (global.fetch as jest.Mock).mockResolvedValue({
+      (global.fetch as any).mockResolvedValue({
         ok: false,
         status: 500,
         statusText: 'Internal Server Error'
@@ -180,7 +182,7 @@ describe('CloudNIMIntegration', () => {
     });
 
     it('should handle list models network errors', async () => {
-      (global.fetch as jest.Mock).mockRejectedValue(new Error('Connection failed'));
+      (global.fetch as any).mockRejectedValue(new Error('Connection failed'));
       
       await expect(cloudNIM.listModels())
         .rejects.toThrow('Connection failed');
@@ -196,7 +198,7 @@ describe('CloudNIMIntegration', () => {
         capabilities: ['text-generation']
       };
       
-      (global.fetch as jest.Mock).mockResolvedValue({
+      (global.fetch as any).mockResolvedValue({
         ok: true,
         json: () => Promise.resolve(mockModelInfo)
       });
@@ -216,7 +218,7 @@ describe('CloudNIMIntegration', () => {
     });
 
     it('should handle get model info HTTP errors', async () => {
-      (global.fetch as jest.Mock).mockResolvedValue({
+      (global.fetch as any).mockResolvedValue({
         ok: false,
         status: 404,
         statusText: 'Not Found'
@@ -227,7 +229,7 @@ describe('CloudNIMIntegration', () => {
     });
 
     it('should handle get model info network errors', async () => {
-      (global.fetch as jest.Mock).mockRejectedValue(new Error('Timeout'));
+      (global.fetch as any).mockRejectedValue(new Error('Timeout'));
       
       await expect(cloudNIM.getModelInfo('test-model'))
         .rejects.toThrow('Timeout');
@@ -236,7 +238,7 @@ describe('CloudNIMIntegration', () => {
 
   describe('checkHealth', () => {
     it('should check health successfully when service is up', async () => {
-      (global.fetch as jest.Mock).mockResolvedValue({
+      (global.fetch as any).mockResolvedValue({
         ok: true
       });
       
@@ -252,7 +254,7 @@ describe('CloudNIMIntegration', () => {
     });
 
     it('should check health and return false when service is down', async () => {
-      (global.fetch as jest.Mock).mockResolvedValue({
+      (global.fetch as any).mockResolvedValue({
         ok: false
       });
       
@@ -262,7 +264,7 @@ describe('CloudNIMIntegration', () => {
     });
 
     it('should handle health check network errors', async () => {
-      (global.fetch as jest.Mock).mockRejectedValue(new Error('DNS lookup failed'));
+      (global.fetch as any).mockRejectedValue(new Error('DNS lookup failed'));
       
       const result = await cloudNIM.checkHealth();
       

@@ -1,11 +1,13 @@
-import { VercelBlobStorage } from '../../src/premium/blob.storage';
+import { describe, it, expect } from "vitest";
+import { VercelBlobStorage } from '../../premium/blob.storage.ts';
+import { vi } from 'vitest';
 
 // Mock the @vercel/blob module
-jest.mock('@vercel/blob', () => ({
-  put: jest.fn(),
-  del: jest.fn(),
-  list: jest.fn(),
-  head: jest.fn()
+vi.mock('@vercel/blob', () => ({
+  put: vi.fn(),
+  del: vi.fn(),
+  list: vi.fn(),
+  head: vi.fn()
 }));
 
 describe('VercelBlobStorage', () => {
@@ -14,7 +16,7 @@ describe('VercelBlobStorage', () => {
 
   beforeEach(() => {
     // Clear all mocks before each test
-    jest.clearAllMocks();
+    // All mocks are automatically cleared in vitest
     
     // Set environment variable for token
     process.env.BLOB_READ_WRITE_TOKEN = mockToken;
@@ -55,7 +57,7 @@ describe('VercelBlobStorage', () => {
       };
       
       const { put } = require('@vercel/blob');
-      (put as jest.Mock).mockResolvedValue(mockBlob);
+      (put as any).mockResolvedValue(mockBlob);
       
       const result = await blobStorage.uploadFile('test.txt', 'file content');
       
@@ -75,7 +77,7 @@ describe('VercelBlobStorage', () => {
       };
       
       const { put } = require('@vercel/blob');
-      (put as jest.Mock).mockResolvedValue(mockBlob);
+      (put as any).mockResolvedValue(mockBlob);
       
       const result = await blobStorage.uploadFile(
         'data.json',
@@ -99,7 +101,7 @@ describe('VercelBlobStorage', () => {
 
     it('should handle upload errors gracefully', async () => {
       const { put } = require('@vercel/blob');
-      (put as jest.Mock).mockRejectedValue(new Error('Upload failed'));
+      (put as any).mockRejectedValue(new Error('Upload failed'));
       
       await expect(blobStorage.uploadFile('test.txt', 'content'))
         .rejects.toThrow('Upload failed');
@@ -113,7 +115,7 @@ describe('VercelBlobStorage', () => {
       };
       
       const { put } = require('@vercel/blob');
-      (put as jest.Mock).mockResolvedValue(mockBlob);
+      (put as any).mockResolvedValue(mockBlob);
       
       const buffer = Buffer.from('binary content');
       const result = await blobStorage.uploadFile('buffer.bin', buffer);
@@ -132,7 +134,7 @@ describe('VercelBlobStorage', () => {
       const buffer = Buffer.from(fileContent);
       
       // Mock global fetch
-      global.fetch = jest.fn().mockResolvedValue({
+      global.fetch = vi.fn().mockResolvedValue({
         ok: true,
         arrayBuffer: () => Promise.resolve(buffer.buffer)
       });
@@ -146,7 +148,7 @@ describe('VercelBlobStorage', () => {
 
     it('should handle download HTTP errors', async () => {
       // Mock global fetch with error response
-      global.fetch = jest.fn().mockResolvedValue({
+      global.fetch = vi.fn().mockResolvedValue({
         ok: false,
         status: 404,
         statusText: 'Not Found'
@@ -157,7 +159,7 @@ describe('VercelBlobStorage', () => {
     });
 
     it('should handle network errors', async () => {
-      global.fetch = jest.fn().mockRejectedValue(new Error('Network error'));
+      global.fetch = vi.fn().mockRejectedValue(new Error('Network error'));
       
       await expect(blobStorage.downloadFile('https://example.com/file.txt'))
         .rejects.toThrow('Network error');
@@ -167,7 +169,7 @@ describe('VercelBlobStorage', () => {
   describe('deleteFile', () => {
     it('should delete file successfully', async () => {
       const { del } = require('@vercel/blob');
-      (del as jest.Mock).mockResolvedValue(undefined);
+      (del as any).mockResolvedValue(undefined);
       
       await expect(blobStorage.deleteFile('https://example.com/file.txt'))
         .resolves.not.toThrow();
@@ -177,7 +179,7 @@ describe('VercelBlobStorage', () => {
 
     it('should handle delete errors gracefully', async () => {
       const { del } = require('@vercel/blob');
-      (del as jest.Mock).mockRejectedValue(new Error('Delete failed'));
+      (del as any).mockRejectedValue(new Error('Delete failed'));
       
       await expect(blobStorage.deleteFile('https://example.com/file.txt'))
         .rejects.toThrow('Delete failed');
@@ -201,9 +203,9 @@ describe('VercelBlobStorage', () => {
         }
       ];
       
-      const { list } = require('@vercel/blob');
-      (list as jest.Mock).mockResolvedValue({ blobs: mockBlobs });
       
+      const { list } = require('@vercel/blob');
+      (list as any).mockResolvedValue({ blobs: mockBlobs });
       const result = await blobStorage.listFiles();
       
       expect(result).toEqual(mockBlobs);
@@ -219,26 +221,26 @@ describe('VercelBlobStorage', () => {
         }
       ];
       
-      const { list } = require('@vercel/blob');
-      (list as jest.Mock).mockResolvedValue({ blobs: mockBlobs });
       
+      const { list } = require('@vercel/blob');
+      (list as any).mockResolvedValue({ blobs: mockBlobs });
       const result = await blobStorage.listFiles({
         prefix: 'docs/',
         limit: 10,
-        after: 'some-cursor'
+        cursor: 'some-cursor'
       });
       
       expect(result).toEqual(mockBlobs);
       expect(list).toHaveBeenCalledWith({
         prefix: 'docs/',
         limit: 10,
-        after: 'some-cursor'
+        cursor: 'some-cursor'
       });
     });
 
     it('should handle list errors gracefully', async () => {
       const { list } = require('@vercel/blob');
-      (list as jest.Mock).mockRejectedValue(new Error('List failed'));
+      (list as any).mockRejectedValue(new Error('List failed'));
       
       await expect(blobStorage.listFiles())
         .rejects.toThrow('List failed');
@@ -257,7 +259,7 @@ describe('VercelBlobStorage', () => {
       };
       
       const { head } = require('@vercel/blob');
-      (head as jest.Mock).mockResolvedValue(mockMetadata);
+      (head as any).mockResolvedValue(mockMetadata);
       
       const result = await blobStorage.getFileMetadata('https://example.com/file.txt');
       
@@ -267,7 +269,7 @@ describe('VercelBlobStorage', () => {
 
     it('should handle metadata retrieval errors', async () => {
       const { head } = require('@vercel/blob');
-      (head as jest.Mock).mockRejectedValue(new Error('Metadata retrieval failed'));
+      (head as any).mockRejectedValue(new Error('Metadata retrieval failed'));
       
       await expect(blobStorage.getFileMetadata('https://example.com/file.txt'))
         .rejects.toThrow('Metadata retrieval failed');

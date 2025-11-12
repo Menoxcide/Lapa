@@ -1,8 +1,9 @@
+import { describe, it, expect } from "vitest";
 import {
   compressContext,
   decompressContext,
   testCtxZipCompression
-} from '../../src/mcp/ctx-zip.integration';
+} from '../../mcp/ctx-zip.integration.ts';
 
 describe('ctx-zip Performance Benchmarks', () => {
   describe('Compression Performance', () => {

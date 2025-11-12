@@ -6,7 +6,7 @@
  * token usage by 80%+ while maintaining semantic meaning.
  */
 
-import { compress, decompress } from './ctx-zip.mock.js';
+import { compress, decompress } from './ctx-zip.mock.ts';
 import { writeFile, readFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 
@@ -53,6 +53,8 @@ export async function compressContext(context: string, _options: CompressionOpti
     await mkdir(CONTEXT_STORAGE_DIR, { recursive: true });
     await mkdir(FEEDBACK_STORAGE_DIR, { recursive: true });
     
+    console.log(`[ctx-zip.integration] Compressing context of length: ${context.length}`);
+    console.log(`[ctx-zip.integration] Context sample: ${context.substring(0, 100)}...`);
     const compressed = await compress(context);
     console.log(`Context compressed: ${context.length} -> ${compressed.length} bytes (${((1 - compressed.length / context.length) * 100).toFixed(1)}% reduction)`);
     return compressed;
@@ -69,7 +71,10 @@ export async function compressContext(context: string, _options: CompressionOpti
  */
 export async function decompressContext(compressedContext: Buffer): Promise<string> {
   try {
+    console.log(`[ctx-zip.integration] Decompressing context buffer of length: ${compressedContext.length}`);
     const decompressed = await decompress(compressedContext);
+    console.log(`[ctx-zip.integration] Decompressed context length: ${decompressed.length}`);
+    console.log(`[ctx-zip.integration] Decompressed context sample: ${decompressed.substring(0, 100)}...`);
     return decompressed;
   } catch (error) {
     console.error('Failed to decompress context:', error);

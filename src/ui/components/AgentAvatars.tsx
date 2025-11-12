@@ -1,5 +1,5 @@
 import React from 'react';
-import { Agent } from '../state';
+import { Agent } from '../state/index.ts';
 
 interface AgentAvatarsProps {
   agents: Agent[];
@@ -34,6 +34,7 @@ const AgentAvatars: React.FC<AgentAvatarsProps> = ({ agents, onAgentClick }) => 
         {agents.map(agent => (
           <div
             key={agent.id}
+            data-testid="agent-avatar-card"
             className={`agent-avatar-card cursor-pointer rounded-lg p-4 shadow-md transition-all hover:shadow-lg ${
               onAgentClick ? 'hover:bg-gray-50' : ''
             }`}
@@ -52,7 +53,7 @@ const AgentAvatars: React.FC<AgentAvatarsProps> = ({ agents, onAgentClick }) => 
               </div>
               <div className="flex items-center">
                 <span className="mr-2 text-lg">{getStatusIcon(agent.status)}</span>
-                <div className={`status-indicator w-3 h-3 rounded-full ${getStatusColor(agent.status)}`}></div>
+                <div data-testid="status-indicator" className={`status-indicator w-3 h-3 rounded-full ${getStatusColor(agent.status)}`}></div>
               </div>
             </div>
           </div>

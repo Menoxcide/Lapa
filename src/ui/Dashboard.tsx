@@ -1,9 +1,9 @@
 import React from 'react';
-import LiveGraph from './components/LiveGraph';
-import AgentAvatars from './components/AgentAvatars';
-import SpeechBubbles from './components/SpeechBubbles';
-import ControlPanel from './components/ControlPanel';
-import { useDashboard } from './state';
+import LiveGraph from './components/LiveGraph.tsx';
+import AgentAvatars from './components/AgentAvatars.tsx';
+import SpeechBubbles from './components/SpeechBubbles.tsx';
+import ControlPanel from './components/ControlPanel.tsx';
+import { useDashboard } from './state/index.ts';
 
 const Dashboard: React.FC = () => {
   const { state, pauseSwarm, resumeSwarm, redirectTask, resetSwarm } = useDashboard();

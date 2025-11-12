@@ -1,4 +1,5 @@
-import { RayParallelExecutor, Task, TaskResult } from '../../src/agents/ray-parallel';
+import { describe, it, expect, vi } from "vitest";
+import { RayParallelExecutor, Task, TaskResult } from '../../agents/ray-parallel.ts';
 
 describe('RayParallelExecutor', () => {
   let executor: RayParallelExecutor;
@@ -128,7 +129,7 @@ describe('RayParallelExecutor', () => {
       const results = await executor.executeTasks(tasks);
       
       expect(results).toHaveLength(3);
-      results.forEach((result, index) => {
+      results.forEach((result: any, index: any) => {
         expect(result.taskId).toBe(tasks[index].id);
         expect(result.success).toBe(true);
         expect(result.result).toBeDefined();
@@ -166,12 +167,12 @@ describe('RayParallelExecutor', () => {
       // Mock Date.now to control timing
       const now = Date.now;
       let time = 0;
-      Date.now = jest.fn(() => time);
+      Date.now = vi.fn(() => time);
       
       const results = await executor.executeTasks(tasks);
       
       expect(results).toHaveLength(4);
-      results.forEach(result => {
+      results.forEach((result: any) => {
         expect(result.success).toBe(true);
       });
       

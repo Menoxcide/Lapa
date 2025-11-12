@@ -1,3 +1,4 @@
+import { describe, it, expect } from "vitest";
 import {
   compressContext,
   decompressContext,
@@ -11,7 +12,7 @@ import {
   CtxZipFeedbackController,
   CompressionStats,
   CompressionFeedback
-} from '../../src/mcp/ctx-zip.integration';
+} from '../../mcp/ctx-zip.integration.ts';
 
 describe('ctx-zip.integration', () => {
   const testContext = 'This is a test context string for compression. It contains multiple sentences to provide sufficient content for testing compression algorithms. The more content we have, the better we can test the compression ratio and effectiveness.';
