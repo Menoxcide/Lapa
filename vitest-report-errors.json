@@ -1,0 +1,5 @@
+
+> lapa-core@1.2.0 test:log X:\Lapa
+> vitest --reporter=verbose --reporter=json > vitest-report.json 2>&1
+
+ ELIFECYCLE  Command failed with exit code 1.

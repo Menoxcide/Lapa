@@ -1,0 +1,76 @@
+lapa:
+  name: LAPA
+  full: Local AI Pair Programmer Agent
+  tag: Autonomous MoE Swarm • Local-First • Cursor-Native
+  ver: 1.1.0
+  date: 2026-06-15
+  license: MIT
+  repo: github.com/Menoxcide/Lapa
+  site: lapa.ai
+  $status: v1.1-gaps
+
+$vision:
+  mission: Empower devs with private, autonomous, local AI pair programmer
+  belief: Future of coding = swarm, not chat
+  problem: [context bloat, manual loops, vendor lock, single-agent limit]
+  solution: local MoE swarm + ctx-zip + zero-prompt autonomy
+
+$flagship:
+  name: LAPA Swarm™
+  slogan: Five Minds. One Goal. Zero Prompts.
+  premium: true
+  price: { mo: 12, yr: 99 }
+  agents:
+  - [5]
+  - role;model;task
+  - Architect;nemotron-4-340b;plan
+  - Researcher;gemma-2-27b;search
+  - Coder;deepseek-coder-v2;write
+  - Tester;llama-3.1-405b;verify
+  - Reviewer;mixtral-8x22b;critique
+  autonomy:
+    noContinue: true
+    handoffAt: 0.5
+    spawn: summary + new worktree
+    consensus: 4/5
+    maxSteps: 20
+    fallback: auto-model-switch
+    output: PR + tests + docs + demo
+  ui: live-graph avatars speech-bubbles pause-redirect
+
+$stack:
+  ide: Cursor
+  ext: TS+React
+  inf: NIM-local
+  byok: [OpenRouter, Groq, Fireworks, Together]
+  models: [nemotron-4-340b, deepseek-coder-v2, llama-3.1-405b, mixtral-8x22b, gemma-2-27b]
+  orch: LangGraph+Ray
+  ctx: ctx-zip@hardcoded
+  mcp:
+    mode: MCPSandboxExplorer
+    provider: LocalSandboxProvider
+    dir: ./.lapa/sandbox
+    servers:
+    - [3]
+    - name;url
+    - git;mcp.git.com
+    - fs;local://fs
+    - debug;local://debugger
+    tools: [ls, cat, grep, find, exec]
+  rag: Chroma
+  storage:
+    free: file://./.lapa/storage
+    prem: blob://lapa-prem
+  ui: React sidebar + swarm dashboard
+
+v1.1:
+  gaps:
+    nvidia: { blueprint: "AI-Q", multimodal: "RAG+Nemotron-Vision", integrate: "swarm-researcher" }
+    openai: { sdk: "TS-agents", handoff: "hybrid-LangGraph", proto: "swarm-delegation" }
+    claude: { tdd: "Tester-agent", mcp-e2b: "premium-sandbox", practices: "subagents-checkpoints" }
+  phases:
+  - [3]
+  - p;w;tasks
+  - 7. Multimodal;1-2;[AI-Q-ingest, Nemotron-RAG, diagram-parse]
+  - 8. Handoffs;3-4;[TS-SDK-hybrid, LangGraph-delegate, consensus-refine]
+  - 9. TDD-E2B;5-6;[Claude-TDD-loop, MCP-subagents, E2B-scale]

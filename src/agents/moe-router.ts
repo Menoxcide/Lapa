@@ -7,13 +7,14 @@
  */
 
 // Define agent types in the LAPA swarm
-export type AgentType = 
+export type AgentType =
   | 'planner'      // High-level task planning and decomposition
   | 'coder'        // Code generation and implementation
   | 'reviewer'     // Code review and quality assurance
   | 'debugger'     // Bug detection and fixing
   | 'optimizer'    // Performance optimization
-  | 'tester';      // Test creation and execution
+  | 'tester'       // Test creation and execution
+  | 'researcher';  // Research and information gathering
 
 // Define a task with its characteristics
 export interface Task {
@@ -142,10 +143,39 @@ export class MoERouter {
       };
     }
     
+    // Log scores for debugging
+    console.log('Agent scores:', validScores.map(s => ({
+      agent: `${s.agent.name} (${s.agent.type})`,
+      score: s.score,
+      reasoning: s.reasoning
+    })));
+    
     // Select the agent with highest score
-    const bestMatch = validScores.reduce((best, current) =>
-      current.score > best.score ? current : best
-    );
+    const bestMatch = validScores.reduce((best, current) => {
+      // If scores are equal, prefer reviewer for review tasks, then coder for code tasks
+      if (current.score === best.score) {
+        // Log tie-breaking decision
+        console.log(`Tie detected between ${best.agent.name} (${best.agent.type}) and ${current.agent.name} (${current.agent.type}) with score ${current.score}`);
+        
+        // For review tasks, prefer reviewer agent
+        if (task.description.toLowerCase().includes('review') && best.agent.type !== 'reviewer' && current.agent.type === 'reviewer') {
+          console.log(`Breaking tie by preferring reviewer agent for review task`);
+          return current;
+        }
+        
+        // For code tasks, prefer coder agent
+        if (task.description.toLowerCase().includes('code') && best.agent.type !== 'coder' && current.agent.type === 'coder') {
+          console.log(`Breaking tie by preferring coder agent for code task`);
+          return current;
+        }
+        
+        // Default to first agent (existing behavior)
+        console.log(`Breaking tie by selecting first agent (existing behavior)`);
+        return best;
+      }
+      
+      return current.score > best.score ? current : best;
+    });
     
     // Convert score to confidence (0-1)
     const confidence = Math.min(bestMatch.score, 1);
@@ -171,14 +201,20 @@ export class MoERouter {
     const taskLower = task.description.toLowerCase();
     let matchCount = 0;
     
+    // Log expertise matching for debugging
+    console.log(`Matching task "${task.description}" against agent ${agent.name} (${agent.type}) expertise:`, agent.expertise);
+    
     for (const expertise of agent.expertise) {
       if (taskLower.includes(expertise.toLowerCase())) {
+        console.log(`Found match: "${expertise}" in task description`);
         matchCount++;
       }
     }
     
     // Normalize to 0-1 scale
-    return matchCount / agent.expertise.length;
+    const score = matchCount / agent.expertise.length;
+    console.log(`Expertise match score for ${agent.name} (${agent.type}): ${score} (${matchCount}/${agent.expertise.length})`);
+    return score;
   }
   
   /**

@@ -1,76 +1,87 @@
-lapa:
-  name: LAPA
-  full: Local AI Pair Programmer Agent
-  tag: Autonomous MoE Swarm • Local-First • Cursor-Native
-  ver: 1.1.0
-  date: 2026-06-15
+v1.2:
+  name: Nexus Loop
+  codename: AutoGen-Resonant Roo Swarm
+  version: 1.2.0
+  date: 2025-11-11
+  branch: v1.2-nexus-loop
+  git-cycle: v1.1-phase9-complete → branch-v1.2 → phase10+ → tag-ship
+  resume-from: src/orchestrator/handoffs.ts, src/swarm/delegate.ts  # v1.1 Phase 9 output
+  target: <1s handoff, 99% fidelity (Bench), 0% cloud, Vision-aligned
+  premium: { mo:12, yr:99 }
   license: MIT
   repo: github.com/Menoxcide/Lapa
   site: lapa.ai
-  $status: v1.1-gaps
 
-$vision:
-  mission: Empower devs with private, autonomous, local AI pair programmer
-  belief: Future of coding = swarm, not chat
-  problem: [context bloat, manual loops, vendor lock, single-agent limit]
-  solution: local MoE swarm + ctx-zip + zero-prompt autonomy
+  # === DREAM TEAM: 12-Agent Helix (extends v1.1's 5; Phase 9 TDD/E2B live; + MCP/Memori/Codegen) ===
+  helix-team:
+    [12]  # + MCP Manager, Memori Analyst, Codegen Rule Enforcer
+    role;model;metric;hook;subagent-mode;extension
+    Architect;DeepSeek-R1-671B;98% planning;"Plan via veto + Roo Architect + Codegen rules?";parallel;AutoGen AgentTool
+    Researcher;Qwen3-235B-A22B-Instruct;90% RAG;"Echo grep + Roo indexing + MCP discovery?";isolated+compact;AutoGen MCP Ext
+    Coder;Qwen3-Coder-480B-A35B-Instruct;65% SWE-Bench;"Resonate + Code Mode + ClaudeKit skill?";parallel;Roo natural-lang
+    Tester;GLM-4.5-Air;99% TDD;"Amplify + Debug Mode + MCP sandbox?";sandboxed;E2B MCP (Phase 9)
+    Reviewer;Mixtral-8x22B;77% lint;"Inject + Ask Mode + Memori entity check?";parallel;Roo todo-lists
+    Integrator;Llama-3.1-70B;94% merge;"Harmonize + Custom Mode + swarm handoff?";orchestrator;AutoGen Core events
+    Debugger;DeepSeek-R1-671B;92% bug-hunt;"Resonate + Roo Debug + Codegen observability?";isolated;Roo checkpoints
+    Oracle;Phi-3.5-Vision-4K-Instruct;87% intent;"Vibe + Roomote + MCP context persist?";meta-judge;AutoGen msg-bus
+    Benchmarker;Llama-3.1-8B;95% perf;"Eval via AutoGen Bench + Memori analysis?";eval-only;AutoGen Bench
+    StudioUI;Streamlit-Local;100% no-code;"Prototype + Codegen rules UI?";gui;AutoGen Studio + Roo F5
+    MCPManager;GLM-4.5-Air;95% discovery;"Dynamic MCP connectors + ClaudeKit skills?";coordinator;MCP subagent (JSON-RPC/WebSocket)
+    MemoriAnalyst;Qwen3-30B-A3B-Instruct;85% persistence;"SQL memory injection + entity mapping?";background;Memori SQLite engine
 
-$flagship:
-  name: LAPA Swarm™
-  slogan: Five Minds. One Goal. Zero Prompts.
-  premium: true
-  price: { mo: 12, yr: 99 }
-  agents:
-  - [5]
-  - role;model;task
-  - Architect;nemotron-4-340b;plan
-  - Researcher;gemma-2-27b;search
-  - Coder;deepseek-coder-v2;write
-  - Tester;llama-3.1-405b;verify
-  - Reviewer;mixtral-8x22b;critique
-  autonomy:
-    noContinue: true
-    handoffAt: 0.5
-    spawn: summary + new worktree
-    consensus: 4/5
-    maxSteps: 20
-    fallback: auto-model-switch
-    output: PR + tests + docs + demo
-  ui: live-graph avatars speech-bubbles pause-redirect
+  # === RESONANCE CORE: v1.1 Phase 9 + v1.2 Extensions (MCP/Memori/Codegen) ===
+  resonance-core:
+    chamber: NetworkX-graph + Roo checkpoints + Memori SQL (SQLite for local persistence)
+    compaction: ctx-zip@50% (v1.1) + AutoGen msg-zip + MCP progressive disclosure
+    decay: 0.9^step
+    veto: 4/5 consensus (v1.1) → Oracle + Roo todo + Memori entity veto
+    mcp: MCPSandboxExplorer + E2B (Phase 9) + Roo/Playwright + MCP JSON-RPC/WebSocket connectors (dynamic discovery)
+    judge: LLM-as-Judge + AutoGen Bench + Codegen observability (traces/metrics)
+    events: AutoGen Core (pub-sub, .NET/Python shims) + MCP stateful handoffs
+    modes: Roo toggles (Code/Architect/Ask/Debug/Custom) + ClaudeKit skills (mcp-manager subagent for bloat reduction)
+    autonomy: noContinue:true, handoffAt:0.5, maxSteps:20 (v1.1) + Memori zero-prompt injection
 
-$stack:
-  ide: Cursor
-  ext: TS+React
-  inf: NIM-local
-  byok: [OpenRouter, Groq, Fireworks, Together]
-  models: [nemotron-4-340b, deepseek-coder-v2, llama-3.1-405b, mixtral-8x22b, gemma-2-27b]
-  orch: LangGraph+Ray
-  ctx: ctx-zip@hardcoded
-  mcp:
-    mode: MCPSandboxExplorer
-    provider: LocalSandboxProvider
-    dir: ./.lapa/sandbox
-    servers:
-    - [3]
-    - name;url
-    - git;mcp.git.com
-    - fs;local://fs
-    - debug;local://debugger
-    tools: [ls, cat, grep, find, exec]
-  rag: Chroma
-  storage:
-    free: file://./.lapa/storage
-    prem: blob://lapa-prem
-  ui: React sidebar + swarm dashboard
-
-v1.1:
-  gaps:
-    nvidia: { blueprint: "AI-Q", multimodal: "RAG+Nemotron-Vision", integrate: "swarm-researcher" }
-    openai: { sdk: "TS-agents", handoff: "hybrid-LangGraph", proto: "swarm-delegation" }
-    claude: { tdd: "Tester-agent", mcp-e2b: "premium-sandbox", practices: "subagents-checkpoints" }
+  # === PHASES: v1.2 Only — Phase 10 Onward (v1.1 Phase 9 DONE; + MCP/Memori/Codegen) ===
   phases:
-  - [3]
-  - p;w;tasks
-  - 7. Multimodal;1-2;[AI-Q-ingest, Nemotron-RAG, diagram-parse]
-  - 8. Handoffs;3-4;[TS-SDK-hybrid, LangGraph-delegate, consensus-refine]
-  - 9. TDD-E2B;5-6;[Claude-TDD-loop, MCP-subagents, E2B-scale]
+    [7]  # Expanded for new features
+    p;w;tasks;milestone;git-tag;status
+    10. AutoGen Core + Roo Modes;1.5;[event-bus.ts, modes.ts, AgentTool orch];<1s delegate;feat/v1.2-core;IN PROGRESS
+    11. MCP Connectors + Indexing;1;[mcp-connector.ts, indexer.ts, JSON-RPC/WebSocket];95% dynamic discovery;feat/v1.2-mcp;TODO
+    12. Memori Memory + Checkpoints;1;[memori-engine.ts, checkpoints.ts, SQLite persistence];99% entity mapping;feat/v1.2-memori;TODO
+    13. ClaudeKit Skills + Todos;0.75;[skill-manager.ts, todos.ts, mcp-manager subagent];zero-bloat workflows;feat/v1.2-claudekit;TODO
+    14. Codegen Rules + Bench;1;[repo-rules.ts, bench.ts, observability traces];99% fidelity;feat/v1.2-codegen;TODO
+    15. Studio UI + Roomote;1;[studio.py, roomote.ts, no-code MCP integration];VSIX build;feat/v1.2-ui;TODO
+    16. VSIX Ship;0.25;[pnpm vsix, Cursor install];ship-ready;feat/v1.2-ship;TODO
+
+  # === TECH STACK: v1.1 Foundation + v1.2 Layers (MCP/Memori/Codegen) ===
+  stack:
+    ide: Cursor (VSIX ext)
+    ext: TS+React (pnpm vsix)
+    inf: NIM-local + BYOK
+    orch: LangGraph+Ray + AutoGen Core + MCP JSON-RPC/WebSocket (Phase 11)
+    ctx: ctx-zip + Chroma + Memori SQL (SQLite for local, Phase 12)
+    mcp: LocalSandbox + E2B (Phase 9) + MCP connectors (dynamic tool discovery)
+    rag: Chroma + Roo indexing + Memori entity extraction (Phase 12)
+    storage: .lapa/storage + blob://prem + Memori SQLite (zero-lock persistence)
+    ui: React dashboard + AutoGen Studio + Codegen rules UI (Phase 15)
+    build: pnpm vsix (Phase 16)
+    bench: AutoGen Bench + Codegen observability (traces/metrics, Phase 14)
+    lang: TS + AutoGen .NET/Python shims + ClaudeKit skills (mcp-manager, Phase 13)
+
+  # === INTEGRATION: v1.1 Phase 9 + v1.2 Drafts (MCP/Memori/Codegen/ClaudeKit) ===
+  v1.1-phase9:
+    tdd: Claude loop in tester.ts
+    e2b: MCP sandbox scaling
+    handoffs: LangGraph + OpenAI TS hybrid
+  v1.2-draft:
+    core: event-bus.ts (pub-sub), AgentTool wrappers
+    mcp: mcp-connector.ts (JSON-RPC/WebSocket, dynamic discovery, progressive disclosure)
+    memori: memori-engine.ts (SQLite persistence, entity mapping, conscious analysis)
+    claudekit: skill-manager.ts (mcp-manager subagent, skills for workflows, bloat reduction)
+    codegen: repo-rules.ts (enforce conventions, sandboxed execution, observability)
+    modes: modes.ts (UI toggle → role hooks)
+    indexing: indexer.ts (fs crawl + Qwen3-VL)
+    checkpoints: checkpoints.ts (git worktree)
+    todos: todos.ts (Reviewer → TODO.md)
+    roomote: roomote.ts (WebSocket)
+    vsix: pnpm scripts
