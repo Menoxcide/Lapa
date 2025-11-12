@@ -11,6 +11,7 @@
 import { eventBus } from '../core/event-bus.ts';
 import { Task } from '../agents/moe-router.ts';
 import { z } from 'zod';
+import type { WebSocket } from 'ws';
 import {
   type MCPUIComponent,
   type MCPUIEvent,
@@ -212,29 +213,31 @@ export class AGUIFoundation {
     }
     
     try {
+      // Dynamically import ws library to avoid Node.js only dependency
+      const { WebSocket } = await import('ws');
       this.websocket = new WebSocket(this.config.websocketEndpoint);
       
-      this.websocket.onopen = () => {
+      this.websocket.on('open', () => {
         console.log('AG-UI WebSocket connected');
-      };
+      });
       
-      this.websocket.onmessage = (event) => {
+      this.websocket.on('message', (data: Buffer) => {
         try {
-          const data = JSON.parse(event.data);
-          this.handleWebSocketMessage(data);
+          const message = JSON.parse(data.toString());
+          this.handleWebSocketMessage(message);
         } catch (error) {
           console.error('Error parsing WebSocket message:', error);
         }
-      };
+      });
       
-      this.websocket.onerror = (error) => {
+      this.websocket.on('error', (error: Error) => {
         console.error('AG-UI WebSocket error:', error);
-      };
+      });
       
-      this.websocket.onclose = () => {
+      this.websocket.on('close', () => {
         console.log('AG-UI WebSocket disconnected');
         this.websocket = null;
-      };
+      });
     } catch (error) {
       console.error('Error connecting to WebSocket:', error);
     }
@@ -300,7 +303,7 @@ export class AGUIFoundation {
       });
       
       // Send to Studio via WebSocket or HTTP
-      if (this.websocket && this.websocket.readyState === WebSocket.OPEN) {
+      if (this.websocket && this.websocket.readyState === 1) { // WebSocket.OPEN = 1
         this.websocket.send(JSON.stringify({
           type: 'ui.studio.update',
           component: mcpComponent,

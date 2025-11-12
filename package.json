@@ -105,6 +105,7 @@
     "@openai/agents-realtime": "^0.3.0",
     "@toon-format/toon": "^0.8.0",
     "axios": "^1.13.2",
+    "chromadb": "^3.1.2",
     "ctx-zip": "^0.0.9",
     "e2b": "^2.6.4",
     "ollama": "^0.6.2",
