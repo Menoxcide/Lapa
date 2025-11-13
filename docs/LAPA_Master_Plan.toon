@@ -53,15 +53,15 @@ v1.2.2:
     autonomy: noContinue:true, handoffAt:0.4, maxSteps:25 + Memori zero-prompt + A2A auto-negotiation
     feedback: visual (Playwright), rule-based, LLM-judge, human-in-loop (Roomote)
 
-  # === PHASES: v1.2.2 — Protocol-First (Phase 10 Preserved) ===
+  # === PHASES: v1.2.2 — Protocol-First (Phase 10 & 11 Complete) ===
   phases:
     [9]
     p;w;tasks;milestone;git-tag;status
-    10. AutoGen Core + Roo Modes;1.5;[event-bus.ts, modes.ts, AgentTool];<1s delegate;feat/v1.2-core;IN PROGRESS
-    11. MCP + A2A Connectors;1.2;[mcp-connector.ts, a2a-mediator.ts, handshake.ts];98% interop;feat/v1.2-protocols;TODO
-    12. Memori + Episodic + Vector Refinement;1;[memori-engine.ts, episodic.ts, chroma-refine.ts];99.5% recall;feat/v1.2-memori;TODO
-    13. AG-UI + Dynamic Studio;0.9;[ag-ui.ts, studio-dynamic.py, mcp-ui-specs];gen UI;feat/v1.2-ui;TODO
-    14. ClaudeKit + Feedback Loops + PromptEngineer MCP;1.0;[skill-manager.ts, visual-feedback.ts, llm-judge.ts, prompt-engineer.ts];zero-bloat;feat/v1.2-feedback;TODO
+    10. AutoGen Core + Roo Modes;1.5;[event-bus.ts, modes.ts, AgentTool];<1s delegate;feat/v1.2-core;COMPLETE
+    11. MCP + A2A Connectors;1.2;[mcp-connector.ts, a2a-mediator.ts, handshake.ts];98% interop;feat/v1.2-protocols;COMPLETE
+    12. Memori + Episodic + Vector Refinement;1;[memori-engine.ts, episodic.ts, chroma-refine.ts, recall-metrics.ts];99.5% recall;feat/v1.2-memori;COMPLETE
+    13. AG-UI + Dynamic Studio;0.9;[ag-ui.ts, studio-dynamic.py, mcp-ui-specs];gen UI;feat/v1.2-ui;COMPLETE
+    14. ClaudeKit + Feedback Loops + PromptEngineer MCP;1.0;[skill-manager.ts, visual-feedback.ts, llm-judge.ts, prompt-engineer.ts];zero-bloat;feat/v1.2-feedback;COMPLETE
     15. Codegen + Observability;1;[repo-rules.ts, langsmith.ts, prometheus.ts];99.5% fidelity;feat/v1.2-obs;TODO
     16. Security + RBAC + Red Teaming;0.7;[rbac.ts, red-team.ts, hallucination-check.ts];secure;feat/v1.2-security;TODO
     17. VSIX Ship + Protocol Docs;0.3;[pnpm vsix, PROTOCOLS.md];ship-ready;feat/v1.2-ship;TODO

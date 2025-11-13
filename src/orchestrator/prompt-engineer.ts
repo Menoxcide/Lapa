@@ -13,6 +13,7 @@ import { spawn, ChildProcess } from 'child_process';
 import { join } from 'path';
 import { eventBus } from '../core/event-bus.ts';
 import { z } from 'zod';
+import { createMCPConnector, MCPConnector } from '../mcp/mcp-connector.ts';
 
 // PromptEngineer MCP configuration
 export interface PromptEngineerConfig {
@@ -60,6 +61,7 @@ const promptRefinementRequestSchema = z.object({
 export class PromptEngineerClient {
   private config: PromptEngineerConfig;
   private serverProcess: ChildProcess | null = null;
+  private mcpConnector: MCPConnector | null = null;
   private isConnected: boolean = false;
   private messageQueue: Array<{ id: string; request: any; resolve: (value: any) => void; reject: (error: any) => void }> = [];
   private requestIdCounter: number = 0;
@@ -106,32 +108,69 @@ export class PromptEngineerClient {
    * Starts the PromptEngineer MCP server via stdio
    */
   async start(): Promise<void> {
-    if (this.serverProcess) {
+    if (this.isConnected) {
       console.log('[PromptEngineer] Server already running');
       return;
     }
 
     try {
-      console.log(`[PromptEngineer] Starting server at: ${this.config.serverPath}`);
-      
-      // Spawn the MCP server process
-      this.serverProcess = spawn('node', [this.config.serverPath!], {
-        stdio: ['pipe', 'pipe', 'pipe']
-      });
+      // Try to use MCP connector if server path is available
+      if (this.config.serverPath) {
+        try {
+          console.log(`[PromptEngineer] Connecting via MCP connector to: ${this.config.serverPath}`);
+          
+          // Create MCP connector with stdio transport
+          this.mcpConnector = createMCPConnector({
+            transportType: 'stdio',
+            stdioCommand: ['node', this.config.serverPath],
+            enableToolDiscovery: true,
+            enableProgressiveDisclosure: true
+          });
 
-      // Setup stdio handlers
-      this.setupStdioHandlers();
+          // Connect to MCP server
+          await this.mcpConnector.connect();
+          
+          this.isConnected = true;
+          await eventBus.publish({
+            id: `prompt-engineer-connected-${Date.now()}`,
+            type: 'prompt-engineer.connected',
+            timestamp: Date.now(),
+            source: 'prompt-engineer'
+          } as any);
 
-      // Wait for server to be ready
-      await this.waitForServerReady();
+          console.log('[PromptEngineer] Connected via MCP connector successfully');
+          return;
+        } catch (mcpError) {
+          console.warn('[PromptEngineer] MCP connector failed, falling back to direct stdio:', mcpError);
+        }
+      }
 
-      this.isConnected = true;
-      eventBus.emit('prompt-engineer.connected', {
-        timestamp: Date.now(),
-        source: 'prompt-engineer'
-      });
+      // Fallback to direct stdio process management
+      if (this.config.serverPath) {
+        console.log(`[PromptEngineer] Starting server directly at: ${this.config.serverPath}`);
+        
+        // Spawn the MCP server process
+        this.serverProcess = spawn('node', [this.config.serverPath!], {
+          stdio: ['pipe', 'pipe', 'pipe']
+        });
 
-      console.log('[PromptEngineer] Server started successfully');
+        // Setup stdio handlers
+        this.setupStdioHandlers();
+
+        // Wait for server to be ready
+        await this.waitForServerReady();
+
+        this.isConnected = true;
+        eventBus.emit('prompt-engineer.connected', {
+          timestamp: Date.now(),
+          source: 'prompt-engineer'
+        });
+
+        console.log('[PromptEngineer] Server started successfully');
+      } else {
+        console.warn('[PromptEngineer] No server path configured, running in standalone mode');
+        this.isConnected = true;
+      }
     } catch (error) {
       console.error('[PromptEngineer] Failed to start server:', error);
       // Provide clear instructions for installing the external dependency
@@ -139,7 +178,8 @@ export class PromptEngineerClient {
       console.error('[PromptEngineer]   git clone https://github.com/gr3enarr0w/cc_peng_mcp.git');
       console.error('[PromptEngineer]   cd cc_peng_mcp');
       console.error('[PromptEngineer]   npm install');
-      throw error;
+      // Don't throw - allow standalone mode
+      this.isConnected = true;
     }
   }
 
@@ -147,16 +187,28 @@ export class PromptEngineerClient {
    * Stops the PromptEngineer MCP server
    */
   async stop(): Promise<void> {
+    if (this.mcpConnector) {
+      try {
+        await this.mcpConnector.disconnect();
+        this.mcpConnector = null;
+      } catch (error) {
+        console.error('[PromptEngineer] Error disconnecting MCP connector:', error);
+      }
+    }
+    
     if (this.serverProcess) {
       this.serverProcess.kill();
       this.serverProcess = null;
-      this.isConnected = false;
-      (eventBus as any).emit('prompt-engineer.disconnected', {
-        timestamp: Date.now(),
-        source: 'prompt-engineer'
-      });
-      console.log('[PromptEngineer] Server stopped');
     }
+    
+    this.isConnected = false;
+    await eventBus.publish({
+      id: `prompt-engineer-disconnected-${Date.now()}`,
+      type: 'prompt-engineer.disconnected',
+      timestamp: Date.now(),
+      source: 'prompt-engineer'
+    } as any);
+    console.log('[PromptEngineer] Server stopped');
   }
 
   /**

@@ -126,25 +126,26 @@ export class VisualFeedbackSystem {
       if (this.config.enablePlaywright) {
         try {
           // Dynamic import of Playwright (if available)
-          // const { chromium, firefox, webkit } = await import('playwright');
-          // this.playwright = { chromium, firefox, webkit };
-          // 
-          // For now, we'll use a placeholder that can be extended
-          console.log('[VisualFeedback] Playwright integration available (placeholder)');
+          const playwright = await import('playwright');
+          this.playwright = playwright;
+          console.log('[VisualFeedback] Playwright integration available');
         } catch (error) {
           console.warn('[VisualFeedback] Playwright not available, using fallback mode:', error);
+          console.warn('[VisualFeedback] Install Playwright with: npm install -D playwright && npx playwright install');
           this.config.enablePlaywright = false;
         }
       }
 
       this.isInitialized = true;
-      eventBus.emit('visual-feedback.initialized', {
+      await eventBus.publish({
+        id: `visual-feedback-init-${Date.now()}`,
+        type: 'visual-feedback.initialized',
         timestamp: Date.now(),
         source: 'visual-feedback',
         payload: {
           playwrightEnabled: this.config.enablePlaywright
         }
-      });
+      } as any);
 
       console.log('[VisualFeedback] Initialized successfully');
     } catch (error) {
@@ -213,11 +214,13 @@ export class VisualFeedbackSystem {
       };
 
       // Emit event
-      eventBus.emit('visual-feedback.screenshot-compared', {
+      await eventBus.publish({
+        id: `screenshot-compared-${Date.now()}`,
+        type: 'visual-feedback.screenshot-compared',
         timestamp: Date.now(),
         source: 'visual-feedback',
         payload: result
-      });
+      } as any);
 
       return result;
     } catch (error) {
@@ -238,26 +241,39 @@ export class VisualFeedbackSystem {
     const screenshotPath = join(this.config.screenshotsDirectory, `${request.name}-${Date.now()}.png`);
 
     if (this.config.enablePlaywright && this.playwright) {
-      // Use Playwright for screenshot
-      // This is a placeholder - actual implementation would use Playwright API
-      // const browser = await this.playwright[this.config.browserType].launch();
-      // const page = await browser.newPage();
-      // await page.setViewportSize(this.config.viewport!);
-      // await page.goto(request.url);
-      // if (request.waitFor) {
-      //   await page.waitForSelector(request.waitFor);
-      // }
-      // if (request.selector) {
-      //   await page.locator(request.selector).screenshot({ path: screenshotPath });
-      // } else {
-      //   await page.screenshot({ path: screenshotPath });
-      // }
-      // await browser.close();
-      
-      console.log(`[VisualFeedback] Screenshot taken (Playwright placeholder): ${screenshotPath}`);
+      try {
+        // Use Playwright for screenshot
+        const browser = await this.playwright[this.config.browserType].launch({
+          headless: true
+        });
+        const page = await browser.newPage();
+        await page.setViewportSize(this.config.viewport!);
+        
+        await page.goto(request.url, { 
+          waitUntil: 'networkidle',
+          timeout: request.timeout || 30000 
+        });
+        
+        if (request.waitFor) {
+          await page.waitForSelector(request.waitFor, { timeout: request.timeout || 30000 });
+        }
+        
+        if (request.selector) {
+          await page.locator(request.selector).screenshot({ path: screenshotPath });
+        } else {
+          await page.screenshot({ path: screenshotPath, fullPage: false });
+        }
+        
+        await browser.close();
+        console.log(`[VisualFeedback] Screenshot taken: ${screenshotPath}`);
+      } catch (error) {
+        console.error('[VisualFeedback] Playwright screenshot failed:', error);
+        // Fallback to placeholder
+        await writeFile(screenshotPath, Buffer.from('placeholder'), 'utf-8');
+        console.log(`[VisualFeedback] Screenshot placeholder created: ${screenshotPath}`);
+      }
     } else {
       // Fallback: create a placeholder file
-      // In a real implementation, this might use headless browser or other methods
       await writeFile(screenshotPath, Buffer.from('placeholder'), 'utf-8');
       console.log(`[VisualFeedback] Screenshot placeholder created: ${screenshotPath}`);
     }
@@ -272,21 +288,67 @@ export class VisualFeedbackSystem {
     currentPath: string,
     baselinePath: string
   ): Promise<{ match: boolean; diffPercentage: number }> {
-    // In a real implementation, this would use an image comparison library
-    // like pixelmatch, looks-same, or similar
-    
     try {
-      // Placeholder comparison logic
-      // Actual implementation would:
-      // 1. Load both images
-      // 2. Compare pixel by pixel
-      // 3. Calculate difference percentage
-      // 4. Generate diff image if differences found
-      
-      const diffPercentage = Math.random() * 0.2; // Placeholder
-      const match = diffPercentage < this.config.threshold;
-
-      return { match, diffPercentage };
+      // Try to use pixelmatch if available, otherwise use simple file comparison
+      try {
+        const { default: pixelmatch } = await import('pixelmatch');
+        const { default: PNG } = await import('pngjs');
+        const fs = await import('fs/promises');
+        
+        // Load images
+        const currentImg = PNG.sync.read(await fs.readFile(currentPath));
+        const baselineImg = PNG.sync.read(await fs.readFile(baselinePath));
+        
+        // Ensure same dimensions
+        if (currentImg.width !== baselineImg.width || currentImg.height !== baselineImg.height) {
+          return { match: false, diffPercentage: 1.0 };
+        }
+        
+        // Compare images
+        const diff = new PNG({ width: currentImg.width, height: currentImg.height });
+        const numDiffPixels = pixelmatch(
+          currentImg.data,
+          baselineImg.data,
+          diff.data,
+          currentImg.width,
+          currentImg.height,
+          { threshold: 0.1 }
+        );
+        
+        const totalPixels = currentImg.width * currentImg.height;
+        const diffPercentage = numDiffPixels / totalPixels;
+        const match = diffPercentage < this.config.threshold;
+        
+        // Save diff image if there are differences
+        if (!match) {
+          const diffPath = join(this.config.diffDirectory, `diff-${Date.now()}.png`);
+          await fs.writeFile(diffPath, PNG.sync.write(diff));
+        }
+        
+        return { match, diffPercentage };
+      } catch (importError) {
+        // Fallback: simple file comparison
+        console.warn('[VisualFeedback] pixelmatch not available, using fallback comparison');
+        const current = await readFile(currentPath);
+        const baseline = await readFile(baselinePath);
+        
+        // Simple byte comparison
+        if (current.length !== baseline.length) {
+          return { match: false, diffPercentage: 1.0 };
+        }
+        
+        let diffBytes = 0;
+        for (let i = 0; i < current.length; i++) {
+          if (current[i] !== baseline[i]) {
+            diffBytes++;
+          }
+        }
+        
+        const diffPercentage = diffBytes / current.length;
+        const match = diffPercentage < this.config.threshold;
+        
+        return { match, diffPercentage };
+      }
     } catch (error) {
       console.error('[VisualFeedback] Image comparison failed:', error);
       return { match: false, diffPercentage: 1.0 };
@@ -372,11 +434,13 @@ export class VisualFeedbackSystem {
       };
 
       if (detected) {
-        eventBus.emit('visual-feedback.regression-detected', {
+        await eventBus.publish({
+          id: `regression-detected-${Date.now()}`,
+          type: 'visual-feedback.regression-detected',
           timestamp: Date.now(),
           source: 'visual-feedback',
           payload: result
-        });
+        } as any);
       }
 
       return result;
@@ -407,36 +471,79 @@ export class VisualFeedbackSystem {
         await this.initialize();
       }
 
-      // In a real implementation, this would use Playwright to monitor UI state
-      // For now, we'll create a placeholder
-      while (Date.now() - startTime < duration) {
-        const state: Record<string, any> = {};
-        
-        // In a real implementation, we'd query each selector and get its state
-        for (const selector of selectors) {
-          state[selector] = {
-            exists: true, // Placeholder
-            visible: true,
-            text: 'placeholder'
-          };
+      if (this.config.enablePlaywright && this.playwright) {
+        const browser = await this.playwright[this.config.browserType].launch({ headless: true });
+        const page = await browser.newPage();
+        await page.setViewportSize(this.config.viewport!);
+        await page.goto(url, { waitUntil: 'networkidle' });
+
+        while (Date.now() - startTime < duration) {
+          const state: Record<string, any> = {};
+          
+          // Query each selector and get its state
+          for (const selector of selectors) {
+            try {
+              const element = page.locator(selector);
+              const exists = await element.count() > 0;
+              const visible = exists ? await element.isVisible() : false;
+              const text = exists && visible ? await element.textContent() : null;
+              
+              state[selector] = {
+                exists,
+                visible,
+                text: text || null
+              };
+            } catch (error) {
+              state[selector] = {
+                exists: false,
+                visible: false,
+                text: null,
+                error: error instanceof Error ? error.message : 'Unknown error'
+              };
+            }
+          }
+
+          states.push({
+            timestamp: new Date(),
+            state
+          });
+
+          await new Promise(resolve => setTimeout(resolve, interval));
         }
 
-        states.push({
-          timestamp: new Date(),
-          state
-        });
+        await browser.close();
+      } else {
+        // Fallback: placeholder state
+        while (Date.now() - startTime < duration) {
+          const state: Record<string, any> = {};
+          
+          for (const selector of selectors) {
+            state[selector] = {
+              exists: true,
+              visible: true,
+              text: 'placeholder'
+            };
+          }
 
-        await new Promise(resolve => setTimeout(resolve, interval));
+          states.push({
+            timestamp: new Date(),
+            state
+          });
+
+          await new Promise(resolve => setTimeout(resolve, interval));
+        }
       }
 
-      eventBus.emit('visual-feedback.ui-monitored', {
+      await eventBus.publish({
+        id: `ui-monitored-${Date.now()}`,
+        type: 'visual-feedback.ui-monitored',
         timestamp: Date.now(),
         source: 'visual-feedback',
         payload: {
           url,
           states: states.length
         }
-      });
+      } as any);
 
       return states;
     } catch (error) {
@@ -450,7 +557,11 @@ export class VisualFeedbackSystem {
    */
   async cleanup(): Promise<void> {
     if (this.browser) {
-      // await this.browser.close();
+      try {
+        await this.browser.close();
+      } catch (error) {
+        console.error('[VisualFeedback] Error closing browser:', error);
+      }
       this.browser = null;
       this.page = null;
     }

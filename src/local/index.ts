@@ -32,6 +32,20 @@ export type {
   Episode 
 } from './episodic.ts';
 
+// Phase 12: Recall Metrics
+export {
+  measureMemoriRecall,
+  measureEpisodicRecall,
+  measureChromaRecall,
+  measureCombinedRecall,
+  validateRecallTarget,
+  generateRecallReport
+} from './recall-metrics.ts';
+export type {
+  RecallMetrics,
+  RecallTestResult
+} from './recall-metrics.ts';
+
 // Local inference adapters
 export { OllamaCompatibility } from './ollama-compatibility.ts';
 export { NIMIntegration } from './nim-integration.ts';

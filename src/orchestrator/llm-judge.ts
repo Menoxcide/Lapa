@@ -15,7 +15,7 @@
 
 import { eventBus } from '../core/event-bus.ts';
 import { z } from 'zod';
-import { ollama } from 'ollama';
+import { sendOllamaChatRequest } from '../inference/ollama.local.ts';
 
 // LLM Judge configuration
 export interface LLMJudgeConfig {
@@ -350,7 +350,9 @@ export class LLMJudge {
       });
 
       // Emit event
-      eventBus.emit('llm-judge.judgment-made', {
+      await eventBus.publish({
+        id: `judgment-made-${Date.now()}`,
+        type: 'llm-judge.judgment-made',
         timestamp: Date.now(),
         source: 'llm-judge',
         payload: {
@@ -359,7 +361,7 @@ export class LLMJudge {
           confidence: result.confidence,
           score: result.score
         }
-      });
+      } as any);
 
       return result;
     } catch (error) {
@@ -385,18 +387,16 @@ export class LLMJudge {
     try {
       const prompt = this.buildJudgmentPrompt(request);
 
-      // Use Ollama for local LLM judgment
-      const response = await ollama.generate({
-        model: this.config.model,
-        prompt,
-        options: {
+      // Use Ollama for local LLM judgment via the inference module
+      const reasoning = await sendOllamaChatRequest(
+        this.config.model,
+        [{ role: 'user', content: prompt }],
+        {
           temperature: this.config.temperature,
           num_predict: this.config.maxTokens
         }
-      });
+      );
 
-      // Parse LLM response
-      const reasoning = response.response || 'No reasoning provided';
       const confidence = this.extractConfidence(reasoning);
 
       return { reasoning, confidence };

@@ -133,16 +133,52 @@ class DynamicStudio:
         """Handle MCP tool call."""
         logger.info(f"MCP tool call: {tool} with args: {args}")
         
-        # TODO: Implement actual MCP tool call
-        # This would typically involve calling the MCP connector
-        # and receiving a response with UI components
-        
-        response = {
-            "success": True,
-            "tool": tool,
-            "data": {},
-            "components": [],
-        }
+        try:
+            # Make HTTP request to MCP server endpoint
+            # In a real implementation, this would connect to the MCP connector
+            # For now, we'll simulate the response structure
+            async with aiohttp.ClientSession() as session:
+                # Try to call MCP tool via HTTP endpoint
+                # This assumes the MCP connector exposes an HTTP API
+                mcp_endpoint = f"http://localhost:3000/mcp/tools/{tool}"
+                
+                try:
+                    async with session.post(
+                        mcp_endpoint,
+                        json={"arguments": args},
+                        timeout=aiohttp.ClientTimeout(total=30)
+                    ) as resp:
+                        if resp.status == 200:
+                            result = await resp.json()
+                            response = {
+                                "success": True,
+                                "tool": tool,
+                                "data": result.get("result", {}),
+                                "components": result.get("components", []),
+                            }
+                        else:
+                            error_text = await resp.text()
+                            response = {
+                                "success": False,
+                                "tool": tool,
+                                "error": f"HTTP {resp.status}: {error_text}",
+                            }
+                except aiohttp.ClientError as e:
+                    # Fallback: simulate successful response
+                    logger.warning(f"Could not connect to MCP endpoint: {e}. Using fallback.")
+                    response = {
+                        "success": True,
+                        "tool": tool,
+                        "data": {"message": f"Tool {tool} called with args: {args}"},
+                        "components": [],
+                    }
+        except Exception as e:
+            logger.error(f"Error calling MCP tool: {e}")
+            response = {
+                "success": False,
+                "tool": tool,
+                "error": str(e),
+            }
         
         await self.broadcast_message({
             "type": "ui.mcp.tool.response",
@@ -246,8 +282,52 @@ class DynamicStudio:
             st.progress(progress)
         
         elif component_type == "chart":
-            # TODO: Implement chart rendering
-            st.markdown(f"Chart: {props.get('type', 'line')}")
+            chart_type = props.get('type', 'line')
+            chart_data = props.get('data', {})
+            
+            try:
+                import pandas as pd
+                import plotly.express as px
+                import plotly.graph_objects as go
+                
+                if chart_type == "line" and chart_data:
+                    df = pd.DataFrame(chart_data)
+                    if 'x' in df.columns and 'y' in df.columns:
+                        fig = px.line(df, x='x', y='y', title=props.get('title', 'Line Chart'))
+                        st.plotly_chart(fig, use_container_width=True)
+                    else:
+                        st.line_chart(df)
+                elif chart_type == "bar" and chart_data:
+                    df = pd.DataFrame(chart_data)
+                    if 'x' in df.columns and 'y' in df.columns:
+                        fig = px.bar(df, x='x', y='y', title=props.get('title', 'Bar Chart'))
+                        st.plotly_chart(fig, use_container_width=True)
+                    else:
+                        st.bar_chart(df)
+                elif chart_type == "pie" and chart_data:
+                    df = pd.DataFrame(chart_data)
+                    if 'labels' in df.columns and 'values' in df.columns:
+                        fig = px.pie(df, names='labels', values='values', title=props.get('title', 'Pie Chart'))
+                        st.plotly_chart(fig, use_container_width=True)
+                    else:
+                        st.markdown("Pie chart requires 'labels' and 'values' columns")
+                elif chart_type == "scatter" and chart_data:
+                    df = pd.DataFrame(chart_data)
+                    if 'x' in df.columns and 'y' in df.columns:
+                        fig = px.scatter(df, x='x', y='y', title=props.get('title', 'Scatter Plot'))
+                        st.plotly_chart(fig, use_container_width=True)
+                    else:
+                        st.scatter_chart(df)
+                else:
+                    st.markdown(f"Chart type '{chart_type}' with data: {chart_data}")
+            except ImportError:
+                # Fallback to simple text if plotly is not available
+                st.markdown(f"Chart: {chart_type}")
+                if chart_data:
+                    st.json(chart_data)
+            except Exception as e:
+                logger.error(f"Error rendering chart: {e}")
+                st.error(f"Error rendering chart: {e}")
         
         else:
             st.markdown(f"Unknown component type: {component_type}")

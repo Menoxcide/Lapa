@@ -407,24 +407,90 @@ export class SkillManager {
    */
   private async loadSkillModule(skill: SkillMetadata): Promise<void> {
     try {
-      // In a real implementation, this would use dynamic import
-      // For now, we'll create a placeholder
       if (!skill.filePath) {
         throw new Error(`Skill ${skill.id} has no file path`);
       }
 
-      // Dynamic import would be: const module = await import(skill.filePath);
-      // For now, we'll store a placeholder
-      this.loadedSkills.set(skill.id, {
-        execute: async (inputs: Record<string, unknown>, context?: Record<string, unknown>) => {
-          // Placeholder execution
-          console.log(`[SkillManager] Executing skill ${skill.id} with inputs:`, inputs);
-          return { result: 'Skill executed (placeholder)' };
+      // Convert file path to URL for dynamic import
+      // Handle both relative and absolute paths
+      let importPath = skill.filePath;
+      
+      // If it's a relative path, convert to file:// URL
+      if (!importPath.startsWith('http://') && !importPath.startsWith('https://') && !importPath.startsWith('file://')) {
+        // Convert Windows paths to proper format
+        if (process.platform === 'win32') {
+          importPath = `file:///${importPath.replace(/\\/g, '/')}`;
+        } else {
+          importPath = `file://${importPath}`;
         }
-      });
+      }
+
+      try {
+        // Dynamic import of the skill module
+        const module = await import(importPath);
+        
+        // Check if module exports an execute function
+        if (typeof module.execute === 'function') {
+          this.loadedSkills.set(skill.id, module);
+        } else if (typeof module.default === 'function') {
+          // Support default export
+          this.loadedSkills.set(skill.id, {
+            execute: module.default
+          });
+        } else if (typeof module.default?.execute === 'function') {
+          // Support default export with execute method
+          this.loadedSkills.set(skill.id, module.default);
+        } else {
+          throw new Error(`Skill ${skill.id} does not export an execute function`);
+        }
+        
+        console.log(`[SkillManager] Loaded skill module: ${skill.id}`);
+      } catch (importError) {
+        // If dynamic import fails, try using require (for CommonJS modules)
+        console.warn(`[SkillManager] Dynamic import failed for ${skill.id}, trying require fallback`);
+        
+        // For Node.js environments, we can use require as fallback
+        // Note: This requires the skill to be in a location accessible by require
+        try {
+          // Remove file:// prefix if present and convert to require-compatible path
+          const requirePath = skill.filePath.replace(/^file:\/\//, '').replace(/^\//, '');
+          const module = require(requirePath);
+          
+          if (typeof module.execute === 'function') {
+            this.loadedSkills.set(skill.id, module);
+          } else if (typeof module.default === 'function') {
+            this.loadedSkills.set(skill.id, { execute: module.default });
+          } else if (typeof module.default?.execute === 'function') {
+            this.loadedSkills.set(skill.id, module.default);
+          } else {
+            throw new Error(`Skill ${skill.id} does not export an execute function`);
+          }
+          
+          console.log(`[SkillManager] Loaded skill module via require: ${skill.id}`);
+        } catch (requireError) {
+          // If both fail, create a placeholder that logs a warning
+          console.warn(`[SkillManager] Failed to load skill module ${skill.id}, using placeholder`);
+          this.loadedSkills.set(skill.id, {
+            execute: async (inputs: Record<string, unknown>, context?: Record<string, unknown>) => {
+              console.warn(`[SkillManager] Skill ${skill.id} is using placeholder execution`);
+              return { 
+                result: 'Skill executed (placeholder - module not loaded)',
+                warning: 'Skill module could not be loaded dynamically'
+              };
+            }
+          });
+        }
+      }
     } catch (error) {
       console.error(`[SkillManager] Failed to load skill module ${skill.id}:`, error);
-      throw error;
+      // Don't throw - allow skill to be executed with placeholder
+      this.loadedSkills.set(skill.id, {
+        execute: async (inputs: Record<string, unknown>, context?: Record<string, unknown>) => {
+          return {
+            error: `Failed to load skill module: ${error instanceof Error ? error.message : 'Unknown error'}`
+          };
+        }
+      });
     }
   }
 

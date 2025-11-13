@@ -101,7 +101,9 @@ export class Phase14Integration {
 
       this.initialized = true;
 
-      eventBus.emit('phase14.initialized', {
+      await eventBus.publish({
+        id: `phase14-init-${Date.now()}`,
+        type: 'phase14.initialized',
         timestamp: Date.now(),
         source: 'phase14-integration',
         payload: {
@@ -112,7 +114,7 @@ export class Phase14Integration {
             llmJudge: this.config.enableLLMJudge
           }
         }
-      });
+      } as any);
 
       console.log('[Phase14] All components initialized successfully');
     } catch (error) {
@@ -126,11 +128,13 @@ export class Phase14Integration {
    */
   private setupEventListeners(): void {
     // Listen for vague prompts that need refinement
-    eventBus.on('agent.prompt-detected', async (event: any) => {
+    eventBus.subscribe('agent.prompt-detected' as any, async (event: any) => {
       if (this.config.enablePromptEngineer && event.payload?.prompt) {
         const vagueCheck = await promptEngineer.detectVaguePrompt(event.payload.prompt);
         if (vagueCheck.isVague) {
-          eventBus.emit('prompt-engineer.vague-detected', {
+          await eventBus.publish({
+            id: `vague-detected-${Date.now()}`,
+            type: 'prompt-engineer.vague-detected',
             timestamp: Date.now(),
             source: 'phase14-integration',
             payload: {
@@ -138,13 +142,13 @@ export class Phase14Integration {
               confidence: vagueCheck.confidence,
               reasons: vagueCheck.reasons
             }
-          });
+          } as any);
         }
       }
     });
 
     // Listen for code that needs judgment
-    eventBus.on('agent.code-generated', async (event: any) => {
+    eventBus.subscribe('agent.code-generated' as any, async (event: any) => {
       if (this.config.enableLLMJudge && event.payload?.code) {
         const judgment = await llmJudge.judge({
           type: 'code-quality',
@@ -153,20 +157,22 @@ export class Phase14Integration {
         });
 
         if (judgment.verdict === 'fail' || judgment.verdict === 'partial') {
-          eventBus.emit('llm-judge.quality-issue', {
+          await eventBus.publish({
+            id: `quality-issue-${Date.now()}`,
+            type: 'llm-judge.quality-issue',
             timestamp: Date.now(),
             source: 'phase14-integration',
             payload: {
               code: event.payload.code,
               judgment
             }
-          });
+          } as any);
         }
       }
     });
 
     // Listen for UI changes that need visual feedback
-    eventBus.on('ui.state-changed', async (event: any) => {
+    eventBus.subscribe('ui.state-changed' as any, async (event: any) => {
       if (this.config.enableVisualFeedback && event.payload?.url) {
         // Optionally trigger visual regression check
         // This would be done on-demand rather than automatically
