@@ -1,9 +1,10 @@
 /**
- * Observability Module for LAPA v1.2 Phase 15
+ * Observability Module for LAPA v1.2 Phase 15-16
  * 
  * This module exports all observability functionality including:
  * - LangSmithTracer: Distributed tracing and performance monitoring
  * - PrometheusMetrics: Metrics collection and monitoring
+ * - PhaseAnalyzer: Git and event log analysis for LPSP (Phase 16)
  */
 
 export { LangSmithTracer, getLangSmithTracer } from './langsmith.ts';
@@ -22,4 +23,7 @@ export type {
   MetricValue,
   DeepAgentsCallback 
 } from './prometheus.ts';
+
+export { PhaseAnalyzer } from './phase-analyzer.ts';
+export type { PhaseAnalyzerConfig } from './phase-analyzer.ts';
 
