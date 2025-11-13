@@ -13,6 +13,7 @@ import { Task, Agent } from '../agents/moe-router.ts';
 import { rooModeController, RooModeController } from '../modes/modes.ts';
 import { RooMode } from '../modes/types/mode-types.ts';
 import { eventBus, LAPAEventBus } from '../core/event-bus.ts';
+import { a2aMediator } from '../orchestrator/a2a-mediator.ts';
 import { z } from 'zod';
 import { performance } from 'perf_hooks';
 
@@ -288,20 +289,70 @@ export class SwarmDelegate {
   }
   
   /**
-   * Delegates a task to a local agent using local inference
+   * Delegates a task to a local agent using local inference with mandatory A2A handshake
    * @param task Task to delegate
    * @param context Context for the task
    * @returns Promise that resolves with the delegation result
    */
   private async delegateToLocalAgent(task: Task, context: TaskContext): Promise<DelegationResult> {
+    // For local delegation, we need to determine the target agent first
+    // Let's use the local handoff system to get information about the target
     try {
       console.log(`Attempting local delegation for task: ${task.id}`);
       
-      // Use the localHandoff function for zero-key handoff
-      const result = await localHandoff(task, context);
+      // Use the localHandoff function for zero-key handoff to get target info
+      const localResult = await localHandoff(task, context);
       
       // Extract the target agent from the result if available
-      const targetAgentId = result.handoffMetrics?.providerUsed || 'unknown-local-agent';
+      const targetAgentId = localResult.handoffMetrics?.providerUsed || 'unknown-local-agent';
+      
+      // MANDATORY A2A handshake before local agent delegation (Phase 10 requirement)
+      try {
+        // Find the target agent in our registered agents
+        const targetAgent = Array.from(this.registeredAgents.values()).find(agent =>
+          agent.id === targetAgentId || agent.name === targetAgentId
+        ) || {
+          id: targetAgentId,
+          name: targetAgentId,
+          capabilities: ['local-inference'],
+          workload: 0,
+          isLocal: true,
+          type: 'local',
+          capacity: 10
+        };
+        
+        const handshakeRequest = {
+          sourceAgentId: 'swarm-delegate',
+          targetAgentId: targetAgentId,
+          taskId: task.id,
+          taskDescription: task.description,
+          capabilities: targetAgent.capabilities,
+          context,
+          priority: (task.priority && ['low', 'medium', 'high'].includes(task.priority.toString()))
+                   ? task.priority.toString() as 'low' | 'medium' | 'high'
+                   : 'medium'
+        };
+        
+        console.log(`Initiating MANDATORY A2A handshake for local agent delegation: ${task.id}`);
+        const handshakeResponse = await a2aMediator.initiateHandshake(handshakeRequest);
+        
+        if (!handshakeResponse.accepted) {
+          throw new Error(`A2A handshake rejected: ${handshakeResponse.reason || 'Unknown reason'}`);
+        }
+        
+        console.log(`A2A handshake accepted for local agent delegation ${task.id}`);
+      } catch (error) {
+        console.error(`MANDATORY A2A handshake failed for local agent delegation, aborting:`, error);
+        // ABORT delegation if handshake fails - this is now mandatory
+        return {
+          success: false,
+          taskId: task.id,
+          error: `Local delegation aborted due to failed A2A handshake: ${error instanceof Error ? error.message : String(error)}`
+        };
+      }
+      
+      // Now perform the actual local delegation
+      const result = await localHandoff(task, context);
       
       console.log(`Local delegation successful for task: ${task.id}`);
       
@@ -322,7 +373,7 @@ export class SwarmDelegate {
   }
   
   /**
-   * Delegates a task via consensus voting among swarm agents
+   * Delegates a task via consensus voting among swarm agents with mandatory A2A handshake
    * @param task Task to delegate
    * @param context Context for the task
    * @returns Promise that resolves with the delegation result
@@ -390,6 +441,38 @@ export class SwarmDelegate {
       
       console.log(`Consensus reached: delegating task ${task.id} to agent ${winningAgent.name}`);
       
+      // MANDATORY A2A handshake before consensus-based delegation (Phase 10 requirement)
+      try {
+        const handshakeRequest = {
+          sourceAgentId: 'swarm-delegate',
+          targetAgentId: winningAgentId,
+          taskId: task.id,
+          taskDescription: task.description,
+          capabilities: winningAgent.capabilities,
+          context,
+          priority: (task.priority && ['low', 'medium', 'high'].includes(task.priority.toString()))
+                   ? task.priority.toString() as 'low' | 'medium' | 'high'
+                   : 'medium'
+        };
+        
+        console.log(`Initiating MANDATORY A2A handshake for consensus-based delegation: ${task.id}`);
+        const handshakeResponse = await a2aMediator.initiateHandshake(handshakeRequest);
+        
+        if (!handshakeResponse.accepted) {
+          throw new Error(`A2A handshake rejected: ${handshakeResponse.reason || 'Unknown reason'}`);
+        }
+        
+        console.log(`A2A handshake accepted for consensus-based delegation ${task.id}`);
+      } catch (error) {
+        console.error(`MANDATORY A2A handshake failed for consensus-based delegation, aborting:`, error);
+        // ABORT delegation if handshake fails - this is now mandatory
+        return {
+          success: false,
+          taskId: task.id,
+          error: `Consensus delegation aborted due to failed A2A handshake: ${error instanceof Error ? error.message : String(error)}`
+        };
+      }
+      
       // Perform context handoff to the winning agent
       const handoffRequest = {
         sourceAgentId: 'swarm-delegate',
@@ -409,7 +492,7 @@ export class SwarmDelegate {
       
       // Complete handoff on target agent
       const handoffResult = await this.contextHandoffManager.completeHandoff(
-        handoffResponse.handoffId, 
+        handoffResponse.handoffId,
         winningAgentId
       );
       
@@ -480,15 +563,15 @@ export class SwarmDelegate {
   }
   
   /**
-   * Delegates a task to an AutoGen Core agent with Roo mode awareness
+   * Delegates a task to an AutoGen Core agent with Roo mode awareness and mandatory A2A handshake
    * @param task Task to delegate
    * @param context Context for the task
    * @param currentMode Current Roo mode (if available)
    * @returns Promise that resolves with the delegation result
    */
   private async delegateToAutoGenAgent(
-    task: Task, 
-    context: TaskContext, 
+    task: Task,
+    context: TaskContext,
     currentMode: RooMode | null
   ): Promise<DelegationResult> {
     try {
@@ -505,8 +588,40 @@ export class SwarmDelegate {
         };
       }
       
+      // MANDATORY A2A handshake before AutoGen agent delegation (Phase 10 requirement)
+      try {
+        const handshakeRequest = {
+          sourceAgentId: 'swarm-delegate',
+          targetAgentId: selectedAgent.id,
+          taskId: task.id,
+          taskDescription: task.description,
+          capabilities: selectedAgent.capabilities,
+          context,
+          priority: (task.priority && ['low', 'medium', 'high'].includes(task.priority.toString()))
+                   ? task.priority.toString() as 'low' | 'medium' | 'high'
+                   : 'medium'
+        };
+        
+        console.log(`Initiating MANDATORY A2A handshake for AutoGen agent delegation: ${task.id}`);
+        const handshakeResponse = await a2aMediator.initiateHandshake(handshakeRequest);
+        
+        if (!handshakeResponse.accepted) {
+          throw new Error(`A2A handshake rejected: ${handshakeResponse.reason || 'Unknown reason'}`);
+        }
+        
+        console.log(`A2A handshake accepted for AutoGen agent delegation ${task.id}`);
+      } catch (error) {
+        console.error(`MANDATORY A2A handshake failed for AutoGen agent delegation, aborting:`, error);
+        // ABORT delegation if handshake fails - this is now mandatory
+        return {
+          success: false,
+          taskId: task.id,
+          error: `AutoGen delegation aborted due to failed A2A handshake: ${error instanceof Error ? error.message : String(error)}`
+        };
+      }
+      
       // Enhance context with mode information if available
-      const enhancedContext = currentMode 
+      const enhancedContext = currentMode
         ? { ...context, rooMode: currentMode, modeCapabilities: this.rooModeController.getModeConfig(currentMode)?.capabilities }
         : context;
       
@@ -627,15 +742,15 @@ export class SwarmDelegate {
   }
   
   /**
-   * Delegates to a cached agent (fast path)
+   * Delegates to a cached agent (fast path) with mandatory A2A handshake
    * @param task Task to delegate
    * @param context Context for the task
    * @param agentId Cached agent ID
    * @returns Promise that resolves with the delegation result
    */
   private async delegateToCachedAgent(
-    task: Task, 
-    context: TaskContext, 
+    task: Task,
+    context: TaskContext,
     agentId: string
   ): Promise<DelegationResult> {
     const agent = this.registeredAgents.get(agentId);
@@ -645,6 +760,38 @@ export class SwarmDelegate {
         success: false,
         taskId: task.id,
         error: `Cached agent ${agentId} not found`
+      };
+    }
+    
+    // MANDATORY A2A handshake before cached agent delegation (Phase 10 requirement)
+    try {
+      const handshakeRequest = {
+        sourceAgentId: 'swarm-delegate',
+        targetAgentId: agentId,
+        taskId: task.id,
+        taskDescription: task.description,
+        capabilities: agent.capabilities,
+        context,
+        priority: (task.priority && ['low', 'medium', 'high'].includes(task.priority.toString()))
+                 ? task.priority.toString() as 'low' | 'medium' | 'high'
+                 : 'medium'
+      };
+      
+      console.log(`Initiating MANDATORY A2A handshake for cached agent delegation: ${task.id}`);
+      const handshakeResponse = await a2aMediator.initiateHandshake(handshakeRequest);
+      
+      if (!handshakeResponse.accepted) {
+        throw new Error(`A2A handshake rejected: ${handshakeResponse.reason || 'Unknown reason'}`);
+      }
+      
+      console.log(`A2A handshake accepted for cached agent delegation ${task.id}`);
+    } catch (error) {
+      console.error(`MANDATORY A2A handshake failed for cached agent delegation, aborting:`, error);
+      // ABORT delegation if handshake fails - this is now mandatory
+      return {
+        success: false,
+        taskId: task.id,
+        error: `Delegation aborted due to failed A2A handshake: ${error instanceof Error ? error.message : String(error)}`
       };
     }
     

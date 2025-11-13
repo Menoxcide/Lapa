@@ -1278,7 +1278,7 @@ export class HybridHandoffSystem {
   }
 
   /**
-   * Initiates a context handoff between agents with A2A handshake
+   * Initiates a context handoff between agents with mandatory A2A handshake
    * @param sourceAgentId Source agent ID
    * @param targetAgentId Target agent ID
    * @param taskId Task ID
@@ -1299,7 +1299,7 @@ export class HybridHandoffSystem {
     const handoffStartLog = `Handoff started from ${sourceAgentId} to ${targetAgentId} for task ${taskId}`;
     console.log(handoffStartLog);
     
-    // A2A handshake before handoff (Phase 10 requirement)
+    // MANDATORY A2A handshake before handoff (Phase 10 requirement)
     try {
       const task = context.task as Task | undefined;
       const handshakeRequest: A2AHandshakeRequest = {
@@ -1314,7 +1314,7 @@ export class HybridHandoffSystem {
           : 'medium'
       };
       
-      console.log(`Initiating A2A handshake before handoff: ${taskId}`);
+      console.log(`Initiating MANDATORY A2A handshake before handoff: ${taskId}`);
       const handshakeResponse = await a2aMediator.initiateHandshake(handshakeRequest);
       
       if (!handshakeResponse.accepted) {
@@ -1323,8 +1323,9 @@ export class HybridHandoffSystem {
       
       console.log(`A2A handshake accepted for task ${taskId}`);
     } catch (error) {
-      console.warn(`A2A handshake failed, proceeding with handoff anyway:`, error);
-      // Continue with handoff even if handshake fails (graceful degradation)
+      console.error(`MANDATORY A2A handshake failed, aborting handoff:`, error);
+      // ABORT handoff if handshake fails - this is now mandatory
+      throw new Error(`Handoff aborted due to failed A2A handshake: ${error instanceof Error ? error.message : String(error)}`);
     }
     
     // Notify handoff start hook
@@ -1415,7 +1416,7 @@ export class HybridHandoffSystem {
   }
 
   /**
-   * Handles handoff to an OpenAI agent
+   * Handles handoff to an OpenAI agent with mandatory A2A handshake
    * @param targetAgent Target OpenAI agent
    * @param taskId Task ID
    * @param context Context to handoff
@@ -1430,6 +1431,35 @@ export class HybridHandoffSystem {
     targetAgentId: string,
     sourceAgentId: string
   ): Promise<any> {
+    // MANDATORY A2A handshake before handoff to OpenAI agent (Phase 10 requirement)
+    try {
+      const task = context.task as Task | undefined;
+      const handshakeRequest: A2AHandshakeRequest = {
+        sourceAgentId,
+        targetAgentId,
+        taskId,
+        taskDescription: task?.description || 'Task handoff to OpenAI agent',
+        capabilities: task ? this.extractCapabilitiesFromTask(task) : [],
+        context,
+        priority: task?.priority && ['low', 'medium', 'high'].includes(task.priority.toString())
+          ? task.priority.toString() as 'low' | 'medium' | 'high'
+          : 'medium'
+      };
+      
+      console.log(`Initiating MANDATORY A2A handshake before OpenAI agent handoff: ${taskId}`);
+      const handshakeResponse = await a2aMediator.initiateHandshake(handshakeRequest);
+      
+      if (!handshakeResponse.accepted) {
+        throw new Error(`A2A handshake rejected: ${handshakeResponse.reason || 'Unknown reason'}`);
+      }
+      
+      console.log(`A2A handshake accepted for OpenAI agent handoff ${taskId}`);
+    } catch (error) {
+      console.error(`MANDATORY A2A handshake failed for OpenAI agent handoff, aborting:`, error);
+      // ABORT handoff if handshake fails - this is now mandatory
+      throw new Error(`Handoff to OpenAI agent aborted due to failed A2A handshake: ${error instanceof Error ? error.message : String(error)}`);
+    }
+    
     try {
       // Safely serialize context to handle circular references
       let serializedContext: string;
@@ -1482,7 +1512,7 @@ export class HybridHandoffSystem {
   }
 
   /**
-   * Handles handoff to a LAPA agent
+   * Handles handoff to a LAPA agent with mandatory A2A handshake
    * @param sourceAgentId Source agent ID
    * @param targetAgentId Target agent ID
    * @param taskId Task ID
@@ -1495,6 +1525,35 @@ export class HybridHandoffSystem {
     taskId: string,
     context: Record<string, any>
   ): Promise<any> {
+    // MANDATORY A2A handshake before handoff to LAPA agent (Phase 10 requirement)
+    try {
+      const task = context.task as Task | undefined;
+      const handshakeRequest: A2AHandshakeRequest = {
+        sourceAgentId,
+        targetAgentId,
+        taskId,
+        taskDescription: task?.description || 'Task handoff to LAPA agent',
+        capabilities: task ? this.extractCapabilitiesFromTask(task) : [],
+        context,
+        priority: task?.priority && ['low', 'medium', 'high'].includes(task.priority.toString())
+          ? task.priority.toString() as 'low' | 'medium' | 'high'
+          : 'medium'
+      };
+      
+      console.log(`Initiating MANDATORY A2A handshake before LAPA agent handoff: ${taskId}`);
+      const handshakeResponse = await a2aMediator.initiateHandshake(handshakeRequest);
+      
+      if (!handshakeResponse.accepted) {
+        throw new Error(`A2A handshake rejected: ${handshakeResponse.reason || 'Unknown reason'}`);
+      }
+      
+      console.log(`A2A handshake accepted for LAPA agent handoff ${taskId}`);
+    } catch (error) {
+      console.error(`MANDATORY A2A handshake failed for LAPA agent handoff, aborting:`, error);
+      // ABORT handoff if handshake fails - this is now mandatory
+      throw new Error(`Handoff to LAPA agent aborted due to failed A2A handshake: ${error instanceof Error ? error.message : String(error)}`);
+    }
+    
     try {
       const request: ContextHandoffRequest = {
         sourceAgentId,
@@ -1799,6 +1858,12 @@ export class HybridHandoffSystem {
     const errorMessage = error instanceof Error ? error.message : String(error);
     if (errorMessage.includes('OpenAI service timeout')) {
       throw new Error(`Failed to handoff to OpenAI agent: OpenAI service timeout`);
+    }
+    
+    // If the error is related to A2A handshake failure, don't attempt fallback
+    if (errorMessage.includes('A2A handshake')) {
+      console.error('A2A handshake failed, not attempting fallback handoff');
+      throw new Error(errorMessage);
     }
     
     // Try to select an alternative agent with lowest workload

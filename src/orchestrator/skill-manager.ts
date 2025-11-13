@@ -127,13 +127,15 @@ export class SkillManager {
   async initialize(): Promise<void> {
     try {
       await this.discoverSkills();
-      eventBus.emit('skill-manager.initialized', {
+      eventBus.publish({
+        id: `skill-manager-init-${Date.now()}`,
+        type: 'skill-manager.initialized',
         timestamp: Date.now(),
         source: 'skill-manager',
         payload: {
           skillCount: this.skills.size
         }
-      });
+      } as any).catch(console.error);
       console.log(`[SkillManager] Initialized with ${this.skills.size} skills`);
     } catch (error) {
       console.error('[SkillManager] Initialization failed:', error);
@@ -208,15 +210,30 @@ export class SkillManager {
       }
 
       try {
-        // Evaluate the metadata object (in production, use a proper parser)
-        const metadata = eval(`(${metadataMatch[1]})`);
+        // Parse the metadata object safely without using eval
+        // Replace single quotes with double quotes for valid JSON
+        const metadataString = metadataMatch[1]
+          .replace(/'/g, '"') // Replace single quotes with double quotes
+          .replace(/(\w+):/g, '"$1":') // Wrap unquoted keys in double quotes
+          .replace(/,\s*([}\]])/g, '$1'); // Remove trailing commas
+        
+        // Parse as JSON
+        const metadata = JSON.parse(metadataString);
+        
+        // Add filePath and lastModified to metadata before validation
+        const extendedMetadata = {
+          ...metadata,
+          filePath,
+          lastModified: (await stat(filePath)).mtime
+        };
+        
         const validated = skillMetadataSchema.parse(metadata);
         
-        validated.filePath = filePath;
-        const stats = await stat(filePath);
-        validated.lastModified = stats.mtime;
+        // Add the extended properties after validation
+        (validated as any).filePath = filePath;
+        (validated as any).lastModified = extendedMetadata.lastModified;
         
-        this.skills.set(validated.id, validated);
+        this.skills.set(validated.id, validated as SkillMetadata);
         console.log(`[SkillManager] Loaded skill: ${validated.name} (${validated.id})`);
       } catch (error) {
         console.error(`[SkillManager] Failed to parse metadata from ${filePath}:`, error);
@@ -262,14 +279,16 @@ export class SkillManager {
         const cached = this.skillCache.get(cacheKey);
         
         if (cached && (Date.now() - cached.timestamp) < this.config.cacheTTL) {
-          eventBus.emit('skill.executed', {
+          eventBus.publish({
+            id: `skill-exec-${request.skillId}-${Date.now()}`,
+            type: 'skill.executed',
             timestamp: Date.now(),
             source: 'skill-manager',
             payload: {
               skillId: request.skillId,
               cached: true
             }
-          });
+          } as any).catch(console.error);
           
           return {
             success: true,
@@ -318,7 +337,9 @@ export class SkillManager {
 
       const executionTime = Date.now() - startTime;
 
-      eventBus.emit('skill.executed', {
+      eventBus.publish({
+        id: `skill-exec-${request.skillId}-${Date.now()}`,
+        type: 'skill.executed',
         timestamp: Date.now(),
         source: 'skill-manager',
         payload: {
@@ -326,7 +347,7 @@ export class SkillManager {
           executionTime,
           cached: false
         }
-      });
+      } as any).catch(console.error);
 
       return {
         success: true,
@@ -336,7 +357,9 @@ export class SkillManager {
     } catch (error) {
       const executionTime = Date.now() - startTime;
       
-      eventBus.emit('skill.execution-failed', {
+      eventBus.publish({
+        id: `skill-exec-fail-${request.skillId}-${Date.now()}`,
+        type: 'skill.execution-failed',
         timestamp: Date.now(),
         source: 'skill-manager',
         payload: {
@@ -344,7 +367,7 @@ export class SkillManager {
           error: error instanceof Error ? error.message : 'Unknown error',
           executionTime
         }
-      });
+      } as any).catch(console.error);
 
       return {
         success: false,
@@ -426,14 +449,16 @@ export class SkillManager {
   registerSkill(metadata: SkillMetadata): void {
     const validated = skillMetadataSchema.parse(metadata);
     this.skills.set(validated.id, validated);
-    eventBus.emit('skill.registered', {
+    eventBus.publish({
+      id: `skill-reg-${validated.id}-${Date.now()}`,
+      type: 'skill.registered',
       timestamp: Date.now(),
       source: 'skill-manager',
       payload: {
         skillId: validated.id,
         skillName: validated.name
       }
-    });
+    } as any).catch(console.error);
     console.log(`[SkillManager] Registered skill: ${validated.name} (${validated.id})`);
   }
 
@@ -444,11 +469,13 @@ export class SkillManager {
     if (this.skills.has(skillId)) {
       this.skills.delete(skillId);
       this.loadedSkills.delete(skillId);
-      eventBus.emit('skill.unregistered', {
+      eventBus.publish({
+        id: `skill-unreg-${skillId}-${Date.now()}`,
+        type: 'skill.unregistered',
         timestamp: Date.now(),
         source: 'skill-manager',
         payload: { skillId }
-      });
+      } as any).catch(console.error);
       console.log(`[SkillManager] Unregistered skill: ${skillId}`);
     }
   }

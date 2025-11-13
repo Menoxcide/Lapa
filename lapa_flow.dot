@@ -1,0 +1,73 @@
+digraph LAPA_Flow {
+  rankdir=TB;
+  node [fontname="Arial", fontsize=10];
+  edge [fontname="Arial", fontsize=8];
+
+  // Nodes
+  "Initial Prompt" [shape=ellipse, style=filled, fillcolor=lightblue, label="Initial User Prompt\\n(e.g., 'Build a task manager app')"];
+  "PromptEngineer" [shape=box, style=filled, fillcolor=yellow, label="PromptEngineer Agent\\n(Claude-3.5-Sonnet)\\n- Detect vague input\\n- Interactive Q&A\\n- Optimize for tools"];
+  "Oracle" [shape=diamond, style=filled, fillcolor=green, label="Oracle Agent\\n(Phi-3.5-Vision)\\n- Parse intent (90%)\\n- Vibe + Roomote Q&A\\n- Meta-judge"];
+  "Architect" [shape=box, style=filled, fillcolor=orange, label="Architect Agent\\n(DeepSeek-R1-671B)\\n- Plan via veto (98%)\\n- Roo Architect mode\\n- Codegen rules"];
+  "Researcher" [shape=parallelogram, style=filled, fillcolor=lightgreen, label="Researcher Agent\\n(Qwen3-235B)\\n- RAG search (92%)\\n- Grep/tail + MCP discovery\\n- Semantic search"];
+  "Coder" [shape=box, style=filled, fillcolor=red, label="Coder Agent\\n(Qwen3-Coder-480B)\\n- Code gen (70% SWE-Bench)\\n- Code Mode + ClaudeKit skills\\n- PPT/Docs gen"];
+  "Tester" [shape=diamond, style=filled, fillcolor=purple, label="Tester Agent\\n(GLM-4.5-Air)\\n- TDD testing (99%)\\n- Debug Mode + MCP sandbox\\n- Visual feedback"];
+  "Reviewer" [shape=box, style=filled, fillcolor=pink, label="Reviewer Agent\\n(Mixtral-8x22B)\\n- Lint/review (80%)\\n- Ask Mode + Memori entity\\n- Hallucination check"];
+  "Integrator" [shape=trapezium, style=filled, fillcolor=brown, label="Integrator Agent\\n(Llama-3.1-70B)\\n- Merge/harmonize (95%)\\n- Custom Mode + A2A handshake\\n- Sub-spawn"];
+  "Debugger" [shape=diamond, style=filled, fillcolor=gray, label="Debugger Agent\\n(DeepSeek-R1-671B)\\n- Bug hunt (94%)\\n- Roo Debug + Codegen traces\\n- LLM-as-Judge"];
+  "Benchmarker" [shape=ellipse, style=filled, fillcolor=blue, label="Benchmarker Agent\\n(Llama-3.1-8B)\\n- Perf eval (97%)\\n- AutoGen Bench + Prometheus\\n- Memori analysis"];
+  "MCPManager" [shape=box, style=filled, fillcolor=cyan, label="MCPManager Agent\\n(GLM-4.5-Air)\\n- Discovery (96%)\\n- MCP + A2A coordinator\\n- Stdio shim"];
+  "MemoriAnalyst" [shape=parallelogram, style=filled, fillcolor=limegreen, label="MemoriAnalyst Agent\\n(Qwen3-30B)\\n- Persistence (88%)\\n- SQL + episodic + vector refine\\n- Session pruning"];
+  "A2AMediator" [shape=diamond, style=filled, fillcolor=magenta, label="A2AMediator Agent\\n(Claude-3.5-Sonnet)\\n- Coordination (98%)\\n- Task negotiation + veto\\n- Deepagents sub-spawn"];
+  "ObservabilityAgent" [shape=box, style=filled, fillcolor=navy, label="ObservabilityAgent\\n(Prometheus-Node)\\n- Trace (99%)\\n- LangSmith + Grafana\\n- Red team logs"];
+  "StudioUI" [shape=ellipse, style=filled, fillcolor=gold, label="StudioUI\\n(Streamlit-Local)\\n- No-code (100%)\\n- Dynamic AG-UI + MCP\\n- Pydantic outputs"];
+  "Resonance Core" [shape=doublecircle, style=filled, fillcolor=darkgreen, label="Resonance Core\\n(NetworkX Chamber)\\n- Compaction (55%)\\n- Decay (0.85^step)\\n- Veto (5/6 consensus)"];
+  "Event Bus" [shape=circle, style=filled, fillcolor=darkred, label="Event Bus\\n(AutoGen Core)\\n- Pub-sub events\\n- A2A/AG-UI streams"];
+  "Memori SQL" [shape=cylinder, style=filled, fillcolor=darkblue, label="Memori SQL\\n(SQLite Persistence)\\n- Entity extraction\\n- Zero-prompt injection"];
+  "Chroma RAG" [shape=parallelogram, style=filled, fillcolor=teal, label="Chroma RAG\\n(Vector Refinement)\\n- Semantic search\\n- Roo indexing"];
+  "MCP Sandbox" [shape=diamond, style=filled, fillcolor=olive, label="MCP Sandbox\\n(E2B + Local)\\n- Tool discovery\\n- Progressive disclosure"];
+  "App Output" [shape=ellipse, style=filled, fillcolor=lightcoral, label="App Creation Complete\\n(Generated Codebase)\\n- VSIX Build\\n- Deploy Ready"];
+
+  // Main Flow Edges
+  "Initial Prompt" -> "PromptEngineer" [label="Vague detection + Q&A", color=black];
+  "PromptEngineer" -> "Oracle" [label="Intent parse (90%)", color=black];
+  "Oracle" -> "Resonance Core" [label="Vibe check + veto init", color=green];
+  "Resonance Core" -> "Architect" [label="Plan veto (98%)", color=orange];
+  "Architect" -> "Researcher" [label="A2A handshake", color=blue];
+  "Researcher" -> "Coder" [label="RAG data (92%)", color=red];
+  "Coder" -> "Tester" [label="Code gen (70%)", color=purple];
+  "Tester" -> "Reviewer" [label="TDD tests (99%)", color=pink];
+  "Reviewer" -> "Integrator" [label="Lint + halluc check (80%)", color=brown];
+  "Integrator" -> "Debugger" [label="Merge (95%)", color=gray];
+  "Debugger" -> "Benchmarker" [label="Bug hunt (94%)", color=blue];
+  "Benchmarker" -> "ObservabilityAgent" [label="Perf eval (97%)", color=navy];
+  "ObservabilityAgent" -> "Event Bus" [label="Traces + metrics", color=darkred];
+  "Event Bus" -> "MemoriAnalyst" [label="Pub-sub handoff", color=limegreen];
+  "MemoriAnalyst" -> "A2AMediator" [label="Persistence (88%)", color=magenta];
+  "A2AMediator" -> "MCPManager" [label="Coord (98%)", color=cyan];
+  "MCPManager" -> "StudioUI" [label="Discovery (96%)", color=gold];
+  "StudioUI" -> "Resonance Core" [label="AG-UI render (100%)", color=darkgreen];
+  "Resonance Core" -> "App Output" [label="Final veto + build", color=lightcoral];
+
+  // Loop Edges for Interactions
+  "Resonance Core" -> "Event Bus" [label="Echoes + compaction", color=gray, style=dashed];
+  "Event Bus" -> "MCP Sandbox" [label="Tool calls", color=gray, style=dashed];
+  "MCP Sandbox" -> "Chroma RAG" [label="Discovery", color=gray, style=dashed];
+  "Chroma RAG" -> "Memori SQL" [label="Vector refine", color=gray, style=dashed];
+  "Memori SQL" -> "Resonance Core" [label="Injection", color=gray, style=dashed];
+
+  // Subgraph for Helix Team
+  subgraph cluster_helix {
+    label="Helix Team Swarm";
+    style=filled;
+    color=lightgrey;
+    "PromptEngineer"; "Oracle"; "Architect"; "Researcher"; "Coder"; "Tester"; "Reviewer"; "Integrator"; "Debugger"; "Benchmarker"; "MCPManager"; "MemoriAnalyst"; "A2AMediator"; "ObservabilityAgent"; "StudioUI";
+  }
+
+  // Subgraph for Core Components
+  subgraph cluster_core {
+    label="Resonance Core Components";
+    style=filled;
+    color=lightyellow;
+    "Resonance Core"; "Event Bus"; "Memori SQL"; "Chroma RAG"; "MCP Sandbox";
+  }
+}

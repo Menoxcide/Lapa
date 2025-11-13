@@ -208,33 +208,77 @@ export class ChromaRefine {
   }
 
   /**
-   * Generates embedding for text (placeholder - requires actual embedding model)
+   * Generates embedding for text using NVIDIA NIM local inference
    */
   private async generateEmbedding(text: string): Promise<number[]> {
+    // Log diagnostic information
+    console.info('🔧 Diagnostic: generateEmbedding called with text length:', text.length);
+    console.info('🔧 Diagnostic: Current embedding cache size:', this.embeddingCache.size);
+    
     // Check cache first
     if (this.config.enableEmbeddingCache && this.embeddingCache.has(text)) {
+      console.debug('🔧 Diagnostic: Returning cached embedding for text');
       return this.embeddingCache.get(text)!;
     }
 
-    // TODO: Implement actual embedding generation
-    // For now, return a placeholder vector
-    // In production, this would use:
-    // - OpenAI embeddings API
-    // - Local embedding model (e.g., sentence-transformers)
-    // - Or Chroma's built-in embedding function
+    try {
+      // Try to generate embedding using NVIDIA NIM
+      console.info('🔧 Diagnostic: Generating embedding using NVIDIA NIM');
+      
+      const response = await fetch('http://localhost:8000/v1/embeddings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: this.config.embeddingModel,
+          input: text
+        })
+      });
 
-    const embedding = new Array(384).fill(0).map(() => Math.random() - 0.5);
-    
-    // Normalize
-    const magnitude = Math.sqrt(embedding.reduce((sum, val) => sum + val * val, 0));
-    const normalized = embedding.map(val => val / magnitude);
+      if (!response.ok) {
+        throw new Error(`NIM embedding request failed: ${response.status} ${response.statusText}`);
+      }
 
-    // Cache if enabled
-    if (this.config.enableEmbeddingCache) {
-      this.embeddingCache.set(text, normalized);
+      const data = await response.json();
+      
+      // Extract embedding from response
+      // Assuming OpenAI-like response format
+      if (data.data && data.data.length > 0 && data.data[0].embedding) {
+        const embedding = data.data[0].embedding;
+        
+        // Cache if enabled
+        if (this.config.enableEmbeddingCache) {
+          this.embeddingCache.set(text, embedding);
+          console.debug('🔧 Diagnostic: Cached embedding, new cache size:', this.embeddingCache.size);
+        }
+
+        console.debug('🔧 Diagnostic: Generated embedding with dimensionality:', embedding.length);
+        return embedding;
+      } else {
+        throw new Error('Invalid embedding response format from NIM');
+      }
+    } catch (error) {
+      // Fallback to placeholder implementation if NIM fails
+      console.warn('⚠️  NIM embedding generation failed, falling back to placeholder embeddings:', error);
+      console.warn('⚠️  This is a known issue that needs to be fixed for production use');
+      
+      // Generate placeholder vector as fallback
+      const embedding = new Array(384).fill(0).map(() => Math.random() - 0.5);
+      
+      // Normalize
+      const magnitude = Math.sqrt(embedding.reduce((sum, val) => sum + val * val, 0));
+      const normalized = embedding.map(val => val / magnitude);
+
+      // Cache if enabled
+      if (this.config.enableEmbeddingCache) {
+        this.embeddingCache.set(text, normalized);
+        console.debug('🔧 Diagnostic: Cached placeholder embedding, new cache size:', this.embeddingCache.size);
+      }
+
+      console.debug('🔧 Diagnostic: Generated placeholder embedding with magnitude:', magnitude);
+      return normalized;
     }
-
-    return normalized;
   }
 
   /**

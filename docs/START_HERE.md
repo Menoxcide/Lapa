@@ -1,35 +1,99 @@
-# START HERE: LAPA v1.2 Protocol-Resonant Nexus — Phase 13 Complete
+# START HERE: LAPA v1.2.2 Protocol-Resonant Nexus
 
-## Resume State
-- **v1.1 Phase 9 COMPLETE**: Claude TDD loop, E2B MCP sandbox, OpenAI handoffs
-- **v1.2 Phase 10 COMPLETE**: AutoGen Core + Roo Modes (event-bus.ts, modes.ts, agent-tool.ts)
-- **v1.2 Phase 11 COMPLETE**: MCP + A2A Connectors
-- **v1.2 Phase 12 COMPLETE**: Memori + Episodic + Vector Refinement (memori-engine.ts, episodic.ts, chroma-refine.ts)
-- **v1.2 Phase 13 COMPLETE**: AG-UI + Dynamic Studio
+## Current Status
+- **Version**: v1.2.2 (November 2025)
 - **Branch**: `v1.2-nexus-loop`
-- **Resume Files**: `src/core/ag-ui.ts`, `src/ui/mcp-ui-specs.ts`, `src/ui/studio-dynamic.py`
-- **Next**: Phase 14 — ClaudeKit + Feedback Loops + PromptEngineer MCP
+- **Status**: Development in progress
 
-## Core Rules
-- **TOON-only** — raw reasoning
-- **Local-first**: NIM + Ollama + llama.cpp + Memori SQLite + Chroma
-- **<1s handoff**, **99.5% fidelity** (Bench + LangSmith)
-- **Resonance = echoes + Memori + episodic + A2A + MCP + AG-UI**
-- **Modes = Roo + ClaudeKit + AG-UI dynamic toggles**
-- **Compaction = ctx-zip @55% + MCP progressive + AG-UI streaming**
+## Core Implementation Status
 
-## Agent Prompt Hook
-[ROLE] Mode: Toggle Roo/ClaudeKit/AG-UI [Code/etc.] → adapt hook.
-[ROLE] Protocol: A2A handshake before handoff; MCP for tools; AG-UI for output.
-[ROLE] Memory: Inject Memori + episodic context; grep/tail for search.
-[ROLE] Feedback: Visual (Playwright), LLM-judge, human-in-loop.
-[ROLE] Bench: Run AutoGen + LangSmith + Prometheus evals.
-[ROLE] Security: RBAC check, hallucination veto, red team log.
-## Protocol Compliance
-| Protocol | Status | File |
-|--------|--------|------|
-| **MCP** | Live (Phase 9) | `mcp-connector.ts` |
-| **A2A** | Phase 11 COMPLETE | `a2a-mediator.ts` |
-| **Memori** | Phase 12 COMPLETE | `memori-engine.ts`, `episodic.ts` |
-| **Chroma** | Phase 12 COMPLETE | `chroma-refine.ts` |
-| **AG-UI** | Phase 13 COMPLETE | `ag-ui.ts`, `mcp-ui-specs.ts`, `studio-dynamic.py` |
+### ✅ Implemented Features
+- **AutoGen Core** - Event bus system with pub/sub messaging
+- **Roo Modes** - Dynamic mode switching (Code/Architect/Ask/Debug/Custom)
+- **MCP Integration** - Model Context Protocol with ctx-zip compression
+- **A2A Connectors** - Agent-to-Agent handshake and coordination
+- **Memori + Episodic Memory** - Persistent agent memory system
+- **Chroma Refinement** - Vector search and RAG pipeline
+- **AG-UI Foundation** - Agent-to-UI event streaming
+- **Hybrid Handoff System** - LangGraph + OpenAI Agent orchestration
+
+### 🚧 In Development
+- **PromptEngineer MCP** - Prompt refinement integration
+- **ClaudeKit Skills** - Dynamic skill management
+- **Visual Feedback** - Playwright-based UI testing
+- **LLM-as-Judge** - AI-powered code quality assessment
+- **Task Tree Orchestrator** - Cursor-like task decomposition with git-safe execution (standalone + Cursor extension)
+- **LAPA Phase Summary Protocol (LPSP)** - Auto-generated phase summaries with file/commit tracking
+
+### 📋 Planned Features
+- **Security Integration** - RBAC and hallucination detection
+- **Observability Suite** - LangSmith + Prometheus metrics
+- **Premium Features** - License management and team collaboration
+- **Webapp-Testing Skill** - Automated UI regression with Playwright
+- **MCP-Server Skill** - Production-grade MCP server generation
+- **Artifacts-Builder Skill** - React/Tailwind HTML generation
+- **Docx/PDF/PPTX/XLSX Skills** - Rich document manipulation
+- **Skill-Creator + Template-Skill** - User-defined agent extensibility
+- **RAG + Voice Agents** - Enhanced RAG with offline voice Q&A
+- **Ollama Flash Attention** - Optimization for small models on low-end hardware
+- **Internal-Comms Skill** - Structured report/FAQ generation
+- **Aya + Command-R** - Multilingual codebase support
+
+## Quick Start
+
+### Prerequisites
+- **Node.js** v18+ with npm/pnpm
+- **Cursor IDE** for extension development
+
+### Installation
+```bash
+# Clone repository
+git clone https://github.com/Menoxcide/Lapa.git
+cd Lapa
+
+# Install dependencies
+npm install
+
+# Build the extension
+npm run build
+
+# Run tests
+npm test
+Development Setup
+bash# Start development mode
+npm run dev
+
+# Open in Cursor for extension development
+cursor --extensionDevelopmentPath=.
+Project Structure
+textsrc/
+├── core/           # Core event bus and agent tools
+├── agents/         # Agent implementations (MoE router, persona manager)
+├── orchestrator/   # Task delegation and handoff systems
+├── mcp/           # Model Context Protocol integrations
+├── ui/            # AG-UI components and dashboard
+├── swarm/         # Multi-agent orchestration
+├── premium/       # Premium feature implementations
+└── __tests__/     # Comprehensive test suite
+Key Files
+
+src/core/event-bus.ts - Central event system
+src/orchestrator/handoffs.ts - Hybrid handoff orchestration
+src/ui/ag-ui.ts - Agent-to-UI foundation
+src/agents/moe-router.ts - Mixture of Experts routing
+
+Next Steps
+
+Setup Development Environment - Install dependencies and build
+Run Tests - Verify system functionality with npm test
+Explore Components - Review core modules for integration
+Contribute - Check CONTRIBUTING.md for guidelines
+
+Documentation
+
+AGENT.md - Current agent state and protocols
+PROTOCOLS.md - Protocol specifications and compliance
+CONTRIBUTING.md - Contribution guidelines
+
+
+Last Updated: November 2025 - LAPA v1.2.2

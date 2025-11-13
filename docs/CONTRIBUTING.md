@@ -35,8 +35,9 @@ Feature requests are welcome! Please create an issue with:
 3. Write your code
 4. Add or update tests as necessary
 5. Ensure all tests pass
-6. Update documentation if needed
-7. Submit a pull request with a clear description
+6. Ensure LPSP summaries are generated for your changes
+7. Update documentation if needed
+8. Submit a pull request with a clear description
 
 ## Development Setup
 
@@ -63,6 +64,7 @@ Feature requests are welcome! Please create an issue with:
 - Write clear, descriptive variable and function names
 - Comment complex logic
 - Write JSDoc for public APIs
+- Use Zod for schema validation in protocols like LPSP
 
 ### Documentation Style Guide
 
@@ -70,25 +72,23 @@ Feature requests are welcome! Please create an issue with:
 - Follow the existing documentation structure
 - Use clear, concise language
 - Include examples where appropriate
+- Update phase summaries via LPSP for changes
 
-## Testing
+## Testing Strategy
 
 All contributions should include appropriate tests:
 
 - Unit tests for core functionality
 - Integration tests for major features
 - End-to-end tests for user workflows
+- LPSP validation for phase-related changes
+- Task tree testing for orchestration features
 
-Run tests with:
+##Run tests with:
+###``` bash
+###npm test
 
-```bash
-npm test
-```
-
-## Code Review Process
-
+Code Review Process
 All submissions require review. We strive to review pull requests within 3 business days. Maintainers may suggest changes or improvements before merging.
-
-## Community
-
-Join our [Discord server](https://discord.gg/lapa) to connect with other contributors and users.
+Community
+Join our Discord server to connect with other contributors and users.

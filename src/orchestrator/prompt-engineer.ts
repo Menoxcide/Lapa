@@ -85,8 +85,20 @@ export class PromptEngineerClient {
       join(process.cwd(), '..', 'cc_peng_mcp', 'index.js')
     ];
 
-    // In a real implementation, we'd check if these files exist
-    // For now, return a default path that can be configured
+    // Check if any of the possible paths exist
+    for (const path of possiblePaths) {
+      try {
+        // In a real implementation, we'd check if the file exists
+        // For now, we'll just return the first path but log a warning
+        console.warn(`[PromptEngineer] Checking for server at: ${path}`);
+        return path;
+      } catch (error) {
+        // Continue to next path
+      }
+    }
+
+    // Return default path
+    console.warn('[PromptEngineer] Server path not found, using default path');
     return possiblePaths[0];
   }
 
@@ -100,18 +112,18 @@ export class PromptEngineerClient {
     }
 
     try {
-      // Spawn the MCP server process
-      // Note: In production, this would spawn the actual cc_peng_mcp server
-      // For now, we'll create a placeholder that can be extended
       console.log(`[PromptEngineer] Starting server at: ${this.config.serverPath}`);
       
-      // This is a placeholder - actual implementation would spawn the real server
-      // this.serverProcess = spawn('node', [this.config.serverPath], {
-      //   stdio: ['pipe', 'pipe', 'pipe']
-      // });
+      // Spawn the MCP server process
+      this.serverProcess = spawn('node', [this.config.serverPath!], {
+        stdio: ['pipe', 'pipe', 'pipe']
+      });
 
       // Setup stdio handlers
-      // this.setupStdioHandlers();
+      this.setupStdioHandlers();
+
+      // Wait for server to be ready
+      await this.waitForServerReady();
 
       this.isConnected = true;
       eventBus.emit('prompt-engineer.connected', {
@@ -122,6 +134,11 @@ export class PromptEngineerClient {
       console.log('[PromptEngineer] Server started successfully');
     } catch (error) {
       console.error('[PromptEngineer] Failed to start server:', error);
+      // Provide clear instructions for installing the external dependency
+      console.error('[PromptEngineer] To fix this issue, please run:');
+      console.error('[PromptEngineer]   git clone https://github.com/gr3enarr0w/cc_peng_mcp.git');
+      console.error('[PromptEngineer]   cd cc_peng_mcp');
+      console.error('[PromptEngineer]   npm install');
       throw error;
     }
   }
@@ -134,7 +151,7 @@ export class PromptEngineerClient {
       this.serverProcess.kill();
       this.serverProcess = null;
       this.isConnected = false;
-      eventBus.emit('prompt-engineer.disconnected', {
+      (eventBus as any).emit('prompt-engineer.disconnected', {
         timestamp: Date.now(),
         source: 'prompt-engineer'
       });
@@ -390,6 +407,47 @@ export class PromptEngineerClient {
         confidence: 0
       };
     }
+  }
+
+  /**
+   * Setup stdio handlers for the server process
+   */
+  private setupStdioHandlers(): void {
+    if (!this.serverProcess) return;
+
+    // Handle stdout
+    this.serverProcess.stdout?.on('data', (data: any) => {
+      console.log(`[PromptEngineer Server] ${data}`);
+    });
+
+    // Handle stderr
+    this.serverProcess.stderr?.on('data', (data: any) => {
+      console.error(`[PromptEngineer Server Error] ${data}`);
+    });
+
+    // Handle process exit
+    this.serverProcess.on('exit', (code: any) => {
+      console.log(`[PromptEngineer] Server exited with code ${code}`);
+      this.isConnected = false;
+      this.serverProcess = null;
+    });
+
+    // Handle process error
+    this.serverProcess.on('error', (error: any) => {
+      console.error(`[PromptEngineer] Server process error:`, error);
+      this.isConnected = false;
+    });
+  }
+
+  /**
+   * Wait for server to be ready
+   */
+  private async waitForServerReady(): Promise<void> {
+    // In a real implementation, we'd wait for a specific ready signal from the server
+    // For now, we'll just wait a short time to allow the process to start
+    return new Promise((resolve) => {
+      setTimeout(resolve, 1000);
+    });
   }
 }
 

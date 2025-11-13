@@ -42,41 +42,34 @@ A **multi-agent swarm** that:
 5. **Auto-handoffs** when context >50% → spawns fresh agent with summary  
 6. **Self-documents** via `AGENT.md`  
 7. **Works in Cursor** — your IDE, your flow, your rules  
+8. **Task Tree Orchestrator** — Hierarchical task decomposition with git-safe execution  
+9. **Phase Summary Protocol (LPSP)** - Auto-generated structured summaries for traceability  
+10. **Webapp-Testing Skill** - Automated UI regression with Playwright  
+11. **MCP-Server Skill** - Production-grade MCP server generation  
+12. **Artifacts-Builder Skill** - React/Tailwind HTML generation  
+13. **Docx/PDF/PPTX/XLSX Skills** - Rich document manipulation  
+14. **Skill-Creator + Template-Skill** - User-defined agent extensibility  
+15. **RAG + Voice Agents** - Enhanced RAG with offline voice Q&A  
+16. **Ollama Flash Attention** - Optimization for small models on low-end hardware  
+17. **Internal-Comms Skill** - Structured report/FAQ generation  
+18. **Aya + Command-R** - Multilingual codebase support  
 
 ---
 
-### **Flagship Feature: LAPA Swarm™ (Premium)**  
-> **"Five Minds. One Goal. Zero Prompts."**
+### **Current Status (November 2025)**
+- **Version**: v1.2.2
+- **Branch**: `v1.2-nexus-loop`
+- **Progress**: Core features implemented, advanced integrations in development
 
-| Agent | Role | Model (NIM) |
-|-------|------|-------------|
-| **Architect** | Plan, decompose, generate `AGENT.md` | `Nemotron-4-340B` |
-| **Researcher** | Search code, docs, web (via MCP) | `Gemma-2-27B` |
-| **Coder** | Write, refactor, implement | `DeepSeek-Coder-V2` |
-| **Tester** | Unit, integration, fuzz | `Llama-3.1-405B` |
-| **Reviewer** | Lint, security, style, critique | `Mixtral-8x22B` |
-
-**Autonomy Engine**:
-- No “Continue” prompts  
-- Auto-spawn on context >50%  
-- Consensus voting (4/5 agree → complete)  
-- Git worktree isolation  
-- Error → retry → escalate → fallback model  
-- Final output: **PR-ready code + tests + docs + demo**
-
----
-
-### **Tech Stack (Free Tier)**  
-| Layer | Tech |
-|------|------|
-| **IDE** | Cursor (TypeScript extension) |
-| **Inference** | NVIDIA NIM (local) + BYOK (OpenRouter, Groq, etc.) |
-| **Orchestration** | LangGraph + Ray |
-| **Context** | **ctx-zip** (hardcoded, local FS) |
-| **MCP** | `MCPSandboxExplorer` + `LocalSandboxProvider` |
-| **RAG** | Chroma (workspace embeddings) |
-| **UI** | React dashboard in Cursor sidebar |
-| **Storage** | `.lapa/storage` (local), `blob://` (premium) |
+### **Tech Stack**
+| Component | Technology |
+|-----------|------------|
+| **Inference** | NVIDIA NIM + Local LLMs |
+| **Orchestration** | AutoGen + LangGraph |
+| **Protocols** | MCP + A2A + AG-UI + LPSP |
+| **Memory** | Memori + Episodic + Chroma RAG |
+| **UI** | React + AG-UI event streaming |
+| **Task Management** | Task Tree Orchestrator (standalone/Cursor hybrid) |
 
 ---
 
@@ -84,51 +77,39 @@ A **multi-agent swarm** that:
 
 | Feature | Free | **Premium (LAPA Swarm™)** |
 |-------|------|------------------------|
-| Local NIM | Yes | Yes + Cloud scaling |
-| MoE Routing | 3 models | 5+ models |
-| Parallel Agents | 2 | 5+ |
-| Context Compression | Yes (local) | Yes + Vercel Blob |
-| MCP Sandbox | Local | Local + E2B |
+| Local Inference | Yes | Yes + Cloud scaling |
+| MoE Routing | Basic agent routing | 5+ specialized agents |
+| Parallel Agents | Limited concurrency | Full parallel execution |
+| Context Compression | Basic compression | Advanced ctx-zip optimization |
+| MCP Integration | Local tools | Local + E2B sandbox |
 | AGENT.md | Yes | Yes + versioned |
-| Persona Switching | 5 built-in | Unlimited + fine-tuning |
-| **Autonomous Swarm** | No | Yes — **zero prompts** |
-| Background Tasks | No | Yes (PRs, tests, docs) |
+| **Autonomous Swarm** | Basic autonomy | Full zero-prompt continuity |
+| Background Tasks | Limited | Full PRs, tests, docs automation |
+| Task Tree Orchestrator | Basic | Full git-safe + UI integration |
+| LPSP Summaries | Basic MD | Enhanced AG-UI rendering |
 | Price | **$0** | **$12/mo or $99/yr** |
 
 ---
 
-### **Monetization & Growth**  
-- **Freemium model** — viral local core  
-- **18% conversion** goal to premium  
-- **Yr1 Target**: 10k users, $240k ARR  
-- **Upsell**: 7-day Swarm trial on first launch  
+### **Development Timeline**
+- **Current**: v1.2.2 active development (Protocol-Resonant Nexus)
+- **Q1 2026**: Phase 14 completion (ClaudeKit + PromptEngineer integration)
+- **Mid 2026**: Production readiness and performance optimization
+- **Future**: Advanced features and enterprise integration
 
----
-
-### **Launch Plan**  
-| Milestone | Date |
-|---------|------|
-| Alpha (internal) | Jan 2026 |
-| Beta (100 Cursor users) | Feb 2026 |
-| **v1.0 Launch** | **Mar 15, 2026** |
-| Cursor Marketplace | Featured extension |
-| Marketing | X, HN, Reddit, NVIDIA Blog |
-
----
-
-### **Team & Community**  
-- **Core**: 2 engineers  
-- **Community**: GitHub Issues → bounties  
-- **Advisors**: NVIDIA NeMo, ctx-zip author  
+### **Community & Growth**  
+- **Open Source**: MIT licensed, community-driven development
+- **Contributions**: Active GitHub repository with bounties for features
+- **Adoption**: Growing developer community with real-world use cases
 
 ---
 
 ### **Risks & Mitigations**  
 | Risk | Mitigation |
 |------|-----------|
-| GPU required | CPU fallback (3B models), cloud toggle |
-| Swarm loops | Step limits, consensus, human override |
-| NIM setup | One-click Docker installer |
+| GPU requirements | CPU fallback models, cloud toggle option |
+| Swarm complexity | Step limits, consensus validation, human override |
+| Model availability | Multi-provider support (NIM, Ollama, OpenAI) |
 
 ---
 
@@ -136,8 +117,10 @@ A **multi-agent swarm** that:
 > **LAPA is not just another agent.**  
 > It’s the **first open, local, autonomous coding swarm** — built for **you**, not for a cloud vendor.  
 > It’s **Cursor’s missing soulmate**.  
-> And it starts **today**.
+> And the future is being built **today**.
 
 ---
 
 **Let’s build the future of coding. Together.**
+
+*Last Updated: November 2025 - LAPA v1.2.2*

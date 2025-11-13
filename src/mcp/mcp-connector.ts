@@ -624,31 +624,180 @@ export class MCPConnector {
   }
 
   /**
-   * Converts JSON Schema to Zod schema (simplified version)
+   * Converts JSON Schema to Zod schema
    * @param schema JSON Schema
    * @returns Zod schema
    */
   private jsonSchemaToZod(schema: any): z.ZodType<any> {
-    // This is a simplified implementation
-    // In a real implementation, you would need a full JSON Schema to Zod converter
-    if (schema.type === 'object') {
-      const shape: Record<string, z.ZodType<any>> = {};
-      if (schema.properties) {
-        for (const [key, value] of Object.entries(schema.properties)) {
-          shape[key] = this.jsonSchemaToZod(value);
-        }
-      }
-      return z.object(shape);
-    } else if (schema.type === 'string') {
-      return z.string();
-    } else if (schema.type === 'number') {
-      return z.number();
-    } else if (schema.type === 'boolean') {
-      return z.boolean();
-    } else if (schema.type === 'array') {
-      return z.array(this.jsonSchemaToZod(schema.items));
+    if (!schema) {
+      return z.any();
     }
-    return z.any();
+
+    // Handle $ref references
+    if (schema.$ref) {
+      // In a real implementation, you would resolve the reference
+      // For now, we'll return any
+      return z.any();
+    }
+
+    // Handle oneOf, anyOf, allOf
+    if (schema.oneOf) {
+      const schemas = schema.oneOf.map((subSchema: any) => this.jsonSchemaToZod(subSchema));
+      return z.union(schemas as [z.ZodType<any>, ...z.ZodType<any>[]]);
+    }
+
+    if (schema.anyOf) {
+      const schemas = schema.anyOf.map((subSchema: any) => this.jsonSchemaToZod(subSchema));
+      return z.union(schemas as [z.ZodType<any>, ...z.ZodType<any>[]]);
+    }
+
+    // Handle const and enum
+    if (schema.const !== undefined) {
+      return z.literal(schema.const);
+    }
+
+    if (schema.enum) {
+      if (schema.enum.length === 1) {
+        return z.literal(schema.enum[0]);
+      }
+      return z.enum(schema.enum as [string, ...string[]]);
+    }
+
+    // Handle nullable
+    if (schema.nullable === true) {
+      const innerSchema = { ...schema, nullable: undefined };
+      return this.jsonSchemaToZod(innerSchema).nullable();
+    }
+
+    // Handle type-specific conversions
+    switch (schema.type) {
+      case 'object':
+        const shape: Record<string, z.ZodType<any>> = {};
+        const requiredFields: string[] = schema.required || [];
+        
+        if (schema.properties) {
+          for (const [key, value] of Object.entries(schema.properties)) {
+            let fieldSchema = this.jsonSchemaToZod(value);
+            
+            // Make field optional if not in required array
+            if (!requiredFields.includes(key)) {
+              fieldSchema = fieldSchema.optional();
+            }
+            
+            shape[key] = fieldSchema;
+          }
+        }
+        
+        let objSchema = z.object(shape);
+        
+        // Handle additional properties
+        if (schema.additionalProperties === false) {
+          objSchema = objSchema.strict();
+        } else if (schema.additionalProperties) {
+          // In a real implementation, you would handle additional properties
+          // For now, we'll just use the base object schema
+        }
+        
+        return objSchema;
+
+      case 'array':
+        let itemSchema = z.any();
+        if (schema.items) {
+          itemSchema = this.jsonSchemaToZod(schema.items);
+        }
+        
+        let arrSchema = z.array(itemSchema);
+        
+        // Handle array constraints
+        if (schema.minItems !== undefined) {
+          arrSchema = arrSchema.min(schema.minItems);
+        }
+        if (schema.maxItems !== undefined) {
+          arrSchema = arrSchema.max(schema.maxItems);
+        }
+        if (schema.uniqueItems === true) {
+          // Zod doesn't have a direct equivalent for uniqueItems
+          // We'll just use the base array schema
+        }
+        
+        return arrSchema;
+
+      case 'string':
+        let strSchema = z.string();
+        
+        // Handle string constraints
+        if (schema.minLength !== undefined) {
+          strSchema = strSchema.min(schema.minLength);
+        }
+        if (schema.maxLength !== undefined) {
+          strSchema = strSchema.max(schema.maxLength);
+        }
+        if (schema.pattern) {
+          try {
+            const regex = new RegExp(schema.pattern);
+            strSchema = strSchema.regex(regex);
+          } catch (error) {
+            // Invalid regex, skip pattern validation
+            console.warn('Invalid regex pattern in schema:', schema.pattern);
+          }
+        }
+        if (schema.format) {
+          // Handle common formats
+          switch (schema.format) {
+            case 'email':
+              strSchema = strSchema.email();
+              break;
+            case 'uuid':
+              strSchema = strSchema.uuid();
+              break;
+            case 'url':
+              strSchema = strSchema.url();
+              break;
+            case 'datetime':
+              strSchema = strSchema.datetime();
+              break;
+            default:
+              // Unsupported format, use base string schema
+              break;
+          }
+        }
+        
+        return strSchema;
+
+      case 'number':
+      case 'integer':
+        let numSchema = schema.type === 'integer' ? z.number().int() : z.number();
+        
+        // Handle numeric constraints
+        if (schema.minimum !== undefined) {
+          numSchema = numSchema.min(schema.minimum);
+        }
+        if (schema.maximum !== undefined) {
+          numSchema = numSchema.max(schema.maximum);
+        }
+        if (schema.exclusiveMinimum !== undefined) {
+          numSchema = numSchema.gt(schema.exclusiveMinimum);
+        }
+        if (schema.exclusiveMaximum !== undefined) {
+          numSchema = numSchema.lt(schema.exclusiveMaximum);
+        }
+        if (schema.multipleOf !== undefined) {
+          // Zod doesn't have a direct equivalent for multipleOf
+          // We'll just use the base number schema
+        }
+        
+        return numSchema;
+
+      case 'boolean':
+        return z.boolean();
+
+      case 'null':
+        return z.null();
+
+      default:
+        // Handle unknown types
+        return z.any();
+    }
   }
 
   /**

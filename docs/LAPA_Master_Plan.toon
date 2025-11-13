@@ -18,6 +18,7 @@ v1.2.2:
     mcp: v1.2  # Model Context Protocol: JSON-RPC/WebSocket + stdio transport (PromptEngineer)
     ag-ui: v1.0 # Agent-to-UI: generative components, event streams
     ui-specs: mcp-ui + open-json-ui  # For dynamic Studio UI + interactive Q&A
+    lpsp: v1.0  # LAPA Phase Summary Protocol: structured phase reporting
 
   # === DREAM TEAM: 15-Agent Helix (14 → 15 with PromptEngineer Meta-Agent) ===
   helix-team:
@@ -34,60 +35,64 @@ v1.2.2:
     Benchmarker;Llama-3.1-8B;97% perf;"Eval via AutoGen Bench + Prometheus + Memori analysis?";eval-only;Prometheus/Grafana + deepagents callbacks
     StudioUI;Streamlit-Local;100% no-code;"Dynamic AG-UI + Codegen rules + MCP integration?";gui;AG-UI + AutoGen Studio + Pydantic outputs
     MCPManager;GLM-4.5-Air;96% discovery;"MCP + A2A coordinator + mcp-manager subagent + stdio shim?";coordinator;MCP + A2A + PromptEngineer server
-    MemoriAnalyst;Qwen3-30B-A3B-Instruct;88% persistence;"SQL + episodic + entity + vector refinement + session pruning?";background;Memori + Chroma + Kaggle sessions
+    MemoriAnalyst;Qwen3-30B-A3B-Instruct;88% persistence;"SQL + episodic + entity + vector refinement + session pruning?";background;Memori + Chroma
     A2AMediator;Claude-3.5-Sonnet;98% coord;"Negotiate tasks + state sync + conflict veto?";meta;A2A Protocol + deepagents sub-spawn
     ObservabilityAgent;Prometheus-Node;99% trace;"LangSmith + Grafana + red team logs?";monitor;LangSmith + OpenTelemetry
     PromptEngineer;Claude-3.5-Sonnet;95% refine;"Detect vague input + Q&A + optimize for Claude tools (grep/git)?";meta;MCP stdio server (gr3enarr0w/cc_peng_mcp)
 
-  # === RESONANCE CORE: v1.2.2 — Protocol + Feedback + Episodic + Prompt Refinement ===
+  # === RESONANCE CORE: v1.2.2 — Protocol + Feedback + Episodic ===
   resonance-core:
-    chamber: NetworkX-graph + Roo checkpoints + Memori SQL + Episodic Store + PromptEngineer sessions
-    compaction: ctx-zip@55% + AutoGen msg-zip + MCP progressive + AG-UI streaming + deepagents FS offload
-    decay: 0.85^step  # Tighter with episodic + session pruning
-    veto: 5/6 consensus → Oracle + Memori + A2A + LLM-as-Judge + RBAC + PromptEngineer validation
-    mcp: MCPSandboxExplorer + E2B + Roo/Playwright + MCP JSON-RPC/WebSocket + stdio (PromptEngineer) + A2A handshake
-    judge: LLM-as-Judge + AutoGen Bench + Codegen traces + LangSmith + red teaming + system prompt enforcement
-    events: AutoGen Core + A2A pub-sub + AG-UI event stream + deepagents task tool
-    modes: Roo (Code/Architect/Ask/Debug/Custom) + ClaudeKit + AG-UI dynamic toggles + PromptEngineer interactive
-    autonomy: noContinue:true, handoffAt:0.4, maxSteps:25 + Memori zero-prompt + A2A auto-negotiation + prompt auto-refine
-    feedback: visual (Playwright), rule-based, LLM-judge, human-in-loop (Roomote + Q&A)
+    chamber: NetworkX-graph + Roo checkpoints + Memori SQL + Episodic Store
+    compaction: ctx-zip@55% + AutoGen msg-zip + MCP progressive + AG-UI streaming
+    decay: 0.85^step # Tighter decay with episodic recall
+    veto: 5/6 consensus → Oracle + Memori + A2A + LLM-as-Judge + RBAC
+    mcp: MCPSandboxExplorer + E2B + Roo/Playwright + MCP JSON-RPC/WebSocket + A2A handshake
+    judge: LLM-as-Judge + AutoGen Bench + Codegen traces + LangSmith + red teaming
+    events: AutoGen Core + A2A pub-sub + AG-UI event stream
+    modes: Roo (Code/Architect/Ask/Debug/Custom) + ClaudeKit + AG-UI dynamic toggles
+    autonomy: noContinue:true, handoffAt:0.4, maxSteps:25 + Memori zero-prompt + A2A auto-negotiation
+    feedback: visual (Playwright), rule-based, LLM-judge, human-in-loop (Roomote)
 
-  # === PHASES: v1.2.2 — Prompt-First (Phase 10-11 Complete; Phase 12-13 Complete) ===
+  # === PHASES: v1.2.2 — Protocol-First (Phase 10 Preserved) ===
   phases:
-    [10]
+    [9]
     p;w;tasks;milestone;git-tag;status
-    10. AutoGen Core + Roo Modes;1.5;[event-bus.ts, modes.ts, AgentTool];<1s delegate;feat/v1.2-core;COMPLETE
-    11. MCP + A2A Connectors;1.2;[mcp-connector.ts, a2a-mediator.ts, handshake.ts];98% interop;feat/v1.2-protocols;COMPLETE
-    12. Memori + Episodic + Vector Refinement;1;[memori-engine.ts, episodic.ts, chroma-refine.ts];99.5% recall;feat/v1.2-memori;COMPLETE
+    10. AutoGen Core + Roo Modes;1.5;[event-bus.ts, modes.ts, AgentTool];<1s delegate;feat/v1.2-core;IN PROGRESS
+    11. MCP + A2A Connectors;1.2;[mcp-connector.ts, a2a-mediator.ts, handshake.ts];98% interop;feat/v1.2-protocols;TODO
+    12. Memori + Episodic + Vector Refinement;1;[memori-engine.ts, episodic.ts, chroma-refine.ts];99.5% recall;feat/v1.2-memori;TODO
     13. AG-UI + Dynamic Studio;0.9;[ag-ui.ts, studio-dynamic.py, mcp-ui-specs];gen UI;feat/v1.2-ui;TODO
-    14. ClaudeKit + Feedback Loops + PromptEngineer MCP;1.0;[skill-manager.ts, visual-feedback.ts, llm-judge.ts, prompt-engineer.ts];zero-bloat + 95% refine;feat/v1.2-feedback;TODO
+    14. ClaudeKit + Feedback Loops + PromptEngineer MCP;1.0;[skill-manager.ts, visual-feedback.ts, llm-judge.ts, prompt-engineer.ts];zero-bloat;feat/v1.2-feedback;TODO
     15. Codegen + Observability;1;[repo-rules.ts, langsmith.ts, prometheus.ts];99.5% fidelity;feat/v1.2-obs;TODO
     16. Security + RBAC + Red Teaming;0.7;[rbac.ts, red-team.ts, hallucination-check.ts];secure;feat/v1.2-security;TODO
     17. VSIX Ship + Protocol Docs;0.3;[pnpm vsix, PROTOCOLS.md];ship-ready;feat/v1.2-ship;TODO
     18. Benchmark Suite v2;0.5;[bench-v2.ts, grafana-dashboard];99.5%;feat/v1.2-bench;TODO
-    19. DeepAgents Middleware + FS Tools;0.8;[deepagents-shim.py, fs-middleware.ts];deep task handling;feat/v1.2-deep;TODO
 
-  # === TECH STACK: v1.2.2 — Prompt-Protocol-Compliant ===
+  # === TECH STACK: v1.2.2 — Protocol-Compliant ===
   stack:
     ide: Cursor (VSIX ext)
-    ext: TS+React (pnpm vsix) + @modelcontextprotocol/sdk (PromptEngineer)
+    ext: TS+React (pnpm vsix)
     inf: NIM-local + BYOK + llama.cpp
-    orch: LangGraph+Ray + AutoGen Core + A2A + MCP JSON-RPC/WebSocket + stdio
-    ctx: ctx-zip + Chroma + Memori SQL + Episodic Store + session pruning
-    mcp: LocalSandbox + E2B + MCP + A2A + AG-UI + PromptEngineer server
-    rag: Chroma + Roo indexing + Memori entity + grep/tail + Qwen3-VL + deepagents glob/edit
-    storage: .lapa/storage + blob://prem + Memori SQLite + vector logs + FS offload
-    ui: React + AutoGen Studio + AG-UI (dynamic) + Grafana + Roomote Q&A
+    orch: LangGraph+Ray + AutoGen Core + A2A + MCP JSON-RPC/WebSocket
+    ctx: ctx-zip + Chroma + Memori SQL + Episodic Store
+    mcp: LocalSandbox + E2B + MCP + A2A + AG-UI
+    rag: Chroma + Roo indexing + Memori entity + grep/tail + Qwen3-VL
+    storage: .lapa/storage + blob://prem + Memori SQLite + vector logs
+    ui: React + AutoGen Studio + AG-UI (dynamic) + Grafana
     build: pnpm vsix
-    bench: AutoGen Bench + LangSmith + Prometheus + OpenTelemetry + Pydantic evals
-    lang: TS + .NET/Python + ClaudeKit + A2A shims + deepagents Python
-    security: RBAC + prompt injection guard + output filtering + code review
+    bench: AutoGen Bench + LangSmith + Prometheus + OpenTelemetry
+    lang: TS + .NET/Python + ClaudeKit + A2A shims
+    security: RBAC + prompt injection guard + output filtering
 
-  # === INTEGRATION: v1.2.2 Drafts (All Prior + PromptEngineer) ===
-  v1.2.2-draft:
-    protocols: a2a-mediator.ts (handshake, task negotiation), ag-ui.ts (event stream), prompt-engineer.ts (stdio shim, detect/refine/Q&A)
-    memory: episodic.ts (past interactions), chroma-refine.ts (vector search), session-prune.ts (Kaggle-inspired)
-    feedback: visual-feedback.ts (Playwright MCP), llm-judge.ts (fuzzy rules + system prompt SoC)
-    obs: langsmith.ts (tracing), prometheus.ts (metrics + deepagents callbacks)
-    security: rbac.ts (role-based), red-team.ts (attack simulation + hallucination veto)
-    deep: deepagents-middleware.py (sub-spawn/FS tools), fs-tools.ts (ls/read/write/glob/grep/edit)
+  # === INTEGRATION: v1.2.1 Drafts (MCP/Memori/Codegen/ClaudeKit) ===
+  v1.2.1-draft:
+    core: event-bus.ts (pub-sub), AgentTool wrappers
+    mcp: mcp-connector.ts (JSON-RPC/WebSocket, dynamic discovery, progressive disclosure)
+    memori: memori-engine.ts (SQLite persistence, entity mapping, conscious analysis)
+    claudekit: skill-manager.ts (mcp-manager subagent, skills for workflows, bloat reduction)
+    codegen: repo-rules.ts (enforce conventions, sandboxed execution, observability)
+    modes: modes.ts (UI toggle → role hooks)
+    indexing: indexer.ts (fs crawl + Qwen3-VL)
+    checkpoints: checkpoints.ts (git worktree)
+    todos: todos.ts (Reviewer → TODO.md)
+    roomote: roomote.ts (WebSocket)
+    vsix: pnpm scripts

@@ -14,6 +14,7 @@
 import { EventEmitter } from 'events';
 import { LAPAEventBus } from '../core/event-bus.ts';
 import type { LAPAEvent } from '../types/event-types.ts';
+import { Client, RunCreate } from 'langsmith';
 
 /**
  * LangSmith trace configuration
@@ -299,15 +300,13 @@ export class LangSmithTracer extends EventEmitter {
     this.traceQueue = [];
 
     try {
-      // In a real implementation, this would send traces to LangSmith API
-      // For now, we'll emit them for potential external handlers
-      this.emit('traces-flushed', traces);
-
-      // Simulate API call (replace with actual LangSmith SDK)
+      // Send traces to LangSmith API
       if (this.config.apiKey) {
-        // await this.sendToLangSmith(traces);
-        console.log(`[LangSmith] Flushed ${traces.length} traces to ${this.config.projectName}`);
+        await this.sendToLangSmith(traces);
       }
+      
+      // Emit for potential external handlers
+      this.emit('traces-flushed', traces);
     } catch (error) {
       this.emit('error', error);
       // Re-queue traces on error
@@ -378,6 +377,75 @@ export class LangSmithTracer extends EventEmitter {
     await this.flushTraces();
     this.enabled = false;
     this.emit('shutdown');
+  }
+
+  /**
+   * Send traces to LangSmith API
+   */
+  private async sendToLangSmith(traces: TraceSpan[]): Promise<void> {
+    if (!this.config.apiKey) {
+      throw new Error('LangSmith API key is required');
+    }
+
+    const client = new Client({
+      apiUrl: this.config.endpoint,
+      apiKey: this.config.apiKey
+    });
+
+    // Convert traces to LangSmith run format
+    const runs: RunCreate[] = traces.map(trace => ({
+      id: trace.id,
+      name: trace.name,
+      start_time: new Date(trace.startTime).toISOString(),
+      end_time: trace.endTime ? new Date(trace.endTime).toISOString() : undefined,
+      run_type: 'chain', // Default to chain, could be more specific based on trace name
+      inputs: {},
+      outputs: trace.metadata,
+      error: trace.error?.message,
+      serialized: {},
+      events: [],
+      extra: {
+        tags: trace.tags,
+        metadata: {
+          ...trace.metadata,
+          duration: trace.duration,
+          status: trace.status
+        }
+      },
+      parent_run_id: trace.parentId,
+      child_runs: trace.children.map(child => ({
+        id: child.id,
+        name: child.name,
+        start_time: new Date(child.startTime).toISOString(),
+        end_time: child.endTime ? new Date(child.endTime).toISOString() : undefined,
+        run_type: 'chain',
+        inputs: {},
+        outputs: child.metadata,
+        error: child.error?.message,
+        serialized: {},
+        events: [],
+        extra: {
+          tags: child.tags,
+          metadata: {
+            ...child.metadata,
+            duration: child.duration,
+            status: child.status
+          }
+        }
+      }))
+    }));
+
+    // Send runs to LangSmith
+    for (const run of runs) {
+      try {
+        await client.createRun(run);
+      } catch (error) {
+        console.error(`Failed to send trace ${run.id} to LangSmith:`, error);
+        // Don't rethrow to avoid blocking other traces
+      }
+    }
+
+    console.log(`[LangSmith] Flushed ${traces.length} traces to ${this.config.projectName}`);
   }
 }
 
