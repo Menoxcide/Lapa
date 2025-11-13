@@ -14,6 +14,7 @@
 import { eventBus } from '../core/event-bus.ts';
 import { z } from 'zod';
 import type { WebSocket } from 'ws';
+import { mcpScaffolding } from './scaffolding.ts';
 
 // MCP Protocol version
 export const MCP_PROTOCOL_VERSION = '2024-11-05';
@@ -109,6 +110,7 @@ export class MCPConnector {
   private requestIdCounter: number = 0;
   private isConnected: boolean = false;
   private reconnectAttempts: number = 0;
+  private generatedTools: Map<string, Function> = new Map();
 
   constructor(config: Partial<MCPConnectorConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config };
@@ -244,7 +246,8 @@ export class MCPConnector {
         capabilities: {
           tools: {},
           resources: {},
-          prompts: {}
+          prompts: {},
+          logging: {}
         },
         clientInfo: {
           name: 'lapa-core',
@@ -369,6 +372,31 @@ export class MCPConnector {
   async callTool(toolName: string, arguments_: Record<string, unknown>): Promise<unknown> {
     if (!this.isConnected) {
       throw new Error('MCP connector is not connected');
+    }
+
+    // Check if it's a generated tool
+    const generatedTool = this.generatedTools.get(toolName);
+    if (generatedTool) {
+      try {
+        const result = await generatedTool(arguments_);
+        
+        // Publish tool call event
+        await eventBus.publish({
+          id: `mcp-tool-call-${Date.now()}`,
+          type: 'mcp.tool.called',
+          timestamp: Date.now(),
+          source: 'mcp-connector',
+          payload: {
+            toolName,
+            arguments: arguments_,
+            result
+          }
+        });
+        
+        return result;
+      } catch (error) {
+        throw new Error(`Generated tool call failed: ${error instanceof Error ? error.message : String(error)}`);
+      }
     }
 
     const tool = this.tools.get(toolName);

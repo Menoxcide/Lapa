@@ -13,7 +13,8 @@
 	  "forceConsistentCasingInFileNames": true,
 	  "jsx": "react-jsx",
 	  "resolveJsonModule": true,
-	  "types": ["node", "react", "react-dom", "vitest/globals"],
+	  "types": [],
+      "typeRoots": ["node_modules/@types"],
 	  "allowImportingTsExtensions": true,
 	  "noEmit": true
 	},

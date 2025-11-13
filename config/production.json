@@ -1,0 +1,44 @@
+{
+  "name": "LAPA Production Configuration",
+  "version": "1.2.2",
+  "description": "Production-optimized settings for LAPA extension",
+  "performance": {
+    "memoryOptimization": true,
+    "compressionLevel": "high",
+    "cachingStrategy": "aggressive",
+    "eventPipelineBatching": true,
+    "toolExecutionParallelism": 4
+  },
+  "security": {
+    "rbacEnabled": true,
+    "hallucinationDetection": true,
+    "redTeamingEnabled": true,
+    "auditLogging": true,
+    "secureContextValidation": true
+  },
+  "features": {
+    "mcpConnector": true,
+    "ctxZipCompression": true,
+    "localInference": true,
+    "swarmOrchestration": true,
+    "multimodalSupport": true,
+    "observability": true
+  },
+  "optimizations": {
+    "modeSwitchingThreshold": 5,
+    "eventRoutingCacheSize": 1000,
+    "toolExecutionCacheSize": 500,
+    "yamlAgentLoadingCache": true
+  },
+  "logging": {
+    "level": "warn",
+    "fileLogging": false,
+    "consoleLogging": true,
+    "remoteLogging": false
+  },
+  "telemetry": {
+    "enabled": false,
+    "endpoint": null,
+    "batchSize": 0
+  }
+}

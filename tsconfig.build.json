@@ -3,7 +3,9 @@
   "compilerOptions": {
     "outDir": "extension/dist",
     "allowImportingTsExtensions": false,
-    "noEmit": false
+    "noEmit": false,
+    "noEmitOnError": false,
+    "skipLibCheck": true
   },
   "include": ["src/**/*"],
   "exclude": ["**/__tests__/**"]

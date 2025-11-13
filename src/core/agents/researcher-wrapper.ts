@@ -7,13 +7,15 @@
 
 import { HelixTeamAgentWrapper } from '../agent-tool.ts';
 import { AgentToolRegistry } from '../agent-tool.ts';
-import { 
-  AgentToolType, 
-  AgentToolExecutionContext, 
+import {
+  AgentToolType,
+  AgentToolExecutionContext,
   AgentToolExecutionResult,
   HelixAgentType
 } from '../types/agent-types.ts';
 import { BaseAgentTool } from '../agent-tool.ts';
+import { VisionAgentTool } from '../../multimodal/vision-agent-tool.ts';
+import { MultimodalConfig } from '../../multimodal/types/index.ts';
 
 /**
  * Research Tool for AI-Q search capabilities
@@ -106,7 +108,7 @@ class ResearchTool extends BaseAgentTool {
  * Specialized wrapper for the Researcher agent in the helix team pattern
  */
 export class ResearcherAgentWrapper extends HelixTeamAgentWrapper {
-  constructor(id: string, name: string, registry: AgentToolRegistry) {
+  constructor(id: string, name: string, registry: AgentToolRegistry, multimodalConfig?: MultimodalConfig) {
     // Initialize with researcher-specific capabilities
     super(
       id,
@@ -119,16 +121,23 @@ export class ResearcherAgentWrapper extends HelixTeamAgentWrapper {
     );
     
     // Register researcher-specific tools
-    this.registerResearchTools(registry);
+    this.registerResearchTools(registry, multimodalConfig);
   }
   
   /**
    * Register researcher-specific tools
    * @param registry Tool registry
    */
-  private registerResearchTools(registry: AgentToolRegistry): void {
+  private registerResearchTools(registry: AgentToolRegistry, multimodalConfig?: MultimodalConfig): void {
     const researchTool = new ResearchTool();
     registry.registerTool(researchTool);
     this.addTool(researchTool);
+    
+    // Register multimodal tools if config is provided
+    if (multimodalConfig) {
+      const visionTool = new VisionAgentTool(multimodalConfig);
+      registry.registerTool(visionTool);
+      this.addTool(visionTool);
+    }
   }
 }

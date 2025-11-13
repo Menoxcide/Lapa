@@ -43,39 +43,70 @@ LAPA (Local AI Pair Programmer Agent) is an autonomous MoE-powered coding swarm 
 - **Optional**: NVIDIA GPU for local inference (Ollama/NIM)
 - **Optional**: Cloud AI providers (OpenAI, Anthropic) for enhanced capabilities
 
+## 🚀 Quick Start
+
+### Installation Options
+
+**For New Users (Recommended)**:
+- **[Install VSIX Extension](docs/ONBOARDING.md#method-1-vsix-extension-installation-recommended)** - Pre-built package for immediate use
+
+**For Developers**:
+- **[Build from Source](docs/ONBOARDING.md#method-2-build-from-source)** - Customize and extend functionality
+
+### Prerequisites
+
+- **Cursor IDE** (version 1.85.0 or higher)
+- **Node.js** v18+ (for building from source)
+- **npm** or **pnpm** package manager
+- **Optional**: NVIDIA GPU for local inference (Ollama/NIM)
+
 ## 🛠 Installation
 
-### Method 1: Development Mode
-Clone the repository
+### Method 1: VSIX Extension Installation (Recommended)
+
+1. **Download** the `lapa-core-1.2.0.vsix` file from [Releases](https://github.com/Menoxcide/Lapa/releases)
+2. **Install in Cursor**:
+   - Open Extensions view (`Ctrl+Shift+X`)
+   - Click "..." menu → "Install from VSIX"
+   - Select the downloaded `.vsix` file
+   - Restart Cursor when prompted
+
+### Method 2: Build from Source
+
+```bash
 git clone https://github.com/Menoxcide/Lapa.git
 cd Lapa
-Install dependencies
 npm install
-Build the extension
 npm run build
-Run tests to verify installation
-npm test
-Open in Cursor for extension development
-cursor --extensionDevelopmentPath=.
-text### Method 2: Production Installation
-
-0. Download the `.vsix` extension file from Releases
-1. In Cursor: `View → Command Palette → Extensions: Install from VSIX`
-2. Select the downloaded `.vsix` file
+npm run vsix
+npm run vsix:install
+```
 
 ## ▶️ Getting Started
 
 After installation:
 
-0. Click the LAPA icon in the activity bar
-1. Click "Start LAPA Swarm" to begin your first autonomous coding session
-2. Watch the agent dashboard as your coding swarm works
+1. **Click the LAPA icon** in the activity bar to open the Swarm Dashboard
+2. **Use Command Palette** (`Ctrl+Shift+P`) and search for "Start LAPA Swarm"
+3. **Configure settings** in Cursor Settings → Extensions → LAPA
 
 ## 📖 Documentation
 
-Comprehensive documentation is available in DOCUMENTATION.md and AGENT.md.
+### Comprehensive Guides
 
-For API references and advanced usage, visit docs.lapa.ai.
+- **[DOCUMENTATION_INDEX.md](docs/DOCUMENTATION_INDEX.md)** - Complete documentation navigation guide
+- **[ONBOARDING.md](docs/ONBOARDING.md)** - Complete installation and setup guide
+- **[START_HERE.md](docs/START_HERE.md)** - Project overview and current status
+- **[FEATURE_OVERVIEW.md](docs/FEATURE_OVERVIEW.md)** - Complete feature capabilities
+- **[AGENT.md](docs/AGENT.md)** - Agent architecture and protocols
+- **[PROMPTS.md](docs/PROMPTS.md)** - Multi-agent prompting guide
+- **[PROTOCOLS.md](docs/PROTOCOLS.md)** - Protocol specifications
+
+### Advanced Usage
+
+- **[MULTIMODAL_USAGE_EXAMPLES.md](docs/MULTIMODAL_USAGE_EXAMPLES.md)** - Vision and voice agent examples
+- **[TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)** - Common issues and solutions
+- **[CONTRIBUTING.md](docs/CONTRIBUTING.md)** - Contribution guidelines
 
 ## 🤝 Contributing
 

@@ -3,7 +3,7 @@
 ## Current Status
 - **Version**: v1.3.0-preview (November 2025)
 - **Branch**: `v1.3-swarm-os`
-- **Status**: v1.2.2 Complete → v1.3 Development in Progress (Phase 19 COMPLETED)
+- **Status**: v1.2.2 Complete → v1.3 Development in Progress (Phase 21 COMPLETED)
 
 ## Core Implementation Status
 
@@ -83,9 +83,43 @@
 - **Cross-User Veto System** - Consensus-based veto mechanism with RBAC enforcement
 - **Comprehensive Integration Tests** - Full test coverage for all features
 
+### ✅ Phase 22 COMPLETED (Production Flows)
+- **YAML Agent Templates** - Rapid prototyping with YAML-defined agents ✅
+- **Flow Guards** - YAML-defined guards for veto routing and conditional actions ✅
+- **Hybrid Local-Cloud Toggle** - Automatic fallback with thermal guards ✅
+- **Multi-Agent Prompting Guide** - PROMPTS.md with best practices ✅
+
+### ✅ Phase 20 IN PROGRESS (Multimodal Mastery Implementation)
+
+Phase 20 introduces comprehensive vision/voice agents for UI/code generation with full integration into the LAPA agent framework.
+
+#### ✅ Vision Agent Capabilities
+- **Image Processing** - Analyze images, screenshots, and extract UI components
+- **Code Generation** - Generate React/Vue/Angular code from visual designs
+- **UI Element Recognition** - Identify buttons, inputs, forms, and other UI components
+- **Layout Analysis** - Understand spatial relationships and component positioning
+- **Framework Support** - Generate code for multiple frontend frameworks
+
+#### ✅ Voice Agent Capabilities
+- **Speech-to-Text** - Convert spoken language to text with multi-provider support
+- **Text-to-Speech** - Convert text to natural-sounding speech
+- **Voice Commands** - Execute commands with natural language parsing
+- **Dictation Support** - Continuous speech recognition for hands-free coding
+- **RAG Integration** - Voice Q&A with document search and retrieval
+
+#### ✅ Multimodal Coordination
+- **Unified Interface** - [`VisionVoiceController`](src/multimodal/vision-voice.ts:1) for modality switching
+- **Event Integration** - Full integration with [`LAPAEventBus`](src/core/event-bus.ts:1)
+- **Agent Tool Integration** - Vision/Voice tools available via [`AgentToolRegistry`](src/core/agent-tool.ts:1)
+- **Comprehensive Testing** - Full test coverage in [`src/__tests__/multimodal/`](src/__tests__/multimodal/vision-agent-tool.test.ts:1)
+
+### ✅ Phase 21 COMPLETED (Ecosystem & Marketplace)
+- **Skill Marketplace**: Search, install, rate 100K+ local-first skills ✅
+- **ROI Dashboard**: "Saved 2.5h this week" — powered by ObservabilityAgent ✅
+- **Export Replay**: GIF + JSON → share your swarm session ✅
+- **WebRTC Collab**: Join via `sessionId` → real-time vetoes ✅
+
 ### 🚧 In Development (v1.3 SwarmOS)
-- **Multimodal Mastery** - Vision/voice agents for UI/code gen (Phase 20)
-- **Agent Marketplace** - On-chain registry + ROI dashboard (Phase 21)
 - **Webapp-Testing Skill** - Automated UI regression with Playwright
 - **MCP-Server Skill** - Production-grade MCP server generation
 - **Artifacts-Builder Skill** - React/Tailwind HTML generation
@@ -96,14 +130,29 @@
 - **Internal-Comms Skill** - Structured report/FAQ generation
 - **Aya + Command-R** - Multilingual codebase support
 
+## Inference Backend (Updated)
+- **Default**: Ollama (4s startup) + `perfMode=5`
+- **NIM**: 52 t/s, 9.2GB VRAM → toggle for >5 agents
+- **Smart Switching**: Health-checked, thermal-safe, auto-fallback
+
 ## Quick Start
 
 ### Prerequisites
-- **Node.js** v18+ with npm/pnpm
-- **Cursor IDE** for extension development
+- **Cursor IDE** (version 1.85.0 or higher)
+- **Node.js** v18+ with npm/pnpm (for building from source)
+- **Optional**: NVIDIA GPU for local inference (Ollama/NIM)
 
-### Installation
+### Installation Options
 
+**For New Users (Recommended)**:
+- **[Install VSIX Extension](ONBOARDING.md#method-1-vsix-extension-installation-recommended)** - Pre-built package for immediate use
+
+**For Developers**:
+- **[Build from Source](ONBOARDING.md#method-2-build-from-source)** - Customize and extend functionality
+
+### Quick Installation
+
+```bash
 # Clone repository
 git clone https://github.com/Menoxcide/Lapa.git
 cd Lapa
@@ -116,7 +165,88 @@ npm run build
 
 # Run tests
 npm test
-Development Setup
+```
+
+### YAML Quick-Start (Phase 22)
+
+LAPA v1.3 introduces YAML-based configuration for rapid prototyping. Create `~/.lapa/agents.yaml`:
+
+```yaml
+version: "1.0"
+
+agents:
+  architect:
+    role: "System Architect"
+    goal: "Design scalable architectures"
+    backstory: "Expert in distributed systems"
+    model: "DeepSeek-R1-671B"
+    capabilities: ["planning", "architecture"]
+    tools: ["diagram-generator"]
+
+  coder:
+    role: "Software Engineer"
+    goal: "Write clean, maintainable code"
+    model: "Qwen3-Coder-480B-A35B-Instruct"
+    capabilities: ["code-generation"]
+    tools: ["code-generator", "code-formatter"]
+
+globalSettings:
+  enableAutoRefine: true
+  defaultModel: "ollama"
+  vetoThreshold: 0.833
+```
+
+Enable hybrid inference in `~/.lapa/inference.yaml`:
+
+```yaml
+enabled: true
+fallbackToCloud: true
+sensitiveTasksLocalOnly: true
+
+openrouterApiKey: "${OPENROUTER_API_KEY}"
+
+thermalThresholds:
+  vram: 85
+  ram: 85
+  cpu: 90
+  temperature: 78
+
+preferredProviders:
+  - "ollama"
+  - "nim"
+  - "openrouter"
+```
+
+Configure flow guards in `~/.lapa/flow-guards.yaml`:
+
+```yaml
+version: "1.0"
+
+guards:
+  - name: "thermal-guard"
+    condition: "system.temperature > 78"
+    action:
+      type: "route"
+      targetAgent: "optimizer"
+    priority: "high"
+    blocking: false
+
+  - name: "quality-gate"
+    condition: "task.confidence < 0.8"
+    action:
+      type: "require-veto"
+      requiredAgents: ["reviewer", "tester"]
+    priority: "critical"
+    blocking: true
+
+globalSettings:
+  enableGuards: true
+  defaultPriority: "medium"
+```
+
+See [PROMPTS.md](PROMPTS.md) for complete YAML examples and best practices.
+
+### Development Setup
 bash# Start development mode
 npm run dev
 
@@ -150,6 +280,8 @@ Documentation
 
 AGENT.md - Current agent state and protocols
 PROTOCOLS.md - Protocol specifications and compliance
+PROMPTS.md - Multi-agent prompting guide with YAML examples (Phase 22)
+MULTIMODAL_USAGE_EXAMPLES.md - Comprehensive examples for Phase 20 multimodal features
 CONTRIBUTING.md - Contribution guidelines
 
 

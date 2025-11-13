@@ -72,8 +72,86 @@ v1.3.0-preview:
     18. Benchmark Suite v2;0.5;[bench-v2.ts, grafana-dashboard];99.5%;feat/v1.2-bench;COMPLETE
     19. Collaborative Swarm;1.5;[swarm/sessions.ts, webrtc-sync.ts];95% multi-user uptime;feat/v1.3-collab;IN PROGRESS
     20. Multimodal Mastery;2;[multimodal/vision-voice.ts, tts-stt.ts];90% multimodal accuracy;feat/v1.3-multimodal;TODO
-    21. Ecosystem Ignition;2;[marketplace/registry.ts, roi-dashboard.ts];100K skills marketplace;feat/v1.3-ecosystem;TODO
+      # === PHASE 21: ECOSYSTEM IGNITION (SwarmOS) ===
+    21. Ecosystem Ignition;2.0;
+        [marketplace/registry.ts, roi-dashboard.ts, ui/SwarmMarketplace.tsx, ui/ROIWidget.tsx, 
+        src/inference/manager.ts, src/ui/SwarmView.tsx, src/ui/SwarmControls.tsx, 
+        src/ui/IndexPopup.tsx, src/ui/InlineEditor.tsx];
+        100K skills + 99.8% ROI + 0% cloud;
+        feat/v1.3-ecosystem;
+        DESIGN COMPLETE
 
+    # === ECOSYSTEM CORE ===
+    marketplace:
+      registry: on-chain (IPFS + LAPA DID) + local cache
+      browser: SwarmMarketplace.tsx (search, install, rate, ROI badge)
+      install: one-click → skill-manager.ts → A2A handshake
+      skills: 100K+ target (v1.3.1)
+      auth: RBAC + CollabAgent veto
+
+    roi-dashboard:
+      widget: ROIWidget.tsx (real-time "Saved: 2.5h this week")
+      metrics: tokens saved, handoffs avoided, bugs prevented
+      source: ObservabilityAgent + LangSmith + Prometheus
+      fidelity: 99.8% (validated via Benchmark Suite v2)
+
+    virality:
+      export: GIF + JSON replay (html2canvas + WebRTC sync)
+      share: sessionId → WebRTC join link
+      embed: <lapa-replay id="swarm-2025-11-13" />
+
+    # === UI INTEGRATION (Phase 21) ===
+    ui-enhancements:
+      SwarmMarketplace.tsx: inline in StudioUI
+      ROIWidget.tsx: floating badge in SwarmView
+      ExportReplayButton: in SwarmControls
+      ShareSessionButton: generates WebRTC invite
+
+    # === INFERENCE + PERFORMANCE (Phase 21) ===
+    inference-v2:
+      manager: src/inference/manager.ts (health checks, thermal guard, auto-fallback)
+      perf-modes: hardware-aware, thermal-capped, batchSize adaptive
+      default: ollama + perfMode=5
+      nim-switch: seamless, live-preview, simulation
+
+    # === SWARM VIEW v2 (Phase 21) ===
+    swarm-view:
+      canvas: React Flow + zoom/pan
+      nodes: AgentNode (avatar, progress, badge)
+      edges: HandoffEdge (latency, animated)
+      overlays: PerfHeatmap (VRAM/RAM/CPU/Temp), color-blind mode
+      inline: ApprovalGate + InlineDiff + ThoughtBubble
+
+    # === INDEX POPUP v2 (Phase 21) ===
+    index-popup:
+      nl-input: + AI refine (PromptEngineer)
+      drag-drop: files, folders, GitHub, workspace
+      progress: 95% RAG recall in <30s
+      start: auto-spawn swarm with RAG context
+
+    # === ACCESSIBILITY & STANDARDS (Phase 21) ===
+    accessibility:
+      wcag: 2.2 AA compliant
+      aria: labels, roles, keyboard nav
+      color-blind: pattern overlays in heatmaps
+      voice: input bar + alerts ("Handoff complete")
+
+    # === VIRALITY & GROWTH (Phase 21) ===
+    growth:
+      gif-export: 8h effort → 100x shareability
+      roi-widget: "Saved 2.5h" → retention driver
+      marketplace: skill ecosystem → network effect
+
+    # PHASE 21 SPRINT
+      1. UI: SwarmMarketplace + ROIWidget + ExportReplay
+      2. Inference v2: manager.ts + thermal guard + auto-fallback
+      3. Swarm View v2: React Flow + Approval Gates + Heatmap
+     4. Index Popup v2: AI refine + drag-drop + RAG
+      5. Virality: GIF export + WebRTC share + LRP
+      6. Accessibility: ARIA + voice + color-blind
+      7. Docs: START_HERE, AGENT, PROTOCOLS, LPSP
+      8. Release v1.3.0 SwarmOS
+      
   # === TECH STACK: v1.3 SwarmOS ===
   stack:
     ide: Cursor (VSIX ext)

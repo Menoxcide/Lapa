@@ -8,6 +8,7 @@
 
 import { compressContext, decompressContext } from '../mcp/ctx-zip.integration.ts';
 import { Task } from '../agents/moe-router.ts';
+import { MultimodalContextHandler } from '../multimodal/utils/context-handler.ts';
 
 // Context handoff request
 export interface ContextHandoffRequest {
@@ -108,9 +109,13 @@ export class ContextHandoffManager {
       // Update status
       this.updateHandoffStatus(handoffId, 'pending', 0);
       
+      // Prepare context for handoff (especially multimodal data)
+      console.log(`[ContextHandoffManager] Preparing context for handoff ${handoffId}`);
+      const preparedContext = await MultimodalContextHandler.prepareContextForHandoff(request.context);
+      
       // Serialize context
       console.log(`[ContextHandoffManager] Serializing context for handoff ${handoffId}`);
-      const contextString = JSON.stringify(request.context);
+      const contextString = JSON.stringify(preparedContext);
       console.log(`[ContextHandoffManager] Context serialized, length: ${contextString.length}`);
       console.log(`[ContextHandoffManager] Context sample: ${contextString.substring(0, 100)}...`);
       
@@ -203,7 +208,9 @@ export class ContextHandoffManager {
       console.log(`[ContextHandoffManager] Decompressed context sample: ${contextString.substring(0, 100)}...`);
       let context: Record<string, any>;
       try {
-        context = JSON.parse(contextString);
+        const parsedContext = JSON.parse(contextString);
+        // Restore multimodal context after handoff
+        context = await MultimodalContextHandler.restoreContextAfterHandoff(parsedContext);
       } catch (parseError) {
         console.error(`[ContextHandoffManager] Failed to parse JSON: ${parseError}`);
         console.error(`[ContextHandoffManager] Full context string: ${contextString}`);

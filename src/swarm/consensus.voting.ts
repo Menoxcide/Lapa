@@ -1,9 +1,12 @@
 /**
  * Consensus Voting System for LAPA Swarm Intelligence
- * 
+ *
  * This module implements a consensus voting mechanism for the LAPA swarm,
  * enabling collective decision-making among agents. It supports various
  * voting algorithms and handles conflict resolution.
+ *
+ * Enhanced with advanced state sync conflict handling mechanisms and
+ * dedicated conflict resolution patterns for complex state synchronization.
  */
 
 import { Agent } from '../agents/moe-router.ts';
@@ -47,6 +50,21 @@ export interface ConsensusResult {
   details: string;
 }
 
+// Conflict resolution strategy
+export type ConflictResolutionStrategy = 'merge' | 'override' | 'rollback' | 'negotiate';
+
+// State synchronization conflict
+export interface StateSyncConflict {
+  conflictId: string;
+  sessionId: string;
+  conflictingStates: Record<string, unknown>;
+  timestamps: Record<string, number>;
+  agentsInvolved: string[];
+  resolutionStrategy?: ConflictResolutionStrategy;
+  resolvedAt?: number;
+  resolutionDetails?: string;
+}
+
 // Voting algorithm types
 export type VotingAlgorithm = 'simple-majority' | 'weighted-majority' | 'supermajority' | 'consensus-threshold';
 
@@ -56,6 +74,7 @@ export type VotingAlgorithm = 'simple-majority' | 'weighted-majority' | 'superma
 export class ConsensusVotingSystem {
   private sessions: Map<string, VotingSession> = new Map();
   private agents: Map<string, Agent> = new Map();
+  private stateConflicts: Map<string, StateSyncConflict> = new Map();
   
   /**
    * Registers an agent with the voting system
@@ -73,6 +92,52 @@ export class ConsensusVotingSystem {
   unregisterAgent(agentId: string): void {
     this.agents.delete(agentId);
     console.log(`Unregistered agent ${agentId} from voting`);
+  }
+  
+  /**
+   * Records a state synchronization conflict
+   * @param conflict State synchronization conflict details
+   */
+  recordStateConflict(conflict: StateSyncConflict): void {
+    this.stateConflicts.set(conflict.conflictId, conflict);
+    console.log(`Recorded state conflict: ${conflict.conflictId}`);
+  }
+  
+  /**
+   * Resolves a state synchronization conflict
+   * @param conflictId ID of the conflict to resolve
+   * @param strategy Resolution strategy to use
+   * @param details Additional resolution details
+   */
+  resolveStateConflict(conflictId: string, strategy: ConflictResolutionStrategy, details?: string): boolean {
+    const conflict = this.stateConflicts.get(conflictId);
+    if (!conflict) {
+      console.error(`Conflict ${conflictId} not found`);
+      return false;
+    }
+    
+    conflict.resolutionStrategy = strategy;
+    conflict.resolvedAt = Date.now();
+    conflict.resolutionDetails = details;
+    
+    console.log(`Resolved state conflict ${conflictId} using ${strategy} strategy`);
+    return true;
+  }
+  
+  /**
+   * Gets all recorded state conflicts
+   * @returns Array of state conflicts
+   */
+  getStateConflicts(): StateSyncConflict[] {
+    return Array.from(this.stateConflicts.values());
+  }
+  
+  /**
+   * Gets unresolved state conflicts
+   * @returns Array of unresolved state conflicts
+   */
+  getUnresolvedConflicts(): StateSyncConflict[] {
+    return Array.from(this.stateConflicts.values()).filter(conflict => !conflict.resolvedAt);
   }
   
   /**
@@ -211,6 +276,28 @@ export class ConsensusVotingSystem {
     algorithm: VotingAlgorithm,
     threshold: number
   ): ConsensusResult {
+    // Check for potential conflicts in voting session
+    const conflicts = this.detectVotingConflicts(session);
+    if (conflicts.length > 0) {
+      console.warn(`Detected ${conflicts.length} voting conflicts in session ${session.id}`);
+      // Record conflicts for later resolution
+      conflicts.forEach(conflict => {
+        this.recordStateConflict({
+          conflictId: `vote-conflict-${session.id}-${conflict.optionId}-${Date.now()}`,
+          sessionId: session.id,
+          conflictingStates: {
+            optionId: conflict.optionId,
+            voteCount: conflict.voteCount,
+            conflictingVotes: conflict.conflictingVotes
+          },
+          timestamps: {
+            detected: Date.now()
+          },
+          agentsInvolved: conflict.conflictingVotes.map(vote => vote.agentId),
+          resolutionDetails: 'Auto-detected voting conflict'
+        });
+      });
+    }
     // Calculate vote distribution
     const voteDistribution: Record<string, number> = {};
     let totalWeight = 0;
@@ -455,6 +542,101 @@ export class ConsensusVotingSystem {
     const random = Math.floor(Math.random() * 10000);
     const topicSlug = topic.toLowerCase().replace(/[^a-z0-9]+/g, '-').substring(0, 20);
     return `vote_${topicSlug}_${timestamp}_${random}`;
+  }
+  
+  /**
+   * Detects potential conflicts in voting session
+   * @param session Voting session to check
+   * @returns Array of detected conflicts
+   */
+  private detectVotingConflicts(session: VotingSession): Array<{
+    optionId: string;
+    voteCount: number;
+    conflictingVotes: Vote[];
+  }> {
+    const conflicts: Array<{
+      optionId: string;
+      voteCount: number;
+      conflictingVotes: Vote[];
+    }> = [];
+    
+    // Group votes by agent to detect duplicate voting
+    const votesByAgent: Record<string, Vote[]> = {};
+    session.votes.forEach(vote => {
+      if (!votesByAgent[vote.agentId]) {
+        votesByAgent[vote.agentId] = [];
+      }
+      votesByAgent[vote.agentId].push(vote);
+    });
+    
+    // Check for agents that voted multiple times
+    Object.entries(votesByAgent).forEach(([agentId, votes]) => {
+      if (votes.length > 1) {
+        // Multiple votes from same agent - potential conflict
+        votes.forEach(vote => {
+          const existingConflict = conflicts.find(c => c.optionId === vote.optionId);
+          if (existingConflict) {
+            existingConflict.conflictingVotes.push(vote);
+            existingConflict.voteCount++;
+          } else {
+            conflicts.push({
+              optionId: vote.optionId,
+              voteCount: 1,
+              conflictingVotes: [vote]
+            });
+          }
+        });
+      }
+    });
+    
+    // Check for votes with very close timestamps that might indicate network issues
+    const timeSortedVotes = [...session.votes].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+    for (let i = 1; i < timeSortedVotes.length; i++) {
+      const timeDiff = timeSortedVotes[i].timestamp.getTime() - timeSortedVotes[i-1].timestamp.getTime();
+      // If votes are within 100ms of each other, they might be conflicting due to network issues
+      if (Math.abs(timeDiff) < 100 && timeSortedVotes[i].agentId !== timeSortedVotes[i-1].agentId) {
+        // Potential conflict due to simultaneous voting
+        const vote1 = timeSortedVotes[i-1];
+        const vote2 = timeSortedVotes[i];
+        
+        // Add both votes to conflicts
+        [vote1, vote2].forEach(vote => {
+          const existingConflict = conflicts.find(c => c.optionId === vote.optionId);
+          if (existingConflict) {
+            if (!existingConflict.conflictingVotes.some(v => v.agentId === vote.agentId && v.timestamp === vote.timestamp)) {
+              existingConflict.conflictingVotes.push(vote);
+              existingConflict.voteCount++;
+            }
+          } else {
+            conflicts.push({
+              optionId: vote.optionId,
+              voteCount: 1,
+              conflictingVotes: [vote]
+            });
+          }
+        });
+      }
+    }
+    
+    return conflicts;
+  }
+  
+  /**
+   * Resolves voting conflicts using consensus
+   * @param conflicts Conflicts to resolve
+   * @returns Resolution details
+   */
+  resolveVotingConflicts(conflicts: StateSyncConflict[]): Record<string, string> {
+    const resolutions: Record<string, string> = {};
+    
+    conflicts.forEach(conflict => {
+      // For voting conflicts, we use a negotiate strategy by default
+      // This would typically involve creating a new voting session to resolve the conflict
+      this.resolveStateConflict(conflict.conflictId, 'negotiate', 'Resolved through consensus voting');
+      resolutions[conflict.conflictId] = 'negotiate';
+    });
+    
+    return resolutions;
   }
 }
 

@@ -263,6 +263,135 @@ export interface ContextPreservationFailedEvent extends LAPAEvent {
   };
 }
 
+// Voice events
+export interface VoiceAudioProcessingEvent extends LAPAEvent {
+  type: 'voice.audio.processing';
+  payload: {
+    audioLength: number;
+    format?: string;
+    processingStart: number;
+  };
+}
+
+export interface VoiceAudioProcessedEvent extends LAPAEvent {
+  type: 'voice.audio.processed';
+  payload: {
+    textLength: number;
+    processingTime: number;
+    processingEnd: number;
+  };
+}
+
+export interface VoiceAudioGeneratingEvent extends LAPAEvent {
+  type: 'voice.audio.generating';
+  payload: {
+    textLength: number;
+    generationStart: number;
+  };
+}
+
+export interface VoiceAudioGeneratedEvent extends LAPAEvent {
+  type: 'voice.audio.generated';
+  payload: {
+    audioLength: number;
+    duration?: number;
+    processingTime: number;
+    generationEnd: number;
+  };
+}
+
+export interface VoiceAudioErrorEvent extends LAPAEvent {
+  type: 'voice.audio.error';
+  payload: {
+    error: string;
+    audioLength?: number;
+    textLength?: number;
+  };
+}
+
+export interface VoiceQuestionAskingEvent extends LAPAEvent {
+  type: 'voice.question.asking';
+  payload: {
+    question: string;
+    context?: string;
+    processingStart: number;
+  };
+}
+
+export interface VoiceQuestionAnsweredEvent extends LAPAEvent {
+  type: 'voice.question.answered';
+  payload: {
+    question: string;
+    answer: string;
+    processingTime: number;
+    processingEnd: number;
+  };
+}
+
+export interface VoiceQuestionErrorEvent extends LAPAEvent {
+  type: 'voice.question.error';
+  payload: {
+    error: string;
+    question: string;
+  };
+}
+
+export interface VoiceCommandExecutingEvent extends LAPAEvent {
+  type: 'voice.command.executing';
+  payload: {
+    command: string;
+    intent?: string;
+    entities?: Record<string, any>;
+    confidence?: number;
+    executionStart: number;
+  };
+}
+
+export interface VoiceCommandExecutedEvent extends LAPAEvent {
+  type: 'voice.command.executed';
+  payload: {
+    command: string;
+    intent?: string;
+    entities?: Record<string, any>;
+    result: any;
+    confidence?: number;
+    processingTime: number;
+    executionEnd: number;
+  };
+}
+
+export interface VoiceCommandEvent extends LAPAEvent {
+  type: 'voice.command.error';
+  payload: {
+    error: string;
+    command: string;
+  };
+}
+
+export interface VoiceDictationStartedEvent extends LAPAEvent {
+  type: 'voice.dictation.started';
+  payload: {
+    startTime: number;
+  };
+}
+
+export interface VoiceDictationCompletedEvent extends LAPAEvent {
+  type: 'voice.dictation.completed';
+  payload: {
+    text: string;
+    duration: number;
+    audioLength: number;
+  };
+}
+
+export interface VoiceDictationErrorEvent extends LAPAEvent {
+  type: 'voice.dictation.error';
+  payload: {
+    error: string;
+    duration: number;
+  };
+}
+
 // Event processing events
 export interface EventProcessedEvent extends LAPAEvent {
   type: 'event.processed';
@@ -281,6 +410,53 @@ export interface EventProcessingFailedEvent extends LAPAEvent {
     error: string;
     stackTrace?: string;
     component: string;
+  };
+}
+
+// Vision events
+export interface VisionImageProcessedEvent extends LAPAEvent {
+  type: 'vision.image.processed';
+  payload: {
+    imageSize: number;
+    resultLength: number;
+    processingTime?: number;
+  };
+}
+
+export interface VisionImageGeneratedEvent extends LAPAEvent {
+  type: 'vision.image.generated';
+  payload: {
+    description: string;
+    imageSize: number;
+    processingTime?: number;
+  };
+}
+
+export interface VisionScreenshotAnalyzedEvent extends LAPAEvent {
+  type: 'vision.screenshot.analyzed';
+  payload: {
+    screenshotSize: number;
+    analysisKeys: string[];
+    processingTime?: number;
+  };
+}
+
+export interface VisionUIElementsRecognizedEvent extends LAPAEvent {
+  type: 'vision.ui.elements.recognized';
+  payload: {
+    imageSize: number;
+    elementCount: number;
+    processingTime?: number;
+  };
+}
+
+export interface VisionCodeGeneratedEvent extends LAPAEvent {
+  type: 'vision.code.generated';
+  payload: {
+    imageSize: number;
+    framework: string;
+    codeLength: number;
+    processingTime?: number;
   };
 }
 
@@ -378,6 +554,38 @@ export interface LAPAEventMap {
   'delegate.task.started': any; // TODO: Define proper interface
   'delegate.task.completed': any; // TODO: Define proper interface
   'delegate.task.failed': any; // TODO: Define proper interface
+  
+  // Multimodal events
+  'vision.image.processed': VisionImageProcessedEvent;
+  'vision.image.generated': VisionImageGeneratedEvent;
+  'vision.screenshot.analyzed': VisionScreenshotAnalyzedEvent;
+  'vision.ui.elements.recognized': VisionUIElementsRecognizedEvent;
+  'vision.code.generated': VisionCodeGeneratedEvent;
+  'voice.audio.processing': VoiceAudioProcessingEvent;
+  'voice.audio.processed': VoiceAudioProcessedEvent;
+  'voice.audio.generating': VoiceAudioGeneratingEvent;
+  'voice.audio.generated': VoiceAudioGeneratedEvent;
+  'voice.audio.error': VoiceAudioErrorEvent;
+  'voice.question.asking': VoiceQuestionAskingEvent;
+  'voice.question.answered': VoiceQuestionAnsweredEvent;
+  'voice.question.error': VoiceQuestionErrorEvent;
+  'voice.command.executing': VoiceCommandExecutingEvent;
+  'voice.command.executed': VoiceCommandExecutedEvent;
+  'voice.command.error': VoiceCommandEvent;
+  'voice.dictation.started': VoiceDictationStartedEvent;
+  'voice.dictation.completed': VoiceDictationCompletedEvent;
+  'voice.dictation.error': VoiceDictationErrorEvent;
+  // Multimodal coordination events
+  'multimodal.modality.switched': any;
+  'multimodal.modality.priority.updated': any;
+  'multimodal.context.preserved': any;
+  'multimodal.context.updated': any;
+  'multimodal.processing.started': any;
+  'multimodal.processing.completed': any;
+  'multimodal.processing.error': any;
+  'multimodal.vision.processing.error': any;
+  'multimodal.voice.processing.error': any;
+  'multimodal.processing.fallback': any;
 }
 
 // Union type of all event types

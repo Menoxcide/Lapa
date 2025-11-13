@@ -1816,6 +1816,41 @@ export async function createSwarmSession(config: SessionConfig, userId: string):
 }
 
 /**
+ * Generates a shareable link for a session
+ * @param sessionId The session ID to share
+ * @param baseUrl Optional base URL for the link
+ * @returns A shareable link for the session
+ */
+export function generateSessionShareLink(sessionId: string, baseUrl?: string): string {
+  const url = baseUrl || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
+  return `${url}/swarm/session/${sessionId}`;
+}
+
+/**
+ * Gets session information for sharing
+ * @param sessionId The session ID
+ * @returns Session information for sharing
+ */
+export function getSessionShareInfo(sessionId: string): {
+  sessionId: string;
+  shareLink: string;
+  createdAt: Date;
+  participantCount: number;
+} | undefined {
+  const session = swarmSessionManager.getSession(sessionId);
+  if (!session) {
+    return undefined;
+  }
+  
+  return {
+    sessionId: session.sessionId,
+    shareLink: generateSessionShareLink(session.sessionId),
+    createdAt: session.createdAt,
+    participantCount: session.participants.size
+  };
+}
+
+/**
  * Convenience function for joining a session
  */
 export async function joinSwarmSession(

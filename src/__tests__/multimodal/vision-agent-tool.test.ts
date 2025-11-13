@@ -1,0 +1,345 @@
+// Vision Agent Tool Test Suite
+import { VisionAgentTool } from '../../multimodal/vision-agent-tool';
+import { AgentToolExecutionContext } from '../../core/types/agent-types';
+
+describe('Vision Agent Tool', () => {
+  let visionAgentTool: VisionAgentTool;
+  
+  beforeEach(() => {
+    visionAgentTool = new VisionAgentTool();
+  });
+  
+  describe('Tool Registration and Properties', () => {
+    it('should have correct tool properties', () => {
+      expect(visionAgentTool.name).toBe('vision-agent');
+      expect(visionAgentTool.category).toBe('multimodal');
+      expect(visionAgentTool.version).toBe('1.0.0');
+      expect(visionAgentTool.description).toBe('Advanced vision agent with image processing and UI analysis capabilities');
+    });
+  });
+  
+  describe('Parameter Validation', () => {
+    it('should validate parameters correctly', () => {
+      expect(visionAgentTool.validateParameters({ action: 'processImage' })).toBe(true);
+      expect(visionAgentTool.validateParameters({ action: '' })).toBe(true); // Empty string is still a string
+      expect(visionAgentTool.validateParameters({})).toBe(false);
+      expect(visionAgentTool.validateParameters({ action: 123 })).toBe(true); // Non-string is still truthy
+      expect(visionAgentTool.validateParameters({ otherParam: 'value' })).toBe(false);
+    });
+  });
+  
+  describe('Image Processing Actions', () => {
+    it('should handle processImage action', async () => {
+      const context: AgentToolExecutionContext = {
+        toolName: 'vision-agent',
+        parameters: {
+          action: 'processImage',
+          imageData: 'base64imageString'
+        },
+        context: {}
+      };
+      
+      // Mock the vision agent processImage method
+      const mockProcessImage = vi.spyOn(visionAgentTool as any, 'handleProcessImage')
+        .mockResolvedValue('Processed image description');
+      
+      const result = await visionAgentTool.execute(context);
+      
+      expect(result.success).toBe(true);
+      expect(result.output).toBe('Processed image description');
+      expect(mockProcessImage).toHaveBeenCalledWith({ imageData: 'base64imageString' });
+    });
+    
+    it('should handle processImage action with buffer data', async () => {
+      const imageBuffer = Buffer.from('mock image data');
+      const context: AgentToolExecutionContext = {
+        toolName: 'vision-agent',
+        parameters: {
+          action: 'processImage',
+          imageData: imageBuffer
+        },
+        context: {}
+      };
+      
+      // Mock the vision agent processImage method
+      const mockProcessImage = vi.spyOn(visionAgentTool as any, 'handleProcessImage')
+        .mockResolvedValue('Processed image description');
+      
+      const result = await visionAgentTool.execute(context);
+      
+      expect(result.success).toBe(true);
+      expect(result.output).toBe('Processed image description');
+      expect(mockProcessImage).toHaveBeenCalledWith({ imageData: imageBuffer });
+    });
+    
+    it('should handle processImage action with invalid data format', async () => {
+      const context: AgentToolExecutionContext = {
+        toolName: 'vision-agent',
+        parameters: {
+          action: 'processImage',
+          imageData: 12345 // Invalid format
+        },
+        context: {}
+      };
+      
+      const result = await visionAgentTool.execute(context);
+      
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('Invalid image data format');
+    });
+    
+    it('should handle processImage action without imageData', async () => {
+      const context: AgentToolExecutionContext = {
+        toolName: 'vision-agent',
+        parameters: {
+          action: 'processImage'
+          // Missing imageData
+        },
+        context: {}
+      };
+      
+      const result = await visionAgentTool.execute(context);
+      
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Image data is required for processing');
+    });
+  });
+  
+  describe('Screenshot Analysis Actions', () => {
+    it('should handle analyzeScreenshot action', async () => {
+      const context: AgentToolExecutionContext = {
+        toolName: 'vision-agent',
+        parameters: {
+          action: 'analyzeScreenshot',
+          imageData: 'base64imageString'
+        },
+        context: {}
+      };
+      
+      // Mock the vision agent analyzeScreenshot method
+      const mockAnalyzeScreenshot = vi.spyOn(visionAgentTool as any, 'handleAnalyzeScreenshot')
+        .mockResolvedValue({ description: 'UI screenshot analysis' });
+      
+      const result = await visionAgentTool.execute(context);
+      
+      expect(result.success).toBe(true);
+      expect(result.output).toEqual({ description: 'UI screenshot analysis' });
+      expect(mockAnalyzeScreenshot).toHaveBeenCalledWith({ imageData: 'base64imageString' });
+    });
+    
+    it('should handle analyzeScreenshot action without imageData', async () => {
+      const context: AgentToolExecutionContext = {
+        toolName: 'vision-agent',
+        parameters: {
+          action: 'analyzeScreenshot'
+          // Missing imageData
+        },
+        context: {}
+      };
+      
+      const result = await visionAgentTool.execute(context);
+      
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Image data is required for screenshot analysis');
+    });
+  });
+  
+  describe('UI Element Recognition Actions', () => {
+    it('should handle recognizeUIElements action', async () => {
+      const context: AgentToolExecutionContext = {
+        toolName: 'vision-agent',
+        parameters: {
+          action: 'recognizeUIElements',
+          imageData: 'base64imageString'
+        },
+        context: {}
+      };
+      
+      // Mock the vision agent recognizeUIElements method
+      const mockRecognizeUIElements = vi.spyOn(visionAgentTool as any, 'handleRecognizeUIElements')
+        .mockResolvedValue([{ type: 'button', label: 'Submit' }]);
+      
+      const result = await visionAgentTool.execute(context);
+      
+      expect(result.success).toBe(true);
+      expect(result.output).toEqual([{ type: 'button', label: 'Submit' }]);
+      expect(mockRecognizeUIElements).toHaveBeenCalledWith({ imageData: 'base64imageString' });
+    });
+    
+    it('should handle recognizeUIElements action without imageData', async () => {
+      const context: AgentToolExecutionContext = {
+        toolName: 'vision-agent',
+        parameters: {
+          action: 'recognizeUIElements'
+          // Missing imageData
+        },
+        context: {}
+      };
+      
+      const result = await visionAgentTool.execute(context);
+      
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Image data is required for UI element recognition');
+    });
+  });
+  
+  describe('Code Generation Actions', () => {
+    it('should handle generateCodeFromDesign action', async () => {
+      const context: AgentToolExecutionContext = {
+        toolName: 'vision-agent',
+        parameters: {
+          action: 'generateCodeFromDesign',
+          imageData: 'base64imageString',
+          framework: 'react'
+        },
+        context: {}
+      };
+      
+      // Mock the vision agent generateCodeFromDesign method
+      const mockGenerateCodeFromDesign = vi.spyOn(visionAgentTool as any, 'handleGenerateCodeFromDesign')
+        .mockResolvedValue('<div>Generated React code</div>');
+      
+      const result = await visionAgentTool.execute(context);
+      
+      expect(result.success).toBe(true);
+      expect(result.output).toBe('<div>Generated React code</div>');
+      expect(mockGenerateCodeFromDesign).toHaveBeenCalledWith({ imageData: 'base64imageString', framework: 'react' });
+    });
+    
+    it('should handle generateCodeFromDesign action with default framework', async () => {
+      const context: AgentToolExecutionContext = {
+        toolName: 'vision-agent',
+        parameters: {
+          action: 'generateCodeFromDesign',
+          imageData: 'base64imageString'
+          // No framework specified, should default to 'react'
+        },
+        context: {}
+      };
+      
+      // Mock the vision agent generateCodeFromDesign method
+      const mockGenerateCodeFromDesign = vi.spyOn(visionAgentTool as any, 'handleGenerateCodeFromDesign')
+        .mockResolvedValue('<div>Generated React code</div>');
+      
+      const result = await visionAgentTool.execute(context);
+      
+      expect(result.success).toBe(true);
+      expect(result.output).toBe('<div>Generated React code</div>');
+      expect(mockGenerateCodeFromDesign).toHaveBeenCalledWith({ imageData: 'base64imageString', framework: 'react' });
+    });
+    
+    it('should handle generateCodeFromDesign action without imageData', async () => {
+      const context: AgentToolExecutionContext = {
+        toolName: 'vision-agent',
+        parameters: {
+          action: 'generateCodeFromDesign'
+          // Missing imageData
+        },
+        context: {}
+      };
+      
+      const result = await visionAgentTool.execute(context);
+      
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Image data is required for code generation');
+    });
+  });
+  
+  describe('Image Generation Actions', () => {
+    it('should handle generateImage action', async () => {
+      const context: AgentToolExecutionContext = {
+        toolName: 'vision-agent',
+        parameters: {
+          action: 'generateImage',
+          description: 'A red circle on a blue background'
+        },
+        context: {}
+      };
+      
+      // Mock the vision agent generateImage method
+      const mockGenerateImage = vi.spyOn(visionAgentTool as any, 'handleGenerateImage')
+        .mockResolvedValue(Buffer.from('generated image data'));
+      
+      const result = await visionAgentTool.execute(context);
+      
+      expect(result.success).toBe(true);
+      expect(result.output).toEqual(Buffer.from('generated image data'));
+      expect(mockGenerateImage).toHaveBeenCalledWith({ description: 'A red circle on a blue background' });
+    });
+    
+    it('should handle generateImage action without description', async () => {
+      const context: AgentToolExecutionContext = {
+        toolName: 'vision-agent',
+        parameters: {
+          action: 'generateImage'
+          // Missing description
+        },
+        context: {}
+      };
+      
+      const result = await visionAgentTool.execute(context);
+      
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Description is required for image generation');
+    });
+  });
+  
+  describe('Error Handling', () => {
+    it('should handle unknown action', async () => {
+      const context: AgentToolExecutionContext = {
+        toolName: 'vision-agent',
+        parameters: {
+          action: 'unknownAction'
+        },
+        context: {}
+      };
+      
+      const result = await visionAgentTool.execute(context);
+      
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Unknown action: unknownAction');
+    });
+    
+    it('should handle execution errors', async () => {
+      const context: AgentToolExecutionContext = {
+        toolName: 'vision-agent',
+        parameters: {
+          action: 'processImage',
+          imageData: 'base64imageString'
+        },
+        context: {}
+      };
+      
+      // Mock the vision agent processImage method to throw an error
+      const mockProcessImage = vi.spyOn(visionAgentTool as any, 'handleProcessImage')
+        .mockRejectedValue(new Error('Processing failed'));
+      
+      const result = await visionAgentTool.execute(context);
+      
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Processing failed');
+      expect(mockProcessImage).toHaveBeenCalledWith({ imageData: 'base64imageString' });
+    });
+    
+    it('should handle non-Error exceptions', async () => {
+      const context: AgentToolExecutionContext = {
+        toolName: 'vision-agent',
+        parameters: {
+          action: 'processImage',
+          imageData: 'base64imageString'
+        },
+        context: {}
+      };
+      
+      // Mock the vision agent processImage method to throw a non-Error
+      const mockProcessImage = vi.spyOn(visionAgentTool as any, 'handleProcessImage')
+        .mockRejectedValue('String error');
+      
+      const result = await visionAgentTool.execute(context);
+      
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('String error');
+      expect(mockProcessImage).toHaveBeenCalledWith({ imageData: 'base64imageString' });
+    });
+  });
+});

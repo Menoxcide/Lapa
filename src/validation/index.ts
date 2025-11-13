@@ -14,3 +14,4 @@ export { ErrorRecoveryManager } from './error-recovery.ts';
 export { ContextPreservationManager } from './context-preservation.ts';
 export { FidelityMetricsTracker } from './fidelity-metrics.ts';
 export { FallbackStrategiesManager } from './fallback-strategies.ts';
+export { validateFlowGuard, validateFlowGuardsConfig, validateGuardContext } from './flow-guard-validation.ts';

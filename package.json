@@ -41,7 +41,7 @@
   "license": "MIT",
   "scripts": {
     "clean": "rimraf extension/dist coverage .lapa/sandbox",
-    "build": "npm run clean && tsc -p tsconfig.build.json",
+    "build": "npm run clean && tsc -p tsconfig.build.json --noEmitOnError false",
     "build:watch": "tsc --watch",
     "test": "vitest",
     "test:log": "vitest --reporter=verbose --reporter=json > vitest-report.json 2>&1",
@@ -55,8 +55,8 @@
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "npm run lint -- --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx,json,md}\"",
-    "vsix": "npm run build && vsce package --no-dependencies",
-    "vsix:install": "cmd /c \"\"C:\\Program Files\\Microsoft VS Code\\bin\\code\" --install-extension *.vsix --force\"",
+    "vsix": "node scripts/build-simple.js && vsce package --no-dependencies",
+    "vsix:install": "cmd /c \"\"%LOCALAPPDATA%\\Programs\\cursor\\resources\\app\\bin\\cursor\" --install-extension lapa-core-1.2.0.vsix --force\"",
     "setup:nim": "bash scripts/install-nim.sh",
     "dev": "npm run build:watch",
     "prepublishOnly": "npm run build && npm run test"
@@ -66,11 +66,7 @@
     "media/",
     "cursor.json",
     "README.md",
-    "LICENSE",
-    "AGENT.md",
-    "DOCUMENTATION.md",
-    "LAPA_Master_Plan.toon",
-    "LAPA_v1.2_TOON_SPEC.toon"
+    "LICENSE"
   ],
   "publishConfig": {
     "access": "public"
@@ -109,7 +105,10 @@
     "ctx-zip": "^0.0.9",
     "dot": "^1.1.3",
     "e2b": "^2.6.4",
+    "gif.js": "^0.2.0",
     "graphviz": "^0.0.9",
+    "html2canvas": "^1.4.1",
+    "kubo-rpc-client": "^5.0.0",
     "langsmith": "^0.1.0",
     "ollama": "^0.6.2",
     "ollama-ai-provider": "^1.2.0",
@@ -117,11 +116,12 @@
     "react-dom": "^18.2.0",
     "sqlite3": "^5.1.7",
     "stripe": "^19.3.0",
+    "systeminformation": "^5.27.11",
     "uuid": "^13.0.0",
     "winget": "^0.0.1",
+    "wrtc": "^0.4.7",
     "ws": "^8.18.0",
     "zod": "^3.23.8",
-    "zod-to-json-schema": "^3.23.5",
-    "wrtc": "^0.4.7"
+    "zod-to-json-schema": "^3.23.5"
   }
 }

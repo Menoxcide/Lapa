@@ -7,13 +7,15 @@
 
 import { HelixTeamAgentWrapper } from '../agent-tool.ts';
 import { AgentToolRegistry } from '../agent-tool.ts';
-import { 
-  AgentToolType, 
-  AgentToolExecutionContext, 
+import {
+  AgentToolType,
+  AgentToolExecutionContext,
   AgentToolExecutionResult,
   HelixAgentType
 } from '../types/agent-types.ts';
 import { BaseAgentTool } from '../agent-tool.ts';
+import { VisionAgentTool } from '../../multimodal/vision-agent-tool.ts';
+import { MultimodalConfig } from '../../multimodal/types/index.ts';
 
 /**
  * Test Generation Tool
@@ -241,27 +243,27 @@ class TestExecutionTool extends BaseAgentTool {
  * Specialized wrapper for the Tester agent in the helix team pattern
  */
 export class TesterAgentWrapper extends HelixTeamAgentWrapper {
-  constructor(id: string, name: string, registry: AgentToolRegistry) {
+  constructor(id: string, name: string, registry: AgentToolRegistry, multimodalConfig?: MultimodalConfig) {
     // Initialize with tester-specific capabilities
     super(
       id,
       'tester' as HelixAgentType,
       name,
-      ['testing', 'test-generation', 'test-execution', 'tdd', 'quality-assurance'],
+      ['testing', 'test-generation', 'test-execution', 'tdd', 'quality-assurance', 'vision-testing'],
       0, // Initial workload
       5, // Capacity
       registry
     );
     
     // Register tester-specific tools
-    this.registerTesterTools(registry);
+    this.registerTesterTools(registry, multimodalConfig);
   }
   
   /**
    * Register tester-specific tools
    * @param registry Tool registry
    */
-  private registerTesterTools(registry: AgentToolRegistry): void {
+  private registerTesterTools(registry: AgentToolRegistry, multimodalConfig?: MultimodalConfig): void {
     const testGenTool = new TestGenerationTool();
     const testExecTool = new TestExecutionTool();
     
@@ -270,5 +272,12 @@ export class TesterAgentWrapper extends HelixTeamAgentWrapper {
     
     this.addTool(testGenTool);
     this.addTool(testExecTool);
+    
+    // Register multimodal tools if config is provided
+    if (multimodalConfig) {
+      const visionTool = new VisionAgentTool(multimodalConfig);
+      registry.registerTool(visionTool);
+      this.addTool(visionTool);
+    }
   }
 }

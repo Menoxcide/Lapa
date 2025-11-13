@@ -345,7 +345,6 @@ export class WebRTCSignalingServer {
   
   console.log(`Participant ${participant.id} joined session ${session.id}`);
 }
-  }
 
   /**
    * Handles participant leaving a session with RBAC check
@@ -399,10 +398,9 @@ export class WebRTCSignalingServer {
       console.log(`Session ${session.id} removed (empty)`);
     }
     
+    
     console.log(`Participant ${participant.id} left session ${session.id}`);
   }
-  }
-
   /**
    * Handles signaling messages with RBAC validation
    */
@@ -445,10 +443,9 @@ export class WebRTCSignalingServer {
       timestamp: Date.now()
     });
     
+    
     console.log(`Forwarded ${message.type} from ${participant.id} to ${message.to}`);
   }
-  }
-
   /**
    * Handles participant disconnection
    */

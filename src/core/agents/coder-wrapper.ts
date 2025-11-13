@@ -7,13 +7,15 @@
 
 import { HelixTeamAgentWrapper } from '../agent-tool.ts';
 import { AgentToolRegistry } from '../agent-tool.ts';
-import { 
-  AgentToolType, 
-  AgentToolExecutionContext, 
+import {
+  AgentToolType,
+  AgentToolExecutionContext,
   AgentToolExecutionResult,
   HelixAgentType
 } from '../types/agent-types.ts';
 import { BaseAgentTool } from '../agent-tool.ts';
+import { VisionAgentTool } from '../../multimodal/vision-agent-tool.ts';
+import { MultimodalConfig } from '../../multimodal/types/index.ts';
 
 /**
  * Code Generation Tool
@@ -248,27 +250,27 @@ class CodeReviewTool extends BaseAgentTool {
  * Specialized wrapper for the Coder agent in the helix team pattern
  */
 export class CoderAgentWrapper extends HelixTeamAgentWrapper {
-  constructor(id: string, name: string, registry: AgentToolRegistry) {
+  constructor(id: string, name: string, registry: AgentToolRegistry, multimodalConfig?: MultimodalConfig) {
     // Initialize with coder-specific capabilities
     super(
       id,
       'coder' as HelixAgentType,
       name,
-      ['code-generation', 'code-review', 'refactoring', 'implementation'],
+      ['code-generation', 'code-review', 'refactoring', 'implementation', 'vision-code-generation'],
       0, // Initial workload
       5, // Capacity
       registry
     );
     
     // Register coder-specific tools
-    this.registerCoderTools(registry);
+    this.registerCoderTools(registry, multimodalConfig);
   }
   
   /**
    * Register coder-specific tools
    * @param registry Tool registry
    */
-  private registerCoderTools(registry: AgentToolRegistry): void {
+  private registerCoderTools(registry: AgentToolRegistry, multimodalConfig?: MultimodalConfig): void {
     const codeGenTool = new CodeGenerationTool();
     const codeReviewTool = new CodeReviewTool();
     
@@ -277,5 +279,12 @@ export class CoderAgentWrapper extends HelixTeamAgentWrapper {
     
     this.addTool(codeGenTool);
     this.addTool(codeReviewTool);
+    
+    // Register multimodal tools if config is provided
+    if (multimodalConfig) {
+      const visionTool = new VisionAgentTool(multimodalConfig);
+      registry.registerTool(visionTool);
+      this.addTool(visionTool);
+    }
   }
 }
