@@ -1,10 +1,10 @@
 /**
  * TDD Tests for Tester Agent
- * 
+ *
  * This file contains tests for the Tester agent's TDD capabilities,
  * including Red-Green-Refactor cycles and automated test generation.
  */
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { Tester, TDDCycleResult } from '../../agents/tester.ts';
 
 // Mock Anthropic API responses

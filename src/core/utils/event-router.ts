@@ -236,22 +236,22 @@ export function setupDefaultLAPARoutes(): void {
   });
 
   // Route task events to swarm orchestrator
-  eventRouter.addRouteRule('task.*', {
-    pattern: 'task.*',
+  eventRouter.addRouteRule('task.created', {
+    pattern: 'task.created',
     target: 'swarm-orchestrator',
     priority: 100
   });
 
   // Route agent events to agent manager
-  eventRouter.addRouteRule('agent.*', {
-    pattern: 'agent.*',
+  eventRouter.addRouteRule('agent.registered', {
+    pattern: 'agent.registered',
     target: 'agent-manager',
     priority: 100
   });
 
   // Route context events to context manager
-  eventRouter.addRouteRule('context.*', {
-    pattern: 'context.*',
+  eventRouter.addRouteRule('context.compressed', {
+    pattern: 'context.compressed',
     target: 'context-manager',
     priority: 100
   });

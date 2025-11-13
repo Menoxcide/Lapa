@@ -1,7 +1,7 @@
 // Vision-Voice Controller Test Suite
-import { VisionVoiceController } from '../../multimodal/vision-voice';
-import { MultimodalConfig } from '../../multimodal/types';
-import { eventBus } from '../../core/event-bus';
+import { VisionVoiceController } from '../../multimodal/vision-voice.ts';
+import { MultimodalConfig } from '../../multimodal/types/index.ts';
+import { eventBus } from '../../core/event-bus.ts';
 
 // Mock the event bus
 vi.mock('../../core/event-bus', () => ({

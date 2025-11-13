@@ -10,10 +10,10 @@ import { EventEmitter } from 'events';
 import { performance } from 'perf_hooks';
 
 // Event type definitions
-import type { LAPAEvent, LAPAEventMap } from './types/event-types.ts';
+import type { LAPAEvent, LAPAEventMap } from './types/event-types';
 
 // Event routing utilities
-import { routeEvent } from './utils/event-router.ts';
+import { routeEvent } from './utils/event-router';
 
 // Subscription management
 interface Subscription {
@@ -228,7 +228,8 @@ export class LAPAEventBus {
    */
   clear(): void {
     // Clear all subscriptions
-    for (const [subscriptionId] of this.subscriptions) {
+    const subscriptionIds = Array.from(this.subscriptions.keys());
+    for (const subscriptionId of subscriptionIds) {
       this.unsubscribe(subscriptionId);
     }
     
@@ -236,7 +237,8 @@ export class LAPAEventBus {
     this.eventQueue.length = 0;
     
     // Clear all timers
-    for (const timer of this.eventTimers.values()) {
+    const timers = Array.from(this.eventTimers.values());
+    for (const timer of timers) {
       clearTimeout(timer);
     }
     this.eventTimers.clear();

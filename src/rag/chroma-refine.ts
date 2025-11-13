@@ -193,10 +193,10 @@ export class ChromaRefine {
         // Index entities as documents
         for (const entity of event.payload.entities) {
           await this.indexDocument({
-            id: `entity_${entity.id}`,
+            id: `entity_${entity.id || Date.now()}`,
             content: `${entity.type}: ${entity.value}`,
             metadata: {
-              taskId: event.payload.taskId,
+              sessionId: event.payload.sessionId,
               timestamp: new Date(),
               source: 'memori',
               entityType: entity.type
@@ -315,9 +315,10 @@ export class ChromaRefine {
         source: 'chroma-refine',
         payload: {
           documentId: document.id,
-          source: document.metadata.source
+          indexId: this.config.collectionName,
+          timestamp: Date.now()
         }
-      } as LAPAEvent);
+      });
     } catch (error) {
       console.error('Failed to index document:', error);
     }

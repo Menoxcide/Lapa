@@ -1,6 +1,6 @@
 // Vision Agent Tool Test Suite
-import { VisionAgentTool } from '../../multimodal/vision-agent-tool';
-import { AgentToolExecutionContext } from '../../core/types/agent-types';
+import { VisionAgentTool } from '../../multimodal/vision-agent-tool.ts';
+import { AgentToolExecutionContext } from '../../core/types/agent-types.ts';
 
 describe('Vision Agent Tool', () => {
   let visionAgentTool: VisionAgentTool;
@@ -12,7 +12,7 @@ describe('Vision Agent Tool', () => {
   describe('Tool Registration and Properties', () => {
     it('should have correct tool properties', () => {
       expect(visionAgentTool.name).toBe('vision-agent');
-      expect(visionAgentTool.category).toBe('multimodal');
+      expect(visionAgentTool.type).toBe('code-generation');
       expect(visionAgentTool.version).toBe('1.0.0');
       expect(visionAgentTool.description).toBe('Advanced vision agent with image processing and UI analysis capabilities');
     });
@@ -36,7 +36,9 @@ describe('Vision Agent Tool', () => {
           action: 'processImage',
           imageData: 'base64imageString'
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-1',
+        agentId: 'test-agent-1'
       };
       
       // Mock the vision agent processImage method
@@ -58,7 +60,9 @@ describe('Vision Agent Tool', () => {
           action: 'processImage',
           imageData: imageBuffer
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-2',
+        agentId: 'test-agent-1'
       };
       
       // Mock the vision agent processImage method
@@ -79,7 +83,9 @@ describe('Vision Agent Tool', () => {
           action: 'processImage',
           imageData: 12345 // Invalid format
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-3',
+        agentId: 'test-agent-1'
       };
       
       const result = await visionAgentTool.execute(context);
@@ -95,7 +101,9 @@ describe('Vision Agent Tool', () => {
           action: 'processImage'
           // Missing imageData
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-4',
+        agentId: 'test-agent-1'
       };
       
       const result = await visionAgentTool.execute(context);
@@ -113,7 +121,9 @@ describe('Vision Agent Tool', () => {
           action: 'analyzeScreenshot',
           imageData: 'base64imageString'
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-5',
+        agentId: 'test-agent-1'
       };
       
       // Mock the vision agent analyzeScreenshot method
@@ -134,7 +144,9 @@ describe('Vision Agent Tool', () => {
           action: 'analyzeScreenshot'
           // Missing imageData
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-6',
+        agentId: 'test-agent-1'
       };
       
       const result = await visionAgentTool.execute(context);
@@ -152,7 +164,9 @@ describe('Vision Agent Tool', () => {
           action: 'recognizeUIElements',
           imageData: 'base64imageString'
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-7',
+        agentId: 'test-agent-1'
       };
       
       // Mock the vision agent recognizeUIElements method
@@ -173,7 +187,9 @@ describe('Vision Agent Tool', () => {
           action: 'recognizeUIElements'
           // Missing imageData
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-8',
+        agentId: 'test-agent-1'
       };
       
       const result = await visionAgentTool.execute(context);
@@ -192,7 +208,9 @@ describe('Vision Agent Tool', () => {
           imageData: 'base64imageString',
           framework: 'react'
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-9',
+        agentId: 'test-agent-1'
       };
       
       // Mock the vision agent generateCodeFromDesign method
@@ -214,7 +232,9 @@ describe('Vision Agent Tool', () => {
           imageData: 'base64imageString'
           // No framework specified, should default to 'react'
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-10',
+        agentId: 'test-agent-1'
       };
       
       // Mock the vision agent generateCodeFromDesign method
@@ -235,7 +255,9 @@ describe('Vision Agent Tool', () => {
           action: 'generateCodeFromDesign'
           // Missing imageData
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-11',
+        agentId: 'test-agent-1'
       };
       
       const result = await visionAgentTool.execute(context);
@@ -253,7 +275,9 @@ describe('Vision Agent Tool', () => {
           action: 'generateImage',
           description: 'A red circle on a blue background'
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-12',
+        agentId: 'test-agent-1'
       };
       
       // Mock the vision agent generateImage method
@@ -274,7 +298,9 @@ describe('Vision Agent Tool', () => {
           action: 'generateImage'
           // Missing description
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-13',
+        agentId: 'test-agent-1'
       };
       
       const result = await visionAgentTool.execute(context);
@@ -291,7 +317,9 @@ describe('Vision Agent Tool', () => {
         parameters: {
           action: 'unknownAction'
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-14',
+        agentId: 'test-agent-1'
       };
       
       const result = await visionAgentTool.execute(context);
@@ -307,7 +335,9 @@ describe('Vision Agent Tool', () => {
           action: 'processImage',
           imageData: 'base64imageString'
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-15',
+        agentId: 'test-agent-1'
       };
       
       // Mock the vision agent processImage method to throw an error
@@ -328,7 +358,9 @@ describe('Vision Agent Tool', () => {
           action: 'processImage',
           imageData: 'base64imageString'
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-16',
+        agentId: 'test-agent-1'
       };
       
       // Mock the vision agent processImage method to throw a non-Error

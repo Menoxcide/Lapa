@@ -1,12 +1,12 @@
 // Multimodal Agent Integration Test Suite
-import { VisionVoiceController } from '../../multimodal/vision-voice';
-import { VisionAgentTool } from '../../multimodal/vision-agent-tool';
-import { VoiceAgentTool } from '../../multimodal/voice-agent-tool';
-import { MultimodalConfig } from '../../multimodal/types';
-import { eventBus } from '../../core/event-bus';
-import { AgentToolExecutionContext, AgentToolExecutionResult } from '../../core/types/agent-types';
-import { HelixTeamAgentWrapper, AgentToolRegistry, agentToolRegistry } from '../../core/agent-tool';
-import { HybridHandoffSystem } from '../../orchestrator/handoffs';
+import { VisionVoiceController } from '../../multimodal/vision-voice.ts';
+import { VisionAgentTool } from '../../multimodal/vision-agent-tool.ts';
+import { VoiceAgentTool } from '../../multimodal/voice-agent-tool.ts';
+import { MultimodalConfig } from '../../multimodal/types/index.ts';
+import { eventBus } from '../../core/event-bus.ts';
+import { AgentToolExecutionContext, AgentToolExecutionResult } from '../../core/types/agent-types.ts';
+import { HelixTeamAgentWrapper, AgentToolRegistry, agentToolRegistry } from '../../core/agent-tool.ts';
+import { HybridHandoffSystem } from '../../orchestrator/handoffs.ts';
 
 // Mock the event bus
 vi.mock('../../core/event-bus', () => ({
@@ -258,7 +258,7 @@ describe('Multimodal Agent Integration', () => {
         const tool = testContext.toolRegistry.getTool('vision-agent');
         expect(tool).toBeDefined();
         expect(tool?.name).toBe('vision-agent');
-        expect(tool?.type).toBe('multimodal');
+        expect(tool?.type).toBe('code-generation');
       });
       
       expect(result.passed).toBe(true);
@@ -277,7 +277,7 @@ describe('Multimodal Agent Integration', () => {
         const tool = testContext.toolRegistry.getTool('voice-agent');
         expect(tool).toBeDefined();
         expect(tool?.name).toBe('voice-agent');
-        expect(tool?.type).toBe('multimodal');
+        expect(tool?.type).toBe('code-generation');
       });
       
       expect(result.passed).toBe(true);

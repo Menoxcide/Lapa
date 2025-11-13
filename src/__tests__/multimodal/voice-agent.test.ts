@@ -1,6 +1,6 @@
 // Voice Agent Test Suite
-import { AdvancedVoiceAgent } from '../../multimodal/advanced-voice-agent';
-import { VoiceAgentConfig } from '../../multimodal/types';
+import { AdvancedVoiceAgent } from '../../multimodal/advanced-voice-agent.ts';
+import { VoiceAgentConfig } from '../../multimodal/types/index.ts';
 
 describe('Voice Agent', () => {
   let voiceAgent: AdvancedVoiceAgent;

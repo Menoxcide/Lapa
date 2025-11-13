@@ -1,7 +1,7 @@
 // Vision Agent Test Suite
-import { VisionAgent } from '../../multimodal/vision-agent';
-import { MultimodalEventPublisher } from '../../multimodal/utils/event-publisher';
-import { eventBus } from '../../core/event-bus';
+import { VisionAgent } from '../../multimodal/vision-agent.ts';
+import { MultimodalEventPublisher } from '../../multimodal/utils/event-publisher.ts';
+import { eventBus } from '../../core/event-bus.ts';
 
 // Mock the event bus
 vi.mock('../../core/event-bus', () => ({

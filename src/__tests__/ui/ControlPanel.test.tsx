@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
+import '@testing-library/jest-dom';
 import ControlPanel from '../../ui/components/ControlPanel.tsx';
 
 describe('ControlPanel', () => {

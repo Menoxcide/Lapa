@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
+import '@testing-library/jest-dom';
 import SpeechBubbles from '../../ui/components/SpeechBubbles.tsx';
 import { Message } from '../../ui/state/index.ts';
 

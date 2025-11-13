@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
+import '@testing-library/jest-dom';
 import AgentAvatars from '../../ui/components/AgentAvatars.tsx';
 import { Agent } from '../../ui/state/index.ts';
 

@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { render, screen } from '@testing-library/react';
 import { vi } from 'vitest';
+import '@testing-library/jest-dom';
 import Root from '../../ui/Root.tsx';
 import { DashboardProvider } from '../../ui/state/dashboard.context.tsx';
 import React from 'react';

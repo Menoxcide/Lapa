@@ -1,8 +1,8 @@
 // Artifacts Builder Tool for integration with the LAPA agent system
-import { BaseAgentTool } from '../core/agent-tool';
-import { AgentToolExecutionContext, AgentToolExecutionResult } from '../core/types/agent-types';
-import { ArtifactsBuilder } from './artifacts-builder';
-import { MultimodalConfig } from './types';
+import { BaseAgentTool } from '../core/agent-tool.ts';
+import { AgentToolExecutionContext, AgentToolExecutionResult } from '../core/types/agent-types.ts';
+import { ArtifactsBuilder } from './artifacts-builder.ts';
+import { MultimodalConfig } from './types/index.ts';
 
 export class ArtifactsBuilderTool extends BaseAgentTool {
   private artifactsBuilder: ArtifactsBuilder;
@@ -10,7 +10,7 @@ export class ArtifactsBuilderTool extends BaseAgentTool {
   constructor(config?: MultimodalConfig) {
     super(
       'artifacts-builder',
-      'multimodal',
+      'code-generation',
       'Specialized artifacts builder for React/Tailwind HTML generation',
       '1.0.0'
     );

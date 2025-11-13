@@ -1,6 +1,6 @@
 // Voice Agent Tool Test Suite
-import { VoiceAgentTool } from '../../multimodal/voice-agent-tool';
-import { AgentToolExecutionContext } from '../../core/types/agent-types';
+import { VoiceAgentTool } from '../../multimodal/voice-agent-tool.ts';
+import { AgentToolExecutionContext } from '../../core/types/agent-types.ts';
 
 describe('Voice Agent Tool', () => {
   let voiceAgentTool: VoiceAgentTool;
@@ -12,7 +12,7 @@ describe('Voice Agent Tool', () => {
   describe('Tool Registration and Properties', () => {
     it('should have correct tool properties', () => {
       expect(voiceAgentTool.name).toBe('voice-agent');
-      expect(voiceAgentTool.category).toBe('multimodal');
+      expect(voiceAgentTool.type).toBe('code-generation');
       expect(voiceAgentTool.version).toBe('1.0.0');
       expect(voiceAgentTool.description).toBe('Advanced voice agent with TTS/STT capabilities and RAG integration');
     });
@@ -36,7 +36,9 @@ describe('Voice Agent Tool', () => {
           action: 'transcribe',
           audioData: 'base64audioString'
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-1',
+        agentId: 'test-agent-1'
       };
       
       // Mock the voice agent processAudio method
@@ -58,7 +60,9 @@ describe('Voice Agent Tool', () => {
           action: 'transcribe',
           audioData: audioBuffer
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-2',
+        agentId: 'test-agent-1'
       };
       
       // Mock the voice agent processAudio method
@@ -80,7 +84,9 @@ describe('Voice Agent Tool', () => {
           audioData: 'base64audioString',
           format: 'wav'
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-3',
+        agentId: 'test-agent-1'
       };
       
       // Mock the voice agent processAudio method
@@ -101,7 +107,9 @@ describe('Voice Agent Tool', () => {
           action: 'transcribe'
           // Missing audioData
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-4',
+        agentId: 'test-agent-1'
       };
       
       const result = await voiceAgentTool.execute(context);
@@ -119,7 +127,9 @@ describe('Voice Agent Tool', () => {
           action: 'synthesize',
           text: 'Hello world'
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-5',
+        agentId: 'test-agent-1'
       };
       
       // Mock the voice agent generateAudio method
@@ -140,7 +150,9 @@ describe('Voice Agent Tool', () => {
           action: 'synthesize'
           // Missing text
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-6',
+        agentId: 'test-agent-1'
       };
       
       const result = await voiceAgentTool.execute(context);
@@ -158,7 +170,9 @@ describe('Voice Agent Tool', () => {
           action: 'ask',
           question: 'What is the weather like?'
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-7',
+        agentId: 'test-agent-1'
       };
       
       // Mock the voice agent askQuestion method
@@ -181,7 +195,9 @@ describe('Voice Agent Tool', () => {
           context: 'User is in New York',
           sessionId: 'session123'
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-8',
+        agentId: 'test-agent-1'
       };
       
       // Mock the voice agent askQuestion method
@@ -206,7 +222,9 @@ describe('Voice Agent Tool', () => {
           action: 'ask'
           // Missing question
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-9',
+        agentId: 'test-agent-1'
       };
       
       const result = await voiceAgentTool.execute(context);
@@ -224,7 +242,9 @@ describe('Voice Agent Tool', () => {
           action: 'executeCommand',
           command: 'Hello'
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-10',
+        agentId: 'test-agent-1'
       };
       
       // Mock the voice agent executeVoiceCommand method
@@ -248,7 +268,9 @@ describe('Voice Agent Tool', () => {
           entities: { duration: 5, unit: 'minutes' },
           confidence: 0.95
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-11',
+        agentId: 'test-agent-1'
       };
       
       // Mock the voice agent executeVoiceCommand method
@@ -274,7 +296,9 @@ describe('Voice Agent Tool', () => {
           action: 'executeCommand'
           // Missing command
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-12',
+        agentId: 'test-agent-1'
       };
       
       const result = await voiceAgentTool.execute(context);
@@ -291,7 +315,9 @@ describe('Voice Agent Tool', () => {
         parameters: {
           action: 'startDictation'
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-13',
+        agentId: 'test-agent-1'
       };
       
       // Mock the voice agent startDictation method
@@ -313,7 +339,9 @@ describe('Voice Agent Tool', () => {
         parameters: {
           action: 'stopDictation'
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-14',
+        agentId: 'test-agent-1'
       };
       
       // Mock the voice agent stopDictation method
@@ -337,7 +365,9 @@ describe('Voice Agent Tool', () => {
         parameters: {
           action: 'unknownAction'
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-15',
+        agentId: 'test-agent-1'
       };
       
       const result = await voiceAgentTool.execute(context);
@@ -353,7 +383,9 @@ describe('Voice Agent Tool', () => {
           action: 'transcribe',
           audioData: 'base64audioString'
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-16',
+        agentId: 'test-agent-1'
       };
       
       // Mock the voice agent processAudio method to throw an error
@@ -374,7 +406,9 @@ describe('Voice Agent Tool', () => {
           action: 'transcribe',
           audioData: 'base64audioString'
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-17',
+        agentId: 'test-agent-1'
       };
       
       // Mock the voice agent processAudio method to throw a non-Error

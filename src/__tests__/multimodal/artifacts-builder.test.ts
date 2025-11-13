@@ -1,7 +1,7 @@
 // Tests for Artifacts Builder implementation
 
-import { ArtifactsBuilder } from '../../multimodal/artifacts-builder';
-import { MultimodalConfig } from '../../multimodal/types';
+import { ArtifactsBuilder } from '../../multimodal/artifacts-builder.ts';
+import { MultimodalConfig } from '../../multimodal/types/index.ts';
 
 describe('ArtifactsBuilder', () => {
   let artifactsBuilder: ArtifactsBuilder;
@@ -9,7 +9,12 @@ describe('ArtifactsBuilder', () => {
   beforeEach(() => {
     // Create a minimal config for testing
     const config: MultimodalConfig = {
-      visionModel: 'nemotron-vision'
+      visionModel: 'nemotron-vision',
+      voiceModel: 'whisper',
+      enableAudioProcessing: true,
+      enableImageProcessing: true,
+      modalityPriority: ['vision', 'voice'],
+      fallbackStrategy: 'sequential'
     };
     
     artifactsBuilder = new ArtifactsBuilder(config);
@@ -23,7 +28,7 @@ describe('ArtifactsBuilder', () => {
       // Check that we have templates for different categories
       const categories = templates.map(t => t.category);
       expect(categories).toContain('ui-component');
-      expect(categories).toContain('page-layout');
+      expect(categories).toContain('layout');
     });
     
     it('should retrieve a template by ID', () => {
@@ -105,8 +110,8 @@ describe('ArtifactsBuilder', () => {
       `;
       
       // Mock the vision agent method
-      jest.spyOn(artifactsBuilder as any, 'visionAgent', 'get').mockReturnValue({
-        generateCodeFromDesign: jest.fn().mockResolvedValue(mockCode)
+      vi.spyOn(artifactsBuilder as any, 'visionAgent', 'get').mockReturnValue({
+        generateCodeFromDesign: vi.fn().mockResolvedValue(mockCode)
       });
       
       const result = await artifactsBuilder.generateReactCodeFromDesign(imageBuffer);
@@ -127,8 +132,8 @@ describe('ArtifactsBuilder', () => {
       `;
       
       // Mock the vision agent method
-      jest.spyOn(artifactsBuilder as any, 'visionAgent', 'get').mockReturnValue({
-        generateCodeFromDesign: jest.fn().mockResolvedValue(mockCode)
+      vi.spyOn(artifactsBuilder as any, 'visionAgent', 'get').mockReturnValue({
+        generateCodeFromDesign: vi.fn().mockResolvedValue(mockCode)
       });
       
       const result = await artifactsBuilder.generateReactCodeFromDesign(imageBuffer, {
@@ -144,8 +149,8 @@ describe('ArtifactsBuilder', () => {
       const mockCode = 'const Component = () => <div>Hello World</div>;';
       
       // Mock the vision agent method
-      jest.spyOn(artifactsBuilder as any, 'visionAgent', 'get').mockReturnValue({
-        generateCodeFromDesign: jest.fn().mockResolvedValue(mockCode)
+      vi.spyOn(artifactsBuilder as any, 'visionAgent', 'get').mockReturnValue({
+        generateCodeFromDesign: vi.fn().mockResolvedValue(mockCode)
       });
       
       const result = await artifactsBuilder.generateReactCodeFromDesign(imageBuffer);

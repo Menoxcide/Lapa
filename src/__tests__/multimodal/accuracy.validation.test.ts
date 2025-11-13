@@ -1,9 +1,9 @@
 // Multimodal Accuracy Validation Test Suite
-import { VisionVoiceController } from '../../multimodal/vision-voice';
-import { VisionAgent } from '../../multimodal/vision-agent';
-import { VoiceAgent } from '../../multimodal/voice-agent';
-import { MultimodalConfig } from '../../multimodal/types';
-import { eventBus } from '../../core/event-bus';
+import { VisionVoiceController } from '../../multimodal/vision-voice.ts';
+import { VisionAgent } from '../../multimodal/vision-agent.ts';
+import { VoiceAgent } from '../../multimodal/voice-agent.ts';
+import { MultimodalConfig } from '../../multimodal/types/index.ts';
+import { eventBus } from '../../core/event-bus.ts';
 
 // Mock the event bus
 vi.mock('../../core/event-bus', () => ({

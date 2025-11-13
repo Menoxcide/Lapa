@@ -1,16 +1,21 @@
 // Tests for Artifacts Builder Tool implementation
 
-import { ArtifactsBuilderTool } from '../../multimodal/artifacts-builder-tool';
-import { AgentToolExecutionContext } from '../../core/types/agent-types';
-import { MultimodalConfig } from '../../multimodal/types';
+import { ArtifactsBuilderTool } from '../../multimodal/artifacts-builder-tool.ts';
+import { AgentToolExecutionContext } from '../../core/types/agent-types.ts';
+import { MultimodalConfig } from '../../multimodal/types/index.ts';
 
 describe('ArtifactsBuilderTool', () => {
   let artifactsBuilderTool: ArtifactsBuilderTool;
   
   beforeEach(() => {
-    // Create a minimal config for testing
+    // Create a complete config for testing
     const config: MultimodalConfig = {
-      visionModel: 'nemotron-vision'
+      visionModel: 'nemotron-vision',
+      voiceModel: 'whisper',
+      enableAudioProcessing: true,
+      enableImageProcessing: true,
+      modalityPriority: ['vision', 'voice'],
+      fallbackStrategy: 'sequential'
     };
     
     artifactsBuilderTool = new ArtifactsBuilderTool(config);
@@ -19,7 +24,7 @@ describe('ArtifactsBuilderTool', () => {
   describe('Tool Registration and Properties', () => {
     it('should have correct tool properties', () => {
       expect(artifactsBuilderTool.name).toBe('artifacts-builder');
-      expect(artifactsBuilderTool.category).toBe('multimodal');
+      expect(artifactsBuilderTool.type).toBe('code-generation');
       expect(artifactsBuilderTool.version).toBe('1.0.0');
       expect(artifactsBuilderTool.description).toBe('Specialized artifacts builder for React/Tailwind HTML generation');
     });
@@ -43,11 +48,13 @@ describe('ArtifactsBuilderTool', () => {
           imageData: 'base64imageString',
           componentName: 'TestComponent'
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-1',
+        agentId: 'test-agent-1'
       };
       
       // Mock the artifacts builder generateReactCodeFromDesign method
-      const mockGenerateReactCodeFromDesign = jest.spyOn(artifactsBuilderTool as any, 'handleGenerateReactCodeFromDesign')
+      const mockGenerateReactCodeFromDesign = vi.spyOn(artifactsBuilderTool as any, 'handleGenerateReactCodeFromDesign')
         .mockResolvedValue('<div>Generated React code</div>');
       
       const result = await artifactsBuilderTool.execute(context);
@@ -68,11 +75,13 @@ describe('ArtifactsBuilderTool', () => {
           imageData: 'base64imageString'
           // No componentName specified, should work fine
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-2',
+        agentId: 'test-agent-1'
       };
       
       // Mock the artifacts builder generateReactCodeFromDesign method
-      const mockGenerateReactCodeFromDesign = jest.spyOn(artifactsBuilderTool as any, 'handleGenerateReactCodeFromDesign')
+      const mockGenerateReactCodeFromDesign = vi.spyOn(artifactsBuilderTool as any, 'handleGenerateReactCodeFromDesign')
         .mockResolvedValue('<div>Generated React code</div>');
       
       const result = await artifactsBuilderTool.execute(context);
@@ -89,7 +98,9 @@ describe('ArtifactsBuilderTool', () => {
           action: 'generateReactCodeFromDesign'
           // Missing imageData
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-3',
+        agentId: 'test-agent-1'
       };
       
       const result = await artifactsBuilderTool.execute(context);
@@ -104,7 +115,9 @@ describe('ArtifactsBuilderTool', () => {
         parameters: {
           action: 'getTemplates'
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-4',
+        agentId: 'test-agent-1'
       };
       
       const result = await artifactsBuilderTool.execute(context);
@@ -120,7 +133,9 @@ describe('ArtifactsBuilderTool', () => {
           action: 'getTemplate',
           id: 'button-primary'
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-5',
+        agentId: 'test-agent-1'
       };
       
       const result = await artifactsBuilderTool.execute(context);
@@ -147,7 +162,9 @@ describe('ArtifactsBuilderTool', () => {
           action: 'createTemplate',
           template: newTemplate
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-6',
+        agentId: 'test-agent-1'
       };
       
       const result = await artifactsBuilderTool.execute(context);
@@ -161,7 +178,9 @@ describe('ArtifactsBuilderTool', () => {
           action: 'getTemplate',
           id: 'test-template'
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-7',
+        agentId: 'test-agent-1'
       };
       
       const getResult = await artifactsBuilderTool.execute(getContext);
@@ -185,7 +204,9 @@ describe('ArtifactsBuilderTool', () => {
             code: 'console.log("original");'
           }
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-8',
+        agentId: 'test-agent-1'
       };
       
       await artifactsBuilderTool.execute(createContext);
@@ -200,7 +221,9 @@ describe('ArtifactsBuilderTool', () => {
             name: 'Updated Name'
           }
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-9',
+        agentId: 'test-agent-1'
       };
       
       const result = await artifactsBuilderTool.execute(updateContext);
@@ -213,7 +236,9 @@ describe('ArtifactsBuilderTool', () => {
           action: 'getTemplate',
           id: 'update-test'
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-10',
+        agentId: 'test-agent-1'
       };
       
       const getResult = await artifactsBuilderTool.execute(getContext);
@@ -239,7 +264,9 @@ describe('ArtifactsBuilderTool', () => {
             code: 'console.log("delete test");'
           }
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-11',
+        agentId: 'test-agent-1'
       };
       
       await artifactsBuilderTool.execute(createContext);
@@ -251,7 +278,9 @@ describe('ArtifactsBuilderTool', () => {
           action: 'getTemplate',
           id: 'delete-test'
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-12',
+        agentId: 'test-agent-1'
       };
       
       const getResultBefore = await artifactsBuilderTool.execute(getBeforeContext);
@@ -265,7 +294,9 @@ describe('ArtifactsBuilderTool', () => {
           action: 'deleteTemplate',
           id: 'delete-test'
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-13',
+        agentId: 'test-agent-1'
       };
       
       const result = await artifactsBuilderTool.execute(deleteContext);
@@ -278,7 +309,9 @@ describe('ArtifactsBuilderTool', () => {
           action: 'getTemplate',
           id: 'delete-test'
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-14',
+        agentId: 'test-agent-1'
       };
       
       const getResultAfter = await artifactsBuilderTool.execute(getAfterContext);
@@ -292,7 +325,9 @@ describe('ArtifactsBuilderTool', () => {
         parameters: {
           action: 'unknownAction'
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-15',
+        agentId: 'test-agent-1'
       };
       
       const result = await artifactsBuilderTool.execute(context);
