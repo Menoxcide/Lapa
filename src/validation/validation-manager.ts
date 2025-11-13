@@ -54,16 +54,16 @@ export class ValidationManager {
   validateHandoffRequest(request: HandoffRequest): ValidationResult {
     const errors: string[] = [];
 
-    // Validate required fields
-    if (!request.sourceAgentId) {
+    // Validate required fields (check for undefined/null, but empty strings are handled by format validation)
+    if (request.sourceAgentId === undefined || request.sourceAgentId === null) {
       errors.push('sourceAgentId is required');
     }
 
-    if (!request.targetAgentId) {
+    if (request.targetAgentId === undefined || request.targetAgentId === null) {
       errors.push('targetAgentId is required');
     }
 
-    if (!request.taskId) {
+    if (request.taskId === undefined || request.taskId === null) {
       errors.push('taskId is required');
     }
 
@@ -71,17 +71,17 @@ export class ValidationManager {
       errors.push('context is required');
     }
 
-    // Validate agent IDs format
-    if (request.sourceAgentId && !this.isValidAgentId(request.sourceAgentId)) {
+    // Validate agent IDs format (including empty strings)
+    if (request.sourceAgentId !== undefined && request.sourceAgentId !== null && !this.isValidAgentId(request.sourceAgentId)) {
       errors.push('sourceAgentId has invalid format');
     }
 
-    if (request.targetAgentId && !this.isValidAgentId(request.targetAgentId)) {
+    if (request.targetAgentId !== undefined && request.targetAgentId !== null && !this.isValidAgentId(request.targetAgentId)) {
       errors.push('targetAgentId has invalid format');
     }
 
-    // Validate task ID format
-    if (request.taskId && !this.isValidTaskId(request.taskId)) {
+    // Validate task ID format (including empty strings)
+    if (request.taskId !== undefined && request.taskId !== null && !this.isValidTaskId(request.taskId)) {
       errors.push('taskId has invalid format');
     }
 

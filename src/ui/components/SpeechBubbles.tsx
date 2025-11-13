@@ -32,6 +32,7 @@ const SpeechBubbles: React.FC<SpeechBubblesProps> = ({ messages, onMessageClick 
         {messages.map(message => (
           <div
             key={message.id}
+            role={onMessageClick ? "button" : undefined}
             className={`speech-bubble p-4 rounded-lg border-l-4 cursor-pointer transition-all hover:shadow-md ${
               getMessageStyle(message.type)
             }`}
@@ -43,7 +44,7 @@ const SpeechBubbles: React.FC<SpeechBubblesProps> = ({ messages, onMessageClick 
                 <span className="font-semibold">{message.agentName}</span>
               </div>
               <span className="text-xs text-gray-500">
-                {message.timestamp.toLocaleTimeString()}
+                {message.timestamp.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}
               </span>
             </div>
             <p className="mt-2 text-gray-800 whitespace-pre-wrap">{message.content}</p>

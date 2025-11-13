@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ValidationManager } from '../../validation/validation-manager.ts';
 import { ErrorRecoveryManager } from '../../validation/error-recovery.ts';
 import { ContextPreservationManager } from '../../validation/context-preservation.ts';
@@ -49,10 +50,10 @@ describe('Validation Integration', () => {
         type: 'testing',
         description: 'Tool for handling handoffs',
         version: '1.0.0',
-        execute: jest.fn()
+        execute: vi.fn()
           .mockRejectedValueOnce(new Error('Network error'))
           .mockResolvedValue({ success: true, result: 'Handoff completed' }),
-        validateParameters: jest.fn().mockReturnValue(true)
+        validateParameters: vi.fn().mockReturnValue(true)
       };
 
       const toolResult = await errorRecoveryManager.executeToolWithRetry(mockTool, { handoffId });
@@ -85,12 +86,12 @@ describe('Validation Integration', () => {
       expect(validation.errors).toHaveLength(0);
 
       // 2. Simulate mode transition with potential failure and fallback
-      const primaryExecutor = jest.fn().mockRejectedValue(new Error('Mode transition failed'));
+      const primaryExecutor = vi.fn().mockRejectedValue(new Error('Mode transition failed'));
       
       // Register a fallback provider for mode switching
       const fallbackProvider = {
         canHandle: (operation: string) => operation === 'mode-switch',
-        execute: jest.fn().mockResolvedValue({ success: true, result: 'Degraded mode switch result' })
+        execute: vi.fn().mockResolvedValue({ success: true, result: 'Degraded mode switch result' })
       };
       
       fallbackStrategiesManager.registerFallbackProvider('mode-switch-fallback', fallbackProvider);
@@ -123,11 +124,11 @@ describe('Validation Integration', () => {
       expect(validation.errors).toHaveLength(0);
 
       // 2. Simulate cross-language communication with potential failure and recovery
-      const handoffFn = jest.fn()
+      const handoffFn = vi.fn()
         .mockRejectedValueOnce(new Error('Communication timeout'))
         .mockResolvedValue('Cross-language communication completed');
       
-      const fallbackFn = jest.fn().mockResolvedValue('Fallback communication completed');
+      const fallbackFn = vi.fn().mockResolvedValue('Fallback communication completed');
 
       const result = await errorRecoveryManager.executeHandoffWithFallback(handoffFn, fallbackFn);
       expect(result).toBe('Cross-language communication completed');
@@ -284,13 +285,13 @@ describe('Validation Integration', () => {
       await contextPreservationManager.preserveContext(handoffId, context);
 
       // 2. Simulate operation that fails completely
-      const primaryExecutor = jest.fn().mockRejectedValue(new Error('Primary operation failed'));
-      const fallbackExecutor = jest.fn().mockRejectedValue(new Error('Fallback operation failed'));
+      const primaryExecutor = vi.fn().mockRejectedValue(new Error('Primary operation failed'));
+      const fallbackExecutor = vi.fn().mockRejectedValue(new Error('Fallback operation failed'));
       
       // Register a fallback provider that also fails
       const fallbackProvider = {
         canHandle: (operation: string) => operation === 'critical-operation',
-        execute: jest.fn().mockResolvedValue({ success: false, error: 'Fallback provider failed' })
+        execute: vi.fn().mockResolvedValue({ success: false, error: 'Fallback provider failed' })
       };
       
       fallbackStrategiesManager.registerFallbackProvider('critical-fallback', fallbackProvider);
@@ -318,8 +319,8 @@ describe('Validation Integration', () => {
         type: 'testing',
         description: 'Tool that always fails',
         version: '1.0.0',
-        execute: jest.fn().mockRejectedValue(new Error('Tool execution failed')),
-        validateParameters: jest.fn().mockReturnValue(true)
+        execute: vi.fn().mockRejectedValue(new Error('Tool execution failed')),
+        validateParameters: vi.fn().mockReturnValue(true)
       };
 
       // 2. Attempt execution with recovery (should fail)
@@ -338,7 +339,7 @@ describe('Validation Integration', () => {
 
     it('should gracefully degrade mode switching when recovery fails', async () => {
       // 1. Simulate mode transition that consistently fails
-      const primaryExecutor = jest.fn().mockRejectedValue(new Error('Mode transition failed'));
+      const primaryExecutor = vi.fn().mockRejectedValue(new Error('Mode transition failed'));
       
       // 2. Attempt mode transition with fallback (should fail)
       await expect(fallbackStrategiesManager.executeWithFallback('mode-switch', primaryExecutor, { fromMode: 'ask', toMode: 'code' }))

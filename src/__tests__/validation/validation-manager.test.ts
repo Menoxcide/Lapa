@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ValidationManager } from '../../validation/validation-manager.ts';
 import { LAPAEventBus } from '../../core/event-bus.ts';
 import { AgentTool } from '../../core/types/agent-types.ts';
@@ -20,7 +21,7 @@ describe('ValidationManager', () => {
         type: 'testing',
         description: 'Test tool',
         version: '1.0.0',
-        execute: jest.fn(),
+        execute: vi.fn(),
         validateParameters: (params: Record<string, any>) => {
           return !!params && typeof params === 'object' && params.testParam;
         }
@@ -38,7 +39,7 @@ describe('ValidationManager', () => {
         type: 'testing',
         description: 'Test tool',
         version: '1.0.0',
-        execute: jest.fn(),
+        execute: vi.fn(),
         validateParameters: (params: Record<string, any>) => {
           return !!params && typeof params === 'object' && params.testParam;
         }
@@ -56,7 +57,7 @@ describe('ValidationManager', () => {
         type: 'testing',
         description: 'Test tool',
         version: '1.0.0',
-        execute: jest.fn(),
+        execute: vi.fn(),
         validateParameters: (params: Record<string, any>) => {
           throw new Error('Validation failed');
         }
@@ -74,8 +75,8 @@ describe('ValidationManager', () => {
         type: 'testing',
         description: 'Test tool',
         version: '1.0.0',
-        execute: jest.fn(),
-        validateParameters: jest.fn()
+        execute: vi.fn(),
+        validateParameters: vi.fn()
       };
 
       const result = validationManager.validateToolExecution(mockTool, null as any);

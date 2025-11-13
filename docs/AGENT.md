@@ -48,6 +48,19 @@
 - **Integration Tests** ([`src/__tests__/integration/phase15-integration.test.ts`](src/__tests__/integration/phase15-integration.test.ts:1)) - Comprehensive test coverage for all Phase 15 components with graceful degradation handling ✅
 - **Achieved**: 99.5% fidelity target with complete observability and code generation rules enforcement ✅
 
+### ✅ Phase 17 Completed (VSIX Ship + Protocol Docs)
+- **VSIX Packaging** ([`package.json`](package.json:1), [`cursor.json`](cursor.json:1)) - Complete VSIX build and packaging configuration with extension manifest ✅
+- **Protocol Documentation** ([`docs/PROTOCOLS.md`](docs/PROTOCOLS.md:1)) - Comprehensive protocol documentation covering MCP, A2A, AG-UI, LPSP, VSIX packaging, and Benchmark Suite v2 ✅
+- **Extension Manifest** ([`cursor.json`](cursor.json:1)) - Complete extension configuration with commands, views, and activation events ✅
+- **Achieved**: Ship-ready VSIX packaging with comprehensive protocol documentation ✅
+
+### ✅ Phase 18 Completed (Benchmark Suite v2)
+- **Enhanced Benchmark Suite** ([`src/observability/bench-v2.ts`](src/observability/bench-v2.ts:1)) - Comprehensive benchmarking with handoff, memory, compression, routing, and event processing benchmarks ✅
+- **Grafana Dashboard** ([`grafana/lapa-dashboard.json`](grafana/lapa-dashboard.json:1)) - Real-time performance visualization with latency, memory, compression, throughput, and fidelity metrics ✅
+- **Phase 18 Integration** ([`src/orchestrator/phase18-integration.ts`](src/orchestrator/phase18-integration.ts:1)) - Unified interface for all Phase 18 components with Prometheus integration and regression detection ✅
+- **Integration Tests** ([`src/__tests__/integration/phase18-integration.test.ts`](src/__tests__/integration/phase18-integration.test.ts:1), [`src/__tests__/observability/bench-v2.test.ts`](src/__tests__/observability/bench-v2.test.ts:1)) - Comprehensive test coverage for all Phase 18 components ✅
+- **Achieved**: 99.5% performance fidelity target with complete benchmark suite and Grafana dashboard ✅
+
 ### ✅ Phase 10 Completed Features
 - **Mandatory A2A Handshakes** - All inter-agent communications now require A2A handshakes for security and coordination
 - **Enhanced Swarm Delegate** - Improved local inference with <1s latency and mandatory A2A handshakes
@@ -204,9 +217,9 @@ Complete Phase 12 - Memori + Episodic + Vector Refinement (99.5% recall target) 
 Complete Phase 13 - AG-UI + Dynamic Studio (generative UI) ✅
 Complete Phase 14 - ClaudeKit + Feedback Loops + PromptEngineer MCP ✅
 Complete Phase 15 - Codegen + Observability (99.5% fidelity target) ✅
+Complete Phase 17 - VSIX Ship + Protocol Docs (ship-ready) ✅
+Complete Phase 18 - Benchmark Suite v2 (99.5% fidelity target) ✅
 Security Implementation - Add RBAC and hallucination detection (Phase 16)
-VSIX Ship - Protocol documentation and packaging (Phase 17)
-Benchmark Suite v2 - Enhanced benchmarking with Grafana dashboards (Phase 18)
 Performance Optimization - Optimize handoff latency and memory usage
 
 Contributing

@@ -1,71 +1,53 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { HybridHandoffSystem, HandoffConfigValidationError, HANDOFF_CONFIG_PRESETS } from '../orchestrator/handoffs.ts';
 
-async function testHandoffConfiguration() {
-  console.log('Testing Handoff Configuration Enhancements...\n');
+describe('Handoff Configuration Validation', () => {
+  let handoffSystem: HybridHandoffSystem;
 
-  try {
-    // Test 1: Basic configuration validation
-    console.log('Test 1: Basic configuration validation');
-    const handoffSystem = new HybridHandoffSystem();
-    
+  beforeEach(() => {
+    handoffSystem = new HybridHandoffSystem();
+  });
+
+  it('should validate basic configuration correctly', () => {
     // Valid update
-    handoffSystem.updateConfig({ confidenceThreshold: 0.9 });
-    console.log('✓ Valid configuration update succeeded');
+    expect(() => {
+      handoffSystem.updateConfig({ confidenceThreshold: 0.9 });
+    }).not.toThrow();
     
     // Invalid update
-    try {
+    expect(() => {
       handoffSystem.updateConfig({ confidenceThreshold: 1.5 });
-      console.log('✗ Invalid configuration update should have failed');
-    } catch (error) {
-      if (error instanceof HandoffConfigValidationError) {
-        console.log('✓ Invalid configuration update correctly rejected');
-      } else {
-        console.log('✗ Unexpected error type:', error);
-      }
-    }
-    
-    // Test 2: Configuration presets
-    console.log('\nTest 2: Configuration presets');
+    }).toThrow(HandoffConfigValidationError);
+  });
+
+  it('should load configuration presets correctly', () => {
     handoffSystem.loadPreset('development');
     const devConfig = handoffSystem.getConfig();
-    console.log('✓ Development preset loaded, confidence threshold:', devConfig.confidenceThreshold);
+    expect(devConfig.confidenceThreshold).toBeDefined();
     
     handoffSystem.loadPreset('production');
     const prodConfig = handoffSystem.getConfig();
-    console.log('✓ Production preset loaded, confidence threshold:', prodConfig.confidenceThreshold);
-    
-    // Test 3: Environment-based configuration
-    console.log('\nTest 3: Environment-based configuration');
+    expect(prodConfig.confidenceThreshold).toBeDefined();
+  });
+
+  it('should load configuration from environment variables', () => {
     // Set some environment variables
     process.env.HANDOFF_CONFIDENCE_THRESHOLD = '0.85';
     process.env.HANDOFF_MAX_HANDOFF_DEPTH = '7';
     
     handoffSystem.loadConfigFromEnvironment();
     const envConfig = handoffSystem.getConfig();
-    console.log('✓ Environment configuration loaded, confidence threshold:', envConfig.confidenceThreshold);
-    console.log('✓ Environment configuration loaded, max handoff depth:', envConfig.maxHandoffDepth);
+    expect(envConfig.confidenceThreshold).toBe(0.85);
+    expect(envConfig.maxHandoffDepth).toBe(7);
     
-    // Test 4: Configuration health check
-    console.log('\nTest 4: Configuration health check');
-    const health = handoffSystem.checkConfigHealth();
-    console.log('✓ Configuration health check:', health.isValid ? 'Valid' : 'Invalid');
-    if (health.errors.length > 0) {
-      console.log('  Errors:', health.errors);
-    }
-    
-    // Test 5: Threshold management
-    console.log('\nTest 5: Threshold management');
-    // This would normally be tested through the private threshold manager,
-    // but we can test the public interface that uses it
-    
-    console.log('\nAll tests completed successfully!');
-    
-  } catch (error) {
-    console.error('Test failed with error:', error);
-    process.exit(1);
-  }
-}
+    // Clean up
+    delete process.env.HANDOFF_CONFIDENCE_THRESHOLD;
+    delete process.env.HANDOFF_MAX_HANDOFF_DEPTH;
+  });
 
-// Run the test
-testHandoffConfiguration();
+  it('should check configuration health', () => {
+    const health = handoffSystem.checkConfigHealth();
+    expect(health.isValid).toBeDefined();
+    expect(Array.isArray(health.errors)).toBe(true);
+  });
+});

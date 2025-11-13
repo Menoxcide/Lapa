@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ContextPreservationManager } from '../../validation/context-preservation.ts';
 import { LAPAEventBus } from '../../core/event-bus.ts';
 
@@ -15,7 +16,7 @@ describe('ContextPreservationManager', () => {
       const handoffId = 'handoff-123';
       const context = { data: 'test context', taskId: 'task-456' };
 
-      const publishSpy = jest.spyOn(eventBus, 'publish');
+      const publishSpy = vi.spyOn(eventBus, 'publish');
 
       await contextPreservationManager.preserveContext(handoffId, context);
       
@@ -35,7 +36,7 @@ describe('ContextPreservationManager', () => {
       const context: any = { data: 'test' };
       context.self = context; // Circular reference
 
-      const publishSpy = jest.spyOn(eventBus, 'publish');
+      const publishSpy = vi.spyOn(eventBus, 'publish');
 
       await expect(contextPreservationManager.preserveContext(handoffId, context))
         .rejects
@@ -59,7 +60,7 @@ describe('ContextPreservationManager', () => {
       // First preserve the context
       await contextPreservationManager.preserveContext(handoffId, context);
 
-      const publishSpy = jest.spyOn(eventBus, 'publish');
+      const publishSpy = vi.spyOn(eventBus, 'publish');
 
       // Then restore it
       const restoredContext = await contextPreservationManager.restoreContext(handoffId);
@@ -78,7 +79,7 @@ describe('ContextPreservationManager', () => {
     it('should fail to restore context when no preserved context exists', async () => {
       const handoffId = 'non-existent-handoff';
 
-      const publishSpy = jest.spyOn(eventBus, 'publish');
+      const publishSpy = vi.spyOn(eventBus, 'publish');
 
       await expect(contextPreservationManager.restoreContext(handoffId))
         .rejects
@@ -106,7 +107,7 @@ describe('ContextPreservationManager', () => {
       const corruptedContext = { data: 'corrupted context', taskId: 'task-456' };
       await contextPreservationManager.preserveContext(handoffId, corruptedContext);
 
-      const publishSpy = jest.spyOn(eventBus, 'publish');
+      const publishSpy = vi.spyOn(eventBus, 'publish');
 
       // Try to restore with original expectation
       await expect(contextPreservationManager.restoreContext(handoffId))
@@ -131,7 +132,7 @@ describe('ContextPreservationManager', () => {
       // First preserve the context
       await contextPreservationManager.preserveContext(handoffId, context);
 
-      const publishSpy = jest.spyOn(eventBus, 'publish');
+      const publishSpy = vi.spyOn(eventBus, 'publish');
 
       // Then rollback
       await contextPreservationManager.rollbackContext(handoffId);
@@ -152,7 +153,7 @@ describe('ContextPreservationManager', () => {
     it('should handle rollback when no context exists', async () => {
       const handoffId = 'non-existent-handoff';
 
-      const publishSpy = jest.spyOn(eventBus, 'publish');
+      const publishSpy = vi.spyOn(eventBus, 'publish');
 
       // Rollback non-existent context should not throw
       await expect(contextPreservationManager.rollbackContext(handoffId)).resolves.not.toThrow();
@@ -169,7 +170,7 @@ describe('ContextPreservationManager', () => {
       const handoffId = 'handoff-123';
       
       // Mock the eventBus publish to throw an error to simulate failure
-      const publishSpy = jest.spyOn(eventBus, 'publish').mockImplementationOnce(() => {
+      const publishSpy = vi.spyOn(eventBus, 'publish').mockImplementationOnce(() => {
         throw new Error('Publish failed');
       });
 

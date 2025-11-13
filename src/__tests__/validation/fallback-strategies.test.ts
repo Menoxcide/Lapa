@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { FallbackStrategiesManager } from '../../validation/fallback-strategies.ts';
 import { LAPAEventBus } from '../../core/event-bus.ts';
 import { AgentTool } from '../../core/types/agent-types.ts';
@@ -18,7 +19,7 @@ describe('FallbackStrategiesManager', () => {
         execute: async (operation: string, params: any) => ({ success: true, result: 'test result' })
       };
 
-      const publishSpy = jest.spyOn(eventBus, 'publish');
+      const publishSpy = vi.spyOn(eventBus, 'publish');
 
       fallbackStrategiesManager.registerFallbackProvider('test-provider', provider);
       
@@ -37,7 +38,7 @@ describe('FallbackStrategiesManager', () => {
 
   describe('executeWithFallback', () => {
     it('should execute primary operation successfully', async () => {
-      const primaryExecutor = jest.fn().mockResolvedValue('primary result');
+      const primaryExecutor = vi.fn().mockResolvedValue('primary result');
       const params = { testParam: 'value' };
 
       const result = await fallbackStrategiesManager.executeWithFallback('test-operation', primaryExecutor, params);
@@ -47,13 +48,13 @@ describe('FallbackStrategiesManager', () => {
     });
 
     it('should execute fallback when primary operation fails', async () => {
-      const primaryExecutor = jest.fn().mockRejectedValue(new Error('Primary failed'));
+      const primaryExecutor = vi.fn().mockRejectedValue(new Error('Primary failed'));
       const params = { testParam: 'value' };
       
       // Register a fallback provider that can handle the operation
       const fallbackProvider = {
         canHandle: (operation: string) => operation === 'test-operation',
-        execute: jest.fn().mockResolvedValue({ success: true, result: 'fallback result' })
+        execute: vi.fn().mockResolvedValue({ success: true, result: 'fallback result' })
       };
       
       fallbackStrategiesManager.registerFallbackProvider('test-fallback', fallbackProvider);
@@ -66,13 +67,13 @@ describe('FallbackStrategiesManager', () => {
     });
 
     it('should fail when both primary and fallback fail', async () => {
-      const primaryExecutor = jest.fn().mockRejectedValue(new Error('Primary failed'));
+      const primaryExecutor = vi.fn().mockRejectedValue(new Error('Primary failed'));
       const params = { testParam: 'value' };
       
       // Register a fallback provider that also fails
       const fallbackProvider = {
         canHandle: (operation: string) => operation === 'test-operation',
-        execute: jest.fn().mockResolvedValue({ success: false, error: 'Fallback failed' })
+        execute: vi.fn().mockResolvedValue({ success: false, error: 'Fallback failed' })
       };
       
       fallbackStrategiesManager.registerFallbackProvider('test-fallback', fallbackProvider);
@@ -86,13 +87,13 @@ describe('FallbackStrategiesManager', () => {
     });
 
     it('should fail when no suitable fallback provider is found', async () => {
-      const primaryExecutor = jest.fn().mockRejectedValue(new Error('Primary failed'));
+      const primaryExecutor = vi.fn().mockRejectedValue(new Error('Primary failed'));
       const params = { testParam: 'value' };
       
       // Register a fallback provider that cannot handle the operation
       const fallbackProvider = {
         canHandle: (operation: string) => operation === 'different-operation',
-        execute: jest.fn().mockResolvedValue({ success: true, result: 'fallback result' })
+        execute: vi.fn().mockResolvedValue({ success: true, result: 'fallback result' })
       };
       
       fallbackStrategiesManager.registerFallbackProvider('test-fallback', fallbackProvider);
@@ -106,10 +107,10 @@ describe('FallbackStrategiesManager', () => {
     });
 
     it('should publish events for successful primary execution', async () => {
-      const primaryExecutor = jest.fn().mockResolvedValue('primary result');
+      const primaryExecutor = vi.fn().mockResolvedValue('primary result');
       const params = { testParam: 'value' };
 
-      const publishSpy = jest.spyOn(eventBus, 'publish');
+      const publishSpy = vi.spyOn(eventBus, 'publish');
 
       await fallbackStrategiesManager.executeWithFallback('test-operation', primaryExecutor, params);
       
@@ -124,18 +125,18 @@ describe('FallbackStrategiesManager', () => {
     });
 
     it('should publish events for fallback initiation and success', async () => {
-      const primaryExecutor = jest.fn().mockRejectedValue(new Error('Primary failed'));
+      const primaryExecutor = vi.fn().mockRejectedValue(new Error('Primary failed'));
       const params = { testParam: 'value' };
       
       // Register a fallback provider that can handle the operation
       const fallbackProvider = {
         canHandle: (operation: string) => operation === 'test-operation',
-        execute: jest.fn().mockResolvedValue({ success: true, result: 'fallback result' })
+        execute: vi.fn().mockResolvedValue({ success: true, result: 'fallback result' })
       };
       
       fallbackStrategiesManager.registerFallbackProvider('test-fallback', fallbackProvider);
 
-      const publishSpy = jest.spyOn(eventBus, 'publish');
+      const publishSpy = vi.spyOn(eventBus, 'publish');
 
       await fallbackStrategiesManager.executeWithFallback('test-operation', primaryExecutor, params);
       
@@ -159,18 +160,18 @@ describe('FallbackStrategiesManager', () => {
     });
 
     it('should publish events for fallback failure', async () => {
-      const primaryExecutor = jest.fn().mockRejectedValue(new Error('Primary failed'));
+      const primaryExecutor = vi.fn().mockRejectedValue(new Error('Primary failed'));
       const params = { testParam: 'value' };
       
       // Register a fallback provider that also fails
       const fallbackProvider = {
         canHandle: (operation: string) => operation === 'test-operation',
-        execute: jest.fn().mockResolvedValue({ success: false, error: 'Fallback failed' })
+        execute: vi.fn().mockResolvedValue({ success: false, error: 'Fallback failed' })
       };
       
       fallbackStrategiesManager.registerFallbackProvider('test-fallback', fallbackProvider);
 
-      const publishSpy = jest.spyOn(eventBus, 'publish');
+      const publishSpy = vi.spyOn(eventBus, 'publish');
 
       await expect(fallbackStrategiesManager.executeWithFallback('test-operation', primaryExecutor, params))
         .rejects
@@ -188,18 +189,18 @@ describe('FallbackStrategiesManager', () => {
     });
 
     it('should publish events for permanent failure when no fallback available', async () => {
-      const primaryExecutor = jest.fn().mockRejectedValue(new Error('Primary failed'));
+      const primaryExecutor = vi.fn().mockRejectedValue(new Error('Primary failed'));
       const params = { testParam: 'value' };
       
       // Register a fallback provider that cannot handle the operation
       const fallbackProvider = {
         canHandle: (operation: string) => operation === 'different-operation',
-        execute: jest.fn().mockResolvedValue({ success: true, result: 'fallback result' })
+        execute: vi.fn().mockResolvedValue({ success: true, result: 'fallback result' })
       };
       
       fallbackStrategiesManager.registerFallbackProvider('test-fallback', fallbackProvider);
 
-      const publishSpy = jest.spyOn(eventBus, 'publish');
+      const publishSpy = vi.spyOn(eventBus, 'publish');
 
       await expect(fallbackStrategiesManager.executeWithFallback('test-operation', primaryExecutor, params))
         .rejects
@@ -222,13 +223,13 @@ describe('FallbackStrategiesManager', () => {
         type: 'testing',
         description: 'Test tool',
         version: '1.0.0',
-        execute: jest.fn(),
-        validateParameters: jest.fn()
+        execute: vi.fn(),
+        validateParameters: vi.fn()
       };
       
       const context = { testParam: 'value' };
 
-      const publishSpy = jest.spyOn(eventBus, 'publish');
+      const publishSpy = vi.spyOn(eventBus, 'publish');
 
       const result = await fallbackStrategiesManager.gracefulDegradationForTool(mockTool, context);
       
@@ -253,7 +254,7 @@ describe('FallbackStrategiesManager', () => {
       const fromMode = 'ask';
       const toMode = 'code';
 
-      const publishSpy = jest.spyOn(eventBus, 'publish');
+      const publishSpy = vi.spyOn(eventBus, 'publish');
 
       const result = await fallbackStrategiesManager.gracefulDegradationForModeSwitch(fromMode, toMode);
       
@@ -286,7 +287,7 @@ describe('FallbackStrategiesManager', () => {
       let providers = fallbackStrategiesManager.getRegisteredProviders();
       expect(providers).toContain('test-provider');
       
-      const publishSpy = jest.spyOn(eventBus, 'publish');
+      const publishSpy = vi.spyOn(eventBus, 'publish');
 
       fallbackStrategiesManager.removeFallbackProvider('test-provider');
       
