@@ -96,7 +96,7 @@ export class LangSmithTracer extends EventEmitter {
    */
   private setupEventListeners(): void {
     // Trace handoff events
-    this.eventBus.on('handoff.initiated', (event: LAPAEvent) => {
+    this.eventBus.subscribe('handoff.initiated' as any, (event: LAPAEvent) => {
       this.startSpan('handoff.initiated', {
         agentId: event.payload.sourceAgentId,
         targetAgentId: event.payload.targetAgentId,
@@ -105,14 +105,14 @@ export class LangSmithTracer extends EventEmitter {
       }, event.id);
     });
 
-    this.eventBus.on('handoff.completed', (event: LAPAEvent) => {
+    this.eventBus.subscribe('handoff.completed' as any, (event: LAPAEvent) => {
       this.endSpan(event.id, 'success', {
         duration: event.payload.duration,
         result: event.payload.result
       });
     });
 
-    this.eventBus.on('handoff.failed', (event: LAPAEvent) => {
+    this.eventBus.subscribe('handoff.failed' as any, (event: LAPAEvent) => {
       this.endSpan(event.id, 'error', {
         error: event.payload.error,
         duration: event.payload.duration
@@ -120,7 +120,7 @@ export class LangSmithTracer extends EventEmitter {
     });
 
     // Trace task events
-    this.eventBus.on('task.created', (event: LAPAEvent) => {
+    this.eventBus.subscribe('task.created' as any, (event: LAPAEvent) => {
       this.startSpan('task.created', {
         taskId: event.payload.taskId,
         type: event.payload.type,
@@ -128,14 +128,14 @@ export class LangSmithTracer extends EventEmitter {
       }, event.id);
     });
 
-    this.eventBus.on('task.completed', (event: LAPAEvent) => {
+    this.eventBus.subscribe('task.completed' as any, (event: LAPAEvent) => {
       this.endSpan(event.id, 'success', {
         duration: event.payload.duration,
         result: event.payload.result
       });
     });
 
-    this.eventBus.on('task.failed', (event: LAPAEvent) => {
+    this.eventBus.subscribe('task.failed' as any, (event: LAPAEvent) => {
       this.endSpan(event.id, 'error', {
         error: event.payload.error,
         duration: event.payload.duration
@@ -143,7 +143,7 @@ export class LangSmithTracer extends EventEmitter {
     });
 
     // Trace agent events
-    this.eventBus.on('agent.registered', (event: LAPAEvent) => {
+    this.eventBus.subscribe('agent.registered' as any, (event: LAPAEvent) => {
       this.logEvent('agent.registered', {
         agentId: event.payload.agentId,
         name: event.payload.name,
@@ -152,7 +152,7 @@ export class LangSmithTracer extends EventEmitter {
     });
 
     // Trace performance metrics
-    this.eventBus.on('performance.metric', (event: LAPAEvent) => {
+    this.eventBus.subscribe('performance.metric' as any, (event: LAPAEvent) => {
       this.logMetric(event.payload.metric, event.payload.value, event.payload.tags || []);
     });
   }

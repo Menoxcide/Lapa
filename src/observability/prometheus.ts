@@ -139,7 +139,7 @@ export class PrometheusMetrics extends EventEmitter {
    */
   private setupEventListeners(): void {
     // Handoff metrics
-    this.eventBus.on('handoff.initiated', (event: LAPAEvent) => {
+    this.eventBus.subscribe('handoff.initiated' as any, (event: LAPAEvent) => {
       this.incrementCounter('handoffs_total', {
         source_agent: event.payload.sourceAgentId,
         target_agent: event.payload.targetAgentId,
@@ -147,7 +147,7 @@ export class PrometheusMetrics extends EventEmitter {
       });
     });
 
-    this.eventBus.on('handoff.completed', (event: LAPAEvent) => {
+    this.eventBus.subscribe('handoff.completed' as any, (event: LAPAEvent) => {
       this.incrementCounter('handoffs_total', {
         source_agent: event.payload.sourceAgentId,
         target_agent: event.payload.targetAgentId,
@@ -159,7 +159,7 @@ export class PrometheusMetrics extends EventEmitter {
       });
     });
 
-    this.eventBus.on('handoff.failed', (event: LAPAEvent) => {
+    this.eventBus.subscribe('handoff.failed' as any, (event: LAPAEvent) => {
       this.incrementCounter('handoffs_total', {
         source_agent: event.payload.sourceAgentId,
         target_agent: event.payload.targetAgentId,
@@ -172,14 +172,14 @@ export class PrometheusMetrics extends EventEmitter {
     });
 
     // Task metrics
-    this.eventBus.on('task.created', (event: LAPAEvent) => {
+    this.eventBus.subscribe('task.created' as any, (event: LAPAEvent) => {
       this.incrementCounter('tasks_total', {
         type: event.payload.type,
         status: 'created'
       });
     });
 
-    this.eventBus.on('task.completed', (event: LAPAEvent) => {
+    this.eventBus.subscribe('task.completed' as any, (event: LAPAEvent) => {
       this.incrementCounter('tasks_total', {
         type: event.payload.type,
         status: 'completed'
@@ -189,7 +189,7 @@ export class PrometheusMetrics extends EventEmitter {
       });
     });
 
-    this.eventBus.on('task.failed', (event: LAPAEvent) => {
+    this.eventBus.subscribe('task.failed' as any, (event: LAPAEvent) => {
       this.incrementCounter('tasks_total', {
         type: event.payload.type,
         status: 'failed'
@@ -201,22 +201,22 @@ export class PrometheusMetrics extends EventEmitter {
     });
 
     // Agent metrics
-    this.eventBus.on('agent.registered', (event: LAPAEvent) => {
+    this.eventBus.subscribe('agent.registered' as any, (event: LAPAEvent) => {
       this.setGauge('agents_active', this.getMetricValue('agents_active') + 1);
     });
 
-    this.eventBus.on('agent.unregistered', (event: LAPAEvent) => {
+    this.eventBus.subscribe('agent.unregistered' as any, (event: LAPAEvent) => {
       this.setGauge('agents_active', Math.max(0, this.getMetricValue('agents_active') - 1));
     });
 
-    this.eventBus.on('agent.workload.updated', (event: LAPAEvent) => {
+    this.eventBus.subscribe('agent.workload.updated' as any, (event: LAPAEvent) => {
       this.setGauge('agents_workload', event.payload.workload, {
         agent_id: event.payload.agentId
       });
     });
 
     // Performance metrics
-    this.eventBus.on('performance.metric', (event: LAPAEvent) => {
+    this.eventBus.subscribe('performance.metric' as any, (event: LAPAEvent) => {
       const metric = event.payload.metric;
       const value = event.payload.value;
       const tags = event.payload.tags || [];
@@ -229,7 +229,7 @@ export class PrometheusMetrics extends EventEmitter {
     });
 
     // Context compression metrics
-    this.eventBus.on('context.compressed', (event: LAPAEvent) => {
+    this.eventBus.subscribe('context.compressed' as any, (event: LAPAEvent) => {
       const ratio = event.payload.originalSize > 0
         ? event.payload.compressedSize / event.payload.originalSize
         : 0;
