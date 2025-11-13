@@ -400,7 +400,7 @@ export class ChromaRefine {
   async refineVectors(): Promise<{
     refined: number;
     removed: number;
-  } {
+  }> {
     if (!this.collection || !this.isInitialized) {
       return { refined: 0, removed: 0 };
     }

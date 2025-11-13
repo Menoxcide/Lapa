@@ -35,10 +35,13 @@ export type Permission =
   | 'sandbox.destroy'
   | 'mcp.tool.invoke'
   | 'a2a.negotiate'
-  | 'a2a.sync';
+  | 'a2a.sync'
+  | 'session.create' // Added session creation permission
+  | 'session.join'   // Added session join permission
+  | 'session.leave';  // Added session leave permission
 
 // Resource types
-export type ResourceType = 
+export type ResourceType =
   | 'agent'
   | 'task'
   | 'handoff'
@@ -48,7 +51,8 @@ export type ResourceType =
   | 'sandbox'
   | 'mcp'
   | 'a2a'
-  | 'system';
+  | 'system'
+  | 'session'; // Added session resource type for swarm sessions
 
 // Role definition
 export interface Role {

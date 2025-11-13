@@ -362,6 +362,12 @@ export interface LAPAEventMap {
   'a2a.state.sync.request': any; // TODO: Define proper interface
   'a2a.state.sync.response': any; // TODO: Define proper interface
   
+  // WebRTC events
+  'webrtc.ice-candidate': any; // TODO: Define proper interface
+  'webrtc.connection-state': any; // TODO: Define proper interface
+  'webrtc.sdp-offer': any; // TODO: Define proper interface
+  'webrtc.sdp-answer': any; // TODO: Define proper interface
+  
   // AG-UI events
   'ag-ui.message': any; // TODO: Define proper interface
   'ag-ui.stream.start': any; // TODO: Define proper interface

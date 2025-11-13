@@ -1,31 +1,28 @@
-v1.3.0-preview:
-  name: SwarmOS Edition
-  codename: Collaborative-Multimodal Ecosystem Swarm
-  version: 1.3.0
+v1.2.2:
+  name: Prompt-Resonant Nexus
+  codename: A2A-MCP-AGUI + PromptEngineer Swarm
+  version: 1.2.2
   date: 2025-11-12
-  branch: v1.3-swarm-os
-  git-cycle: v1.2.2-complete → swarm-os-preview → phase19+ → tag-ship
-  resume-from: src/swarm/sessions.ts  # New for Phase 19
-  target: <1s handoff, 99.8% fidelity (SwarmOS ROI Dashboard), 0% cloud, Ecosystem-Native
+  branch: v1.2-nexus-loop
+  git-cycle: v1.2.1-restructure → prompt-mcp-integration → phase14+ → tag-ship
+  resume-from: src/orchestrator/handoffs.ts, src/swarm/delegate.ts  # PRESERVED
+  target: <1s handoff, 99.7% fidelity (Bench+LangSmith+PromptRefine), 0% cloud, Prompt-Protocol-Compliant
   premium: { mo:12, yr:99 }
   license: MIT
   repo: github.com/Menoxcide/Lapa
   site: lapa.ai
 
-  # === PROTOCOL LAYER: A2A + MCP + AG-UI + WebRTC (SwarmOS Extensions) ===
+  # === PROTOCOL LAYER: A2A + MCP + AG-UI (from CopilotKit + PromptEngineer MCP) ===
   protocols:
     a2a: true  # Agent-to-Agent: handshake, task negotiation, state sync
     mcp: v1.2  # Model Context Protocol: JSON-RPC/WebSocket + stdio transport (PromptEngineer)
     ag-ui: v1.0 # Agent-to-UI: generative components, event streams
     ui-specs: mcp-ui + open-json-ui  # For dynamic Studio UI + interactive Q&A
     lpsp: v1.0  # LAPA Phase Summary Protocol: structured phase reporting
-    webrtc: v1.0  # Multi-user collab sessions (Phase 19)
-    vision-voice: v1.0  # Multimodal input/output (Phase 20)
-    marketplace: v1.0  # On-chain skill registry (Phase 21)
 
-  # === DREAM TEAM: 16-Agent Helix (+ CollabAgent for SwarmOS) ===
+  # === DREAM TEAM: 15-Agent Helix (14 → 15 with PromptEngineer Meta-Agent) ===
   helix-team:
-    [16]
+    [15]
     role;model;metric;hook;subagent-mode;extension
     Architect;DeepSeek-R1-671B;98% planning;"Plan via veto + Roo Architect + Codegen rules + PromptEngineer refine?";parallel;AutoGen AgentTool
     Researcher;Qwen3-235B-A22B-Instruct;92% RAG;"Echo grep+tail + Roo indexing + MCP discovery + semantic search?";isolated+compact;AutoGen + grep/tail + deepagents FS
@@ -42,56 +39,60 @@ v1.3.0-preview:
     A2AMediator;Claude-3.5-Sonnet;98% coord;"Negotiate tasks + state sync + conflict veto?";meta;A2A Protocol + deepagents sub-spawn
     ObservabilityAgent;Prometheus-Node;99% trace;"LangSmith + Grafana + red team logs?";monitor;LangSmith + OpenTelemetry
     PromptEngineer;Claude-3.5-Sonnet;95% refine;"Detect vague input + Q&A + optimize for Claude tools (grep/git)?";meta;MCP stdio server (gr3enarr0w/cc_peng_mcp)
-    CollabAgent;Claude-3.5-Sonnet;97% collab;"WebRTC sessions + cross-user veto?";multi-user;WebRTC + A2A extensions
 
-  # === RESONANCE CORE: v1.3 — SwarmOS Extensions ===
+  # === RESONANCE CORE: v1.2.2 — Protocol + Feedback + Episodic ===
   resonance-core:
-    chamber: NetworkX-graph + Roo checkpoints + Memori SQL + Episodic Store + Collab Sessions
+    chamber: NetworkX-graph + Roo checkpoints + Memori SQL + Episodic Store
     compaction: ctx-zip@55% + AutoGen msg-zip + MCP progressive + AG-UI streaming
     decay: 0.85^step # Tighter decay with episodic recall
-    veto: 5/6 consensus → Oracle + Memori + A2A + LLM-as-Judge + RBAC + Collab Veto
+    veto: 5/6 consensus → Oracle + Memori + A2A + LLM-as-Judge + RBAC
     mcp: MCPSandboxExplorer + E2B + Roo/Playwright + MCP JSON-RPC/WebSocket + A2A handshake
     judge: LLM-as-Judge + AutoGen Bench + Codegen traces + LangSmith + red teaming
-    events: AutoGen Core + A2A pub-sub + AG-UI event stream + WebRTC Sync
-    modes: Roo (Code/Architect/Ask/Debug/Custom) + ClaudeKit + AG-UI dynamic toggles + Collab Mode
+    events: AutoGen Core + A2A pub-sub + AG-UI event stream
+    modes: Roo (Code/Architect/Ask/Debug/Custom) + ClaudeKit + AG-UI dynamic toggles
     autonomy: noContinue:true, handoffAt:0.4, maxSteps:25 + Memori zero-prompt + A2A auto-negotiation
-    feedback: visual (Playwright), rule-based, LLM-judge, human-in-loop (Roomote + Voice)
+    feedback: visual (Playwright), rule-based, LLM-judge, human-in-loop (Roomote)
 
-  # === PHASES: v1.3 SwarmOS — Post-v1.2.2 Complete ===
+  # === PHASES: v1.2.2 — Protocol-First (Phase 10 & 11 Complete) ===
   phases:
-    [21]
+    [9]
     p;w;tasks;milestone;git-tag;status
     10. AutoGen Core + Roo Modes;1.5;[event-bus.ts, modes.ts, AgentTool];<1s delegate;feat/v1.2-core;COMPLETE
     11. MCP + A2A Connectors;1.2;[mcp-connector.ts, a2a-mediator.ts, handshake.ts];98% interop;feat/v1.2-protocols;COMPLETE
-    12. Memori + Episodic + Vector Refinement;1;[memori-engine.ts, episodic.ts, chroma-refine.ts];99.5% recall;feat/v1.2-memori;COMPLETE
+    12. Memori + Episodic + Vector Refinement;1;[memori-engine.ts, episodic.ts, chroma-refine.ts, recall-metrics.ts];99.5% recall;feat/v1.2-memori;COMPLETE
     13. AG-UI + Dynamic Studio;0.9;[ag-ui.ts, studio-dynamic.py, mcp-ui-specs];gen UI;feat/v1.2-ui;COMPLETE
     14. ClaudeKit + Feedback Loops + PromptEngineer MCP;1.0;[skill-manager.ts, visual-feedback.ts, llm-judge.ts, prompt-engineer.ts];zero-bloat;feat/v1.2-feedback;COMPLETE
     15. Codegen + Observability;1;[repo-rules.ts, langsmith.ts, prometheus.ts];99.5% fidelity;feat/v1.2-obs;COMPLETE
-    16. Security + RBAC + Red Teaming;0.7;[rbac.ts, red-team.ts, hallucination-check.ts];secure;feat/v1.2-security;COMPLETE
+    16. Security + RBAC + Red Teaming;0.7;[rbac.ts, red-team.ts, hallucination-check.ts];secure;feat/v1.2-security;TODO
     17. VSIX Ship + Protocol Docs;0.3;[pnpm vsix, PROTOCOLS.md];ship-ready;feat/v1.2-ship;COMPLETE
     18. Benchmark Suite v2;0.5;[bench-v2.ts, grafana-dashboard];99.5%;feat/v1.2-bench;COMPLETE
-    19. Collaborative Swarm;1.5;[swarm/sessions.ts, webrtc-sync.ts];95% multi-user uptime;feat/v1.3-collab;IN PROGRESS
-    20. Multimodal Mastery;2;[multimodal/vision-voice.ts, tts-stt.ts];90% multimodal accuracy;feat/v1.3-multimodal;TODO
-    21. Ecosystem Ignition;2;[marketplace/registry.ts, roi-dashboard.ts];100K skills marketplace;feat/v1.3-ecosystem;TODO
 
-  # === TECH STACK: v1.3 SwarmOS ===
+  # === TECH STACK: v1.2.2 — Protocol-Compliant ===
   stack:
     ide: Cursor (VSIX ext)
     ext: TS+React (pnpm vsix)
-    inf: NIM-local + BYOK + llama.cpp + WebRTC
+    inf: NIM-local + BYOK + llama.cpp
     orch: LangGraph+Ray + AutoGen Core + A2A + MCP JSON-RPC/WebSocket
     ctx: ctx-zip + Chroma + Memori SQL + Episodic Store
-    mcp: LocalSandbox + E2B + MCP + A2A + AG-UI + Marketplace API
-    rag: Chroma + Roo indexing + Memori entity + grep/tail + Qwen3-VL + Voice
-    storage: .lapa/storage + blob://prem + Memori SQLite + vector logs + On-Chain
-    ui: React + AutoGen Studio + AG-UI (dynamic) + Grafana + WebRTC Sessions
+    mcp: LocalSandbox + E2B + MCP + A2A + AG-UI
+    rag: Chroma + Roo indexing + Memori entity + grep/tail + Qwen3-VL
+    storage: .lapa/storage + blob://prem + Memori SQLite + vector logs
+    ui: React + AutoGen Studio + AG-UI (dynamic) + Grafana
     build: pnpm vsix
-    bench: AutoGen Bench + LangSmith + Prometheus + OpenTelemetry + ROI Dashboard
-    lang: TS + .NET/Python + ClaudeKit + A2A shims + TTS/STT
-    security: RBAC + prompt injection guard + output filtering + Collab Auth
+    bench: AutoGen Bench + LangSmith + Prometheus + OpenTelemetry
+    lang: TS + .NET/Python + ClaudeKit + A2A shims
+    security: RBAC + prompt injection guard + output filtering
 
-  # === INTEGRATION: v1.3 Drafts (SwarmOS) ===
-  v1.3-draft:
-    collab: sessions.ts (WebRTC multi-user), cross-user-veto.ts
-    multimodal: vision-voice.ts (screenshot gen), tts-stt.ts (offline voice)
-    ecosystem: marketplace/registry.ts (on-chain skills), roi-dashboard.ts (time saved metrics)
+  # === INTEGRATION: v1.2.1 Drafts (MCP/Memori/Codegen/ClaudeKit) ===
+  v1.2.1-draft:
+    core: event-bus.ts (pub-sub), AgentTool wrappers
+    mcp: mcp-connector.ts (JSON-RPC/WebSocket, dynamic discovery, progressive disclosure)
+    memori: memori-engine.ts (SQLite persistence, entity mapping, conscious analysis)
+    claudekit: skill-manager.ts (mcp-manager subagent, skills for workflows, bloat reduction)
+    codegen: repo-rules.ts (enforce conventions, sandboxed execution, observability)
+    modes: modes.ts (UI toggle → role hooks)
+    indexing: indexer.ts (fs crawl + Qwen3-VL)
+    checkpoints: checkpoints.ts (git worktree)
+    todos: todos.ts (Reviewer → TODO.md)
+    roomote: roomote.ts (WebSocket)
+    vsix: pnpm scripts

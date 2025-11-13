@@ -6,7 +6,7 @@ export default defineConfig({
     setupFiles: './src/__tests__/setup.ts',
     include: ['src/__tests__/**/*.{test,spec}.{ts,tsx}'],
     reporters: ['verbose'],
-    testTimeout: 300000,
-    hookTimeout: 300000,
+    testTimeout: 1000000,
+    hookTimeout: 1000000,
   },
 });

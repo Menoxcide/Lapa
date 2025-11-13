@@ -12,7 +12,17 @@
  * - Zero-prompt memory injection
  */
 
-import { autoGenMemoriSQLite, type Entity, type ConversationEntry, type PerformanceMetric } from './memori-sqlite.ts';
+import {
+  autoGenMemoriSQLite,
+  type Entity,
+  type ConversationEntry,
+  type PerformanceMetric,
+  type PersistedSwarmSession,
+  type PersistedSessionParticipant,
+  type PersistedSessionTask,
+  type PersistedSessionVeto,
+  type PersistedSessionA2AHandshake
+} from './memori-sqlite.ts';
 import { eventBus } from '../core/event-bus.ts';
 import type { LAPAEvent } from '../core/types/event-types.ts';
 
@@ -26,6 +36,7 @@ export interface MemoriEngineConfig {
   entityConfidenceThreshold: number; // 0-1
   enableZeroPromptInjection: boolean;
   maxEntitiesPerTask: number;
+  enableSwarmSessionPersistence: boolean;
 }
 
 // Default configuration
@@ -37,7 +48,8 @@ const DEFAULT_CONFIG: MemoriEngineConfig = {
   sessionPruningThreshold: 0.8, // Prune when 80% full
   entityConfidenceThreshold: 0.7,
   enableZeroPromptInjection: true,
-  maxEntitiesPerTask: 50
+  maxEntitiesPerTask: 50,
+  enableSwarmSessionPersistence: true
 };
 
 // Session metadata
@@ -116,6 +128,33 @@ export class MemoriEngine {
         await this.updateSessionMetadata(event.payload.sessionId, event.payload);
       }
     });
+
+    // Subscribe to swarm session events for persistence
+    if (this.config.enableSwarmSessionPersistence) {
+      eventBus.subscribe('swarm.session.created', async (event) => {
+        await this.handleSwarmSessionCreated(event);
+      });
+
+      eventBus.subscribe('swarm.session.participant.joined', async (event) => {
+        await this.handleSwarmSessionParticipantJoined(event);
+      });
+
+      eventBus.subscribe('swarm.session.participant.left', async (event) => {
+        await this.handleSwarmSessionParticipantLeft(event);
+      });
+
+      eventBus.subscribe('swarm.session.closed', async (event) => {
+        await this.handleSwarmSessionClosed(event);
+      });
+
+      eventBus.subscribe('swarm.task.completed', async (event) => {
+        await this.handleSwarmTaskCompleted(event);
+      });
+
+      eventBus.subscribe('swarm.task.vetoed', async (event) => {
+        await this.handleSwarmTaskVetoed(event);
+      });
+    }
   }
 
   /**
@@ -397,6 +436,192 @@ export class MemoriEngine {
   /**
    * Closes the Memori engine
    */
+  /**
+   * Handles swarm session created event
+   */
+  private async handleSwarmSessionCreated(event: LAPAEvent): Promise<void> {
+    if (!this.config.enableSwarmSessionPersistence || !event.payload) {
+      return;
+    }
+
+    try {
+      // We'll need to get the full session data from the swarm session manager
+      // For now, we'll just store basic session info
+      const sessionId = event.payload.sessionId;
+      const hostUserId = event.payload.hostUserId;
+      
+      if (sessionId && hostUserId) {
+        const persistedSession: PersistedSwarmSession = {
+          sessionId,
+          hostUserId,
+          status: 'active',
+          createdAt: new Date(),
+          lastActivity: new Date(),
+          config: '{}' // Empty config for now
+        };
+        
+        await autoGenMemoriSQLite.storeSwarmSession(persistedSession);
+        console.log(`Persisted swarm session creation: ${sessionId}`);
+      }
+    } catch (error) {
+      console.error('Failed to persist swarm session creation:', error);
+    }
+  }
+
+  /**
+   * Handles swarm session participant joined event
+   */
+  private async handleSwarmSessionParticipantJoined(event: LAPAEvent): Promise<void> {
+    if (!this.config.enableSwarmSessionPersistence || !event.payload) {
+      return;
+    }
+
+    try {
+      const sessionId = event.payload.sessionId;
+      const userId = event.payload.userId;
+      const agentId = event.payload.agentId;
+      const displayName = event.payload.displayName;
+      
+      if (sessionId && userId && displayName) {
+        const persistedParticipant: PersistedSessionParticipant = {
+          sessionId,
+          userId,
+          agentId,
+          displayName,
+          joinedAt: new Date(),
+          isHost: 0, // Will be updated when we have full session data
+          capabilities: '[]', // Empty capabilities for now
+          connectionState: 'connected'
+        };
+        
+        await autoGenMemoriSQLite.storeSwarmSessionParticipant(persistedParticipant);
+        console.log(`Persisted participant join: ${userId} in session ${sessionId}`);
+      }
+    } catch (error) {
+      console.error('Failed to persist swarm session participant join:', error);
+    }
+  }
+
+  /**
+   * Handles swarm session participant left event
+   */
+  private async handleSwarmSessionParticipantLeft(event: LAPAEvent): Promise<void> {
+    if (!this.config.enableSwarmSessionPersistence || !event.payload) {
+      return;
+    }
+
+    try {
+      const sessionId = event.payload.sessionId;
+      const userId = event.payload.userId;
+      
+      if (sessionId && userId) {
+        await autoGenMemoriSQLite.removeSwarmSessionParticipant(sessionId, userId);
+        console.log(`Persisted participant leave: ${userId} from session ${sessionId}`);
+      }
+    } catch (error) {
+      console.error('Failed to persist swarm session participant leave:', error);
+    }
+  }
+
+  /**
+   * Handles swarm session closed event
+   */
+  private async handleSwarmSessionClosed(event: LAPAEvent): Promise<void> {
+    if (!this.config.enableSwarmSessionPersistence || !event.payload) {
+      return;
+    }
+
+    try {
+      const sessionId = event.payload.sessionId;
+      
+      if (sessionId) {
+        await autoGenMemoriSQLite.removeSwarmSession(sessionId);
+        console.log(`Persisted session closure: ${sessionId}`);
+      }
+    } catch (error) {
+      console.error('Failed to persist swarm session closure:', error);
+    }
+  }
+
+  /**
+   * Handles swarm task completed event
+   */
+  private async handleSwarmTaskCompleted(event: LAPAEvent): Promise<void> {
+    if (!this.config.enableSwarmSessionPersistence || !event.payload) {
+      return;
+    }
+
+    try {
+      const sessionId = event.payload.sessionId;
+      const taskId = event.payload.taskId;
+      const task = event.payload.task;
+      
+      if (sessionId && taskId && task) {
+        const persistedTask: PersistedSessionTask = {
+          sessionId,
+          taskId,
+          taskData: JSON.stringify(task)
+        };
+        
+        await autoGenMemoriSQLite.storeSwarmSessionTask(persistedTask);
+        console.log(`Persisted task completion: ${taskId} in session ${sessionId}`);
+      }
+    } catch (error) {
+      console.error('Failed to persist swarm task completion:', error);
+    }
+  }
+
+  /**
+   * Handles swarm task vetoed event
+   */
+  private async handleSwarmTaskVetoed(event: LAPAEvent): Promise<void> {
+    if (!this.config.enableSwarmSessionPersistence || !event.payload) {
+      return;
+    }
+
+    try {
+      const sessionId = event.payload.sessionId;
+      const taskId = event.payload.taskId;
+      const vetoId = event.payload.vetoId;
+      
+      if (sessionId && taskId && vetoId) {
+        // Store the veto information
+        const persistedVeto: PersistedSessionVeto = {
+          sessionId,
+          taskId,
+          votingSessionId: vetoId // Using vetoId as votingSessionId for now
+        };
+        
+        await autoGenMemoriSQLite.storeSwarmSessionVeto(persistedVeto);
+        console.log(`Persisted task veto: ${taskId} in session ${sessionId}`);
+      }
+    } catch (error) {
+      console.error('Failed to persist swarm task veto:', error);
+    }
+  }
+
+  /**
+   * Recovers swarm sessions from persistence
+   */
+  async recoverSwarmSessions(): Promise<void> {
+    if (!this.config.enableSwarmSessionPersistence) {
+      return;
+    }
+
+    try {
+      // Get all persisted sessions
+      const persistedSessions = await autoGenMemoriSQLite.getAllSwarmSessions();
+      
+      // For each session, we would notify the swarm session manager to restore it
+      // This would require the swarm session manager to have a method for restoring sessions
+      // from persisted data
+      
+      console.log(`Recovered ${persistedSessions.length} swarm sessions from persistence`);
+    } catch (error) {
+      console.error('Failed to recover swarm sessions:', error);
+    }
+  }
+
   async close(): Promise<void> {
     await autoGenMemoriSQLite.close();
     this.sessions.clear();
