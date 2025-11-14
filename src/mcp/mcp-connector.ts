@@ -7,8 +7,19 @@
  * - Dynamic tool discovery
  * - Progressive disclosure
  * - Local connectors (SQLite, Git, FS)
+ * - Retry logic with exponential backoff
+ * - Enhanced error handling and classification
+ * - Security integration (RBAC, rate limiting, input validation)
+ * - Audit logging and usage analytics
  * 
  * Phase 11: MCP + A2A Connectors integration
+ * 
+ * Enhanced Features:
+ * - Automatic retry with exponential backoff for transient failures
+ * - Error classification (retryable vs non-retryable)
+ * - Detailed error messages with context
+ * - Exponential backoff reconnection
+ * - Comprehensive audit logging
  */
 
 import { eventBus } from '../core/event-bus.ts';
