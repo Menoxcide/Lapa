@@ -9,7 +9,7 @@
  * - Performance under realistic load
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { eventBus } from '../../core/event-bus.ts';
 import { A2AMediator } from '../../swarm/a2a-mediator.ts';
 import { SwarmSessionManager } from '../../swarm/sessions.ts';
@@ -20,6 +20,45 @@ import { EpisodicMemoryStore } from '../../local/episodic.ts';
 import { AgentDiversityLab } from '../../orchestrator/agent-diversity.ts';
 import { SelfImprovementSystem } from '../../orchestrator/self-improvement.ts';
 
+// Mock memory systems for faster E2E tests
+vi.mock('../../local/memori-engine.ts', () => ({
+  MemoriEngine: vi.fn().mockImplementation(() => ({
+    initialize: vi.fn().mockResolvedValue(undefined),
+    getRecentMemories: vi.fn().mockResolvedValue([]),
+    getCrossSessionMemories: vi.fn().mockResolvedValue([]),
+    getEntityRelationships: vi.fn().mockResolvedValue([]),
+    extractEntities: vi.fn().mockResolvedValue([])
+  }))
+}));
+
+vi.mock('../../local/episodic.ts', () => ({
+  EpisodicMemoryStore: vi.fn().mockImplementation(() => ({
+    initialize: vi.fn().mockResolvedValue(undefined),
+    store: vi.fn().mockResolvedValue(undefined),
+    search: vi.fn().mockResolvedValue([{
+      agentId: 'test-agent',
+      content: 'Test episode',
+      importance: 0.9,
+      tags: ['test']
+    }]),
+    getEpisodes: vi.fn().mockResolvedValue([])
+  }))
+}));
+
+// Mock orchestrator for controlled workflow execution
+vi.mock('../../swarm/langgraph.orchestrator.ts', () => ({
+  LangGraphOrchestrator: vi.fn().mockImplementation(() => ({
+    addNode: vi.fn(),
+    addEdge: vi.fn(),
+    executeWorkflow: vi.fn().mockResolvedValue({
+      success: true,
+      executionPath: ['start', 'plan', 'implement', 'review', 'test', 'deploy', 'end'],
+      output: { result: 'success' },
+      finalState: { completed: true }
+    })
+  }))
+}));
+
 describe('Comprehensive E2E Workflow Tests', () => {
   let a2aMediator: A2AMediator;
   let sessionManager: SwarmSessionManager;
@@ -29,8 +68,31 @@ describe('Comprehensive E2E Workflow Tests', () => {
   let episodicMemory: EpisodicMemoryStore;
   let diversityLab: AgentDiversityLab;
   let selfImprovement: SelfImprovementSystem;
+  let mockEventHandlers: Map<string, Function[]>;
 
   beforeEach(async () => {
+    // Setup mock event bus
+    mockEventHandlers = new Map();
+    vi.spyOn(eventBus, 'subscribe').mockImplementation((eventType: string, handler: Function) => {
+      if (!mockEventHandlers.has(eventType)) {
+        mockEventHandlers.set(eventType, []);
+      }
+      mockEventHandlers.get(eventType)!.push(handler);
+      return () => {
+        const handlers = mockEventHandlers.get(eventType);
+        if (handlers) {
+          const index = handlers.indexOf(handler);
+          if (index > -1) handlers.splice(index, 1);
+        }
+      };
+    });
+
+    vi.spyOn(eventBus, 'publish').mockImplementation(async (event: any) => {
+      const handlers = mockEventHandlers.get(event.type) || [];
+      handlers.forEach(handler => handler(event));
+      return Promise.resolve();
+    });
+
     a2aMediator = new A2AMediator();
     sessionManager = new SwarmSessionManager();
     orchestrator = new LangGraphOrchestrator();

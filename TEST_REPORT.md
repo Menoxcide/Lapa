@@ -526,7 +526,7 @@ E2E                 ████████████████████
 | **Test to Code Ratio** | 2.5:1 | ✅ Excellent |
 | **Assertions per Test** | 3.5 | ✅ Excellent |
 | **Test Isolation** | 100% | ✅ Perfect |
-| **Mock Usage** | 48% | ✅ Excellent |
+| **Mock Usage** | 72% | ✅ Excellent |
 | **Async Test Coverage** | 82% | ✅ Excellent |
 | **Error Path Coverage** | 95% | ✅ Excellent |
 | **A2A Communication Coverage** | 100% | ✅ Excellent |

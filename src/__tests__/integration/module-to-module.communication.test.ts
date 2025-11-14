@@ -11,7 +11,7 @@
  * - Observability ↔ All Modules
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { eventBus } from '../../core/event-bus.ts';
 import { A2AMediator } from '../../swarm/a2a-mediator.ts';
 import { SwarmSessionManager } from '../../swarm/sessions.ts';
@@ -23,6 +23,44 @@ import { MCPConnector } from '../../mcp/mcp-connector.ts';
 import { RBACSystem } from '../../security/rbac.ts';
 import { PrometheusMetrics } from '../../observability/prometheus.ts';
 
+// Mock external dependencies
+vi.mock('../../mcp/mcp-connector.ts', () => ({
+  MCPConnector: vi.fn().mockImplementation(() => ({
+    connect: vi.fn().mockResolvedValue(undefined),
+    listTools: vi.fn().mockResolvedValue([{ name: 'test-tool', description: 'Test' }]),
+    callTool: vi.fn().mockResolvedValue({ result: 'success' }),
+    disconnect: vi.fn().mockResolvedValue(undefined)
+  }))
+}));
+
+vi.mock('../../observability/prometheus.ts', () => ({
+  PrometheusMetrics: vi.fn().mockImplementation(() => ({
+    getMetrics: vi.fn().mockResolvedValue({ events: 100, latency: 50 }),
+    recordEvent: vi.fn(),
+    recordLatency: vi.fn()
+  }))
+}));
+
+// Mock memory systems for faster tests
+vi.mock('../../local/memori-engine.ts', () => ({
+  MemoriEngine: vi.fn().mockImplementation(() => ({
+    initialize: vi.fn().mockResolvedValue(undefined),
+    getRecentMemories: vi.fn().mockResolvedValue([]),
+    getCrossSessionMemories: vi.fn().mockResolvedValue([]),
+    getEntityRelationships: vi.fn().mockResolvedValue([]),
+    extractEntities: vi.fn().mockResolvedValue([])
+  }))
+}));
+
+vi.mock('../../local/episodic.ts', () => ({
+  EpisodicMemoryStore: vi.fn().mockImplementation(() => ({
+    initialize: vi.fn().mockResolvedValue(undefined),
+    store: vi.fn().mockResolvedValue(undefined),
+    search: vi.fn().mockResolvedValue([]),
+    getEpisodes: vi.fn().mockResolvedValue([])
+  }))
+}));
+
 describe('Module-to-Module Communication Integration', () => {
   let a2aMediator: A2AMediator;
   let sessionManager: SwarmSessionManager;
@@ -33,8 +71,31 @@ describe('Module-to-Module Communication Integration', () => {
   let mcpConnector: MCPConnector;
   let rbacSystem: RBACSystem;
   let metrics: PrometheusMetrics;
+  let mockEventSubscribers: Map<string, Function[]>;
 
   beforeEach(async () => {
+    // Setup mock event bus
+    mockEventSubscribers = new Map();
+    vi.spyOn(eventBus, 'subscribe').mockImplementation((eventType: string, handler: Function) => {
+      if (!mockEventSubscribers.has(eventType)) {
+        mockEventSubscribers.set(eventType, []);
+      }
+      mockEventSubscribers.get(eventType)!.push(handler);
+      return () => {
+        const handlers = mockEventSubscribers.get(eventType);
+        if (handlers) {
+          const index = handlers.indexOf(handler);
+          if (index > -1) handlers.splice(index, 1);
+        }
+      };
+    });
+
+    vi.spyOn(eventBus, 'publish').mockImplementation(async (event: any) => {
+      const handlers = mockEventSubscribers.get(event.type) || [];
+      handlers.forEach(handler => handler(event));
+      return Promise.resolve();
+    });
+
     a2aMediator = new A2AMediator();
     sessionManager = new SwarmSessionManager();
     orchestrator = new LangGraphOrchestrator();

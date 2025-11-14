@@ -22,13 +22,54 @@ import type {
   A2AStateSyncRequest
 } from '../../swarm/a2a-mediator.ts';
 
+// Mock event bus for isolated unit tests
+vi.mock('../../core/event-bus.ts', () => {
+  const mockEventBus = {
+    subscribe: vi.fn(),
+    publish: vi.fn(),
+    removeAllListeners: vi.fn(),
+    listenerCount: vi.fn(() => 0)
+  };
+  return { eventBus: mockEventBus };
+});
+
 describe('A2A Comprehensive Communication Tests', () => {
   let mediator: A2AMediator;
   let handshakeEvents: any[] = [];
   let negotiationEvents: any[] = [];
   let syncEvents: any[] = [];
+  let mockEventBus: any;
 
   beforeEach(() => {
+    // Get mocked event bus
+    mockEventBus = (await import('../../core/event-bus.ts')).eventBus;
+    vi.clearAllMocks();
+
+    // Setup mock event bus to track events
+    mockEventBus.subscribe.mockImplementation((eventType: string, handler: Function) => {
+      if (eventType === 'a2a.handshake.request') {
+        return (event: any) => {
+          handshakeEvents.push(event);
+          handler(event);
+        };
+      }
+      if (eventType === 'a2a.task.negotiation.request') {
+        return (event: any) => {
+          negotiationEvents.push(event);
+          handler(event);
+        };
+      }
+      if (eventType === 'a2a.state.sync.request') {
+        return (event: any) => {
+          syncEvents.push(event);
+          handler(event);
+        };
+      }
+      return handler;
+    });
+
+    mockEventBus.publish.mockResolvedValue(undefined);
+
     mediator = new A2AMediator({
       enableHandshake: true,
       handshakeTimeoutMs: 5000,

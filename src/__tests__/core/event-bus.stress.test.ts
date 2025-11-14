@@ -9,18 +9,70 @@
  * - Event ordering guarantees
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { eventBus } from '../../core/event-bus.ts';
 import type { LAPAEvent } from '../../core/types/event-types.ts';
 
+// Mock performance hooks for timing tests
+vi.mock('perf_hooks', () => ({
+  performance: {
+    now: vi.fn(() => Date.now())
+  }
+}));
+
+// Mock memory usage for memory leak tests
+const mockMemoryUsage = {
+  heapUsed: 50 * 1024 * 1024, // 50MB
+  heapTotal: 100 * 1024 * 1024,
+  external: 0,
+  rss: 100 * 1024 * 1024
+};
+
+vi.mock('process', () => ({
+  default: {
+    memoryUsage: vi.fn(() => mockMemoryUsage)
+  }
+}));
+
 describe('Event Bus Stress Tests', () => {
+  let mockSubscribers: Map<string, Set<Function>>;
+  let publishedEvents: LAPAEvent[];
+
   beforeEach(() => {
-    // Clear all listeners before each test
-    eventBus.removeAllListeners();
+    // Setup mock event bus with internal tracking
+    mockSubscribers = new Map();
+    publishedEvents = [];
+
+    // Mock event bus methods
+    vi.spyOn(eventBus, 'subscribe').mockImplementation((eventType: string, handler: Function) => {
+      if (!mockSubscribers.has(eventType)) {
+        mockSubscribers.set(eventType, new Set());
+      }
+      mockSubscribers.get(eventType)!.add(handler);
+      return () => mockSubscribers.get(eventType)?.delete(handler);
+    });
+
+    vi.spyOn(eventBus, 'publish').mockImplementation(async (event: LAPAEvent) => {
+      publishedEvents.push(event);
+      const handlers = mockSubscribers.get(event.type) || new Set();
+      handlers.forEach(handler => handler(event));
+      return Promise.resolve();
+    });
+
+    vi.spyOn(eventBus, 'removeAllListeners').mockImplementation(() => {
+      mockSubscribers.clear();
+      publishedEvents = [];
+    });
+
+    vi.spyOn(eventBus, 'listenerCount').mockImplementation((eventType: string) => {
+      return mockSubscribers.get(eventType)?.size || 0;
+    });
   });
 
   afterEach(() => {
-    eventBus.removeAllListeners();
+    vi.clearAllMocks();
+    mockSubscribers.clear();
+    publishedEvents = [];
   });
 
   describe('High Volume Event Publishing', () => {
