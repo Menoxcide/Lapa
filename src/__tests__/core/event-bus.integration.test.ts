@@ -5,6 +5,7 @@
  * event publishing, subscription management, and performance characteristics.
  */
 
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { LAPAEventBus, eventBus } from '../../core/event-bus.ts';
 import { 
   LAPAEventMap, 
@@ -15,11 +16,13 @@ import {
 import { setupDefaultLAPARoutes } from '../../core/utils/event-router.ts';
 
 // Mock performance.now for consistent timing tests
-const mockPerformanceNow = jest.spyOn(require('perf_hooks'), 'performance', 'get');
+vi.mock('perf_hooks', () => ({
+  performance: {
+    now: vi.fn(() => Date.now())
+  }
+}));
+
 let now = 0;
-mockPerformanceNow.mockReturnValue({
-  now: () => now
-});
 
 describe('LAPA Core Event Bus Integration', () => {
   let testEventBus: LAPAEventBus;
@@ -32,7 +35,7 @@ describe('LAPA Core Event Bus Integration', () => {
 
   afterEach(() => {
     testEventBus.clear();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Event Publishing and Subscription', () => {
@@ -199,21 +202,26 @@ describe('LAPA Core Event Bus Integration', () => {
   });
 
   describe('Subscription Management', () => {
-    it('should manage subscriptions correctly', () => {
+    it('should manage subscriptions correctly', async () => {
       // Initial subscription count should be 0
       expect(testEventBus.getSubscriptionCount()).toBe(0);
+      expect(typeof testEventBus.getSubscriptionCount).toBe('function');
 
       // Subscribe to an event type
       const subscriptionId = testEventBus.subscribe('task.created', () => {});
+      expect(subscriptionId).toBeDefined();
+      expect(typeof subscriptionId).toBe('string');
 
       // Subscription count should be 1
       expect(testEventBus.getSubscriptionCount()).toBe(1);
+      expect(testEventBus.getSubscriptionCount()).toBeGreaterThan(0);
 
       // Unsubscribe
       testEventBus.unsubscribe(subscriptionId);
 
       // Subscription count should be 0 again
       expect(testEventBus.getSubscriptionCount()).toBe(0);
+      expect(testEventBus.getSubscriptionCount()).toBeLessThan(1);
     });
 
     it('should apply filters to subscriptions', async () => {

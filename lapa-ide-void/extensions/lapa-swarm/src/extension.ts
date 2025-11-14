@@ -6,6 +6,7 @@ import { LAPASwarmViewPane } from './ui/LAPASwarmViewPane';
 import { getSwarmManager } from './swarm/swarm-manager.ts';
 import { a2aMediator } from './orchestrator/a2a-mediator.ts';
 import { featureGate } from './premium/feature-gate.ts';
+import { generateCommitMessage } from '../orchestrator/git-commit-generator.js';
 
 export function activate(context: vscode.ExtensionContext) {
 	console.log('LAPA Swarm extension is now active!');
@@ -169,6 +170,189 @@ function registerCommands(context: vscode.ExtensionContext, swarmManager: Return
 		}
 	});
 
+	// Restore Swarm Session Command
+	const restoreSessionCommand = vscode.commands.registerCommand('lapa.swarm.restore', async () => {
+		try {
+			// Import session restore manager
+			const { SessionRestoreManager } = await import('../swarm/session-restore.js');
+			const { SessionPersistenceManager } = await import('../swarm/session-persistence.js');
+			const { MemoriEngine } = await import('../local/memori-engine.js');
+			const { EpisodicMemory } = await import('../local/episodic.js');
+
+			// Initialize managers (simplified - would need proper initialization)
+			const memoriEngine = new MemoriEngine({});
+			const episodicMemory = new EpisodicMemory({});
+			const persistenceManager = new SessionPersistenceManager(
+				{ enabled: true },
+				memoriEngine,
+				episodicMemory
+			);
+			const restoreManager = new SessionRestoreManager(persistenceManager, swarmManager);
+
+			// List saved sessions
+			const savedSessions = await persistenceManager.listSavedSessions();
+
+			if (savedSessions.length === 0) {
+				vscode.window.showInformationMessage('No saved sessions found to restore.');
+				return;
+			}
+
+			// Show session picker
+			const sessionItems = savedSessions.map(s => ({
+				label: `Session: ${s.sessionId.substring(0, 8)}...`,
+				description: `Last active: ${s.lastActivity.toLocaleString()}`,
+				detail: `Status: ${s.status}`,
+				sessionId: s.sessionId
+			}));
+
+			const selected = await vscode.window.showQuickPick(sessionItems, {
+				placeHolder: 'Select a session to restore'
+			});
+
+			if (!selected) {
+				return;
+			}
+
+			// Restore session
+			await vscode.window.withProgress({
+				location: vscode.ProgressLocation.Notification,
+				title: `Restoring session ${selected.sessionId.substring(0, 8)}...`,
+				cancellable: false
+			}, async () => {
+				const result = await restoreManager.restoreSession(selected.sessionId);
+
+				if (result.success && result.restored) {
+					vscode.window.showInformationMessage(
+						`Session restored: ${result.details?.participants} participants, ${result.details?.tasks} tasks`
+					);
+				} else {
+					vscode.window.showErrorMessage(
+						`Failed to restore session: ${result.error || 'Unknown error'}`
+					);
+				}
+			});
+		} catch (error) {
+			const message = error instanceof Error ? error.message : String(error);
+			vscode.window.showErrorMessage(`Failed to restore session: ${message}`);
+		}
+	});
+
+	// List Saved Sessions Command
+	const listSessionsCommand = vscode.commands.registerCommand('lapa.swarm.listSessions', async () => {
+		try {
+			const { SessionPersistenceManager } = await import('../swarm/session-persistence.js');
+			const { MemoriEngine } = await import('../local/memori-engine.js');
+			const { EpisodicMemory } = await import('../local/episodic.js');
+
+			const memoriEngine = new MemoriEngine({});
+			const episodicMemory = new EpisodicMemory({});
+			const persistenceManager = new SessionPersistenceManager(
+				{ enabled: true },
+				memoriEngine,
+				episodicMemory
+			);
+
+			const sessions = await persistenceManager.listSavedSessions();
+
+			if (sessions.length === 0) {
+				vscode.window.showInformationMessage('No saved sessions found.');
+				return;
+			}
+
+			const message = `Found ${sessions.length} saved session(s). Use "LAPA: Restore Session" to restore one.`;
+			vscode.window.showInformationMessage(message);
+		} catch (error) {
+			const message = error instanceof Error ? error.message : String(error);
+			vscode.window.showErrorMessage(`Failed to list sessions: ${message}`);
+		}
+	});
+
+	// Generate Git Commit Message Command
+	const generateCommitCommand = vscode.commands.registerCommand('lapa.git.generateCommit', async () => {
+		try {
+			// Show progress
+			await vscode.window.withProgress({
+				location: vscode.ProgressLocation.Notification,
+				title: 'Generating commit message...',
+				cancellable: false
+			}, async () => {
+				// Get format preference
+				const format = await vscode.window.showQuickPick(
+					[
+						{ label: 'Conventional Commits', value: 'conventional' },
+						{ label: 'Descriptive', value: 'descriptive' },
+						{ label: 'Detailed', value: 'detailed' }
+					],
+					{ placeHolder: 'Select commit message format' }
+				);
+
+				if (!format) {
+					return;
+				}
+
+				// Generate commit message
+				const result = await generateCommitMessage({
+					format: format.value as any,
+					includeBody: format.value === 'detailed',
+					useConventionalCommits: format.value === 'conventional'
+				});
+
+				// Show commit message in input box for editing
+				const editedMessage = await vscode.window.showInputBox({
+					prompt: 'Review and edit the generated commit message',
+					value: result.fullMessage,
+					ignoreFocusOut: true
+				});
+
+				if (editedMessage) {
+					// Copy to clipboard
+					await vscode.env.clipboard.writeText(editedMessage);
+					
+					// Show option to commit
+					const action = await vscode.window.showInformationMessage(
+						`Commit message generated (${(result.confidence * 100).toFixed(0)}% confidence). Copied to clipboard.`,
+						'Commit Now',
+						'Copy Only'
+					);
+
+					if (action === 'Commit Now') {
+						// Execute git commit
+						const terminal = vscode.window.createTerminal('Git Commit');
+						terminal.sendText(`git commit -m "${editedMessage.replace(/"/g, '\\"')}"`);
+						terminal.show();
+					}
+				}
+			});
+		} catch (error) {
+			const message = error instanceof Error ? error.message : String(error);
+			vscode.window.showErrorMessage(`Failed to generate commit message: ${message}`);
+		}
+	});
+
+	// Upgrade Command (if not already defined)
+	const upgradeCommand = vscode.commands.registerCommand('lapa.swarm.upgrade', async () => {
+		vscode.window.showInformationMessage('Upgrade to LAPA Swarm Pro for advanced features!', 'Learn More')
+			.then(selection => {
+				if (selection === 'Learn More') {
+					vscode.env.openExternal(vscode.Uri.parse('https://github.com/Menoxcide/Lapa#premium-features'));
+				}
+			});
+	});
+
+	// Activate License Command (if not already defined)
+	const activateLicenseCommand = vscode.commands.registerCommand('lapa.swarm.activateLicense', async () => {
+		const licenseKey = await vscode.window.showInputBox({
+			prompt: 'Enter your LAPA Swarm Pro license key',
+			placeHolder: 'XXXX-XXXX-XXXX-XXXX',
+			password: false
+		});
+
+		if (licenseKey) {
+			// License activation logic would go here
+			vscode.window.showInformationMessage('License activation feature coming soon!');
+		}
+	});
+
 	context.subscriptions.push(
 		startSwarmCommand,
 		stopSwarmCommand,
@@ -176,6 +360,9 @@ function registerCommands(context: vscode.ExtensionContext, swarmManager: Return
 		resumeSwarmCommand,
 		configureSwarmCommand,
 		statusSwarmCommand,
+		restoreSessionCommand,
+		listSessionsCommand,
+		generateCommitCommand,
 		upgradeCommand,
 		activateLicenseCommand
 	);

@@ -15,6 +15,7 @@ import { eventBus } from '../core/event-bus.ts';
 import { z } from 'zod';
 import type { WebSocket } from 'ws';
 import { mcpScaffolding } from './scaffolding.ts';
+import { mcpSecurityManager } from './mcp-security.ts';
 
 // MCP Protocol version
 export const MCP_PROTOCOL_VERSION = '2024-11-05';
@@ -33,6 +34,15 @@ export interface MCPConnectorConfig {
   enableProgressiveDisclosure?: boolean;
   reconnectIntervalMs?: number;
   maxReconnectAttempts?: number;
+  // Retry configuration
+  enableRetry?: boolean;
+  maxRetries?: number;
+  retryDelayMs?: number;
+  exponentialBackoff?: boolean;
+  maxRetryDelayMs?: number;
+  // Error handling
+  retryableErrors?: string[];
+  nonRetryableErrors?: string[];
 }
 
 // Default configuration
@@ -42,7 +52,35 @@ const DEFAULT_CONFIG: Required<Omit<MCPConnectorConfig, 'websocketUrl' | 'stdioC
   enableToolDiscovery: true,
   enableProgressiveDisclosure: true,
   reconnectIntervalMs: 5000,
-  maxReconnectAttempts: 5
+  maxReconnectAttempts: 5,
+  // Retry configuration
+  enableRetry: true,
+  maxRetries: 3,
+  retryDelayMs: 1000,
+  exponentialBackoff: true,
+  maxRetryDelayMs: 30000,
+  // Error handling
+  retryableErrors: [
+    'timeout',
+    'network',
+    'connection',
+    'ECONNREFUSED',
+    'ETIMEDOUT',
+    'ENOTFOUND',
+    'ECONNRESET',
+    'EPIPE',
+    'ECONNABORTED'
+  ],
+  nonRetryableErrors: [
+    'authentication',
+    'authorization',
+    'permission',
+    'invalid',
+    'validation',
+    'not found',
+    'malformed',
+    'parse error'
+  ]
 };
 
 // JSON-RPC request/response types
@@ -367,11 +405,47 @@ export class MCPConnector {
    * Calls an MCP tool
    * @param toolName Tool name
    * @param arguments_ Tool arguments
+   * @param agentId Agent ID making the call (optional, for security checks)
+   * @param resourceId Resource ID (optional, for security checks)
    * @returns Promise that resolves with the tool result
    */
-  async callTool(toolName: string, arguments_: Record<string, unknown>): Promise<unknown> {
+  async callTool(
+    toolName: string, 
+    arguments_: Record<string, unknown>,
+    agentId?: string,
+    resourceId?: string
+  ): Promise<unknown> {
     if (!this.isConnected) {
       throw new Error('MCP connector is not connected');
+    }
+
+    const startTime = Date.now();
+
+    // Security validation (if agentId is provided)
+    if (agentId) {
+      const securityCheck = await mcpSecurityManager.validateToolCall(
+        agentId,
+        toolName,
+        arguments_,
+        resourceId
+      );
+
+      if (!securityCheck.passed) {
+        const errorMessage = securityCheck.checks.rbac?.reason || 
+          securityCheck.recommendations?.join('; ') || 
+          'Security validation failed';
+        
+        // Record failed tool usage
+        mcpSecurityManager.recordToolUsage(
+          toolName,
+          agentId,
+          false,
+          Date.now() - startTime,
+          errorMessage
+        );
+        
+        throw new Error(`Tool call blocked: ${errorMessage}`);
+      }
     }
 
     // Check if it's a generated tool
@@ -379,6 +453,17 @@ export class MCPConnector {
     if (generatedTool) {
       try {
         const result = await generatedTool(arguments_);
+        const executionTime = Date.now() - startTime;
+        
+        // Record successful tool usage
+        if (agentId) {
+          mcpSecurityManager.recordToolUsage(
+            toolName,
+            agentId,
+            true,
+            executionTime
+          );
+        }
         
         // Publish tool call event
         await eventBus.publish({
@@ -389,13 +474,29 @@ export class MCPConnector {
           payload: {
             toolName,
             arguments: arguments_,
-            result
+            result,
+            agentId,
+            executionTime
           }
         });
         
         return result;
       } catch (error) {
-        throw new Error(`Generated tool call failed: ${error instanceof Error ? error.message : String(error)}`);
+        const executionTime = Date.now() - startTime;
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        
+        // Record failed tool usage
+        if (agentId) {
+          mcpSecurityManager.recordToolUsage(
+            toolName,
+            agentId,
+            false,
+            executionTime,
+            errorMessage
+          );
+        }
+        
+        throw new Error(`Generated tool call failed: ${errorMessage}`);
       }
     }
 
@@ -408,38 +509,118 @@ export class MCPConnector {
     try {
       tool.inputSchema.parse(arguments_);
     } catch (error) {
-      throw new Error(`Invalid tool arguments: ${error instanceof Error ? error.message : String(error)}`);
+      const executionTime = Date.now() - startTime;
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      
+      // Build detailed validation error message
+      let detailedErrorMessage = `Invalid tool arguments for '${toolName}': ${errorMessage}`;
+      if (error instanceof z.ZodError) {
+        const issues = error.issues.map(issue => 
+          `${issue.path.join('.')}: ${issue.message}`
+        ).join('; ');
+        detailedErrorMessage += ` - Validation issues: ${issues}`;
+      }
+      
+      // Record failed tool usage
+      if (agentId) {
+        mcpSecurityManager.recordToolUsage(
+          toolName,
+          agentId,
+          false,
+          executionTime,
+          detailedErrorMessage
+        );
+      }
+      
+      throw new Error(detailedErrorMessage);
     }
 
-    // Send tool call request
-    const response = await this.sendRequest({
-      jsonrpc: '2.0',
-      id: this.generateRequestId(),
-      method: 'tools/call',
-      params: {
-        name: toolName,
-        arguments: arguments_
-      }
-    });
+    try {
+      // Send tool call request
+      const response = await this.sendRequest({
+        jsonrpc: '2.0',
+        id: this.generateRequestId(),
+        method: 'tools/call',
+        params: {
+          name: toolName,
+          arguments: arguments_
+        }
+      });
 
-    if (response.error) {
-      throw new Error(`Tool call failed: ${response.error.message}`);
+      if (response.error) {
+        const executionTime = Date.now() - startTime;
+        const errorCode = response.error.code || -1;
+        const errorMessage = response.error.message || 'Unknown error';
+        const errorData = response.error.data;
+        
+        // Build detailed error message
+        let detailedErrorMessage = `Tool call failed: ${errorMessage}`;
+        if (errorCode !== -1) {
+          detailedErrorMessage += ` (code: ${errorCode})`;
+        }
+        if (errorData) {
+          detailedErrorMessage += ` - ${JSON.stringify(errorData)}`;
+        }
+        
+        // Record failed tool usage
+        if (agentId) {
+          mcpSecurityManager.recordToolUsage(
+            toolName,
+            agentId,
+            false,
+            executionTime,
+            detailedErrorMessage
+          );
+        }
+        
+        throw new Error(detailedErrorMessage);
+      }
+
+      const executionTime = Date.now() - startTime;
+      
+      // Record successful tool usage
+      if (agentId) {
+        mcpSecurityManager.recordToolUsage(
+          toolName,
+          agentId,
+          true,
+          executionTime
+        );
+      }
+
+      // Publish tool call event
+      await eventBus.publish({
+        id: `mcp-tool-call-${Date.now()}`,
+        type: 'mcp.tool.called',
+        timestamp: Date.now(),
+        source: 'mcp-connector',
+        payload: {
+          toolName,
+          arguments: arguments_,
+          result: response.result,
+          agentId,
+          executionTime
+        }
+      });
+
+      return response.result;
+    } catch (error) {
+      const executionTime = Date.now() - startTime;
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      
+      // Record failed tool usage
+      if (agentId) {
+        mcpSecurityManager.recordToolUsage(
+          toolName,
+          agentId,
+          false,
+          executionTime,
+          errorMessage
+        );
+      }
+      
+      throw error;
     }
-
-    // Publish tool call event
-    await eventBus.publish({
-      id: `mcp-tool-call-${Date.now()}`,
-      type: 'mcp.tool.called',
-      timestamp: Date.now(),
-      source: 'mcp-connector',
-      payload: {
-        toolName,
-        arguments: arguments_,
-        result: response.result
-      }
-    });
-
-    return response.result;
   }
 
   /**
@@ -509,11 +690,70 @@ export class MCPConnector {
   }
 
   /**
-   * Sends a JSON-RPC request
+   * Sends a JSON-RPC request with retry logic
+   * @param request Request to send
+   * @param retryAttempt Current retry attempt (internal use)
+   * @returns Promise that resolves with the response
+   */
+  private async sendRequest(request: JSONRPCRequest, retryAttempt: number = 0): Promise<JSONRPCResponse> {
+    if (!this.transport) {
+      throw new Error('MCP transport is not initialized. Please connect first.');
+    }
+
+    try {
+      return await this._sendRequestInternal(request);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      const isRetryable = this.isRetryableError(errorMessage);
+      
+      // Check if we should retry
+      if (
+        this.config.enableRetry &&
+        isRetryable &&
+        retryAttempt < (this.config.maxRetries || 3)
+      ) {
+        const delay = this.calculateRetryDelay(retryAttempt);
+        console.warn(
+          `MCP request failed (attempt ${retryAttempt + 1}/${this.config.maxRetries! + 1}): ${errorMessage}. Retrying in ${delay}ms...`
+        );
+        
+        // Publish retry event
+        await eventBus.publish({
+          id: `mcp-request-retry-${Date.now()}`,
+          type: 'mcp.request.retry',
+          timestamp: Date.now(),
+          source: 'mcp-connector',
+          payload: {
+            method: request.method,
+            attempt: retryAttempt + 1,
+            maxAttempts: this.config.maxRetries! + 1,
+            delay,
+            error: errorMessage
+          }
+        }).catch(console.error);
+        
+        // Wait before retrying
+        await new Promise(resolve => setTimeout(resolve, delay));
+        
+        // Retry the request
+        return this.sendRequest(request, retryAttempt + 1);
+      }
+      
+      // All retries failed or error is not retryable
+      const errorMsg = retryAttempt > 0
+        ? `MCP request failed after ${retryAttempt + 1} attempts: ${errorMessage}`
+        : `MCP request failed: ${errorMessage}`;
+      
+      throw new Error(errorMsg);
+    }
+  }
+
+  /**
+   * Internal method to send a JSON-RPC request (without retry)
    * @param request Request to send
    * @returns Promise that resolves with the response
    */
-  private async sendRequest(request: JSONRPCRequest): Promise<JSONRPCResponse> {
+  private async _sendRequestInternal(request: JSONRPCRequest): Promise<JSONRPCResponse> {
     if (!this.transport) {
       throw new Error('Transport is not initialized');
     }
@@ -522,7 +762,7 @@ export class MCPConnector {
       const requestId = request.id || this.generateRequestId();
       const timeout = setTimeout(() => {
         this.pendingRequests.delete(requestId);
-        reject(new Error(`Request timeout: ${request.method}`));
+        reject(new Error(`Request timeout after ${this.config.timeoutMs}ms: ${request.method}`));
       }, this.config.timeoutMs || 30000);
 
       this.pendingRequests.set(requestId, {
@@ -539,8 +779,59 @@ export class MCPConnector {
         timeout
       });
 
-      this.transport!.send({ ...request, id: requestId }).catch(reject);
+      this.transport!.send({ ...request, id: requestId }).catch((error) => {
+        clearTimeout(timeout);
+        this.pendingRequests.delete(requestId);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        reject(new Error(`Failed to send request: ${errorMessage}`));
+      });
     });
+  }
+
+  /**
+   * Checks if an error is retryable
+   * @param errorMessage Error message to check
+   * @returns True if the error is retryable
+   */
+  private isRetryableError(errorMessage: string): boolean {
+    const lowerMessage = errorMessage.toLowerCase();
+    
+    // Check if error is explicitly non-retryable
+    for (const nonRetryable of this.config.nonRetryableErrors || []) {
+      if (lowerMessage.includes(nonRetryable.toLowerCase())) {
+        return false;
+      }
+    }
+    
+    // Check if error is explicitly retryable
+    for (const retryable of this.config.retryableErrors || []) {
+      if (lowerMessage.includes(retryable.toLowerCase())) {
+        return true;
+      }
+    }
+    
+    // Default: retry network/timeout errors, don't retry others
+    return lowerMessage.includes('timeout') || 
+           lowerMessage.includes('network') || 
+           lowerMessage.includes('connection') ||
+           lowerMessage.includes('econn') ||
+           lowerMessage.includes('etimedout');
+  }
+
+  /**
+   * Calculates retry delay with exponential backoff
+   * @param attempt Current retry attempt (0-based)
+   * @returns Delay in milliseconds
+   */
+  private calculateRetryDelay(attempt: number): number {
+    if (!this.config.exponentialBackoff) {
+      return this.config.retryDelayMs || 1000;
+    }
+    
+    const delay = Math.pow(2, attempt) * (this.config.retryDelayMs || 1000);
+    const maxDelay = this.config.maxRetryDelayMs || 30000;
+    
+    return Math.min(delay, maxDelay);
   }
 
   /**
@@ -605,27 +896,70 @@ export class MCPConnector {
   }
 
   /**
-   * Handles transport errors
+   * Handles transport errors with exponential backoff reconnection
    * @param error Error to handle
    */
   private handleTransportError(error: Error): void {
-    // Publish error event
+    const errorMessage = error.message || 'Unknown transport error';
+    
+    // Publish error event with detailed context
     eventBus.publish({
       id: `mcp-connector-error-${Date.now()}`,
       type: 'mcp.connector.error',
       timestamp: Date.now(),
       source: 'mcp-connector',
       payload: {
-        error: error.message
+        error: errorMessage,
+        transportType: this.config.transportType,
+        reconnectAttempts: this.reconnectAttempts,
+        maxReconnectAttempts: this.config.maxReconnectAttempts,
+        isConnected: this.isConnected
       }
     }).catch(console.error);
 
     // Attempt reconnection if configured
-    if (this.config.reconnectIntervalMs && this.reconnectAttempts < (this.config.maxReconnectAttempts || 5)) {
+    if (
+      this.config.reconnectIntervalMs && 
+      this.reconnectAttempts < (this.config.maxReconnectAttempts || 5)
+    ) {
+      // Calculate delay with exponential backoff
+      const baseDelay = this.config.reconnectIntervalMs;
+      const delay = this.config.exponentialBackoff
+        ? Math.min(
+            Math.pow(2, this.reconnectAttempts) * baseDelay,
+            this.config.maxRetryDelayMs || 30000
+          )
+        : baseDelay;
+      
+      console.warn(
+        `MCP transport error (attempt ${this.reconnectAttempts + 1}/${this.config.maxReconnectAttempts}): ${errorMessage}. Reconnecting in ${delay}ms...`
+      );
+      
       setTimeout(() => {
         this.reconnectAttempts++;
-        this.connect().catch(console.error);
-      }, this.config.reconnectIntervalMs);
+        this.connect().catch((reconnectError) => {
+          console.error(`Failed to reconnect to MCP server: ${reconnectError instanceof Error ? reconnectError.message : String(reconnectError)}`);
+          // Continue attempting reconnection if not at max attempts
+          if (this.reconnectAttempts < (this.config.maxReconnectAttempts || 5)) {
+            this.handleTransportError(reconnectError instanceof Error ? reconnectError : new Error(String(reconnectError)));
+          } else {
+            console.error(`Max reconnection attempts (${this.config.maxReconnectAttempts}) reached. Giving up.`);
+            // Publish final failure event
+            eventBus.publish({
+              id: `mcp-connector-reconnect-failed-${Date.now()}`,
+              type: 'mcp.connector.reconnect.failed',
+              timestamp: Date.now(),
+              source: 'mcp-connector',
+              payload: {
+                error: `Failed to reconnect after ${this.reconnectAttempts} attempts`,
+                lastError: reconnectError instanceof Error ? reconnectError.message : String(reconnectError)
+              }
+            }).catch(console.error);
+          }
+        });
+      }, delay);
+    } else if (this.reconnectAttempts >= (this.config.maxReconnectAttempts || 5)) {
+      console.error(`Max reconnection attempts (${this.config.maxReconnectAttempts}) reached. MCP connector is disconnected.`);
     }
   }
 

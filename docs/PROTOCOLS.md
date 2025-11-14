@@ -53,6 +53,22 @@ mcpConnector.registerTool({
 - **Context Compression**: `src/mcp/ctx-zip.integration.ts`
 - **Sandbox Environment**: `src/sandbox/local.provider.ts`
 - **E2B Integration**: `src/sandbox/e2b-mcp.ts`
+- **Security Manager**: `src/mcp/mcp-security.ts`
+- **MCP Servers**: `src/mcp/servers/`
+
+### Available MCP Servers
+- **Memory MCP Server** (`src/mcp/servers/memory-mcp-server.ts`): Access and manage agent memories
+- **Agent Coordination MCP Server** (`src/mcp/servers/agent-coordination-mcp-server.ts`): Coordinate agent-to-agent handoffs
+- **Code Analysis MCP Server** (`src/mcp/servers/code-analysis-mcp-server.ts`): Analyze code quality and security
+- **E2B MCP Server** (`src/sandbox/e2b-mcp.ts`): Secure code execution in sandboxed environments
+
+### Security Features
+- ✅ RBAC integration for tool access control
+- ✅ Rate limiting and request throttling
+- ✅ Input validation and sanitization
+- ✅ Audit logging for all operations
+- ✅ Suspicious activity detection
+- ✅ Tool usage analytics
 
 ### Protocol Compliance
 - ✅ JSON-RPC 2.0 specification
@@ -60,6 +76,8 @@ mcpConnector.registerTool({
 - ✅ Error handling and retry logic
 - ✅ Context compression support
 - ✅ Sandbox isolation
+- ✅ Security-first architecture
+- ✅ Comprehensive audit logging
 
 ## A2A (Agent-to-Agent Protocol)
 

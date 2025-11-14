@@ -10,6 +10,24 @@ import { episodicMemoryStore, EpisodicMemoryStore } from '../../local/episodic.t
 import { eventBus } from '../../core/event-bus.ts';
 import { memoriEngine } from '../../local/memori-engine.ts';
 
+// Mock event bus for better isolation
+vi.mock('../../core/event-bus.ts', () => ({
+  eventBus: {
+    subscribe: vi.fn(),
+    publish: vi.fn().mockResolvedValue(undefined),
+    removeAllListeners: vi.fn(),
+    listenerCount: vi.fn(() => 0)
+  }
+}));
+
+// Mock memori engine for faster tests
+vi.mock('../../local/memori-engine.ts', () => ({
+  memoriEngine: {
+    initialize: vi.fn().mockResolvedValue(undefined),
+    close: vi.fn().mockResolvedValue(undefined)
+  }
+}));
+
 describe('Episodic Memory Store (Phase 12)', () => {
   let store: EpisodicMemoryStore;
 

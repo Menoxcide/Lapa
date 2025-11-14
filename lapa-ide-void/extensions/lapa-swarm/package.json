@@ -61,6 +61,24 @@
         "command": "lapa.swarm.activateLicense",
         "title": "LAPA: Activate License",
         "category": "LAPA Swarm"
+      },
+      {
+        "command": "lapa.git.generateCommit",
+        "title": "LAPA: Generate Git Commit Message",
+        "category": "LAPA Swarm",
+        "icon": "$(git-commit)"
+      },
+      {
+        "command": "lapa.swarm.restore",
+        "title": "LAPA: Restore Session",
+        "category": "LAPA Swarm",
+        "icon": "$(history)"
+      },
+      {
+        "command": "lapa.swarm.listSessions",
+        "title": "LAPA: List Saved Sessions",
+        "category": "LAPA Swarm",
+        "icon": "$(list-unordered)"
       }
     ],
     "keybindings": [

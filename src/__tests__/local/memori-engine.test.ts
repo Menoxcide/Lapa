@@ -10,6 +10,26 @@ import { memoriEngine, MemoriEngine } from '../../local/memori-engine.ts';
 import { eventBus } from '../../core/event-bus.ts';
 import { autoGenMemoriSQLite } from '../../local/memori-sqlite.ts';
 
+// Mock event bus for better isolation
+vi.mock('../../core/event-bus.ts', () => ({
+  eventBus: {
+    subscribe: vi.fn(),
+    publish: vi.fn().mockResolvedValue(undefined),
+    removeAllListeners: vi.fn(),
+    listenerCount: vi.fn(() => 0)
+  }
+}));
+
+// Mock SQLite for faster tests
+vi.mock('../../local/memori-sqlite.ts', () => ({
+  autoGenMemoriSQLite: {
+    initialize: vi.fn().mockResolvedValue(undefined),
+    close: vi.fn().mockResolvedValue(undefined),
+    storeConversationEntry: vi.fn().mockResolvedValue(undefined),
+    storePerformanceMetric: vi.fn().mockResolvedValue(undefined)
+  }
+}));
+
 describe('Memori Engine (Phase 12)', () => {
   let engine: MemoriEngine;
 
