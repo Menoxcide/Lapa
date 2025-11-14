@@ -1,0 +1,43 @@
+id: document-xlsx
+name: XLSX Spreadsheet Manipulation
+description: Create, read, modify, and convert XLSX spreadsheets
+version: 1.0.0
+author: LAPA Team
+category: other
+inputs:
+  - name: operation
+    type: string
+    required: true
+    description: Operation type (read, write, extract, convert, modify)
+  - name: filePath
+    type: string
+    required: false
+    description: Path to XLSX file
+  - name: content
+    type: object
+    required: false
+    description: Content to write/modify (worksheets array)
+  - name: options
+    type: object
+    required: false
+    description: Additional options for the operation
+outputs:
+  - name: success
+    type: boolean
+    description: Whether operation succeeded
+  - name: data
+    type: object
+    description: Extracted data (for read/extract operations)
+  - name: filePath
+    type: string
+    description: Path to generated/modified file
+  - name: metadata
+    type: object
+    description: Document metadata (sheetCount, rowCount, etc.)
+dependencies: []
+tags:
+  - xlsx
+  - spreadsheet
+  - excel
+  - office
+

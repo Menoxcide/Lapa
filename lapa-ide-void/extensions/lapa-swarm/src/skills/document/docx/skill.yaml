@@ -1,0 +1,43 @@
+id: document-docx
+name: DOCX Document Manipulation
+description: Create, read, modify, and convert DOCX documents
+version: 1.0.0
+author: LAPA Team
+category: other
+inputs:
+  - name: operation
+    type: string
+    required: true
+    description: Operation type (read, write, extract, convert, modify)
+  - name: filePath
+    type: string
+    required: false
+    description: Path to DOCX file
+  - name: content
+    type: object
+    required: false
+    description: Content to write/modify
+  - name: options
+    type: object
+    required: false
+    description: Additional options for the operation
+outputs:
+  - name: success
+    type: boolean
+    description: Whether operation succeeded
+  - name: text
+    type: string
+    description: Extracted text (for read/extract operations)
+  - name: filePath
+    type: string
+    description: Path to generated/modified file
+  - name: metadata
+    type: object
+    description: Document metadata (wordCount, pages, etc.)
+dependencies: []
+tags:
+  - docx
+  - document
+  - word
+  - office
+

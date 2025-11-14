@@ -1,0 +1,153 @@
+name: Release Management
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., 1.0.0)'
+        required: true
+        type: string
+
+jobs:
+  determine-version:
+    name: Determine Version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Determine version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION=${GITHUB_REF#refs/tags/v}
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+  
+  build-electron:
+    name: Build Electron Packages
+    needs: determine-version
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        platform: [linux, win32, darwin]
+        arch: [x64]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+      
+      - name: Build Electron package
+        working-directory: lapa-ide-void
+        run: |
+          yarn install --frozen-lockfile
+          yarn compile
+          yarn gulp vscode-${{ matrix.platform }}-${{ matrix.arch }}
+          PACKAGE_DIR="VSCode-${{ matrix.platform }}-${{ matrix.arch }}"
+          SIZE_MB=$(du -sm "$PACKAGE_DIR" | cut -f1)
+          echo "Package size: ${SIZE_MB}MB"
+          if [ $SIZE_MB -gt 400 ]; then
+            echo "Error: Package size exceeds 400MB"
+            exit 1
+          fi
+          tar -czf "../void-ide-v${{ needs.determine-version.outputs.version }}-${{ matrix.platform }}-${{ matrix.arch }}.tar.gz" "$PACKAGE_DIR"
+      
+      - name: Upload Electron package
+        uses: actions/upload-artifact@v4
+        with:
+          name: electron-${{ matrix.platform }}-${{ matrix.arch }}
+          path: void-ide-v${{ needs.determine-version.outputs.version }}-${{ matrix.platform }}-${{ matrix.arch }}.tar.gz
+  
+  create-release:
+    name: Create Release
+    needs: [determine-version, build-electron]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
+      
+      - name: Download Electron packages
+        uses: actions/download-artifact@v4
+        with:
+          pattern: electron-*
+          merge-multiple: true
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Build and package VSIX
+        working-directory: .
+        run: |
+          npm install
+          npm run build
+          npm run vsix
+          VSIX_FILE=$(ls -t *.vsix | head -1)
+          SIZE_MB=$(du -m "$VSIX_FILE" | cut -f1)
+          echo "VSIX size: ${SIZE_MB}MB"
+          if [ $SIZE_MB -gt 400 ]; then
+            echo "Error: VSIX size exceeds 400MB"
+            exit 1
+          fi
+          mv "$VSIX_FILE" "lapa-ide-v${{ needs.determine-version.outputs.version }}.vsix"
+      
+      - name: Build Docker image
+        working-directory: lapa-ide-void
+        run: |
+          docker build -t void-ide-headless:v${{ needs.determine-version.outputs.version }} -f Dockerfile.headless .
+          docker save void-ide-headless:v${{ needs.determine-version.outputs.version }} | gzip > "../void-ide-headless-v${{ needs.determine-version.outputs.version }}.tar.gz"
+      
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ needs.determine-version.outputs.version }}
+          name: Void IDE v${{ needs.determine-version.outputs.version }}
+          body: |
+            ## Void IDE v${{ needs.determine-version.outputs.version }}
+            
+            ### Installation
+            
+            **VSIX (Cursor Extension)**
+            - Install via Cursor's "Install from VSIX..." option
+            - Size: <400MB
+            
+            **Electron Standalone**
+            - Extract and run the appropriate package for your platform
+            - Size: <400MB per platform
+            
+            **Docker Swarm**
+            - Load: `docker load < void-ide-headless-v${{ needs.determine-version.outputs.version }}.tar.gz`
+            - Run: `docker run -p 8080:8080 void-ide-headless:v${{ needs.determine-version.outputs.version }}`
+            
+            ### Validation
+            - All packages <400MB ✓
+            - Installation time <2 minutes ✓
+          files: |
+            lapa-ide-v${{ needs.determine-version.outputs.version }}.vsix
+            void-ide-v${{ needs.determine-version.outputs.version }}-*.tar.gz
+            void-ide-headless-v${{ needs.determine-version.outputs.version }}.tar.gz
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

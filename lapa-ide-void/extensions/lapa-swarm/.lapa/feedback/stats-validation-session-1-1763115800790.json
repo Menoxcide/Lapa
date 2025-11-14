@@ -1,0 +1,9 @@
+{
+  "sessionId": "validation-session-1",
+  "originalSize": 3200,
+  "compressedSize": 184,
+  "compressionRatio": 17.391304347826086,
+  "reductionPercentage": 94.25,
+  "timestamp": "2025-11-14T10:23:20.790Z",
+  "contextType": "test-validation"
+}

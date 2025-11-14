@@ -1,0 +1,6 @@
+{"id":"mhypmi9wfw0l18tw02g","timestamp":"2025-11-14T10:23:20.324Z","level":"security","action":"rbac.role.created","details":{"roleId":"viewer","roleName":"Viewer","permissionCount":4}}
+{"id":"mhypmi9ynhsykjjb5er","timestamp":"2025-11-14T10:23:20.326Z","level":"security","action":"rbac.role.created","details":{"roleId":"developer","roleName":"Developer","permissionCount":9}}
+{"id":"mhypmi9yf8go912r7hj","timestamp":"2025-11-14T10:23:20.326Z","level":"security","action":"rbac.role.created","details":{"roleId":"architect","roleName":"Architect","permissionCount":19}}
+{"id":"mhypmi9ypjg3hbhflhp","timestamp":"2025-11-14T10:23:20.326Z","level":"security","action":"rbac.role.created","details":{"roleId":"reviewer","roleName":"Reviewer","permissionCount":6}}
+{"id":"mhypmi9ywq1wmr82cam","timestamp":"2025-11-14T10:23:20.326Z","level":"security","action":"rbac.role.created","details":{"roleId":"security","roleName":"Security","permissionCount":8}}
+{"id":"mhypmi9z8p2jhzxrusu","timestamp":"2025-11-14T10:23:20.327Z","level":"security","action":"rbac.role.created","details":{"roleId":"admin","roleName":"Administrator","permissionCount":23}}

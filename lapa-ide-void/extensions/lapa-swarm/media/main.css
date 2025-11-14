@@ -1,0 +1,150 @@
+/*--------------------------------------------------------------------------------------
+ *  Copyright 2025 Glass Devtools, Inc. All rights reserved.
+ *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *--------------------------------------------------------------------------------------*/
+
+/* LAPA Swarm Webview Styles */
+
+#root {
+	width: 100%;
+	height: 100vh;
+	overflow: hidden;
+}
+
+/* Utility classes for flexbox (used in React components) */
+.flex {
+	display: flex;
+}
+
+.items-center {
+	align-items: center;
+}
+
+.gap-2 {
+	gap: 0.5rem;
+}
+
+.p-2 {
+	padding: 0.5rem;
+}
+
+.p-4 {
+	padding: 1rem;
+}
+
+.px-3 {
+	padding-left: 0.75rem;
+	padding-right: 0.75rem;
+}
+
+.py-1 {
+	padding-top: 0.25rem;
+	padding-bottom: 0.25rem;
+}
+
+.rounded {
+	border-radius: 0.25rem;
+}
+
+.text-sm {
+	font-size: 0.875rem;
+}
+
+.text-xs {
+	font-size: 0.75rem;
+}
+
+.font-semibold {
+	font-weight: 600;
+}
+
+.text-center {
+	text-align: center;
+}
+
+.relative {
+	position: relative;
+}
+
+.absolute {
+	position: absolute;
+}
+
+.inset-0 {
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+}
+
+.w-full {
+	width: 100%;
+}
+
+.h-full {
+	height: 100%;
+}
+
+.flex-1 {
+	flex: 1 1 0%;
+}
+
+.overflow-hidden {
+	overflow: hidden;
+}
+
+.bg-gray-100 {
+	background-color: #f3f4f6;
+}
+
+.bg-white {
+	background-color: #ffffff;
+}
+
+.shadow-md {
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.shadow-lg {
+	box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.cursor-pointer {
+	cursor: pointer;
+}
+
+.transition-all {
+	transition-property: all;
+	transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+	transition-duration: 150ms;
+}
+
+/* Swarm view specific styles */
+.swarm-view {
+	display: flex;
+	flex-direction: column;
+	height: 100vh;
+}
+
+.swarm-canvas {
+	position: relative;
+	width: 100%;
+	height: 100%;
+}
+
+.agent-node {
+	position: absolute;
+	width: 96px;
+	height: 96px;
+	background: var(--vscode-sideBar-background, #252526);
+	border-radius: 0.5rem;
+	border: 2px solid var(--vscode-sideBar-border, #3e3e42);
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+	cursor: pointer;
+	transition: all 0.15s;
+}
+
+.agent-node:hover {
+	border-color: var(--vscode-button-background, #0e639c);
+}
+

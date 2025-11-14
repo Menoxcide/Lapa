@@ -1,0 +1,31 @@
+/*--------------------------------------------------------------------------------------
+ *  Copyright 2025 Glass Devtools, Inc. All rights reserved.
+ *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *--------------------------------------------------------------------------------------*/
+
+/* CSS Reset for VS Code Webview */
+* {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+	font-size: 13px;
+	line-height: 1.4;
+}
+
+button {
+	font-family: inherit;
+	font-size: inherit;
+	cursor: pointer;
+	border: none;
+	background: none;
+}
+
+input, textarea, select {
+	font-family: inherit;
+	font-size: inherit;
+}
+

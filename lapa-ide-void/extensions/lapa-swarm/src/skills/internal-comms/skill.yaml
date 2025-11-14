@@ -1,0 +1,47 @@
+id: internal-comms
+name: Internal Communications
+description: Generate structured reports and FAQs from agent-to-agent communications
+version: 1.0.0
+author: LAPA Team
+category: other
+inputs:
+  - name: operation
+    type: string
+    required: true
+    description: Operation type (report, faq, summary)
+  - name: source
+    type: string
+    required: true
+    description: Source of communication (session, agent, event-log)
+  - name: sessionId
+    type: string
+    required: false
+    description: Session ID for session-based operations
+  - name: agentId
+    type: string
+    required: false
+    description: Agent ID for agent-specific operations
+  - name: options
+    type: object
+    required: false
+    description: Additional options (format, template, etc.)
+outputs:
+  - name: success
+    type: boolean
+    description: Whether operation succeeded
+  - name: report
+    type: object
+    description: Generated report or FAQ
+  - name: filePath
+    type: string
+    description: Path to generated report file
+  - name: metadata
+    type: object
+    description: Report metadata (itemCount, format, etc.)
+dependencies: []
+tags:
+  - report
+  - faq
+  - communication
+  - summary
+

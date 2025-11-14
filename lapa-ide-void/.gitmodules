@@ -1,0 +1,5 @@
+[submodule "extensions/lapa-swarm"]
+	path = extensions/lapa-swarm
+	url = https://github.com/Menoxcide/Lapa.git
+	branch = v1.3
+

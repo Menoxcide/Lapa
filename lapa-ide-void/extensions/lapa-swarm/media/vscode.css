@@ -1,0 +1,29 @@
+/*--------------------------------------------------------------------------------------
+ *  Copyright 2025 Glass Devtools, Inc. All rights reserved.
+ *  Licensed under the Apache License, Version 2.0. See LICENSE.txt for more information.
+ *--------------------------------------------------------------------------------------*/
+
+/* VS Code Theme Variables - These will be injected by VS Code */
+:root {
+	--vscode-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+	--vscode-font-size: 13px;
+	--vscode-font-weight: normal;
+	
+	/* Colors - will be overridden by VS Code theme */
+	--vscode-foreground: #cccccc;
+	--vscode-background: #1e1e1e;
+	--vscode-sideBar-background: #252526;
+	--vscode-sideBar-border: #3e3e42;
+	--vscode-button-background: #0e639c;
+	--vscode-button-foreground: #ffffff;
+	--vscode-button-hoverBackground: #1177bb;
+	--vscode-button-secondaryBackground: #3a3d41;
+	--vscode-button-secondaryForeground: #cccccc;
+	--vscode-button-secondaryHoverBackground: #45494e;
+}
+
+body {
+	color: var(--vscode-foreground);
+	background-color: var(--vscode-background);
+}
+

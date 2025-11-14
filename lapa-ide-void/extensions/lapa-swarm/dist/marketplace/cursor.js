@@ -1,0 +1,209 @@
+"use strict";
+/**
+ * Cursor Marketplace Integration for LAPA
+ *
+ * Handles authentication and submission to the Cursor marketplace.
+ */
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.CursorMarketplaceClient = void 0;
+exports.getCursorMarketplaceClient = getCursorMarketplaceClient;
+const zod_1 = require("zod");
+// Cursor marketplace submission response
+const cursorSubmissionResponseSchema = zod_1.z.object({
+    id: zod_1.z.string(),
+    status: zod_1.z.enum(['submitted', 'processing', 'published', 'rejected']),
+    message: zod_1.z.string().optional(),
+    skillUrl: zod_1.z.string().optional(),
+    createdAt: zod_1.z.string(),
+    updatedAt: zod_1.z.string()
+});
+/**
+ * Cursor Marketplace Client
+ *
+ * Handles authentication and submission to the Cursor marketplace.
+ */
+class CursorMarketplaceClient {
+    config = null;
+    isAuthenticated = false;
+    /**
+     * Configures the Cursor marketplace client
+     * @param config Authentication configuration
+     */
+    configure(config) {
+        this.config = config;
+        console.log('[CursorMarketplace] Client configured');
+    }
+    /**
+     * Authenticates with the Cursor marketplace
+     * @returns Promise resolving to true if authentication was successful
+     */
+    async authenticate() {
+        if (!this.config) {
+            throw new Error('Cursor marketplace not configured');
+        }
+        try {
+            // In a real implementation, this would make an API call to verify credentials
+            // For now, we'll simulate successful authentication
+            this.isAuthenticated = true;
+            console.log('[CursorMarketplace] Authentication successful');
+            return true;
+        }
+        catch (error) {
+            console.error('[CursorMarketplace] Authentication failed:', error);
+            this.isAuthenticated = false;
+            return false;
+        }
+    }
+    /**
+     * Validates a skill for marketplace submission
+     * @param skill Skill to validate
+     * @returns Promise resolving to true if validation passes
+     */
+    async validateSkill(skill) {
+        // Check required fields
+        if (!skill.id || !skill.name || !skill.description || !skill.version || !skill.author) {
+            console.error('[CursorMarketplace] Skill missing required fields');
+            return false;
+        }
+        // Check that skill has been published to IPFS
+        if (!skill.ipfsHash) {
+            console.error('[CursorMarketplace] Skill must be published to IPFS before submission');
+            return false;
+        }
+        // Check that skill has cryptographic signature
+        if (!skill.signature || !skill.signaturePublicKey) {
+            console.error('[CursorMarketplace] Skill must be cryptographically signed before submission');
+            return false;
+        }
+        // In a real implementation, we would make additional validation checks
+        // such as verifying the signature, checking file sizes, etc.
+        console.log(`[CursorMarketplace] Skill ${skill.id} validation passed`);
+        return true;
+    }
+    /**
+     * Submits a skill to the Cursor marketplace
+     * @param skill Skill to submit
+     * @returns Promise resolving to submission response
+     */
+    async submitSkill(skill) {
+        if (!this.config) {
+            throw new Error('Cursor marketplace not configured');
+        }
+        if (!this.isAuthenticated) {
+            throw new Error('Not authenticated with Cursor marketplace');
+        }
+        // Validate skill before submission
+        const isValid = await this.validateSkill(skill);
+        if (!isValid) {
+            throw new Error('Skill validation failed');
+        }
+        try {
+            // Prepare submission data
+            const submissionData = {
+                skillId: skill.id,
+                name: skill.name,
+                description: skill.description,
+                version: skill.version,
+                author: skill.author,
+                authorDid: skill.authorDid,
+                category: skill.category,
+                tags: skill.tags,
+                ipfsHash: skill.ipfsHash,
+                githubRepo: skill.githubRepo,
+                dependencies: skill.dependencies,
+                signature: skill.signature,
+                signaturePublicKey: skill.signaturePublicKey,
+                createdAt: new Date().toISOString()
+            };
+            // Submit to Cursor marketplace API
+            const response = await fetch(`${this.config.apiUrl}/skills`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.config.apiKey}`,
+                    'X-Organization-ID': this.config.organizationId
+                },
+                body: JSON.stringify(submissionData)
+            });
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Submission failed: ${response.status} ${errorText}`);
+            }
+            const responseData = await response.json();
+            const parsedResponse = cursorSubmissionResponseSchema.parse(responseData);
+            console.log(`[CursorMarketplace] Skill ${skill.id} submitted successfully`, parsedResponse);
+            return parsedResponse;
+        }
+        catch (error) {
+            console.error(`[CursorMarketplace] Failed to submit skill ${skill.id}:`, error);
+            throw error;
+        }
+    }
+    /**
+     * Gets the status of a submitted skill
+     * @param submissionId Submission ID
+     * @returns Promise resolving to submission status
+     */
+    async getSubmissionStatus(submissionId) {
+        if (!this.config) {
+            throw new Error('Cursor marketplace not configured');
+        }
+        if (!this.isAuthenticated) {
+            throw new Error('Not authenticated with Cursor marketplace');
+        }
+        try {
+            const response = await fetch(`${this.config.apiUrl}/skills/${submissionId}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${this.config.apiKey}`,
+                    'X-Organization-ID': this.config.organizationId
+                }
+            });
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Failed to get submission status: ${response.status} ${errorText}`);
+            }
+            const responseData = await response.json();
+            return cursorSubmissionResponseSchema.parse(responseData);
+        }
+        catch (error) {
+            console.error(`[CursorMarketplace] Failed to get submission status for ${submissionId}:`, error);
+            throw error;
+        }
+    }
+    /**
+     * Tests the marketplace connection
+     * @returns Promise resolving to true if connection is successful
+     */
+    async testConnection() {
+        if (!this.config) {
+            throw new Error('Cursor marketplace not configured');
+        }
+        try {
+            const response = await fetch(`${this.config.apiUrl}/health`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${this.config.apiKey}`
+                }
+            });
+            return response.ok;
+        }
+        catch (error) {
+            console.error('[CursorMarketplace] Connection test failed:', error);
+            return false;
+        }
+    }
+}
+exports.CursorMarketplaceClient = CursorMarketplaceClient;
+// Singleton instance
+let cursorMarketplaceInstance = null;
+/**
+ * Gets the Cursor marketplace client instance
+ */
+function getCursorMarketplaceClient() {
+    if (!cursorMarketplaceInstance) {
+        cursorMarketplaceInstance = new CursorMarketplaceClient();
+    }
+    return cursorMarketplaceInstance;
+}
+//# sourceMappingURL=cursor.js.map

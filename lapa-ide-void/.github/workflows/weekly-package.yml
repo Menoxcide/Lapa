@@ -1,0 +1,163 @@
+name: Weekly Packaging
+
+on:
+  schedule:
+    # Run weekly on Monday at 3:00 AM UTC
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
+
+jobs:
+  package-vsix:
+    name: Package VSIX
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 1
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies (LAPA)
+        working-directory: .
+        run: |
+          npm install
+      
+      - name: Build LAPA extension
+        working-directory: .
+        run: |
+          npm run build
+      
+      - name: Package VSIX
+        working-directory: .
+        run: |
+          npm run vsix
+      
+      - name: Check VSIX size
+        working-directory: .
+        run: |
+          VSIX_FILE=$(ls -t *.vsix | head -1)
+          SIZE_MB=$(du -m "$VSIX_FILE" | cut -f1)
+          echo "VSIX size: ${SIZE_MB}MB"
+          if [ $SIZE_MB -gt 400 ]; then
+            echo "Error: VSIX size exceeds 400MB limit"
+            exit 1
+          fi
+      
+      - name: Upload VSIX artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lapa-ide-vsix
+          path: "*.vsix"
+          retention-days: 30
+
+  package-electron:
+    name: Package Electron
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            platform: linux
+            arch: x64
+          - os: windows-latest
+            platform: win32
+            arch: x64
+          - os: macos-latest
+            platform: darwin
+            arch: x64
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 1
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+      
+      - name: Install dependencies
+        working-directory: lapa-ide-void
+        run: |
+          yarn install --frozen-lockfile
+      
+      - name: Compile
+        working-directory: lapa-ide-void
+        run: |
+          yarn compile
+      
+      - name: Build Electron package
+        working-directory: lapa-ide-void
+        run: |
+          yarn gulp vscode-${{ matrix.platform }}-${{ matrix.arch }}
+      
+      - name: Check package size
+        working-directory: lapa-ide-void
+        run: |
+          PACKAGE_DIR="VSCode-${{ matrix.platform }}-${{ matrix.arch }}"
+          SIZE_MB=$(du -sm "$PACKAGE_DIR" | cut -f1)
+          echo "Package size: ${SIZE_MB}MB"
+          if [ $SIZE_MB -gt 400 ]; then
+            echo "Error: Package size exceeds 400MB limit"
+            exit 1
+          fi
+      
+      - name: Upload Electron package
+        uses: actions/upload-artifact@v4
+        with:
+          name: void-ide-${{ matrix.platform }}-${{ matrix.arch }}
+          path: lapa-ide-void/VSCode-${{ matrix.platform }}-${{ matrix.arch }}
+          retention-days: 30
+
+  package-docker:
+    name: Package Docker
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 1
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Build Docker image
+        working-directory: lapa-ide-void
+        run: |
+          docker build -t void-ide-headless:latest -f Dockerfile.headless .
+      
+      - name: Save Docker image
+        run: |
+          docker save void-ide-headless:latest | gzip > void-ide-headless.tar.gz
+      
+      - name: Check Docker image size
+        run: |
+          SIZE_MB=$(du -m void-ide-headless.tar.gz | cut -f1)
+          echo "Docker image size: ${SIZE_MB}MB"
+          if [ $SIZE_MB -gt 400 ]; then
+            echo "Warning: Docker image size exceeds 400MB limit"
+          fi
+      
+      - name: Upload Docker image
+        uses: actions/upload-artifact@v4
+        with:
+          name: void-ide-docker
+          path: void-ide-headless.tar.gz
+          retention-days: 30
+
