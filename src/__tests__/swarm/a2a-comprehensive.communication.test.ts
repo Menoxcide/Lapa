@@ -40,9 +40,10 @@ describe('A2A Comprehensive Communication Tests', () => {
   let syncEvents: any[] = [];
   let mockEventBus: any;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     // Get mocked event bus
-    mockEventBus = (await import('../../core/event-bus.ts')).eventBus;
+    const eventBusModule = await import('../../core/event-bus.ts');
+    mockEventBus = eventBusModule.eventBus;
     vi.clearAllMocks();
 
     // Setup mock event bus to track events
