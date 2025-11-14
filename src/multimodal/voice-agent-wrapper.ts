@@ -1,10 +1,10 @@
 // Voice Agent Wrapper for integration with the LAPA Helix team agent pattern
-import { HelixTeamAgentWrapper } from '../core/agent-tool';
-import { AgentToolRegistry } from '../core/agent-tool';
-import { VoiceAgentTool } from './voice-agent-tool';
-import { VoiceAgentConfig } from './types';
-import { RAGPipeline } from '../rag/pipeline';
-import { HelixAgentType } from '../core/types/agent-types';
+import { HelixTeamAgentWrapper } from '../core/agent-tool.js';
+import { AgentToolRegistry } from '../core/agent-tool.js';
+import { VoiceAgentTool } from './voice-agent-tool.js';
+import { VoiceAgentConfig } from './types.js';
+import { RAGPipeline } from '../rag/pipeline.js';
+import { HelixAgentType } from '../core/types/agent-types.js';
 
 export class VoiceAgentWrapper extends HelixTeamAgentWrapper {
   constructor(
@@ -36,12 +36,18 @@ export class VoiceAgentWrapper extends HelixTeamAgentWrapper {
    * @param ragPipeline RAG pipeline for Q&A integration
    */
   private registerVoiceTools(
-    registry: AgentToolRegistry, 
+    registry: AgentToolRegistry,
     config?: VoiceAgentConfig,
     ragPipeline?: RAGPipeline
   ): void {
-    const voiceTool = new VoiceAgentTool(config, ragPipeline);
+    const voiceTool = new VoiceAgentTool(config || { ttsProvider: 'system', sttProvider: 'system', language: 'en' }, ragPipeline);
     registry.registerTool(voiceTool);
     this.addTool(voiceTool);
+  }
+
+  public addTool(tool: any): void {
+    // Add tool to the wrapper's internal registry
+    // Assuming parent has a similar method or implement here
+    super.addTool(tool);
   }
 }

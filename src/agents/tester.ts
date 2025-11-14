@@ -7,7 +7,7 @@
  */
 
 import { Anthropic } from '@anthropic-ai/sdk';
-import { Agent } from './moe-router.ts';
+import { Agent } from './moe-router.js';
 
 // Type definitions
 export interface TestResult {

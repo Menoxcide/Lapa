@@ -4,15 +4,15 @@
  * Modal dialog for creating and managing skills
  */
 
-import React from 'react';
-import SkillManager from './components/SkillManager';
+import { ReactNode } from 'react';
+import SkillManager from './components/SkillManager.tsx';
 
 interface SkillCreatorModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const SkillCreatorModal: React.FC<SkillCreatorModalProps> = ({ isOpen, onClose }) => {
+const SkillCreatorModal = ({ isOpen, onClose }: SkillCreatorModalProps): ReactNode => {
   if (!isOpen) {
     return null;
   }

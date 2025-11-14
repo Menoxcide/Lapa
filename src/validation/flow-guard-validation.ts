@@ -41,7 +41,7 @@ export function validateFlowGuard(guard: any): ValidationResult {
       result.errors = parsed.error.errors.map(err => ({
         path: err.path.join('.'),
         message: err.message,
-        value: err.received
+        value: (err as any).received
       }));
       return result;
     }
@@ -119,7 +119,7 @@ export function validateFlowGuardsConfig(config: any): ValidationResult {
       result.errors = parsed.error.errors.map(err => ({
         path: err.path.join('.'),
         message: err.message,
-        value: err.received
+        value: (err as any).received
       }));
       return result;
     }

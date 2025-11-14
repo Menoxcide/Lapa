@@ -327,7 +327,7 @@ export class RedTeamSystem {
       session.status = 'failed';
       const errorMessage = error instanceof Error ? error.message : String(error);
       
-      auditLogger.logError('redteam.session.failed', error, {
+      auditLogger.logError('redteam.session.failed', error as string | Error, {
         sessionId
       });
 

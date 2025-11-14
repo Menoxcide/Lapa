@@ -10,11 +10,11 @@
  * Phase 22 Status: COMPLETE
  */
 
-import { yamlAgentLoader } from '../core/yaml-agent-loader.ts';
-import { flowGuardsManager } from './flow-guards.ts';
-import { getInferenceManager } from '../inference/manager.ts';
-import { eventBus } from '../core/event-bus.ts';
-import { HelixAgentType } from '../core/types/agent-types.ts';
+import { yamlAgentLoader } from '../core/yaml-agent-loader.js';
+import { flowGuardsManager } from './flow-guards.js';
+import { getInferenceManager } from '../inference/manager.js';
+import { eventBus } from '../core/event-bus.js';
+import { HelixAgentType } from '../core/types/agent-types.js';
 
 /**
  * Phase 22 Integration

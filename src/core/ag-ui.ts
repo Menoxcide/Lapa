@@ -8,8 +8,8 @@
  * Phase 13: Extended with MCP integration, AutoGen Studio support, and dynamic UI generation.
  */
 
-import { eventBus } from '../core/event-bus.ts';
-import { Task } from '../agents/moe-router.ts';
+import { eventBus } from '../core/event-bus.js';
+import { Task } from '../agents/moe-router.js';
 import { z } from 'zod';
 import type { WebSocket } from 'ws';
 import {
@@ -17,7 +17,7 @@ import {
   type MCPUIEvent,
   type MCPUIResponse,
   AGUIToMCPUIConverter,
-} from '../ui/mcp-ui-specs.ts';
+} from '../ui/mcp-ui-specs.js';
 
 // Zod schema for AG-UI event validation
 const agUIEventSchema = z.object({

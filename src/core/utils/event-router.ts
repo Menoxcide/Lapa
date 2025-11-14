@@ -7,7 +7,7 @@
  * compliance.
  */
 
-import type { LAPAEvent, LAPAEventMap } from '../types/event-types';
+import type { LAPAEvent, LAPAEventMap } from '../types/event-types.ts';
 
 // Event routing configuration
 interface EventRoutingConfig {

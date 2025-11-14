@@ -1,9 +1,9 @@
 // Vision Agent Tool for integration with the LAPA agent system
-import { BaseAgentTool } from '../core/agent-tool.ts';
-import { AgentToolExecutionContext, AgentToolExecutionResult } from '../core/types/agent-types.ts';
-import { VisionAgent } from './vision-agent.ts';
-import { MultimodalConfig } from './types/index.ts';
-import { MultimodalEventPublisher } from './utils/event-publisher.ts';
+import { BaseAgentTool } from '../core/agent-tool.js';
+import { AgentToolExecutionContext, AgentToolExecutionResult } from '../core/types/agent-types.js';
+import { VisionAgent } from './vision-agent.js';
+import { MultimodalConfig } from './types/index.js';
+import { MultimodalEventPublisher } from './utils/event-publisher.js';
 
 export class VisionAgentTool extends BaseAgentTool {
   private visionAgent: VisionAgent;

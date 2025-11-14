@@ -10,10 +10,10 @@ import { EventEmitter } from 'events';
 import { performance } from 'perf_hooks';
 
 // Event type definitions
-import type { LAPAEvent, LAPAEventMap } from './types/event-types.ts';
+import type { LAPAEvent, LAPAEventMap } from './types/event-types.js';
 
 // Event routing utilities
-import { routeEvent } from './utils/event-router.ts';
+import { routeEvent } from './utils/event-router.js';
 
 // Subscription management
 interface Subscription {

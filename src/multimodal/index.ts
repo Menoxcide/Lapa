@@ -1,14 +1,14 @@
 // Multimodal module exports
-export * from './vision-voice.ts';
-export * from './tts-stt.ts';
-export * from './vision-agent.ts';
-export * from './vision-agent-tool.ts';
-export * from './vision-agent-wrapper.ts';
-export { VoiceAgent, VoiceAgentInterface } from './voice-agent.ts';
-export * from './advanced-voice-agent.ts';
-export * from './voice-agent-tool.ts';
-export * from './voice-agent-wrapper.ts';
-export * from './types/index.ts';
-export * from './utils/index.ts';
-export * from './artifacts-builder.ts';
-export * from './artifacts-builder-tool.ts';
+export * from './vision-voice.js';
+export * from './tts-stt.js';
+export * from './vision-agent.js';
+export * from './vision-agent-tool.js';
+export * from './vision-agent-wrapper.js';
+export { VoiceAgent, VoiceAgentInterface } from './voice-agent.js';
+export * from './advanced-voice-agent.js';
+export * from './voice-agent-tool.js';
+export * from './voice-agent-wrapper.js';
+export * from './types/index.js';
+export * from './utils/index.js';
+export * from './artifacts-builder.js';
+export * from './artifacts-builder-tool.js';

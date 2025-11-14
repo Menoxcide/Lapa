@@ -1,6 +1,6 @@
 // Voice Agent Example Usage
-import { AdvancedVoiceAgent } from './advanced-voice-agent';
-import { VoiceAgentConfig } from './types';
+import { AdvancedVoiceAgent } from './advanced-voice-agent.ts';
+import { VoiceAgentConfig } from './types.js';
 
 /**
  * Example demonstrating how to use the voice agent

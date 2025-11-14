@@ -8,10 +8,10 @@
  * Phase 16: Security + RBAC + Red Teaming
  */
 
-import { auditLogger } from '../premium/audit.logger.ts';
-import { eventBus } from '../core/event-bus.ts';
-import { consensusVotingSystem } from '../swarm/consensus.voting.ts';
-import { rbacSystem } from './rbac.ts';
+import { auditLogger } from '../premium/audit.logger.js';
+import { eventBus } from '../core/event-bus.js';
+import { consensusVotingSystem } from '../swarm/consensus.voting.js';
+import { rbacSystem } from './rbac.js';
 
 // Hallucination type
 export type HallucinationType =

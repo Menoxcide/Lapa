@@ -17,6 +17,7 @@ import { eventBus } from '../core/event-bus.ts';
 import { z } from 'zod';
 import { writeFile, readFile, mkdir } from 'fs/promises';
 import { join } from 'path';
+import PNG from 'pngjs';
 
 // Visual feedback configuration
 export interface VisualFeedbackConfig {
@@ -292,37 +293,61 @@ export class VisualFeedbackSystem {
       // Try to use pixelmatch if available, otherwise use simple file comparison
       try {
         const { default: pixelmatch } = await import('pixelmatch');
-        const { default: PNG } = await import('pngjs');
         const fs = await import('fs/promises');
         
         // Load images
-        const currentImg = PNG.sync.read(await fs.readFile(currentPath));
-        const baselineImg = PNG.sync.read(await fs.readFile(baselinePath));
+        const currentBuffer = await fs.readFile(currentPath);
+        const baselineBuffer = await fs.readFile(baselinePath);
+        const currentImg = await new Promise<PNG>((resolve, reject) => {
+          const img = new PNG();
+          img.parse(currentBuffer, (err: Error | null) => {
+            if (err) reject(err);
+            else {
+              (img as any).data = new Uint8Array((img as any).data);
+              resolve(img as PNG);
+            }
+          });
+        });
+        const baselineImg = await new Promise<PNG>((resolve, reject) => {
+          const img = new PNG();
+          img.parse(baselineBuffer, (err: Error | null) => {
+            if (err) reject(err);
+            else {
+              (img as any).data = new Uint8Array((img as any).data);
+              resolve(img as PNG);
+            }
+          });
+        });
         
         // Ensure same dimensions
-        if (currentImg.width !== baselineImg.width || currentImg.height !== baselineImg.height) {
+        if ((currentImg as any).width !== (baselineImg as any).width || (currentImg as any).height !== (baselineImg as any).height) {
           return { match: false, diffPercentage: 1.0 };
         }
         
         // Compare images
-        const diff = new PNG({ width: currentImg.width, height: currentImg.height });
+        const diff = new PNG({ width: (currentImg as any).width, height: (currentImg as any).height });
+        (diff as any).data = new Uint8Array((currentImg as any).width * (currentImg as any).height * 4);
         const numDiffPixels = pixelmatch(
-          currentImg.data,
-          baselineImg.data,
-          diff.data,
-          currentImg.width,
-          currentImg.height,
+          (currentImg as any).data,
+          (baselineImg as any).data,
+          (diff as any).data,
+          (currentImg as any).width,
+          (currentImg as any).height,
           { threshold: 0.1 }
         );
         
-        const totalPixels = currentImg.width * currentImg.height;
+        const totalPixels = (currentImg as any).width * (currentImg as any).height;
         const diffPercentage = numDiffPixels / totalPixels;
         const match = diffPercentage < this.config.threshold;
         
         // Save diff image if there are differences
         if (!match) {
           const diffPath = join(this.config.diffDirectory, `diff-${Date.now()}.png`);
-          await fs.writeFile(diffPath, PNG.sync.write(diff));
+          const diffBuffer = await new Promise<Buffer>((resolve, reject) => {
+            const chunks: Buffer[] = [];
+            (diff.pack() as any).on('data', (chunk: Buffer) => chunks.push(chunk)).on('end', () => resolve(Buffer.concat(chunks))).on('error', reject);
+          });
+          await fs.writeFile(diffPath, diffBuffer);
         }
         
         return { match, diffPercentage };

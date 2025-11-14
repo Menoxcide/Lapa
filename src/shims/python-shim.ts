@@ -6,7 +6,8 @@
  */
 
 import { ProtocolBridge } from './utils/protocol-bridge.ts';
-import { CrossLanguageEvent } from '../core/types/event-types.ts';
+import { CrossLanguageEvent, HandoffInitiatedEvent, TaskCompletedEvent, AgentRegisteredEvent } from '../core/types/event-types.ts';
+import { eventBus } from '../core/event-bus.ts';
 
 /**
  * Python Shim for cross-language communication
@@ -35,9 +36,9 @@ export class PythonShim extends ProtocolBridge {
       
       // Subscribe to all event types for forwarding to Python
       // '*' is not a valid event type, so subscribe to specific events
-      eventBus.subscribe('handoff.initiated' as any, (event: LAPAEvent) => this.handleIncomingEvent(event as any));
-      eventBus.subscribe('task.completed' as any, (event: LAPAEvent) => this.handleIncomingEvent(event as any));
-      eventBus.subscribe('agent.registered' as any, (event: LAPAEvent) => this.handleIncomingEvent(event as any));
+      this.eventBus.subscribe('handoff.initiated', (event: HandoffInitiatedEvent) => this.handleIncomingEvent(event as unknown as CrossLanguageEvent));
+      this.eventBus.subscribe('task.completed', (event: TaskCompletedEvent) => this.handleIncomingEvent(event as unknown as CrossLanguageEvent));
+      this.eventBus.subscribe('agent.registered', (event: AgentRegisteredEvent) => this.handleIncomingEvent(event as unknown as CrossLanguageEvent));
       
       console.log('Python shim initialized successfully');
     } catch (error) {

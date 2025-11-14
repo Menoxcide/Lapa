@@ -6,7 +6,7 @@
  * the event bus system for communication and supports the 12-agent helix team patterns.
  */
 
-import { LAPAEventBus, eventBus } from './event-bus.ts';
+import { LAPAEventBus, eventBus } from './event-bus.js';
 import { 
   AgentTool, 
   AgentToolType, 
@@ -14,7 +14,7 @@ import {
   AgentToolExecutionResult,
   Agent,
   HelixAgentType
-} from './types/agent-types.ts';
+} from './types/agent-types.js';
 import { performance } from 'perf_hooks';
 
 /**

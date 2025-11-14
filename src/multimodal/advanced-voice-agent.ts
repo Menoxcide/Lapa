@@ -3,7 +3,7 @@ import { AudioProcessingPipeline, TTSSTTPipeline, TTSConfig, STTConfig } from '.
 import { LAPAEventBus, eventBus } from '../core/event-bus.ts';
 import { RAGPipeline } from '../rag/pipeline.ts';
 import { VoiceUtils } from './utils/voice-utils.ts';
-import { VoiceAgentConfig, SpeechToTextResult, TextToSpeechResult, VoiceCommand, VoiceQuestion, VoiceAnswer } from './types';
+import { VoiceAgentConfig, SpeechToTextResult, TextToSpeechResult, VoiceCommand, VoiceQuestion, VoiceAnswer } from './types/index.ts';
 import { VoiceCommandParser, ParsedCommand } from './voice-command-parser.ts';
 
 export interface AdvancedVoiceAgentInterface {

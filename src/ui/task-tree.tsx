@@ -13,7 +13,7 @@
  * - Standalone mode support
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, Fragment } from 'react';
 import { eventBus } from '../core/event-bus.ts';
 import { exec } from 'child_process';
 import { promisify } from 'util';
@@ -21,23 +21,37 @@ import { z } from 'zod';
 
 const execAsync = promisify(exec);
 
-// Task tree node schema
-const taskNodeSchema = z.object({
-  id: z.string(),
-  title: z.string(),
-  description: z.string().optional(),
-  status: z.enum(['pending', 'in_progress', 'completed', 'failed', 'blocked']),
-  priority: z.enum(['low', 'medium', 'high', 'critical']).optional(),
-  children: z.array(z.lazy(() => taskNodeSchema)).optional(),
-  estimatedTime: z.number().optional(), // in minutes
-  actualTime: z.number().optional(), // in minutes
-  dependencies: z.array(z.string()).optional(),
-  gitSafe: z.boolean().optional(),
-  gitOperations: z.array(z.string()).optional(),
-  metadata: z.record(z.unknown()).optional()
-});
+export interface TaskNode {
+  id: string;
+  title: string;
+  description?: string;
+  status: 'pending' | 'in_progress' | 'completed' | 'failed' | 'blocked';
+  priority?: 'low' | 'medium' | 'high' | 'critical';
+  children?: TaskNode[];
+  estimatedTime?: number;
+  actualTime?: number;
+  dependencies?: string[];
+  gitSafe?: boolean;
+  gitOperations?: string[];
+  metadata?: Record<string, unknown>;
+}
 
-export type TaskNode = z.infer<typeof taskNodeSchema>;
+const taskNodeSchema: z.ZodType<TaskNode> = z.lazy(() =>
+  z.object({
+    id: z.string(),
+    title: z.string(),
+    description: z.string().optional(),
+    status: z.enum(['pending', 'in_progress', 'completed', 'failed', 'blocked']),
+    priority: z.enum(['low', 'medium', 'high', 'critical']).optional(),
+    children: z.array(taskNodeSchema).optional(),
+    estimatedTime: z.number().optional(),
+    actualTime: z.number().optional(),
+    dependencies: z.array(z.string()).optional(),
+    gitSafe: z.boolean().optional(),
+    gitOperations: z.array(z.string()).optional(),
+    metadata: z.record(z.unknown()).optional()
+  })
+);
 
 // Task tree structure
 export interface TaskTree {
@@ -73,7 +87,12 @@ export const TaskTreeOrchestrator: React.FC<{
   config?: Partial<TaskTreeConfig>;
   onTaskComplete?: (taskId: string) => void;
   onTaskUpdate?: (task: TaskNode) => void;
-}> = ({ initialTask, config, onTaskComplete, onTaskUpdate }) => {
+}> = ({ initialTask, config, onTaskComplete, onTaskUpdate }: {
+  initialTask?: string;
+  config?: Partial<TaskTreeConfig>;
+  onTaskComplete?: (taskId: string) => void;
+  onTaskUpdate?: (task: TaskNode) => void;
+}) => {
   const [taskTree, setTaskTree] = useState<TaskTree | null>(null);
   const [isDecomposing, setIsDecomposing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -318,11 +337,11 @@ export const TaskTreeOrchestrator: React.FC<{
   }, [initialTask, taskTree, decomposeTask]);
 
   // Render task tree node
-  const renderNode = (node: TaskNode, depth: number = 0): React.ReactNode => {
+  const renderNode = (node: TaskNode, depth: number = 0) => {
     if (depth > defaultConfig.maxDepth) return null;
 
     const isSelected = selectedNode === node.id;
-    const statusColors = {
+    const statusColors: Record<TaskNode['status'], string> = {
       pending: 'gray',
       in_progress: 'blue',
       completed: 'green',
@@ -332,7 +351,7 @@ export const TaskTreeOrchestrator: React.FC<{
 
     return (
       <div
-        key={node.id}
+        key={String(node.id)}
         style={{
           marginLeft: `${depth * 20}px`,
           padding: '8px',
@@ -367,9 +386,9 @@ export const TaskTreeOrchestrator: React.FC<{
         )}
         {node.status === 'pending' && (
           <button
-            onClick={(e) => {
+            onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
               e.stopPropagation();
-              executeTaskNode(node.id);
+              executeTaskNode(String(node.id));
             }}
             style={{ marginTop: '4px', padding: '4px 8px' }}
           >
@@ -378,7 +397,7 @@ export const TaskTreeOrchestrator: React.FC<{
         )}
         {node.children && node.children.length > 0 && (
           <div style={{ marginTop: '8px' }}>
-            {node.children.map(child => renderNode(child, depth + 1))}
+            <>{node.children.map(child => renderNode(child, depth + 1))}</>
           </div>
         )}
       </div>

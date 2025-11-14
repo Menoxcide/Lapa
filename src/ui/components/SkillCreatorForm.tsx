@@ -5,14 +5,14 @@
  */
 
 import React, { useState } from 'react';
-import { AgentYAMLConfig } from '../../core/yaml-agent-loader';
+import { AgentYAMLConfig } from '../../core/yaml-agent-loader.js';
 
 interface SkillCreatorFormProps {
   onSubmit: (config: AgentYAMLConfig) => void;
   onCancel: () => void;
 }
 
-const SkillCreatorForm: React.FC<SkillCreatorFormProps> = ({ onSubmit, onCancel }) => {
+const SkillCreatorForm = ({ onSubmit, onCancel }: SkillCreatorFormProps): React.JSX.Element => {
   const [formData, setFormData] = useState({
     role: '',
     goal: '',

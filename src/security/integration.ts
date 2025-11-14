@@ -11,8 +11,8 @@
 import { rbacSystem, Permission, ResourceType } from './rbac.ts';
 import { redTeamSystem } from './red-team.ts';
 import { hallucinationCheckSystem, Claim } from './hallucination-check.ts';
-import { auditLogger } from '../premium/audit.logger.ts';
-import { eventBus } from '../core/event-bus.ts';
+import { auditLogger } from '../premium/audit.logger.js';
+import { eventBus } from '../core/event-bus.js';
 
 // Security validation result
 export interface SecurityValidationResult {

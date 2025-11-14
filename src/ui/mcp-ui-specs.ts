@@ -13,79 +13,71 @@ import { z } from 'zod';
  * MCP-UI Component Types
  * Based on MCP UI extension specification
  */
-export type MCPUIComponentType =
-  | 'text'
-  | 'button'
-  | 'input'
-  | 'select'
-  | 'textarea'
-  | 'checkbox'
-  | 'radio'
-  | 'slider'
-  | 'progress'
-  | 'card'
-  | 'list'
-  | 'table'
-  | 'form'
-  | 'modal'
-  | 'tabs'
-  | 'accordion'
-  | 'chart'
-  | 'graph'
-  | 'code'
-  | 'markdown'
-  | 'image'
-  | 'video'
-  | 'iframe';
+export const MCPUIComponentType = ['text', 'button', 'input', 'select', 'textarea', 'checkbox', 'radio', 'slider', 'progress', 'card', 'list', 'table', 'form', 'modal', 'tabs', 'accordion', 'chart', 'graph', 'code', 'markdown', 'image', 'video', 'iframe'] as const;
+
+export type MCPUIComponentType = typeof MCPUIComponentType[number];
 
 /**
  * Open-JSON-UI Component Schema
  * Based on Open-JSON-UI standard for declarative UI generation
  */
-export const openJSONUIComponentSchema = z.object({
+export interface OpenJSONUIComponent {
+  type: string;
+  id?: string;
+  props?: Record<string, unknown>;
+  children?: OpenJSONUIComponent[];
+  events?: Record<string, string>;
+  style?: Record<string, unknown>;
+  className?: string;
+  visible?: boolean;
+  disabled?: boolean;
+}
+
+let openJSONUIComponentSchema: z.ZodType<OpenJSONUIComponent> = z.object({
   type: z.string(),
   id: z.string().optional(),
   props: z.record(z.unknown()).optional(),
-  children: z.array(z.lazy(() => openJSONUIComponentSchema)).optional(),
   events: z.record(z.string()).optional(),
   style: z.record(z.unknown()).optional(),
   className: z.string().optional(),
   visible: z.boolean().optional(),
   disabled: z.boolean().optional(),
-});
+  children: z.lazy(() => z.array(openJSONUIComponentSchema)).optional(),
+}) as z.ZodType<OpenJSONUIComponent>;
 
-export type OpenJSONUIComponent = z.infer<typeof openJSONUIComponentSchema>;
 
-/**
- * MCP-UI Component Schema
- * Extends Open-JSON-UI with MCP-specific features
- */
-export const mcpUIComponentSchema = openJSONUIComponentSchema.extend({
-  type: z.enum([
-    'text',
-    'button',
-    'input',
-    'select',
-    'textarea',
-    'checkbox',
-    'radio',
-    'slider',
-    'progress',
-    'card',
-    'list',
-    'table',
-    'form',
-    'modal',
-    'tabs',
-    'accordion',
-    'chart',
-    'graph',
-    'code',
-    'markdown',
-    'image',
-    'video',
-    'iframe',
-  ]),
+export interface MCPUIComponent {
+  type: MCPUIComponentType;
+  id?: string;
+  props?: Record<string, unknown>;
+  children?: MCPUIComponent[];
+  events?: Record<string, string>;
+  style?: Record<string, unknown>;
+  className?: string;
+  visible?: boolean;
+  disabled?: boolean;
+  mcp?: {
+    tool?: string;
+    resource?: string;
+    prompt?: string;
+    callback?: string;
+  };
+  streaming?: {
+    enabled: boolean;
+    format?: 'sse' | 'websocket' | 'polling';
+    interval?: number;
+  };
+}
+
+let mcpUIComponentSchema: z.ZodType<MCPUIComponent> = z.object({
+  type: z.enum(MCPUIComponentType),
+  id: z.string().optional(),
+  props: z.record(z.unknown()).optional(),
+  events: z.record(z.string()).optional(),
+  style: z.record(z.unknown()).optional(),
+  className: z.string().optional(),
+  visible: z.boolean().optional(),
+  disabled: z.boolean().optional(),
   mcp: z.object({
     tool: z.string().optional(),
     resource: z.string().optional(),
@@ -97,9 +89,9 @@ export const mcpUIComponentSchema = openJSONUIComponentSchema.extend({
     format: z.enum(['sse', 'websocket', 'polling']).optional(),
     interval: z.number().optional(),
   }).optional(),
-});
+  children: z.lazy(() => z.array(mcpUIComponentSchema)),
+}) as z.ZodType<MCPUIComponent>;
 
-export type MCPUIComponent = z.infer<typeof mcpUIComponentSchema>;
 
 /**
  * MCP-UI Event Schema
@@ -170,25 +162,16 @@ export class AGUIToMCPUIConverter {
     componentId: string;
     componentType: string;
     props: Record<string, unknown>;
-    children?: Array<{
-      componentId: string;
-      componentType: string;
-      props: Record<string, unknown>;
-      children?: unknown[];
-    }>;
+    children?: unknown[];
   }): MCPUIComponent {
     const mcpComponent: MCPUIComponent = {
       type: this.mapComponentType(agUIComponent.componentType),
       id: agUIComponent.componentId,
       props: agUIComponent.props,
-      children: agUIComponent.children?.map((child) =>
-        this.convert(child as {
-          componentId: string;
-          componentType: string;
-          props: Record<string, unknown>;
-          children?: unknown[];
-        })
-      ),
+      children: agUIComponent.children?.map((child: any) => ({
+        ...child,
+        type: child.type as MCPUIComponentType
+      })),
     };
 
     return mcpUIComponentSchema.parse(mcpComponent);
@@ -245,8 +228,8 @@ export class MCPUIToOpenJSONUIConverter {
       type: mcpUIComponent.type,
       id: mcpUIComponent.id,
       props: mcpUIComponent.props,
-      children: mcpUIComponent.children?.map((child) =>
-        this.convert(child as MCPUIComponent)
+      children: mcpUIComponent.children?.map((child: MCPUIComponent) =>
+        this.convert(child as any)
       ),
       events: mcpUIComponent.events,
       style: mcpUIComponent.style,

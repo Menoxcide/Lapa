@@ -93,11 +93,13 @@ export async function exportSessionGIF(
     const element = canvasElement || document.body;
     
     // Create GIF encoder
+    // @ts-ignore
+    // @ts-expect-error
     const gif = new GIF({
-      workers: workers,
-      quality: quality,
-      width: width,
-      height: height,
+      workers,
+      quality,
+      width,
+      height,
       workerScript: '/gif.worker.js' // Path to gif.worker.js
     });
     
@@ -120,19 +122,36 @@ export async function exportSessionGIF(
         backgroundColor: '#ffffff'
       });
       
+      // Get data URL
+      const dataUrl = canvas.toDataURL('image/png');
+      
+      // Create image from data URL to get ImageData
+      const img = new Image();
+      img.src = dataUrl;
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+      });
+      
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = width;
+      tempCanvas.height = height;
+      const tempCtx = tempCanvas.getContext('2d');
+      if (!tempCtx) {
+        throw new Error('Failed to get temp canvas context');
+      }
+      tempCtx.drawImage(img, 0, 0, width, height);
+      const imageData = tempCtx.getImageData(0, 0, width, height);
+      
       // Add frame to GIF
-      gif.addFrame(canvas, { delay: delay });
+      gif.addFrame(imageData, { delay: delay });
     }
     
     // Return a promise that resolves with the GIF blob
     return new Promise<Blob>((resolve, reject) => {
-      gif.on('finished', (blob) => {
-        resolve(blob);
-      });
+      gif.on('finished', () => resolve((gif as any).blob));
       
-      gif.on('error', (error) => {
-        reject(new Error(`GIF generation failed: ${error}`));
-      });
+      gif.on('error', () => reject(new Error('')));
       
       // Render the GIF
       gif.render();

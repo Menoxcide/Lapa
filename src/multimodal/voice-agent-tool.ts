@@ -1,10 +1,10 @@
 // Voice Agent Tool for integration with the LAPA agent system
-import { BaseAgentTool } from '../core/agent-tool.ts';
-import { AgentToolExecutionContext, AgentToolExecutionResult } from '../core/types/agent-types.ts';
-import { AdvancedVoiceAgent } from './advanced-voice-agent.ts';
-import { VoiceAgentConfig } from './types/index.ts';
-import { RAGPipeline } from '../rag/pipeline.ts';
-import { MultimodalEventPublisher } from './utils/event-publisher.ts';
+import { BaseAgentTool } from '../core/agent-tool.js';
+import { AgentToolExecutionContext, AgentToolExecutionResult } from '../core/types/agent-types.js';
+import { AdvancedVoiceAgent } from './advanced-voice-agent.js';
+import { VoiceAgentConfig } from './types/index.js';
+import { RAGPipeline } from '../rag/pipeline.js';
+import { MultimodalEventPublisher } from './utils/event-publisher.js';
 
 export class VoiceAgentTool extends BaseAgentTool {
   private voiceAgent: AdvancedVoiceAgent;
