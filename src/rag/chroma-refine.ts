@@ -541,5 +541,5 @@ export class ChromaRefine {
 export const chromaRefine = new ChromaRefine();
 
 // Export types
-export type { ChromaRefineConfig, VectorDocument, VectorSearchResult };
+// Types are exported at declaration; avoid duplicate re-exports
 

@@ -161,10 +161,13 @@ export class PromptEngineerClient {
         await this.waitForServerReady();
 
         this.isConnected = true;
-        eventBus.emit('prompt-engineer.connected', {
+        await eventBus.publish({
+          id: `prompt-engineer.connected.${Date.now()}`,
+          type: 'prompt-engineer.connected',
           timestamp: Date.now(),
-          source: 'prompt-engineer'
-        });
+          source: 'prompt-engineer',
+          payload: {}
+        } as any);
 
         console.log('[PromptEngineer] Server started successfully');
       } else {

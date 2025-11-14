@@ -7,6 +7,7 @@
 
 import { ProtocolBridge } from './utils/protocol-bridge.ts';
 import { CrossLanguageEvent } from '../core/types/event-types.ts';
+import { eventBus } from '../core/event-bus.ts';
 
 /**
  * .NET Shim for cross-language communication
@@ -34,7 +35,10 @@ export class DotNetShim extends ProtocolBridge {
       this.isInitialized = true;
       
       // Subscribe to all event types for forwarding to .NET
-      this.subscribeToEvents('*');
+      // '*' is not a valid event type, so subscribe to specific events
+      eventBus.subscribe('handoff.initiated' as any, (event: LAPAEvent) => this.handleIncomingEvent(event as any));
+      eventBus.subscribe('task.completed' as any, (event: LAPAEvent) => this.handleIncomingEvent(event as any));
+      eventBus.subscribe('agent.registered' as any, (event: LAPAEvent) => this.handleIncomingEvent(event as any));
       
       console.log('.NET shim initialized successfully');
     } catch (error) {

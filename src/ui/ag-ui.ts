@@ -28,12 +28,11 @@ const agUIEventSchema = z.object({
   payload: z.record(z.unknown())
 });
 
-// Zod schema for AG-UI component validation
-const agUIComponentSchema = z.object({
+const agUIComponentSchema: z.ZodType<AGUIComponent> = z.object({
   componentId: z.string(),
   componentType: z.string(),
   props: z.record(z.unknown()),
-  children: z.array(z.unknown()).optional()
+  children: z.array(z.lazy(() => agUIComponentSchema)).optional()
 });
 
 // AG-UI event interface

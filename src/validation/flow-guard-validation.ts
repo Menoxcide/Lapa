@@ -83,7 +83,7 @@ export function validateFlowGuard(guard: any): ValidationResult {
       result.errors = error.errors.map(err => ({
         path: err.path.join('.'),
         message: err.message,
-        value: err.received
+        value: (err as any).received || 'unknown'
       }));
     } else {
       result.isValid = false;
@@ -170,7 +170,7 @@ export function validateFlowGuardsConfig(config: any): ValidationResult {
       result.errors = error.errors.map(err => ({
         path: err.path.join('.'),
         message: err.message,
-        value: err.received
+        value: (err as any).received || 'unknown'
       }));
     } else {
       result.isValid = false;

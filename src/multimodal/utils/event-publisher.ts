@@ -1,5 +1,5 @@
 // Utility functions for publishing multimodal events
-import { eventBus } from '../../core/event-bus';
+import { eventBus } from '../../core/event-bus.js';
 import { 
   VisionImageProcessedEvent, 
   VisionImageGeneratedEvent, 
@@ -20,7 +20,7 @@ import {
   VoiceDictationStartedEvent,
   VoiceDictationCompletedEvent,
   VoiceDictationErrorEvent
-} from '../../core/types/event-types';
+} from '../../core/types/event-types.js';
 
 export class MultimodalEventPublisher {
   /**

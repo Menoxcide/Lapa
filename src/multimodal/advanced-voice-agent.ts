@@ -1,10 +1,10 @@
 // Advanced Voice Agent with RAG integration and enhanced capabilities
-import { AudioProcessingPipeline, TTSSTTPipeline, TTSConfig, STTConfig } from './tts-stt';
-import { LAPAEventBus, eventBus } from '../core/event-bus';
-import { RAGPipeline } from '../rag/pipeline';
-import { VoiceUtils } from './utils/voice-utils';
+import { AudioProcessingPipeline, TTSSTTPipeline, TTSConfig, STTConfig } from './tts-stt.ts';
+import { LAPAEventBus, eventBus } from '../core/event-bus.ts';
+import { RAGPipeline } from '../rag/pipeline.ts';
+import { VoiceUtils } from './utils/voice-utils.ts';
 import { VoiceAgentConfig, SpeechToTextResult, TextToSpeechResult, VoiceCommand, VoiceQuestion, VoiceAnswer } from './types';
-import { VoiceCommandParser, ParsedCommand } from './voice-command-parser';
+import { VoiceCommandParser, ParsedCommand } from './voice-command-parser.ts';
 
 export interface AdvancedVoiceAgentInterface {
   processAudio(audio: Buffer, format?: string): Promise<SpeechToTextResult>;

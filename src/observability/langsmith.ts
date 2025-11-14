@@ -14,7 +14,7 @@
 import { EventEmitter } from 'events';
 import { LAPAEventBus } from '../core/event-bus.ts';
 import type { LAPAEvent } from '../types/event-types.ts';
-import { Client, RunCreate } from 'langsmith';
+import { Client } from 'langsmith';
 
 /**
  * LangSmith trace configuration
@@ -74,13 +74,13 @@ export class LangSmithTracer extends EventEmitter {
   ) {
     super();
     this.config = {
+      ...config,
       apiKey: config.apiKey || process.env.LANGSMITH_API_KEY,
       projectName: config.projectName || 'lapa-v1.2',
       environment: config.environment || process.env.NODE_ENV || 'development',
       enabled: config.enabled !== false,
       endpoint: config.endpoint || 'https://api.smith.langchain.com',
-      timeout: config.timeout || 5000,
-      ...config
+      timeout: config.timeout ?? 5000
     };
     this.enabled = this.config.enabled && !!this.config.apiKey;
     this.eventBus = eventBus;
@@ -393,12 +393,12 @@ export class LangSmithTracer extends EventEmitter {
     });
 
     // Convert traces to LangSmith run format
-    const runs: RunCreate[] = traces.map(trace => ({
+    const runs: Array<Parameters<Client['createRun']>[0]> = traces.map(trace => ({
       id: trace.id,
       name: trace.name,
-      start_time: new Date(trace.startTime).toISOString(),
-      end_time: trace.endTime ? new Date(trace.endTime).toISOString() : undefined,
-      run_type: 'chain', // Default to chain, could be more specific based on trace name
+      start_time: trace.startTime,
+      end_time: trace.endTime ?? undefined,
+      run_type: 'chain',
       inputs: {},
       outputs: trace.metadata,
       error: trace.error?.message,
@@ -416,8 +416,8 @@ export class LangSmithTracer extends EventEmitter {
       child_runs: trace.children.map(child => ({
         id: child.id,
         name: child.name,
-        start_time: new Date(child.startTime).toISOString(),
-        end_time: child.endTime ? new Date(child.endTime).toISOString() : undefined,
+        start_time: child.startTime,
+        end_time: child.endTime ?? undefined,
         run_type: 'chain',
         inputs: {},
         outputs: child.metadata,

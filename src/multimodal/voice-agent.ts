@@ -1,7 +1,8 @@
 // Voice agent implementation
-import { AudioProcessingPipeline, TTSSTTPipeline, TTSConfig, STTConfig } from './tts-stt';
-import { RAGPipeline } from '../rag/pipeline';
+import { AudioProcessingPipeline, TTSSTTPipeline, TTSConfig, STTConfig } from './tts-stt.js';
+import { RAGPipeline } from '../rag/pipeline.js';
 import { MultimodalEventPublisher } from './utils/event-publisher.ts';
+import { eventBus, LAPAEventBus } from '../core/event-bus.js';
 
 export interface VoiceAgentInterface {
   processAudio(audio: Buffer): Promise<string>;
@@ -27,7 +28,6 @@ export class VoiceAgent implements VoiceAgentInterface {
     this.config = config || {};
     this.audioPipeline = new TTSSTTPipeline(
       this.config.ttsConfig,
-      this.config.sttConfig
     );
     this.eventBus = eventBus;
     this.ragPipeline = ragPipeline;
@@ -141,7 +141,7 @@ export class VoiceAgent implements VoiceAgentInterface {
           
           if (similarContent.length > 0) {
             // Create context from similar content
-            const context = similarContent.map(item => item.content).join('\n\n');
+          const context = similarContent.map((item: { content: string }) => item.content).join('\n\n');
             
             // Formulate a response based on the context
             answer = `Based on the available information:\n\n${context}\n\nRegarding your question: ${question}`;

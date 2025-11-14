@@ -210,7 +210,11 @@ export function createLAPAWhitelist(): Record<RooMode, RooMode[]> {
     architect: ['code', 'ask', 'debug', 'custom'],
     ask: ['code', 'architect', 'debug', 'custom'],
     debug: ['code', 'architect', 'ask', 'custom'],
-    custom: ['code', 'architect', 'ask', 'debug']
+    custom: ['code', 'architect', 'ask', 'debug'],
+    'test-engineer': ['code', 'debug', 'code-reviewer', 'docs-specialist'],
+    'docs-specialist': ['ask', 'code', 'code-reviewer', 'architect'],
+    'code-reviewer': ['code', 'architect', 'debug', 'docs-specialist'],
+    orchestrator: ['architect', 'code', 'ask', 'debug']
   };
 }
 
@@ -224,6 +228,10 @@ export function createLAPABlacklist(): Record<RooMode, RooMode[]> {
     architect: [], // No forbidden transitions from architect mode
     ask: [], // No forbidden transitions from ask mode
     debug: [], // No forbidden transitions from debug mode
-    custom: [] // No forbidden transitions from custom mode
+    custom: [], // No forbidden transitions from custom mode
+    'test-engineer': [],
+    'docs-specialist': [],
+    'code-reviewer': [],
+    orchestrator: []
   };
 }

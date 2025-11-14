@@ -57,7 +57,7 @@ describe('Vision Agent', () => {
         .toThrow('Image processing failed: NIM inference failed');
         
       expect(eventBus.publish).toHaveBeenCalledWith(expect.objectContaining({
-        type: 'vision.image.processed.error',
+        type: 'multimodal.vision.processing.error',
         payload: {
           error: 'NIM inference failed'
         }

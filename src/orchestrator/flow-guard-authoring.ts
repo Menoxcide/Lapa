@@ -6,6 +6,7 @@
 
 import { FlowGuard, FlowGuardsConfig } from './flow-guards.ts';
 // Import validation functions dynamically to avoid circular dependencies
+import { validateFlowGuardsConfig, validateFlowGuard } from '../validation/index.ts';
 
 // Types for authoring utilities
 export type MetricCategory = 'system' | 'task' | 'handoff';

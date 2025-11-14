@@ -1,11 +1,11 @@
 // Unified multimodal interface for vision and voice agents
-import { VisionAgent, VisionAgentInterface } from './vision-agent';
-import { VoiceAgent, VoiceAgentInterface } from './voice-agent';
-import { MultimodalConfig, MultimodalInput, MultimodalOutput } from './types';
-import { eventBus } from '../core/event-bus';
+import { VisionAgent, VisionAgentInterface } from './vision-agent.js';
+import { VoiceAgent, VoiceAgentInterface } from './voice-agent.js';
+import { MultimodalConfig, MultimodalRequest, MultimodalResponse } from './types/index.js';
+import { eventBus } from '../core/event-bus.js';
 
 export interface VisionVoiceInterface extends VisionAgentInterface, VoiceAgentInterface {
-  processMultimodalInput(input: MultimodalInput): Promise<MultimodalOutput>;
+  processMultimodalInput(input: MultimodalRequest): Promise<MultimodalResponse>;
   setCurrentModality(modality: 'vision' | 'voice' | 'auto'): void;
   getCurrentModality(): 'vision' | 'voice' | 'auto';
 }
@@ -70,7 +70,7 @@ export class VisionVoiceController implements VisionVoiceInterface {
     return [...this.modalityPriority]; // Return a copy to prevent external modification
   }
   
-  getProcessingOrder(input: MultimodalInput): ('vision' | 'voice')[] {
+  getProcessingOrder(input: MultimodalRequest): ('vision' | 'voice')[] {
     // If current modality is explicitly set, use that
     if (this.currentModality !== 'auto') {
       return [this.currentModality];
@@ -78,8 +78,8 @@ export class VisionVoiceController implements VisionVoiceInterface {
     
     // Otherwise, use priority order
     return this.modalityPriority.filter(modality => {
-      if (modality === 'vision') return !!input.image;
-      if (modality === 'voice') return !!input.audio;
+      if (modality === 'vision') return !!input.imageData;
+      if (modality === 'voice') return !!input.audioData;
       return false;
     });
   }
@@ -88,9 +88,9 @@ export class VisionVoiceController implements VisionVoiceInterface {
     return this.currentModality;
   }
   
-  async processMultimodalInput(input: MultimodalInput): Promise<MultimodalOutput> {
+  async processMultimodalInput(input: MultimodalRequest): Promise<MultimodalResponse> {
     // Validate input
-    if (!input.image && !input.audio) {
+    if (!input.imageData && !input.audioData) {
       throw new Error('At least one modality (image or audio) must be provided');
     }
     
@@ -102,15 +102,15 @@ export class VisionVoiceController implements VisionVoiceInterface {
       source: 'vision-voice-controller',
       payload: {
         inputTypes: {
-          hasImage: !!input.image,
-          hasAudio: !!input.audio
+          hasImage: !!input.imageData,
+          hasAudio: !!input.audioData
         },
         modality: this.currentModality
       }
     } as any);
     
     try {
-      const output: MultimodalOutput = { text: '' };
+      const output: MultimodalResponse = { text: '' };
       
       // Determine processing order based on priority
       const processingOrder = this.getProcessingOrder(input);
@@ -123,13 +123,13 @@ export class VisionVoiceController implements VisionVoiceInterface {
         // Process all modalities in parallel
         const promises: Promise<void>[] = [];
         
-        if (input.image) {
+        if (input.imageData) {
           promises.push((async () => {
             try {
-              const result = await this.visionAgent.processImage(input.image!);
+              const result = await this.visionAgent.processImage(input.imageData!);
               output.text += `\n[VISION] ${result}`;
-              output.image = input.image;
-              this.updateContext('vision', { lastImage: input.image, lastVisionOutput: result });
+              output.imageData = input.imageData;
+              this.updateContext('vision', { lastImage: input.imageData, lastVisionOutput: result });
               processedSuccessfully = true;
             } catch (error) {
               console.error('Vision processing failed:', error);
@@ -148,13 +148,13 @@ export class VisionVoiceController implements VisionVoiceInterface {
           })());
         }
         
-        if (input.audio) {
+        if (input.audioData) {
           promises.push((async () => {
             try {
-              const result = await this.voiceAgent.processAudio(input.audio!);
+              const result = await this.voiceAgent.processAudio(input.audioData!);
               output.text += `\n[AUDIO] ${result}`;
-              output.audio = input.audio;
-              this.updateContext('voice', { lastAudio: input.audio, lastVoiceOutput: result });
+              output.audioData = input.audioData;
+              this.updateContext('voice', { lastAudio: input.audioData, lastVoiceOutput: result });
               processedSuccessfully = true;
             } catch (error) {
               console.error('Voice processing failed:', error);
@@ -179,24 +179,24 @@ export class VisionVoiceController implements VisionVoiceInterface {
         // Process inputs according to priority (sequential)
         for (const modality of processingOrder) {
           try {
-            if (modality === 'vision' && input.image) {
+            if (modality === 'vision' && input.imageData) {
               // Process image with vision agent
-              output.text = await this.visionAgent.processImage(input.image);
-              output.image = input.image;
+              output.text = await this.visionAgent.processImage(input.imageData);
+              output.imageData = input.imageData;
               
               // Update context with vision processing results
-              this.updateContext('vision', { lastImage: input.image, lastVisionOutput: output.text });
+              this.updateContext('vision', { lastImage: input.imageData, lastVisionOutput: output.text });
               processedSuccessfully = true;
               
               // If sequential fallback is not enabled, break after first success
               if (fallbackStrategy === 'none') break;
-            } else if (modality === 'voice' && input.audio) {
+            } else if (modality === 'voice' && input.audioData) {
               // Process audio with voice agent
-              output.text = await this.voiceAgent.processAudio(input.audio);
-              output.audio = input.audio;
+              output.text = await this.voiceAgent.processAudio(input.audioData);
+              output.audioData = input.audioData;
               
               // Update context with voice processing results
-              this.updateContext('voice', { lastAudio: input.audio, lastVoiceOutput: output.text });
+              this.updateContext('voice', { lastAudio: input.audioData, lastVoiceOutput: output.text });
               processedSuccessfully = true;
               
               // If sequential fallback is not enabled, break after first success

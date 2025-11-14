@@ -38,7 +38,7 @@ export type GuardAction =
   | { type: 'custom'; handler: string };
 
 // Flow guard configuration
-const FlowGuardSchema = z.object({
+export const FlowGuardSchema = z.object({
   name: z.string(),
   condition: z.union([
     z.string(), // Simple string condition (e.g., "system.temperature > 78")
@@ -67,7 +67,7 @@ const FlowGuardSchema = z.object({
   enabled: z.boolean().default(true),
 });
 
-const FlowGuardsConfigSchema = z.object({
+export const FlowGuardsConfigSchema = z.object({
   version: z.string().optional(),
   guards: z.array(FlowGuardSchema),
   globalSettings: z.object({

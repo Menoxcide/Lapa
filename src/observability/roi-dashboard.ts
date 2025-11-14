@@ -55,7 +55,7 @@ export class ROIDashboard {
   private config: ROIConfig;
   private metrics: ROIMetrics;
   private prometheus?: PrometheusMetrics;
-  private eventSubscriptions: Array<() => void> = [];
+  private eventSubscriptions: string[] = [];
 
   constructor(config?: Partial<ROIConfig>, prometheus?: PrometheusMetrics) {
     this.config = {
@@ -88,24 +88,24 @@ export class ROIDashboard {
    */
   private initializeEventListeners(): void {
     // Track token savings
-    const tokenSub = eventBus.subscribe('task.complete', (event: LAPAEvent) => {
+    const tokenSub = eventBus.subscribe('task.completed' as any, (event: LAPAEvent) => {
       if (event.payload?.tokensUsed) {
         this.trackTokenSavings(event.payload.tokensUsed, event.payload.mode);
       }
     });
 
     // Track handoff avoidance
-    const handoffSub = eventBus.subscribe('handoff.avoided', (event: LAPAEvent) => {
+    const handoffSub = eventBus.subscribe('handoff.avoided' as any, (event: LAPAEvent) => {
       this.trackHandoffAvoided(event.payload?.mode);
     });
 
     // Track bug prevention
-    const bugSub = eventBus.subscribe('bug.prevented', (event: LAPAEvent) => {
+    const bugSub = eventBus.subscribe('bug.prevented' as any, (event: LAPAEvent) => {
       this.trackBugPrevented(event.payload?.mode);
     });
 
     // Track task completion
-    const taskSub = eventBus.subscribe('task.complete', (event: LAPAEvent) => {
+    const taskSub = eventBus.subscribe('task.completed' as any, (event: LAPAEvent) => {
       if (event.payload?.mode && event.payload?.executionTime) {
         this.trackTaskCompletion(
           event.payload.mode,
@@ -130,7 +130,7 @@ export class ROIDashboard {
     this.updateCostSavings();
 
     if (this.config.enablePrometheus && this.prometheus) {
-      this.prometheus.incrementCounter('lapa_roi_tokens_saved_total', tokensSaved, {
+      this.prometheus.setGauge('roi_tokens_saved_total', this.metrics.tokensSaved, {
         mode: mode || 'unknown'
       });
     }
@@ -319,8 +319,8 @@ export class ROIDashboard {
    * Cleanup event listeners
    */
   dispose(): void {
-    for (const unsubscribe of this.eventSubscriptions) {
-      unsubscribe();
+    for (const subId of this.eventSubscriptions) {
+      eventBus.unsubscribe(subId);
     }
     this.eventSubscriptions = [];
   }

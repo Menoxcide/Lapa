@@ -219,7 +219,11 @@ export class OptimizedModeController extends RooModeController {
       'code': 'debug',
       'debug': 'ask',
       'architect': 'code',
-      'custom': 'ask'
+      'custom': 'ask',
+      'test-engineer': 'code',
+      'docs-specialist': 'ask',
+      'code-reviewer': 'debug',
+      'orchestrator': 'architect'
     };
     
     return commonTransitions[currentMode];

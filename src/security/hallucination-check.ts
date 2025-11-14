@@ -97,8 +97,8 @@ export class HallucinationCheckSystem {
     this.initializeValidationRules();
     
     // Listen for agent outputs
-    eventBus.on('agent.output', this.handleAgentOutput.bind(this));
-    eventBus.on('consensus.result', this.handleConsensusResult.bind(this));
+    eventBus.subscribe('agent.output' as any, (e) => this.handleAgentOutput(e as any));
+    eventBus.subscribe('consensus.result' as any, (e) => this.handleConsensusResult(e as any));
   }
 
   /**
@@ -342,13 +342,19 @@ export class HallucinationCheckSystem {
       }
     }
 
-    // Emit event for actual codebase validation (could be handled by another service)
-    eventBus.emit('hallucination.codebase.validate', {
-      text,
-      fileMatch: fileMatch?.[1],
-      functionMatch: functionMatch?.[1],
-      classMatch: classMatch?.[1]
-    });
+    // Publish event for actual codebase validation (could be handled by another service)
+    await eventBus.publish({
+      id: `hallucination.codebase.validate.${Date.now()}`,
+      type: 'hallucination.codebase.validate',
+      timestamp: Date.now(),
+      source: 'hallucination-check',
+      payload: {
+        text,
+        fileMatch: fileMatch?.[1],
+        functionMatch: functionMatch?.[1],
+        classMatch: classMatch?.[1]
+      }
+    } as any);
 
     return { valid: true };
   }
@@ -370,12 +376,18 @@ export class HallucinationCheckSystem {
       }
     }
 
-    // Emit event for memory validation (could be handled by Memori engine)
-    eventBus.emit('hallucination.memory.validate', {
-      claimId: claim.id,
-      text: claim.text,
-      context: claim.context
-    });
+    // Publish event for memory validation (could be handled by Memori engine)
+    await eventBus.publish({
+      id: `hallucination.memory.validate.${Date.now()}`,
+      type: 'hallucination.memory.validate',
+      timestamp: Date.now(),
+      source: 'hallucination-check',
+      payload: {
+        claimId: claim.id,
+        text: claim.text,
+        context: claim.context
+      }
+    } as any);
 
     return { valid: true };
   }
@@ -553,11 +565,17 @@ export class HallucinationCheckSystem {
       votesAgainst
     });
 
-    // Emit event
-    eventBus.emit('hallucination.veto.completed', {
-      claimId,
-      decision: vetoDecision
-    });
+    // Publish event
+    await eventBus.publish({
+      id: `hallucination.veto.completed.${Date.now()}`,
+      type: 'hallucination.veto.completed',
+      timestamp: Date.now(),
+      source: 'hallucination-check',
+      payload: {
+        claimId,
+        decision: vetoDecision
+      }
+    } as any);
 
     return vetoDecision;
   }
@@ -582,11 +600,17 @@ export class HallucinationCheckSystem {
 
     if (result.isHallucination && result.vetoRecommended) {
       // Automatically initiate veto for high-confidence hallucinations
-      eventBus.emit('hallucination.detected', {
-        claimId: claim.id,
-        result,
-        autoVeto: true
-      });
+      await eventBus.publish({
+        id: `hallucination.detected.${Date.now()}`,
+        type: 'hallucination.detected',
+        timestamp: Date.now(),
+        source: 'hallucination-check',
+        payload: {
+          claimId: claim.id,
+          result,
+          autoVeto: true
+        }
+      } as any);
     }
   }
 

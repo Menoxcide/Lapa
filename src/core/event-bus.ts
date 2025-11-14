@@ -10,10 +10,10 @@ import { EventEmitter } from 'events';
 import { performance } from 'perf_hooks';
 
 // Event type definitions
-import type { LAPAEvent, LAPAEventMap } from './types/event-types';
+import type { LAPAEvent, LAPAEventMap } from './types/event-types.ts';
 
 // Event routing utilities
-import { routeEvent } from './utils/event-router';
+import { routeEvent } from './utils/event-router.ts';
 
 // Subscription management
 interface Subscription {
@@ -44,6 +44,14 @@ const DEFAULT_CONFIG: EventBusConfig = {
  */
 export class LAPAEventBus {
   private emitter: EventEmitter;
+
+  public emit(event: string | symbol, ...args: any[]): boolean {
+    return this.emitter.emit(event, ...args);
+  }
+
+  public on(event: string | symbol, listener: (...args: any[]) => void): LAPAEventBus {
+    return this as LAPAEventBus;
+  }
   private subscriptions: Map<string, Subscription>;
   private config: EventBusConfig;
   private eventQueue: LAPAEvent[];

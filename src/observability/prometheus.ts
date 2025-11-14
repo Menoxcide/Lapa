@@ -87,12 +87,12 @@ export class PrometheusMetrics extends EventEmitter {
   ) {
     super();
     this.config = {
+      ...config,
       enabled: config.enabled !== false,
-      port: config.port || 9090,
-      path: config.path || '/metrics',
+      port: config.port ?? 9090,
+      path: config.path ?? '/metrics',
       collectDefaultMetrics: config.collectDefaultMetrics !== false,
-      prefix: config.prefix || 'lapa_',
-      ...config
+      prefix: config.prefix ?? 'lapa_'
     };
     this.enabled = this.config.enabled;
     this.eventBus = eventBus;
@@ -102,6 +102,8 @@ export class PrometheusMetrics extends EventEmitter {
       this.setupEventListeners();
     }
   }
+
+  async initialize(): Promise<void> { return; }
 
   /**
    * Initialize default metrics

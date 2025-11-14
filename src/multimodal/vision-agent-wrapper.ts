@@ -1,9 +1,9 @@
 // Vision Agent Wrapper for integration with the LAPA Helix team agent pattern
-import { HelixTeamAgentWrapper } from '../core/agent-tool';
-import { AgentToolRegistry } from '../core/agent-tool';
-import { VisionAgentTool } from './vision-agent-tool';
+import { HelixTeamAgentWrapper } from '../core/agent-tool.ts';
+import { AgentToolRegistry } from '../core/agent-tool.ts';
+import { VisionAgentTool } from './vision-agent-tool.ts';
 import { MultimodalConfig } from './types';
-import { HelixAgentType } from '../core/types/agent-types';
+import { HelixAgentType } from '../core/types/agent-types.ts';
 
 export class VisionAgentWrapper extends HelixTeamAgentWrapper {
   constructor(

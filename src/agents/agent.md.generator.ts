@@ -221,7 +221,10 @@ export class AgentDocumentationGenerator {
       reviewer: 'The Reviewer agent focuses on code review and quality assurance. It analyzes code for potential issues, style violations, and best practice adherence.',
       debugger: 'The Debugger agent detects and fixes bugs in code. It identifies issues, diagnoses root causes, and implements solutions.',
       optimizer: 'The Optimizer agent improves code performance and efficiency. It analyzes bottlenecks and suggests optimizations.',
-      tester: 'The Tester agent creates and executes tests to ensure code quality and reliability. It develops test cases and validates functionality.'
+      tester: 'The Tester agent creates and executes tests to ensure code quality and reliability. It develops test cases and validates functionality.',
+      researcher: 'The Researcher agent gathers information, explores documentation, and synthesizes findings to support decision making and implementation.',
+      custom: 'A Custom agent tailored for specialized tasks or workflows outside standard roles. Use for domain-specific responsibilities.',
+      removable: 'A temporary agent type intended for short-lived roles. Can be added and removed dynamically based on workload.'
     };
     
     return descriptions[type] || 'General purpose agent with unspecified capabilities.';
@@ -239,7 +242,10 @@ export class AgentDocumentationGenerator {
       reviewer: 'Assign code review tasks to this agent. It can analyze code quality, identify potential issues, and suggest improvements.',
       debugger: 'Route bug reports and debugging tasks to this agent. Provide error messages, code snippets, and reproduction steps for effective diagnosis.',
       optimizer: 'Send performance optimization requests to this agent. It can analyze code for inefficiencies and suggest improvements.',
-      tester: 'Assign test creation and execution tasks to this agent. Provide functionality specifications for comprehensive test coverage.'
+      tester: 'Assign test creation and execution tasks to this agent. Provide functionality specifications for comprehensive test coverage.',
+      researcher: 'Delegate research tasks, documentation reviews, and competitive analysis. Provide questions or topics to investigate with desired depth.',
+      custom: 'Use for bespoke workflows. Clearly specify inputs, outputs, and guardrails. Ideal for domain-specific pipelines and integrations.',
+      removable: 'Assign time-bound or experimental tasks. Use where elasticity is required and the agent may be taken down after completion.'
     };
     
     return usage[type] || 'This agent can handle general tasks within its expertise areas.';
@@ -257,7 +263,10 @@ export class AgentDocumentationGenerator {
       reviewer: 'Integrates with the Coder agent for code review and with the Debugger agent for issue identification.',
       debugger: 'Integrates with the Coder agent for bug fixing and with the Reviewer agent for validation.',
       optimizer: 'Integrates with the Coder agent for performance improvements and with the Tester agent for validation.',
-      tester: 'Integrates with the Coder agent for test creation and with the Debugger agent for bug reproduction.'
+      tester: 'Integrates with the Coder agent for test creation and with the Debugger agent for bug reproduction.',
+      researcher: 'Integrates with Planner for discovery tasks and with Coder for implementation details derived from findings.',
+      custom: 'Integrates through the MoE router with bespoke tools and pipelines defined per deployment.',
+      removable: 'Integrates via lightweight registration with the router; designed for elastic scaling and ephemeral usage.'
     };
     
     return integration[type] || 'Standard integration with the LAPA swarm through the MoE router.';

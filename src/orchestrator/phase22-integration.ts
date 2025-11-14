@@ -12,7 +12,7 @@
 
 import { yamlAgentLoader } from '../core/yaml-agent-loader.ts';
 import { flowGuardsManager } from './flow-guards.ts';
-import { inferenceManager } from '../inference/manager.ts';
+import { getInferenceManager } from '../inference/manager.ts';
 import { eventBus } from '../core/event-bus.ts';
 import { HelixAgentType } from '../core/types/agent-types.ts';
 
@@ -40,7 +40,7 @@ export class Phase22Integration {
       await flowGuardsManager.initialize();
 
       // Initialize inference manager
-      await inferenceManager.initialize();
+      await getInferenceManager().initialize();
 
       this.initialized = true;
 
@@ -83,21 +83,21 @@ export class Phase22Integration {
    * Sends inference request with hybrid mode support
    */
   async infer(request: any) {
-    return inferenceManager.infer(request);
+    return getInferenceManager().infer(request);
   }
 
   /**
    * Gets inference manager configuration
    */
   getInferenceConfig() {
-    return inferenceManager.getConfig();
+    return getInferenceManager().getConfig();
   }
 
   /**
    * Updates inference manager configuration
    */
   async updateInferenceConfig(updates: any) {
-    return inferenceManager.updateConfig(updates);
+    return getInferenceManager().updateConfig(updates);
   }
 
   /**
@@ -125,7 +125,7 @@ export class Phase22Integration {
    * Checks health of inference providers
    */
   async checkInferenceHealth(provider: 'ollama' | 'nim' | 'openrouter' | 'auto') {
-    return inferenceManager.checkHealth(provider);
+    return getInferenceManager().checkHealth(provider);
   }
 }
 

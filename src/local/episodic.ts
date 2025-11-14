@@ -563,5 +563,4 @@ export class EpisodicMemoryStore {
 export const episodicMemoryStore = new EpisodicMemoryStore();
 
 // Export types
-export type { EpisodicMemoryConfig, Episode };
 

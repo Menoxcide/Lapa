@@ -97,7 +97,7 @@ export interface MCPPrompt {
  * Provides tool discovery, progressive disclosure, and local connector integration.
  */
 export class MCPConnector {
-  private config: MCPConnectorConfig;
+  private config: typeof DEFAULT_CONFIG & MCPConnectorConfig;
   private transport: MCPTransport | null = null;
   private tools: Map<string, MCPTool> = new Map();
   private resources: Map<string, MCPResource> = new Map();
@@ -563,12 +563,14 @@ export class MCPConnector {
     // Check if it's a response
     if ('result' in message || 'error' in message) {
       const response = message as JSONRPCResponse;
-      const request = this.pendingRequests.get(response.id);
-      if (request) {
-        if (response.error) {
-          request.reject(new Error(response.error.message));
-        } else {
-          request.resolve(response);
+      if (response.id !== null) {
+        const request = this.pendingRequests.get(response.id as string | number);
+        if (request) {
+          if (response.error) {
+            request.reject(new Error(response.error.message));
+          } else {
+            request.resolve(response);
+          }
         }
       }
     }
@@ -656,7 +658,7 @@ export class MCPConnector {
    * @param schema JSON Schema
    * @returns Zod schema
    */
-  private jsonSchemaToZod(schema: any): z.ZodType<any> {
+  private jsonSchemaToZod(schema: any): z.ZodTypeAny {
     if (!schema) {
       return z.any();
     }
@@ -671,12 +673,18 @@ export class MCPConnector {
     // Handle oneOf, anyOf, allOf
     if (schema.oneOf) {
       const schemas = schema.oneOf.map((subSchema: any) => this.jsonSchemaToZod(subSchema));
-      return z.union(schemas as [z.ZodType<any>, ...z.ZodType<any>[]]);
+      if (schemas.length === 1) {
+        return schemas[0];
+      }
+      return z.union(schemas as [z.ZodTypeAny, z.ZodTypeAny, ...z.ZodTypeAny[]]);
     }
 
     if (schema.anyOf) {
       const schemas = schema.anyOf.map((subSchema: any) => this.jsonSchemaToZod(subSchema));
-      return z.union(schemas as [z.ZodType<any>, ...z.ZodType<any>[]]);
+      if (schemas.length === 1) {
+        return schemas[0];
+      }
+      return z.union(schemas as [z.ZodTypeAny, z.ZodTypeAny, ...z.ZodTypeAny[]]);
     }
 
     // Handle const and enum
@@ -716,20 +724,14 @@ export class MCPConnector {
           }
         }
         
-        let objSchema = z.object(shape);
-        
-        // Handle additional properties
+        const objSchema = z.object(shape);
         if (schema.additionalProperties === false) {
-          objSchema = objSchema.strict();
-        } else if (schema.additionalProperties) {
-          // In a real implementation, you would handle additional properties
-          // For now, we'll just use the base object schema
+          return objSchema.strict();
         }
-        
         return objSchema;
 
       case 'array':
-        let itemSchema = z.any();
+        let itemSchema: z.ZodTypeAny = z.any();
         if (schema.items) {
           itemSchema = this.jsonSchemaToZod(schema.items);
         }
@@ -1067,4 +1069,3 @@ class StdioTransport implements MCPTransport {
 export function createMCPConnector(config?: Partial<MCPConnectorConfig>): MCPConnector {
   return new MCPConnector(config);
 }
-

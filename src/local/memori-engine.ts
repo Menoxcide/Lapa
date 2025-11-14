@@ -634,6 +634,4 @@ export class MemoriEngine {
 // Export singleton instance
 export const memoriEngine = new MemoriEngine();
 
-// Export types
-export type { MemoriEngineConfig, EnhancedEntity, SessionMetadata };
 

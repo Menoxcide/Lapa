@@ -47,8 +47,8 @@ export type {
 } from './recall-metrics.ts';
 
 // Local inference adapters
-export { OllamaCompatibility } from './ollama-compatibility.ts';
-export { NIMIntegration } from './nim-integration.ts';
-export { LlamaCppAdapter } from './llama-cpp-adapter.ts';
-export { ResourceManager } from './resource-manager.ts';
+export { AutoGenOllamaIntegration as OllamaCompatibility } from './ollama-compatibility.ts';
+export { AutoGenNIMIntegration as NIMIntegration } from './nim-integration.ts';
+export { AutoGenLlamaCppAdapter as LlamaCppAdapter } from './llama-cpp-adapter.ts';
+export { AutoGenResourceManager as ResourceManager } from './resource-manager.ts';
 

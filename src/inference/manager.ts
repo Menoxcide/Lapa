@@ -223,7 +223,9 @@ export class InferenceManager {
       }
       
       // Extract system memory usage
-      const memoryUsage = memData.total > 0 ? Math.round((memData.active / memData.total) * 100) : 0;
+      const totalMem = (memData as any)?.total ?? 0;
+      const activeMem = (memData as any)?.active ?? 0;
+      const memoryUsage = totalMem > 0 ? Math.round((activeMem / totalMem) * 100) : 0;
       
       // Extract VRAM usage (first GPU with memory data)
       let vramUsage = 0;
@@ -273,7 +275,7 @@ export class InferenceManager {
     try {
       const alerts: string[] = [];
       const { alertThresholds } = this.config;
-      const { cpuTemp, gpuTemp, cpuUsage, memoryUsage } = this.healthStatus;
+      const { cpuTemp, gpuTemp, cpuUsage, memoryUsage, vramUsage } = this.healthStatus;
 
       // CPU Temperature Alerts
       if (cpuTemp >= alertThresholds.cpuTempCritical) {
@@ -542,6 +544,41 @@ export class InferenceManager {
     if (this.healthCheckTimer) {
       clearInterval(this.healthCheckTimer);
     }
+  }
+
+  /**
+   * Gets current configuration
+   */
+  getConfig(): InferenceManagerConfig {
+    return { ...this.config } as InferenceManagerConfig;
+  }
+
+  /**
+   * Updates configuration
+   */
+  updateConfig(updates: Partial<InferenceManagerConfig>): InferenceManagerConfig {
+    this.config = { ...this.config, ...updates } as InferenceManagerConfig;
+    return this.getConfig();
+  }
+
+  /**
+   * Checks health of a provider
+   */
+  async checkHealth(provider: 'ollama' | 'nim' | 'openrouter' | 'auto'): Promise<{ provider: string; available: boolean }>
+  {
+    if (provider === 'nim') {
+      return { provider, available: await isNIMAvailable() };
+    }
+    if (provider === 'ollama') {
+      return { provider, available: await isOllamaAvailable() };
+    }
+    if (provider === 'auto') {
+      const nim = await isNIMAvailable();
+      const ollama = await isOllamaAvailable();
+      return { provider, available: nim || ollama };
+    }
+    // Assume external provider availability is handled elsewhere
+    return { provider, available: true };
   }
 }
 

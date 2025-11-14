@@ -48,6 +48,7 @@ export interface A2AHandshakeResponse {
   capabilities?: string[];
   protocolVersion?: string;
   error?: string;
+  sessionId?: string;
 }
 
 // A2A task negotiation request interface

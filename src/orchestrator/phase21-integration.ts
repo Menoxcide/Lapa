@@ -45,7 +45,7 @@ export class Phase21Integration {
   private roiDashboard?: ROIDashboard;
   private inferenceManager?: InferenceManager;
   private prometheus?: PrometheusMetrics;
-  private eventSubscriptions: Array<() => void> = [];
+  private eventSubscriptions: string[] = [];
   private isInitialized: boolean = false;
 
   constructor(config?: Phase21Config) {
@@ -134,7 +134,7 @@ export class Phase21Integration {
   private setupEventListeners(): void {
     // Marketplace events
     if (this.marketplace) {
-      const marketplaceSub = eventBus.subscribe('marketplace.skill.installed', (event: LAPAEvent) => {
+      const marketplaceSub = eventBus.subscribe('marketplace.skill.installed' as any, (event: LAPAEvent) => {
         // Update ROI dashboard when skill is installed
         if (this.roiDashboard && event.payload?.skillId) {
           // Track skill installation ROI
@@ -146,7 +146,7 @@ export class Phase21Integration {
 
     // Inference Manager events
     if (this.inferenceManager) {
-      const inferenceSub = eventBus.subscribe('inference.backend.switched', (event: LAPAEvent) => {
+      const inferenceSub = eventBus.subscribe('inference.backend.switched' as any, (event: LAPAEvent) => {
         // Track backend switches in ROI
         if (this.roiDashboard && event.payload?.backend) {
           console.log('[Phase21Integration] Backend switched:', event.payload.backend);
@@ -157,7 +157,7 @@ export class Phase21Integration {
 
     // ROI Dashboard events
     if (this.roiDashboard) {
-      const roiSub = eventBus.subscribe('roi.updated', (event: LAPAEvent) => {
+      const roiSub = eventBus.subscribe('roi.updated' as any, (event: LAPAEvent) => {
         // Update Prometheus metrics
         if (this.prometheus && event.payload?.metrics) {
           const metrics = event.payload.metrics;
@@ -169,7 +169,7 @@ export class Phase21Integration {
     }
 
     // Settings changed events
-    const settingsSub = eventBus.subscribe('settings.changed', (event: LAPAEvent) => {
+    const settingsSub = eventBus.subscribe('settings.changed' as any, (event: LAPAEvent) => {
       // Update components based on settings changes
       if (this.inferenceManager && event.payload?.inference) {
         if (event.payload.inference.backend) {
@@ -235,8 +235,8 @@ export class Phase21Integration {
    */
   dispose(): void {
     // Unsubscribe from events
-    for (const unsubscribe of this.eventSubscriptions) {
-      unsubscribe();
+    for (const subId of this.eventSubscriptions) {
+      eventBus.unsubscribe(subId);
     }
     this.eventSubscriptions = [];
 

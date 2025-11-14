@@ -10,4 +10,4 @@ export { CoderAgentWrapper } from './coder-wrapper.ts';
 export { TesterAgentWrapper } from './tester-wrapper.ts';
 
 // Multimodal agent wrappers
-export * from './multimodal';
+export * from './multimodal/index.ts';

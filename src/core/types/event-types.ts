@@ -1221,6 +1221,13 @@ export interface LAPAEventMap {
   'mcp.connector.error': any;
   'mcp.connector.close': any;
   'mcp.tool.called': any;
+  
+  // Additional event types used in the codebase but not previously defined
+  'task.progress': any;
+  'task.complete': any;
+  'agent.error': any;
+  'conversation.updated': any;
+  'phase.completed': any;
 }
 
 // Additional event types not previously defined

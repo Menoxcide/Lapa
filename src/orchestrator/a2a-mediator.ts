@@ -69,6 +69,7 @@ export interface A2AHandshakeResponse {
   protocolVersion?: string;
   error?: string;
   reason?: string; // Human-readable reason for rejection or acceptance
+  sessionId?: string;
 }
 
 // A2A task negotiation request interface

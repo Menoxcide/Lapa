@@ -80,11 +80,11 @@ export class BenchmarkSuiteV2 {
 
   constructor(config: BenchmarkSuiteConfig) {
     this.config = {
+      ...config,
       enabled: config.enabled !== false,
-      targetFidelity: config.targetFidelity || 99.5,
+      targetFidelity: config.targetFidelity ?? 99.5,
       enableRegressionDetection: config.enableRegressionDetection !== false,
-      historicalTracking: config.historicalTracking !== false,
-      ...config
+      historicalTracking: config.historicalTracking !== false
     };
     this.prometheusMetrics = config.prometheusMetrics;
     this.eventBus = config.eventBus;

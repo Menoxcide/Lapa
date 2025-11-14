@@ -56,23 +56,23 @@ export class SecurityIntegration {
    */
   private setupEventListeners(): void {
     // Listen for handoff events
-    eventBus.on('handoff.initiated', async (data: any) => {
+    eventBus.subscribe('handoff.initiated' as any, async (event: any) => {
       if (this.config.enableRBAC) {
-        await this.validateHandoffAccess(data);
+        await this.validateHandoffAccess(event);
       }
     });
 
     // Listen for agent outputs
-    eventBus.on('agent.output', async (data: any) => {
+    eventBus.subscribe('agent.output' as any, async (event: any) => {
       if (this.config.enableHallucinationCheck) {
-        await this.checkAgentOutput(data);
+        await this.checkAgentOutput(event);
       }
     });
 
     // Listen for critical operations
-    eventBus.on('rbac.critical.access', async (data: any) => {
+    eventBus.subscribe('rbac.critical.access' as any, async (event: any) => {
       if (this.config.enableRedTeamMonitoring) {
-        await this.monitorCriticalAccess(data);
+        await this.monitorCriticalAccess(event);
       }
     });
   }

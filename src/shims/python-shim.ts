@@ -34,7 +34,10 @@ export class PythonShim extends ProtocolBridge {
       this.isInitialized = true;
       
       // Subscribe to all event types for forwarding to Python
-      this.subscribeToEvents('*');
+      // '*' is not a valid event type, so subscribe to specific events
+      eventBus.subscribe('handoff.initiated' as any, (event: LAPAEvent) => this.handleIncomingEvent(event as any));
+      eventBus.subscribe('task.completed' as any, (event: LAPAEvent) => this.handleIncomingEvent(event as any));
+      eventBus.subscribe('agent.registered' as any, (event: LAPAEvent) => this.handleIncomingEvent(event as any));
       
       console.log('Python shim initialized successfully');
     } catch (error) {
