@@ -2,8 +2,8 @@
 ## Comprehensive Comparison: Original Feature List vs. Current Implementation
 
 **Analysis Date**: November 2025  
-**Current Version**: v1.3.0-preview  
-**Branch**: v1.3-swarm-os
+**Current Version**: v1.0.0
+**Branch**: main
 
 ---
 

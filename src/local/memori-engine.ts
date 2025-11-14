@@ -417,8 +417,74 @@ export class MemoriEngine {
   }
 
   /**
-   * Gets status of the Memori engine
+   * Get recent memories for an agent
    */
+  async getRecentMemories(agentId: string, limit: number = 10): Promise<EnhancedEntity[]> {
+    try {
+      const agentEpisodes = Array.from(this.entityCache.values())
+        .filter(e => e.sourceAgentId === agentId)
+        .sort((a, b) => {
+          const aTime = a.lastAccessed?.getTime() || 0;
+          const bTime = b.lastAccessed?.getTime() || 0;
+          return bTime - aTime;
+        })
+        .slice(0, limit);
+      
+      return agentEpisodes;
+    } catch (error) {
+      console.error('Failed to get recent memories:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get cross-session memories for an agent
+   */
+  async getCrossSessionMemories(agentId: string, query?: string): Promise<EnhancedEntity[]> {
+    try {
+      let memories = Array.from(this.entityCache.values())
+        .filter(e => e.sourceAgentId === agentId);
+      
+      if (query) {
+        const lowerQuery = query.toLowerCase();
+        memories = memories.filter(e => 
+          e.value?.toLowerCase().includes(lowerQuery) ||
+          e.type?.toLowerCase().includes(lowerQuery)
+        );
+      }
+      
+      return memories.sort((a, b) => b.importance - a.importance);
+    } catch (error) {
+      console.error('Failed to get cross-session memories:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get entity relationships
+   */
+  async getEntityRelationships(query?: string): Promise<EnhancedEntity[]> {
+    try {
+      let entities = Array.from(this.entityCache.values());
+      
+      if (query) {
+        const lowerQuery = query.toLowerCase();
+        entities = entities.filter(e => 
+          e.value?.toLowerCase().includes(lowerQuery) ||
+          e.type?.toLowerCase().includes(lowerQuery) ||
+          e.relatedEntities?.some(id => id.toLowerCase().includes(lowerQuery))
+        );
+      }
+      
+      // Return entities with relationships
+      return entities.filter(e => e.relatedEntities && e.relatedEntities.length > 0)
+        .sort((a, b) => (b.relatedEntities?.length || 0) - (a.relatedEntities?.length || 0));
+    } catch (error) {
+      console.error('Failed to get entity relationships:', error);
+      return [];
+    }
+  }
+
   getStatus(): {
     isInitialized: boolean;
     sessionCount: number;

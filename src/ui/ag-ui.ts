@@ -359,21 +359,29 @@ export class AGUIFoundation {
       callback?: string;
     }
   ): MCPUIComponent {
+    if (!componentType) {
+      throw new Error('Component type is required');
+    }
+    
+    const componentId = this.generateComponentId();
     const component: MCPUIComponent = {
       type: componentType,
-      id: this.generateComponentId(),
+      id: componentId,
       props,
       mcp: mcpConfig,
     };
     
-    this.mcpComponents.set(component.id, component);
+    this.mcpComponents.set(componentId, component);
     
     // Convert to AG-UI component and create it
-    const agUIComponent = this.createComponent(componentType, props);
-    
-    // Send to Studio if enabled
-    if (this.config.enableAutoGenStudio) {
-      this.sendToStudio(agUIComponent).catch(console.error);
+    // componentType is required parameter, so it's always defined
+    if (componentType) {
+      const agUIComponent = this.createComponent(componentType, props);
+      
+      // Send to Studio if enabled
+      if (this.config.enableAutoGenStudio) {
+        this.sendToStudio(agUIComponent).catch(console.error);
+      }
     }
     
     return component;

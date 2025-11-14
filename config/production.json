@@ -1,6 +1,6 @@
 {
   "name": "LAPA Production Configuration",
-  "version": "1.2.2",
+  "version": "1.0.0",
   "description": "Production-optimized settings for LAPA extension",
   "performance": {
     "memoryOptimization": true,

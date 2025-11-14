@@ -119,6 +119,68 @@ export interface AgentWorkloadUpdatedEvent extends LAPAEvent {
   };
 }
 
+export interface AgentInteractionEvent extends LAPAEvent {
+  type: 'agent.interaction';
+  payload: {
+    agentId: string;
+    interactionType: string;
+    targetId?: string;
+    context?: Record<string, any>;
+  };
+}
+
+export interface AgentSkillAcquiredEvent extends LAPAEvent {
+  type: 'agent.skill.acquired';
+  payload: {
+    agentId: string;
+    skillName: string;
+    skillLevel: number;
+    source: 'marketplace' | 'custom' | 'builtin';
+  };
+}
+
+export interface AgentCreatedEvent extends LAPAEvent {
+  type: 'agent.created';
+  payload: {
+    agentId: string;
+    name: string;
+    type: string;
+    capabilities: string[];
+  };
+}
+
+export interface AgentCoordinationEvent extends LAPAEvent {
+  type: 'agent.coordination';
+  payload: {
+    agentId: string;
+    coordinationType: string;
+    participants: string[];
+    context?: Record<string, any>;
+  };
+}
+
+export interface AgentPromptUsedEvent extends LAPAEvent {
+  type: 'agent.prompt.used';
+  payload: {
+    agentId: string;
+    promptId: string;
+    promptType: string;
+    result: 'success' | 'failure';
+    metrics?: Record<string, any>;
+  };
+}
+
+export interface SkillMarketplaceAvailableEvent extends LAPAEvent {
+  type: 'skill.marketplace.available';
+  payload: {
+    skillName: string;
+    skillId: string;
+    version: string;
+    description: string;
+    category: string;
+  };
+}
+
 // Context events
 export interface ContextCompressedEvent extends LAPAEvent {
   type: 'context.compressed';
@@ -1214,6 +1276,14 @@ export interface LAPAEventMap {
   'phase18.initialized': Phase18InitializedEvent;
   'benchmark.failed': BenchmarkFailedEvent;
   'phase18.cleanup': Phase18CleanupEvent;
+  
+  // Agent interaction events
+  'agent.interaction': AgentInteractionEvent;
+  'agent.skill.acquired': AgentSkillAcquiredEvent;
+  'agent.created': AgentCreatedEvent;
+  'agent.coordination': AgentCoordinationEvent;
+  'agent.prompt.used': AgentPromptUsedEvent;
+  'skill.marketplace.available': SkillMarketplaceAvailableEvent;
   
   // MCP connector events
   'mcp.connector.connected': any;

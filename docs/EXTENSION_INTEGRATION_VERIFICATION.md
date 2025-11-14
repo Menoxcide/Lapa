@@ -93,7 +93,7 @@ export function activate(context: vscode.ExtensionContext) {
 **Status**: ✅ PROPERLY CONFIGURED
 - **Name**: `lapa-brain`
 - **Display Name**: "LAPA Brain Extension"
-- **Version**: 1.2.0
+- **Version**: 1.0.0
 - **Publisher**: LAPA
 - **Main**: `./dist/extension.js`
 - **Activation Events**: `onStartupFinished`

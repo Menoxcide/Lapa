@@ -12,7 +12,7 @@
  */
 
 import { eventBus } from '../core/event-bus.ts';
-import type { LAPAEvent } from '../core/types/event-types.ts';
+import type { LAPAEvent, AgentCreatedEvent, TaskCompletedEvent, AgentCoordinationEvent } from '../core/types/event-types.ts';
 
 export interface AgentDiversityConfig {
   enableDiversityTesting: boolean;
@@ -84,7 +84,7 @@ export class AgentDiversityLab {
     
     // Subscribe to agent events
     eventBus.subscribe('agent.created', this.handleAgentCreated.bind(this));
-    eventBus.subscribe('agent.task.completed', this.handleTaskCompletion.bind(this));
+    eventBus.subscribe('task.completed', this.handleTaskCompletion.bind(this));
     eventBus.subscribe('agent.coordination', this.handleCoordination.bind(this));
   }
 
@@ -379,29 +379,44 @@ export class AgentDiversityLab {
   /**
    * Handle agent created event
    */
-  private handleAgentCreated(event: LAPAEvent): void {
-    if (event.type === 'agent.created' && 'agentId' in event) {
-      const { agentId, role, capabilities } = event as any;
-      this.registerAgent(agentId, role, capabilities || []);
-    }
+  private handleAgentCreated(event: AgentCreatedEvent): void {
+    const { agentId, name, type, capabilities } = event.payload;
+    // Convert string[] capabilities to AgentCapability[]
+    const agentCapabilities: AgentCapability[] = (capabilities || []).map(cap => ({
+      capabilityId: cap,
+      capabilityName: cap,
+      proficiency: 0.5, // Default proficiency
+      usageCount: 0,
+      successRate: 0.5 // Default success rate
+    }));
+    this.registerAgent(agentId, type, agentCapabilities);
   }
 
   /**
    * Handle task completion event
    */
-  private handleTaskCompletion(event: LAPAEvent): void {
-    if (event.type === 'agent.task.completed' && 'agentId' in event) {
-      const { agentId, success, capabilities } = event as any;
-      this.updateAgentCapabilities(agentId, success, capabilities);
+  private handleTaskCompletion(event: TaskCompletedEvent): void {
+    // TaskCompletedEvent doesn't have agentId in payload, so we'll use the source field
+    const taskId = event.payload.taskId;
+    const agentId = event.source; // Use source as agentId
+    const success = event.payload.result !== undefined && event.payload.result !== null;
+    
+    // Update agent capabilities if we have the agent
+    if (agentId && this.agentProfiles.has(agentId)) {
+      this.updateAgentCapabilities(agentId, success, []);
     }
   }
 
   /**
    * Handle coordination event
    */
-  private handleCoordination(event: LAPAEvent): void {
-    if (event.type === 'agent.coordination' && 'parentAgent' in event) {
-      const { parentAgent, subAgents, taskId } = event as any;
+  private handleCoordination(event: AgentCoordinationEvent): void {
+    const { agentId, coordinationType, participants, context } = event.payload;
+    // Use the first participant as parent if hierarchical
+    if (participants.length > 1) {
+      const parentAgent = participants[0];
+      const subAgents = participants.slice(1);
+      const taskId = context?.taskId as string || 'unknown';
       this.testSubAgentCoordination(parentAgent, taskId);
     }
   }

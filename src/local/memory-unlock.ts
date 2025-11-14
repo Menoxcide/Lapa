@@ -15,7 +15,7 @@
 import type { MemoriEngine } from './memori-engine.ts';
 import type { EpisodicMemoryStore } from './episodic.ts';
 import { eventBus } from '../core/event-bus.ts';
-import type { LAPAEvent } from '../core/types/event-types.ts';
+import type { LAPAEvent, AgentInteractionEvent, AgentSkillAcquiredEvent } from '../core/types/event-types.ts';
 
 export interface MemoryUnlockConfig {
   enableProgressiveUnlock: boolean;
@@ -128,7 +128,7 @@ export class MemoryUnlockSystem {
   /**
    * Register a skill acquisition for an agent
    */
-  registerSkill(agentId: string, skillName: string, skillLevel: number): void {
+  async registerSkill(agentId: string, skillName: string, skillLevel: number): Promise<void> {
     const trust = this.getAgentTrustScore(agentId);
     trust.skillLevels.set(skillName, Math.max(
       trust.skillLevels.get(skillName) || 0,
@@ -137,14 +137,14 @@ export class MemoryUnlockSystem {
 
     // Check for skill-based unlocks
     if (this.config.skillBasedUnlock) {
-      this.checkUnlocks(agentId);
+      await this.checkUnlocks(agentId);
     }
   }
 
   /**
    * Check if agent qualifies for new memory unlocks
    */
-  private checkUnlocks(agentId: string): void {
+  private async checkUnlocks(agentId: string): Promise<void> {
     if (!this.config.enableProgressiveUnlock) {
       return;
     }
@@ -175,7 +175,7 @@ export class MemoryUnlockSystem {
       });
 
       if (hasRequiredSkills) {
-        this.unlockLevel(agentId, level);
+        await this.unlockLevel(agentId, level);
       }
     }
   }
@@ -183,7 +183,7 @@ export class MemoryUnlockSystem {
   /**
    * Unlock a memory level for an agent
    */
-  private unlockLevel(agentId: string, level: number): void {
+  private async unlockLevel(agentId: string, level: number): Promise<void> {
     const currentUnlocks = this.unlockedLevels.get(agentId) || new Set();
     currentUnlocks.add(level);
     this.unlockedLevels.set(agentId, currentUnlocks);
@@ -193,13 +193,18 @@ export class MemoryUnlockSystem {
       unlockLevel.unlockedAt = new Date();
       this.unlockHistory.push({ ...unlockLevel });
 
-      // Emit unlock event
-      eventBus.emit({
-        type: 'memory.unlocked',
-        agentId,
-        level,
-        timestamp: new Date()
-      } as LAPAEvent);
+      // Publish unlock event
+      await eventBus.publish({
+        id: `unlock-${agentId}-${level}-${Date.now()}`,
+        type: 'memory.episode.stored',
+        timestamp: Date.now(),
+        source: 'memory-unlock',
+        payload: {
+          agentId,
+          level,
+          unlockedAt: unlockLevel.unlockedAt
+        }
+      });
     }
   }
 
@@ -323,22 +328,21 @@ export class MemoryUnlockSystem {
   /**
    * Handle agent interaction events
    */
-  private handleAgentInteraction(event: LAPAEvent): void {
-    if (event.type === 'agent.interaction' && 'agentId' in event) {
-      const success = 'success' in event ? (event as any).success : true;
-      const quality = 'quality' in event ? (event as any).quality : 1.0;
-      this.updateTrustScore((event as any).agentId, success, quality);
-    }
+  private async handleAgentInteraction(event: AgentInteractionEvent): Promise<void> {
+    const agentId = event.payload.agentId;
+    const success = true; // Default to success
+    const quality = 1.0; // Default quality
+    this.updateTrustScore(agentId, success, quality);
+    await this.checkUnlocks(agentId);
   }
 
   /**
    * Handle skill acquisition events
    */
-  private handleSkillAcquisition(event: LAPAEvent): void {
-    if (event.type === 'agent.skill.acquired' && 'agentId' in event) {
-      const { agentId, skillName, skillLevel } = event as any;
-      this.registerSkill(agentId, skillName, skillLevel);
-    }
+  private async handleSkillAcquisition(event: AgentSkillAcquiredEvent): Promise<void> {
+    const { agentId, skillName, skillLevel } = event.payload;
+    await this.registerSkill(agentId, skillName, skillLevel);
+    await this.checkUnlocks(agentId);
   }
 
   /**

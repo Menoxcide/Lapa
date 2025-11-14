@@ -439,6 +439,37 @@ export class EpisodicMemoryStore {
   /**
    * Retrieves episodes by task
    */
+  /**
+   * Search episodes by query
+   */
+  async search(query: string, options?: { includeTemporal?: boolean }): Promise<Episode[]> {
+    try {
+      const lowerQuery = query.toLowerCase();
+      let results = Array.from(this.episodes.values())
+        .filter(episode => 
+          episode.content.toLowerCase().includes(lowerQuery) ||
+          episode.tags.some(tag => tag.toLowerCase().includes(lowerQuery))
+        );
+      
+      if (options?.includeTemporal) {
+        // Sort by temporal relevance (recent + important)
+        results = results.sort((a, b) => {
+          const aScore = a.importance * (1 / (Date.now() - a.timestamp.getTime() + 1));
+          const bScore = b.importance * (1 / (Date.now() - b.timestamp.getTime() + 1));
+          return bScore - aScore;
+        });
+      } else {
+        // Sort by importance
+        results = results.sort((a, b) => b.importance - a.importance);
+      }
+      
+      return results;
+    } catch (error) {
+      console.error('Failed to search episodes:', error);
+      return [];
+    }
+  }
+
   async getEpisodesByTask(taskId: string, limit: number = 50): Promise<Episode[]> {
     const episodeIds = this.taskEpisodes.get(taskId) || [];
     return episodeIds

@@ -3,7 +3,7 @@
 ## Overview
 This comprehensive guide covers context engineering anatomy, retrieval strategies, and optimization techniques for LAPA agents. Understanding context engineering is crucial for maximizing agent performance and minimizing token usage.
 
-**Version**: v1.3.0-preview  
+**Version**: v1.0.0  
 **Last Updated**: November 2025  
 **Phase**: 5 I8 - CtxEngGui
 
