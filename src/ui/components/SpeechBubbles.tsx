@@ -26,17 +26,25 @@ const SpeechBubbles: React.FC<SpeechBubblesProps> = ({ messages, onMessageClick 
   };
 
   return (
-    <div className="speech-bubbles-container">
+    <div className="speech-bubbles-container" role="region" aria-label="Agent Conversations">
       <h2>Agent Conversations</h2>
-      <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
+      <div className="space-y-4 max-h-96 overflow-y-auto pr-2" role="log" aria-live="polite" aria-label="Agent Messages">
         {messages.map(message => (
           <div
             key={message.id}
-            role={onMessageClick ? "button" : undefined}
-            className={`speech-bubble p-4 rounded-lg border-l-4 cursor-pointer transition-all hover:shadow-md ${
+            role={onMessageClick ? "button" : "article"}
+            aria-label={`Message from ${message.agentName}, type: ${message.type}`}
+            tabIndex={onMessageClick ? 0 : undefined}
+            className={`speech-bubble p-4 rounded-lg border-l-4 cursor-pointer transition-all hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
               getMessageStyle(message.type)
             }`}
             onClick={() => onMessageClick?.(message.id)}
+            onKeyDown={(e) => {
+              if (onMessageClick && (e.key === 'Enter' || e.key === ' ')) {
+                e.preventDefault();
+                onMessageClick(message.id);
+              }
+            }}
           >
             <div className="flex justify-between items-start">
               <div className="flex items-center">

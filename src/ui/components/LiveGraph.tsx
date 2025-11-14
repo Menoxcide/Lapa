@@ -42,15 +42,29 @@ const LiveGraph: React.FC<LiveGraphProps> = ({ nodes, edges, onNodeClick }) => {
     });
 
     // Render nodes
-    nodes.forEach(node => {
+    nodes.forEach((node, index) => {
       const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
       circle.setAttribute('cx', node.x.toString());
       circle.setAttribute('cy', node.y.toString());
       circle.setAttribute('r', '20');
       circle.setAttribute('fill', node.color);
+      if (onNodeClick) {
+        circle.setAttribute('role', 'button');
+        circle.setAttribute('tabindex', '0');
+        circle.setAttribute('aria-label', `Node ${node.id || index + 1}: ${node.label || 'Unnamed node'}, click to view details`);
+        circle.addEventListener('click', () => onNodeClick?.(node.id));
+        circle.addEventListener('keydown', (e: any) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onNodeClick?.(node.id);
+          }
+        });
+      } else {
+        circle.setAttribute('role', 'img');
+        circle.setAttribute('aria-label', `Node ${node.id || index + 1}: ${node.label || 'Unnamed node'}`);
+      }
       circle.setAttribute('stroke', '#ffffff');
       circle.setAttribute('stroke-width', '2');
-      circle.addEventListener('click', () => onNodeClick?.(node.id));
       svgRef.current?.appendChild(circle);
 
       const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
@@ -65,13 +79,15 @@ const LiveGraph: React.FC<LiveGraphProps> = ({ nodes, edges, onNodeClick }) => {
   }, [nodes, edges, onNodeClick]);
 
   return (
-    <div className="live-graph-container">
+    <div className="live-graph-container" role="region" aria-label="Swarm Intelligence Flow Graph">
       <h2>Swarm Intelligence Flow</h2>
       <svg
         ref={svgRef}
         width="100%"
         height="500px"
         style={{ backgroundColor: '#f1f5f9', borderRadius: '8px' }}
+        role="img"
+        aria-label="Interactive graph showing swarm intelligence flow with nodes and edges"
       />
     </div>
   );

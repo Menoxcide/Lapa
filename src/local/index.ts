@@ -19,10 +19,9 @@ export type {
 
 // Phase 12: Enhanced Memori Engine
 export { memoriEngine, MemoriEngine } from './memori-engine.ts';
-export type { 
-  MemoriEngineConfig, 
-  EnhancedEntity, 
-  SessionMetadata 
+export type {
+  MemoriEngineConfig,
+  EnhancedEntity
 } from './memori-engine.ts';
 
 // Phase 12: Episodic Memory Store

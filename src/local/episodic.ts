@@ -119,28 +119,30 @@ export class EpisodicMemoryStore {
   private setupEventSubscriptions(): void {
     // Subscribe to task completion events
     eventBus.subscribe('task.completed', async (event) => {
-      if (event.payload?.taskId && event.payload?.result) {
+      const payload = event.payload as any;
+      if (payload?.taskId && payload?.result) {
         await this.storeEpisode({
-          agentId: event.payload.agentId || 'system',
-          taskId: event.payload.taskId,
-          sessionId: event.payload.sessionId || `session_${event.payload.taskId}`,
-          content: typeof event.payload.result === 'string' 
-            ? event.payload.result 
-            : JSON.stringify(event.payload.result),
-          context: event.payload.context || {}
+          agentId: payload.agentId || 'system',
+          taskId: payload.taskId,
+          sessionId: payload.sessionId || `session_${payload.taskId}`,
+          content: typeof payload.result === 'string'
+            ? payload.result
+            : JSON.stringify(payload.result),
+          context: payload.context || {}
         });
       }
     });
 
     // Subscribe to conversation events
     eventBus.subscribe('conversation.updated', async (event) => {
-      if (event.payload?.content) {
+      const payload = event.payload as any;
+      if (payload?.content) {
         await this.storeEpisode({
-          agentId: event.payload.agentId || 'system',
-          taskId: event.payload.taskId || 'unknown',
-          sessionId: event.payload.sessionId || 'unknown',
-          content: event.payload.content,
-          context: event.payload.context || {}
+          agentId: payload.agentId || 'system',
+          taskId: payload.taskId || 'unknown',
+          sessionId: payload.sessionId || 'unknown',
+          content: payload.content,
+          context: payload.context || {}
         });
       }
     });

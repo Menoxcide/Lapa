@@ -5,8 +5,8 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { AgentYAMLConfig, yamlAgentLoader } from '../../core/yaml-agent-loader.js';
-import SkillCreatorForm from './SkillCreatorForm';
+import { AgentYAMLConfig, yamlAgentLoader } from '../../core/yaml-agent-loader.ts';
+import SkillCreatorForm from './SkillCreatorForm.tsx';
 
 interface SkillManagerProps {
   onClose?: () => void;

@@ -30,14 +30,57 @@ Feature requests are welcome! Please create an issue with:
 
 ### Pull Requests
 
-1. Fork the repository
-2. Create a new branch for your feature or bug fix
-3. Write your code
-4. Add or update tests as necessary
-5. Ensure all tests pass
-6. Ensure LPSP summaries are generated for your changes
-7. Update documentation if needed
-8. Submit a pull request with a clear description
+#### PR Flow
+
+1. **Fork the repository** and clone your fork
+2. **Create a new branch** for your feature or bug fix:
+   ```bash
+   git checkout -b feature/your-feature-name
+   # or
+   git checkout -b fix/your-bug-fix
+   ```
+3. **Write your code** following the style guides below
+4. **Add or update tests** as necessary
+5. **Ensure all tests pass**:
+   ```bash
+   npm test
+   ```
+6. **Ensure LPSP summaries are generated** for your changes (if applicable)
+7. **Update documentation** if needed
+8. **Commit your changes** with clear commit messages:
+   ```bash
+   git add .
+   git commit -m "Add feature: description of your feature"
+   ```
+9. **Push to your fork**:
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+10. **Submit a pull request** on GitHub with:
+    - Clear title describing the change
+    - Detailed description of what was changed and why
+    - Reference to related issues (e.g., "Fixes #123")
+    - Screenshots or examples if applicable
+    - Checklist of completed items
+
+#### PR Template
+
+When creating a PR, include:
+
+- [ ] Description of changes
+- [ ] Tests added/updated
+- [ ] Documentation updated
+- [ ] All tests passing
+- [ ] No lint errors
+- [ ] LPSP summaries generated (if applicable)
+- [ ] Breaking changes documented (if any)
+
+#### PR Review Process
+
+- All PRs require at least one maintainer review
+- We aim to review PRs within 3 business days
+- Maintainers may request changes before merging
+- Once approved, a maintainer will merge the PR
 
 ## Development Setup
 
@@ -84,11 +127,51 @@ All contributions should include appropriate tests:
 - LPSP validation for phase-related changes
 - Task tree testing for orchestration features
 
-##Run tests with:
-###``` bash
-###npm test
+## Run tests with:
+```bash
+npm test
+```
 
-Code Review Process
+## YAML Prompt Tips
+
+When working with YAML agent configurations, follow these best practices:
+
+### Agent Configuration
+- Use clear, descriptive role names
+- Define specific goals and backstories
+- Specify capabilities explicitly
+- Use appropriate model selections for each agent
+
+### Example YAML Structure
+```yaml
+agents:
+  architect:
+    role: "System Architect"
+    goal: "Design scalable, maintainable architectures"
+    backstory: "Expert in distributed systems"
+    model: "deepseek-r1"
+    capabilities: ["planning", "architecture"]
+    tools: ["diagram-generator"]
+```
+
+### Flow Guards
+- Use flow guards for conditional routing
+- Set appropriate priority levels
+- Define clear conditions and actions
+- Test guard conditions thoroughly
+
+### Veto Patterns
+- Use veto for security-critical operations
+- Set appropriate consensus thresholds (typically 0.833 for 5/6)
+- Define which agents can veto specific operations
+- Document veto reasons clearly
+
+For more YAML examples, see [PROMPTS.md](examples/PROMPTS.md).
+
+## Code Review Process
+
 All submissions require review. We strive to review pull requests within 3 business days. Maintainers may suggest changes or improvements before merging.
-Community
-Join our Discord server to connect with other contributors and users.
+
+## Community
+
+Join our [GitHub Discussions](https://github.com/Menoxcide/Lapa/discussions) to connect with other contributors and users.

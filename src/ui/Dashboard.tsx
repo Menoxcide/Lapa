@@ -9,21 +9,21 @@ const Dashboard: React.FC = () => {
   const { state, pauseSwarm, resumeSwarm, redirectTask, resetSwarm } = useDashboard();
 
   return (
-    <div className="dashboard p-6 bg-gray-50 min-h-screen">
-      <header className="mb-8">
+    <main className="dashboard p-6 bg-gray-50 min-h-screen" role="main" aria-label="LAPA Swarm Dashboard">
+      <header className="mb-8" role="banner">
         <h1 className="text-3xl font-bold text-gray-800">LAPA Swarm Dashboard</h1>
         <p className="text-gray-600">Monitor and control your autonomous coding swarm</p>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        <div className="lg:col-span-2">
+        <section className="lg:col-span-2" role="region" aria-label="Live Graph Visualization">
           <LiveGraph
             nodes={state.nodes}
             edges={state.edges}
             onNodeClick={(nodeId) => console.log(`Clicked node: ${nodeId}`)}
           />
-        </div>
-        <div>
+        </section>
+        <section role="region" aria-label="Swarm Controls">
           <ControlPanel
             isRunning={state.isRunning}
             onPause={pauseSwarm}
@@ -31,21 +31,25 @@ const Dashboard: React.FC = () => {
             onRedirect={redirectTask}
             onReset={resetSwarm}
           />
-        </div>
+        </section>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <AgentAvatars
-          agents={state.agents}
-          onAgentClick={(agentId) => console.log(`Clicked agent: ${agentId}`)}
-        />
-        <SpeechBubbles
-          messages={state.messages}
-          onMessageClick={(messageId) => console.log(`Clicked message: ${messageId}`)}
-        />
+        <section role="region" aria-label="Agent Swarm">
+          <AgentAvatars
+            agents={state.agents}
+            onAgentClick={(agentId) => console.log(`Clicked agent: ${agentId}`)}
+          />
+        </section>
+        <section role="region" aria-label="Agent Conversations">
+          <SpeechBubbles
+            messages={state.messages}
+            onMessageClick={(messageId) => console.log(`Clicked message: ${messageId}`)}
+          />
+        </section>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <section className="bg-white rounded-lg shadow-md p-6" role="region" aria-label="Swarm Metrics">
         <h2 className="text-xl font-semibold mb-4">Swarm Metrics</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="metric-card bg-blue-50 p-4 rounded-lg">
@@ -65,8 +69,8 @@ const Dashboard: React.FC = () => {
             <p className="text-2xl font-bold text-purple-600">{state.metrics.avgResponseTime}s</p>
           </div>
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 };
 

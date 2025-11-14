@@ -6,11 +6,54 @@ Welcome to LAPA (Local AI Pair Programmer Agent)! This comprehensive onboarding 
 
 ## Quick Start Options
 
-Choose your installation method:
+Choose your installation method based on your needs:
 
-- **Quick Install**: Install the pre-built VSIX extension (recommended for new users)
-- **Developer Setup**: Build from source for development and customization
-- **Production Configuration**: Advanced setup for enterprise or team usage
+### Path 1: Quick Start (New Users) ⚡
+**Time**: 5 minutes | **Difficulty**: Easy
+
+Perfect for users who want to get started quickly with minimal setup.
+
+1. **Install VSIX Extension** (see Method 1 below)
+2. **Basic Configuration** (API keys if using cloud providers)
+3. **Start Your First Swarm** (Command Palette → "Start LAPA Swarm")
+4. **Try Basic Commands** (Generate Component, Refactor Code)
+
+**Next Steps**: Read [START_HERE.md](START_HERE.md) for project overview
+
+### Path 2: Developer Setup (Contributors) 🔧
+**Time**: 15 minutes | **Difficulty**: Medium
+
+For developers who want to build from source, customize, and contribute.
+
+1. **Clone Repository** (see Method 2 below)
+2. **Install Dependencies** (`npm install`)
+3. **Build from Source** (`npm run build`)
+4. **Run Tests** (`npm test`)
+5. **Configure Development Environment**
+6. **Read [CONTRIBUTING.md](CONTRIBUTING.md)** for contribution guidelines
+
+**Next Steps**: 
+- Review [FEATURE_OVERVIEW.md](FEATURE_OVERVIEW.md) for architecture
+- Study [PROTOCOLS.md](PROTOCOLS.md) for protocol specifications
+- Check [AGENT.md](AGENT.md) for agent architecture
+
+### Path 3: Advanced Configuration (Power Users) 🚀
+**Time**: 30 minutes | **Difficulty**: Advanced
+
+For users who want full control, custom agent configurations, and production setups.
+
+1. **Complete Developer Setup** (Path 2)
+2. **Configure YAML Agent Templates** (see YAML Configuration section)
+3. **Set Up Flow Guards** (see Flow Guards section)
+4. **Configure Hybrid Inference** (local + cloud providers)
+5. **Set Up Memory Systems** (Memori, Episodic, Chroma)
+6. **Enable Advanced Features** (Multimodal, Swarm Sessions)
+7. **Production Optimization** (see Performance Optimization section)
+
+**Next Steps**:
+- Master [PROMPTS.md](examples/PROMPTS.md) for advanced YAML patterns
+- Explore [MULTIMODAL_USAGE_EXAMPLES.md](MULTIMODAL_USAGE_EXAMPLES.md)
+- Review [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for advanced scenarios
 
 ## Prerequisites
 

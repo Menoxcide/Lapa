@@ -28,17 +28,26 @@ const AgentAvatars: React.FC<AgentAvatarsProps> = ({ agents, onAgentClick }) => 
   };
 
   return (
-    <div className="agent-avatars-container">
+    <div className="agent-avatars-container" role="region" aria-label="Agent Swarm">
       <h2>Agent Swarm</h2>
-      <div className="flex flex-wrap gap-4">
+      <div className="flex flex-wrap gap-4" role="list" aria-label="List of Agents">
         {agents.map(agent => (
           <div
             key={agent.id}
             data-testid="agent-avatar-card"
+            role={onAgentClick ? "button" : "listitem"}
+            aria-label={`Agent ${agent.name}, status: ${agent.status}`}
+            tabIndex={onAgentClick ? 0 : undefined}
             className={`agent-avatar-card cursor-pointer rounded-lg p-4 shadow-md transition-all hover:shadow-lg ${
-              onAgentClick ? 'hover:bg-gray-50' : ''
+              onAgentClick ? 'hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500' : ''
             }`}
             onClick={() => onAgentClick?.(agent.id)}
+            onKeyDown={(e) => {
+              if (onAgentClick && (e.key === 'Enter' || e.key === ' ')) {
+                e.preventDefault();
+                onAgentClick(agent.id);
+              }
+            }}
           >
             <div className="flex items-center">
               <div

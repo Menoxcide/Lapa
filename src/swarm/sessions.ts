@@ -548,13 +548,7 @@ export class SwarmSessionManager {
 
     // Subscribe to WebRTC events
     eventBus.subscribe('webrtc.ice-candidate', async (event) => {
-      await this.handleICECandidate(event.payload as {
-        candidate: RTCIceCandidate;
-        connectionId: string;
-        fromUserId?: string;
-        toUserId?: string;
-        sessionId?: string;
-      });
+      await this.handleICECandidate(event.payload as any);
     });
 
     eventBus.subscribe('webrtc.connection-state', async (event) => {
@@ -573,23 +567,11 @@ export class SwarmSessionManager {
 
     // Subscribe to WebRTC SDP events
     eventBus.subscribe('webrtc.sdp-offer', async (event) => {
-      await this.handleSDPOffer(event.payload as {
-        connectionId: string;
-        offer: RTCSessionDescriptionInit;
-        fromUserId: string;
-        toUserId: string;
-        sessionId: string;
-      });
+      await this.handleSDPOffer(event.payload as any);
     });
 
     eventBus.subscribe('webrtc.sdp-answer', async (event) => {
-      await this.handleSDPAnswer(event.payload as {
-        connectionId: string;
-        answer: RTCSessionDescriptionInit;
-        fromUserId: string;
-        toUserId: string;
-        sessionId: string;
-      });
+      await this.handleSDPAnswer(event.payload as any);
     });
     
     // No need to subscribe to a special signaling event type
@@ -1252,13 +1234,20 @@ export class SwarmSessionManager {
    * Handles ICE candidate events
    */
   private async handleICECandidate(payload: {
-    candidate: RTCIceCandidate;
+    candidate: RTCIceCandidate | string;
     connectionId: string;
     fromUserId?: string;
     toUserId?: string;
     sessionId?: string;
   }): Promise<void> {
     try {
+      let candidateObj: RTCIceCandidate;
+      if (typeof payload.candidate === 'string') {
+        candidateObj = new RTCIceCandidate(JSON.parse(payload.candidate));
+      } else {
+        candidateObj = payload.candidate;
+      }
+
       // If we have session and user information, forward to specific peer
       if (payload.sessionId && payload.fromUserId && payload.toUserId) {
         const session = this.sessions.get(payload.sessionId);
@@ -1274,7 +1263,7 @@ export class SwarmSessionManager {
         }
 
         // Forward ICE candidate to remote peer
-        await participant.peerConnection.addIceCandidate(payload.candidate);
+        await participant.peerConnection.addIceCandidate(candidateObj);
         console.log(`ICE candidate forwarded from ${payload.fromUserId} to ${payload.toUserId}`);
       } else {
         // Legacy handling for candidates without session/user info
@@ -1334,12 +1323,19 @@ export class SwarmSessionManager {
    */
   private async handleSDPOffer(payload: {
     connectionId: string;
-    offer: RTCSessionDescriptionInit;
+    offer: RTCSessionDescriptionInit | string;
     fromUserId: string;
     toUserId: string;
     sessionId: string;
   }): Promise<void> {
     try {
+      let offerObj: RTCSessionDescriptionInit;
+      if (typeof payload.offer === 'string') {
+        offerObj = JSON.parse(payload.offer);
+      } else {
+        offerObj = payload.offer;
+      }
+
       const session = this.sessions.get(payload.sessionId);
       if (!session) {
         console.error(`Session ${payload.sessionId} not found for SDP offer`);
@@ -1353,7 +1349,7 @@ export class SwarmSessionManager {
       }
       
       // Set remote description
-      await participant.peerConnection.setRemoteDescription(payload.offer);
+      await participant.peerConnection.setRemoteDescription(new RTCSessionDescription(offerObj));
       
       // Create answer
       const answer = await participant.peerConnection.createAnswer();
@@ -1378,12 +1374,19 @@ export class SwarmSessionManager {
    */
   private async handleSDPAnswer(payload: {
     connectionId: string;
-    answer: RTCSessionDescriptionInit;
+    answer: RTCSessionDescriptionInit | string;
     fromUserId: string;
     toUserId: string;
     sessionId: string;
   }): Promise<void> {
     try {
+      let answerObj: RTCSessionDescriptionInit;
+      if (typeof payload.answer === 'string') {
+        answerObj = JSON.parse(payload.answer);
+      } else {
+        answerObj = payload.answer;
+      }
+
       const session = this.sessions.get(payload.sessionId);
       if (!session) {
         console.error(`Session ${payload.sessionId} not found for SDP answer`);
@@ -1397,7 +1400,7 @@ export class SwarmSessionManager {
       }
 
       // Set remote description
-      await participant.peerConnection.setRemoteDescription(payload.answer);
+      await participant.peerConnection.setRemoteDescription(new RTCSessionDescription(answerObj));
 
       console.log(`SDP answer received from ${payload.fromUserId} by ${payload.toUserId}`);
     } catch (error) {

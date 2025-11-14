@@ -285,6 +285,73 @@ preferredProviders:
   - "openrouter"
 ```
 
+## YAML Tips and Best Practices
+
+### YAML Configuration Tips
+
+#### Tip 1: Use Consistent Structure
+Always follow the standard YAML structure for agent configurations:
+```yaml
+version: "1.0"
+agents:
+  agent-name:
+    role: "Clear Role Name"
+    goal: "Specific Goal"
+    backstory: "Detailed Backstory"
+    model: "model-name"
+    capabilities: ["cap1", "cap2"]
+    tools: ["tool1", "tool2"]
+globalSettings:
+  setting1: value1
+```
+
+#### Tip 2: Environment Variables
+Use environment variables for sensitive data:
+```yaml
+openrouterApiKey: "${OPENROUTER_API_KEY}"
+apiBaseUrl: "${API_BASE_URL:-https://api.default.com}"
+```
+
+#### Tip 3: Validation
+Always validate your YAML before using:
+```bash
+# Use a YAML validator
+yamllint agents.yaml
+```
+
+#### Tip 4: Comments
+Use comments to document complex configurations:
+```yaml
+agents:
+  architect:
+    # High autonomy for architecture decisions
+    modeBehaviors:
+      architect:
+        autonomy: "very-high"
+        # Force handoff at 20% confidence to prevent over-planning
+        handoffAt: 0.2
+```
+
+#### Tip 5: Reusability
+Create reusable configuration snippets:
+```yaml
+# Common agent template
+_agentTemplate: &agentTemplate
+  refineHooks:
+    - "prompt-engineer"
+    - "llm-judge"
+  modeBehaviors:
+    code:
+      autonomy: "high"
+      handoffAt: 0.4
+
+agents:
+  coder:
+    <<: *agentTemplate
+    role: "Software Engineer"
+    # ... specific configuration
+```
+
 ## Best Practices
 
 ### 1. Prompt Clarity

@@ -44,6 +44,7 @@
     "build": "npm run clean && tsc -p tsconfig.build.json --noEmitOnError false",
     "build:watch": "tsc --watch",
     "test": "vitest",
+    "test:coverage": "vitest --coverage",
     "test:log": "vitest --reporter=verbose --reporter=json > vitest-report.json 2>&1",
     "test:debug": "node --inspect-brk node_modules/vitest/vitest.mjs",
     "test:ui": "vitest 'src/__tests__/ui/**/*' --reporter=verbose",
@@ -87,7 +88,8 @@
     "prettier": "^3.6.2",
     "rimraf": "^6.1.0",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.8"
+    "vitest": "^4.0.8",
+    "@vitest/coverage-v8": "^4.0.8"
   },
   "dependencies": {
     "@ai-sdk/openai": "^2.0.62",
