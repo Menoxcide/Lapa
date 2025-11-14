@@ -1,0 +1,56 @@
+name: Daily Compilation
+
+on:
+  schedule:
+    # Run daily at 5 AM UTC (Mon-Fri)
+    - cron: '0 5 * * 1-5'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  compile:
+    name: Daily Compilation
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+      
+      - name: Install dependencies
+        working-directory: lapa-ide-void
+        run: yarn install --frozen-lockfile
+      
+      - name: Compile
+        working-directory: lapa-ide-void
+        run: yarn compile
+        timeout-minutes: 10
+      
+      - name: Lint check
+        working-directory: lapa-ide-void
+        run: yarn eslint || exit 0
+        continue-on-error: true
+      
+      - name: Run tests
+        working-directory: lapa-ide-void
+        run: yarn test || exit 0
+        continue-on-error: true
+      
+      - name: Upload build artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs-${{ matrix.os }}
+          path: |
+            lapa-ide-void/**/*.log
+            lapa-ide-void/out/
+

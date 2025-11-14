@@ -1,0 +1,73 @@
+name: Weekly Packaging
+
+on:
+  schedule:
+    # Run weekly on Monday at 6 AM UTC
+    - cron: '0 6 * * 1'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  package:
+    name: Weekly Package Build
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+      
+      - name: Install dependencies
+        working-directory: lapa-ide-void
+        run: yarn install --frozen-lockfile
+      
+      - name: Build extension
+        working-directory: lapa-ide-void/extensions/lapa-swarm
+        run: |
+          npm install
+          npm run compile
+          npm run build:webview
+      
+      - name: Package extension VSIX
+        working-directory: lapa-ide-void/extensions/lapa-swarm
+        run: |
+          npm install -g @vscode/vsce
+          vsce package --no-dependencies --out lapa-swarm.vsix
+      
+      - name: Check VSIX size
+        working-directory: lapa-ide-void/extensions/lapa-swarm
+        run: |
+          VSIX_SIZE=$(du -m lapa-swarm.vsix | cut -f1)
+          echo "VSIX size: ${VSIX_SIZE}MB"
+          if [ $VSIX_SIZE -gt 400 ]; then
+            echo "Error: VSIX size (${VSIX_SIZE}MB) exceeds 400MB limit"
+            exit 1
+          fi
+      
+      - name: Upload VSIX artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lapa-swarm-vsix
+          path: lapa-ide-void/extensions/lapa-swarm/*.vsix
+          retention-days: 30
+      
+      - name: Create release notes
+        run: |
+          echo "# Weekly Build - $(date +%Y-%m-%d)" > release-notes.md
+          echo "" >> release-notes.md
+          echo "## Changes" >> release-notes.md
+          echo "- Automated weekly build" >> release-notes.md
+          echo "- VSIX size: $(du -m lapa-ide-void/extensions/lapa-swarm/*.vsix | cut -f1)MB" >> release-notes.md
+      
+      - name: Upload release notes
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-notes
+          path: release-notes.md
+

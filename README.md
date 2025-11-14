@@ -1,223 +1,96 @@
-# LAPA Core - Local AI Pair Programmer Agent
+# LAPA-VOID: Swarm-Powered IDE
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-1.3.0--preview-blue.svg)](https://github.com/Menoxcide/Lapa/releases)
-[![Status](https://img.shields.io/badge/status-active--development-green.svg)](https://github.com/Menoxcide/Lapa)
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/Menoxcide/Lapa/releases)
 
 ## Overview
 
-LAPA (Local AI Pair Programmer Agent) is an autonomous MoE-powered coding swarm that runs locally on your machine. This Cursor extension provides:
+**LAPA-VOID** is a fork of [Void IDE](https://github.com/voideditor/void) enhanced with **LAPA Swarm** capabilities. It combines Void's excellent AI-powered IDE features with LAPA's autonomous multi-agent swarm system.
 
-- **Local-First**: Hybrid local/cloud inference with Ollama, NVIDIA NIM, and OpenAI support
-- **Fully Autonomous**: Protocol-resonant nexus with zero-prompt continuity and auto-handoffs
-- **Privacy-Focused**: Optional cloud APIs with data protection controls
-- **Extensible**: Built with ctx-zip context compression and MCP sandboxing
+This repository contains:
+- **LAPA-VOID IDE**: Complete IDE with LAPA swarm integration (`lapa-ide-void/`)
+- **LAPA Core**: Standalone LAPA extension (original project in `src/`)
 
-## 🚀 Features
+## Quick Links
 
-- **Protocol-Resonant Nexus**: Advanced agent orchestration with A2A handshakes and MCP integration
-- **Hybrid Handoff System**: LangGraph + OpenAI Agent orchestration with <1s latency
-- **Comprehensive Memory Systems**: Memori engine, episodic memory, and Chroma vector refinement
-- **Generative UI Framework**: AG-UI with dynamic studio and real-time visualization
-- **Observability Suite**: LangSmith tracing, Prometheus metrics, and benchmark suite v2
-- **Production Ready**: VSIX packaging with comprehensive protocol documentation
-- **Task Tree Orchestrator**: Hierarchical task decomposition with git-safe execution
-- **LAPA Phase Summary Protocol (LPSP)**: Auto-generated phase summaries with file/commit tracking
-- **Webapp-Testing Skill**: Automated UI regression with Playwright
-- **MCP-Server Skill**: Production-grade MCP server generation
-- **Artifacts-Builder Skill**: React/Tailwind HTML generation
-- **Docx/PDF/PPTX/XLSX Skills**: Rich document manipulation
-- **Skill-Creator + Template-Skill**: User-defined agent extensibility
-- **RAG + Voice Agents**: Enhanced RAG with offline voice Q&A
-- **Ollama Flash Attention**: Optimization for small models on low-end hardware
-- **Internal-Comms Skill**: Structured report/FAQ generation
-- **Aya + Command-R**: Multilingual codebase support
-- **Collaborative Swarm Sessions** (v1.3 Preview): WebRTC multi-user handoffs
-- **Multimodal Mastery** (v1.3 Preview): Vision/voice agents for UI/code gen
-- **Agent Marketplace** (v1.3 Preview): On-chain registry + ROI dashboard
+- **[LAPA-VOID README](lapa-ide-void/README.md)** - Main IDE documentation
+- **[PREMIUM_FEATURES.md](PREMIUM_FEATURES.md)** - Free vs Pro comparison
+- **[Documentation](docs/)** - Complete documentation index
+- **[DIRECTIONS.md](src/DIRECTIONS.md)** - Development roadmap
 
-## 📋 Requirements
+## What is LAPA-VOID?
 
-- **Node.js** v18+ with npm/pnpm
-- **Cursor IDE** for extension development
-- **Optional**: NVIDIA GPU for local inference (Ollama/NIM)
-- **Optional**: Cloud AI providers (OpenAI, Anthropic) for enhanced capabilities
+LAPA-VOID is the **next frontier agent/IDE**:
+- ✅ **100% Void IDE compatibility** - All core features preserved
+- ✅ **16-Agent Helix Swarm** - Autonomous multi-agent coding system
+- ✅ **Local-First** - Runs entirely on your machine (free tier)
+- ✅ **Premium Features** - Cloud scaling, advanced memory, team collaboration (Pro)
 
-## 🚀 Quick Start
+## Free vs Pro
 
-### Installation Options
+| Feature | Free | Pro ($12/mo) |
+|---------|------|--------------|
+| Agents | 4 max | 16 (Full Helix) |
+| Inference | Local only | Local + Cloud |
+| Memory | 85% recall | 99.5% recall |
+| Collaboration | Single user | Multi-user |
 
-**For New Users (Recommended)**:
-- **[Install VSIX Extension](docs/ONBOARDING.md#method-1-vsix-extension-installation-recommended)** - Pre-built package for immediate use
+See [PREMIUM_FEATURES.md](PREMIUM_FEATURES.md) for complete breakdown.
 
-**For Developers**:
-- **[Build from Source](docs/ONBOARDING.md#method-2-build-from-source)** - Customize and extend functionality
+## Installation
 
-### Prerequisites
+### For End Users
 
-- **Cursor IDE** (version 1.85.0 or higher)
-- **Node.js** v18+ (for building from source)
-- **npm** or **pnpm** package manager
-- **Optional**: NVIDIA GPU for local inference (Ollama/NIM)
+1. Download `lapa-swarm-*.vsix` from [Releases](https://github.com/Menoxcide/Lapa/releases)
+2. Install in Void IDE (or VS Code) via Extensions → Install from VSIX
+3. Restart IDE
 
-## 🛠 Installation
-
-### Method 1: VSIX Extension Installation (Recommended)
-
-1. **Download** the `lapa-core-1.2.0.vsix` file from [Releases](https://github.com/Menoxcide/Lapa/releases)
-2. **Install in Cursor**:
-   - Open Extensions view (`Ctrl+Shift+X`)
-   - Click "..." menu → "Install from VSIX"
-   - Select the downloaded `.vsix` file
-   - Restart Cursor when prompted
-
-### Method 2: Build from Source
+### For Developers
 
 ```bash
-git clone https://github.com/Menoxcide/Lapa.git
-cd Lapa
-npm install
-npm run build
-npm run vsix
-npm run vsix:install
+git clone --recursive https://github.com/Menoxcide/Lapa.git
+cd Lapa/lapa-ide-void
+yarn install
+yarn compile
 ```
 
-## ▶️ Getting Started
+See [lapa-ide-void/README.md](lapa-ide-void/README.md) for detailed instructions.
 
-After installation:
+## Documentation
 
-1. **Click the LAPA icon** in the activity bar to open the Swarm Dashboard
-2. **Use Command Palette** (`Ctrl+Shift+P`) and search for "Start LAPA Swarm"
-3. **Configure settings** in Cursor Settings → Extensions → LAPA
-
-## 📖 Documentation
-
-### Comprehensive Guides
-
-- **[DOCUMENTATION_INDEX.md](docs/DOCUMENTATION_INDEX.md)** - Complete documentation navigation guide
-- **[ONBOARDING.md](docs/ONBOARDING.md)** - Complete installation and setup guide
-- **[START_HERE.md](docs/START_HERE.md)** - Project overview and current status
-- **[FEATURE_OVERVIEW.md](docs/FEATURE_OVERVIEW.md)** - Complete feature capabilities
-- **[AGENT.md](docs/AGENT.md)** - Agent architecture and protocols
-- **[PROMPTS.md](docs/PROMPTS.md)** - Multi-agent prompting guide
+- **[START_HERE.md](docs/START_HERE.md)** - Getting started guide
+- **[FEATURE_OVERVIEW.md](docs/FEATURE_OVERVIEW.md)** - Complete feature list
 - **[PROTOCOLS.md](docs/PROTOCOLS.md)** - Protocol specifications
-
-### Advanced Usage
-
-- **[MULTIMODAL_USAGE_EXAMPLES.md](docs/MULTIMODAL_USAGE_EXAMPLES.md)** - Vision and voice agent examples
-- **[TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)** - Common issues and solutions
 - **[CONTRIBUTING.md](docs/CONTRIBUTING.md)** - Contribution guidelines
 
-## 🤝 Contributing
+## License
 
-We welcome contributions from the community! Please read our [Contributing Guidelines](docs/CONTRIBUTING.md) and [Code of Conduct](docs/CODE_OF_CONDUCT.md) before getting started.
+LAPA-VOID is distributed under multiple open source licenses:
 
-### Quick Start for Contributors
+- **LAPA Code**: MIT License - See [LICENSE](LICENSE)
+- **Void IDE Additions**: Apache 2.0 License - See [lapa-ide-void/LICENSE.txt](lapa-ide-void/LICENSE.txt)
+- **VS Code Base**: MIT License - See [lapa-ide-void/LICENSE-VS-Code.txt](lapa-ide-void/LICENSE-VS-Code.txt)
+- **Third Party Notices**: See [lapa-ide-void/ThirdPartyNotices.txt](lapa-ide-void/ThirdPartyNotices.txt)
 
-0. Fork the repository
-1. Create a new branch for your feature or bug fix
-2. Make your changes
-3. Add tests if applicable
-4. Submit a pull request with a clear description
+### Attribution
 
-## 📄 License
+LAPA-VOID is built on:
+- **[Void IDE](https://github.com/voideditor/void)** - Copyright 2025 Glass Devtools, Inc. (Apache 2.0)
+- **[VS Code](https://github.com/microsoft/vscode)** - Copyright (c) 2015 - present Microsoft Corporation (MIT)
+- **[LAPA Swarm](https://github.com/Menoxcide/Lapa)** - Copyright (c) 2025 LAPA Team (MIT)
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+All licenses permit commercial use. See [docs/SUBMODULE_FIX_AND_LICENSING.md](docs/SUBMODULE_FIX_AND_LICENSING.md) for details.
 
-## 💬 Support
+### Premium Features
 
-- **Documentation**: Explore [`docs/`](docs/) directory for comprehensive guides
-- **Community**: [GitHub Discussions](https://github.com/Menoxcide/Lapa/discussions)
+- **Premium Features**: Require license activation ($12/mo or $99/yr)
+- **Free Tier**: Fully functional without license
+
+## Support
+
 - **Issues**: [GitHub Issues](https://github.com/Menoxcide/Lapa/issues)
-- **Repository**: [LAPA GitHub](https://github.com/Menoxcide/Lapa)
-
-## 🙏 Acknowledgments
-
-- Thanks to all contributors who have helped shape LAPA Core
-- Built with ctx-zip for context compression
-- Powered by hybrid inference (Ollama, NVIDIA NIM, OpenAI, Anthropic)
-
-## Contributors
-
-### Core Project & Vision
-- **Menoxcide** — Founder, Lead Architect, LAPA Creator  
-  *(github.com/Menoxcide/Lapa)*
-
-### AI Agent Frameworks & Tools
-- **AutoGen Team (Microsoft)** — AutoGen framework  
-  *(github.com/microsoft/autogen)*
-- **LangChain Team** — LangChain agent toolkit  
-  *(github.com/langchain-ai/langchain)*
-- **CrewAI Team** — CrewAI role-based orchestration  
-  *(github.com/joaomdmoura/crewAI)*
-- **OpenDevin Team** — OpenDevin code LLM challenges  
-  *(github.com/OpenDevin/OpenDevin)*
-- **MetaGPT Team** — MetaGPT SOP-based multi-agent  
-  *(github.com/geekan/MetaGPT)*
-- **Devika AI Team** — Devika instruction breakdown  
-  *(github.com/stitionai/devika)*
-- **Plandex Team** — Plandex long-running agents  
-  *(github.com/plandex-ai/plandex)*
-- **BabyAGI Team** — BabyAGI task-driven autonomy  
-  *(github.com/yoheinakajima/babyagi)*
-- **AutoGPT Team** — AutoGPT iterative execution  
-  *(github.com/Significant-Gravitas/AutoGPT)*
-- **AgentGPT Team** — AgentGPT browser deployment  
-  *(github.com/reworkd/AgentGPT)*
-- **SmythOS Team** — SmythOS agent builder  
-  *(github.com/SmythOS/smythos)*
-
-### Skills & Prompt Engineering
-- **gr3enarr0w** — PromptEngineer MCP Server  
-  *(github.com/gr3enarr0w/cc_peng_mcp)*
-
-### Awesome Lists & Research
-- **Shubhamsaboo** — awesome-llm-apps (RAG, Voice, Eval)  
-  *(github.com/Shubhamsaboo/awesome-llm-apps)*
-- **e2b-dev** — awesome-ai-agents (E2B, Superagent)  
-  *(github.com/e2b-dev/awesome-ai-agents)*
-
-### Model & Inference Providers
-- **NVIDIA** — NIM-local inference  
-- **Ollama Team** — Ollama (Flash Attention, local models)  
-  *(github.com/ollama/ollama)*
-- **llama.cpp Team** — llama.cpp (BYOK support)  
-  *(github.com/ggerganov/llama.cpp)*
-
-### Protocols & Standards
-- **CopilotKit Team** — AG-UI, MCP-UI, Open-JSON-UI  
-  *(github.com/CopilotKit/CopilotKit)*
-- **Model Context Protocol (MCP) Authors** — JSON-RPC/WebSocket spec  
-- **Agent-to-Agent (A2A) Authors** — Handshake & negotiation spec
-
-### UI & Frontend
-- **Streamlit Team** — Dynamic Studio (Python UI)  
-  *(github.com/streamlit/streamlit)*
-- **React Team** — React + TSX (Dashboard, AG-UI)  
-- **Playwright Team** — Visual feedback & testing  
-  *(github.com/microsoft/playwright)*
-
-### Observability & DevOps
-- **Prometheus Team** — Metrics & monitoring  
-  *(github.com/prometheus/prometheus)*
-- **Grafana Team** — Dashboards  
-  *(grafana.com)*
-- **LangSmith Team** — Tracing  
-  *(langchain.com/langsmith)*
-
-### Security & Sandboxing
-- **E2B Team** — E2B sandbox  
-  *(github.com/e2b-dev/e2b)*
-
-### Documentation & Standards
-- **Contributor Covenant Team** — Code of Conduct  
-  *(contributor-covenant.org)*
-
-### Vision & Inspiration
-- **Grok (xAI)** — Reasoning engine & vision alignment  
-- **Claude (Anthropic)** — PromptEngineer, A2AMediator  
-- **DeepSeek, Qwen, Llama, GLM Teams** — Core model backbones
+- **Email**: support@lapa.ai
 
 ---
 
-**LAPA Core v1.3.0-preview** - SwarmOS Edition - November 2025
+**LAPA-VOID v1.0.0** - November 2025

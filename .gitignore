@@ -2,6 +2,9 @@
 node_modules/
 npm-debug.log*
 .pnpm-debug.log*
+yarn-error.log
+package-lock.json
+pnpm-lock.yaml
 
 # Build outputs
 dist/
@@ -10,25 +13,46 @@ dist-local/
 dist-local-tests/
 dist-src/
 dist-tests/
-coverage/
+out/
+out-*/
+build/
+*.vsix
+*.exe
+*.dmg
+*.deb
+*.rpm
+*.AppImage
+*.snap
 
 # Test artifacts
 **/__tests__/**/*.js
 **/__tests__/**/*.js.map
 **/__tests__/**/*.d.ts
+coverage/
+test-results/
+test-results.xml
+*.test.js.map
 
 # Logs
 *.log
+logs/
+*.log.*
 
 # IDE
 .vscode/
 .idea/
 *.code-workspace
+*.swp
+*.swo
+*~
 
 # Local dev
 .lapa/
 .env
 .env.local
+.env.*.local
+.env.production
+.env.development
 
 # VS Code test runner
 .vscode-test/
@@ -36,8 +60,109 @@ coverage/
 # OS
 .DS_Store
 Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+.AppleDouble
+.LSOverride
+Icon
+._*
 
 # Cache
 .cache/
 .rpt2_cache_*/
 .rts2_cache_*/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+
+# Proprietary data and secrets
+*.key
+*.pem
+*.p12
+*.pfx
+*.crt
+*.cer
+*.jks
+secrets/
+.secrets/
+config/production.json
+config/secrets.json
+config/*.production.json
+config/*.secret.json
+*.secret
+*.private
+.env.secret
+.env.private
+.env.production
+LICENSE_SECRET_KEY
+STRIPE_SECRET_KEY
+STRIPE_PUBLISHABLE_KEY
+STRIPE_WEBHOOK_SECRET
+
+# Premium license files
+.lapa/licenses/
+*.license
+*.lic
+license.key
+activation.key
+*.activation
+
+# User data and storage
+.lapa/storage/
+.lapa/cache/
+.lapa/logs/
+.lapa/temp/
+*.db
+*.sqlite
+*.sqlite3
+*.db-shm
+*.db-wal
+
+# Build artifacts (keep only release artifacts in releases/)
+*.tar.gz
+*.zip
+!releases/*.zip
+!releases/*.tar.gz
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+.temp/
+*.tmp
+*.temp
+*.bak
+*.backup
+*.old
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# Firebase
+firebase-debug.log
+.firebase/
+firebase-deploy.log
+
+# Executable installers
+python-installer.exe
+vs_buildtools.exe
+*.installer.exe
+
+# Test reports (temporary)
+test-report-*.json
+
+# VSIX files (except in releases/)
+*.vsix
+!releases/**/*.vsix
+
+# System files
+.directory
+.Trash-*
+.nfs*

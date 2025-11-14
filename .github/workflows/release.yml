@@ -1,0 +1,105 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., v1.0.0)'
+        required: true
+        type: string
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+      
+      - name: Determine version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Install dependencies
+        working-directory: lapa-ide-void
+        run: yarn install --frozen-lockfile
+      
+      - name: Build extension
+        working-directory: lapa-ide-void/extensions/lapa-swarm
+        run: |
+          npm install
+          npm run compile
+          npm run build:webview
+      
+      - name: Package extension VSIX
+        working-directory: lapa-ide-void/extensions/lapa-swarm
+        run: |
+          npm install -g @vscode/vsce
+          vsce package --no-dependencies --out lapa-swarm-${{ steps.version.outputs.version }}.vsix
+      
+      - name: Validate VSIX
+        working-directory: lapa-ide-void/extensions/lapa-swarm
+        run: |
+          VSIX_SIZE=$(du -m lapa-swarm-${{ steps.version.outputs.version }}.vsix | cut -f1)
+          echo "VSIX size: ${VSIX_SIZE}MB"
+          if [ $VSIX_SIZE -gt 400 ]; then
+            echo "Error: VSIX size (${VSIX_SIZE}MB) exceeds 400MB limit"
+            exit 1
+          fi
+          echo "✅ VSIX validation passed"
+      
+      - name: Generate release notes
+        run: |
+          cat > release-notes.md << EOF
+          # LAPA-VOID ${{ steps.version.outputs.version }}
+          
+          ## Installation
+          
+          1. Download \`lapa-swarm-${{ steps.version.outputs.version }}.vsix\`
+          2. Open Void IDE (or VS Code)
+          3. Go to Extensions view (Ctrl+Shift+X)
+          4. Click "..." menu → "Install from VSIX"
+          5. Select the downloaded VSIX file
+          6. Restart IDE when prompted
+          
+          ## Features
+          
+          - Full LAPA swarm integration
+          - 16-agent Helix system (Pro)
+          - Local inference (Ollama/NIM)
+          - Advanced memory systems
+          - MCP, A2A, AG-UI protocols
+          
+          See [PREMIUM_FEATURES.md](../../PREMIUM_FEATURES.md) for free vs pro comparison.
+          EOF
+      
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.version.outputs.version }}
+          name: LAPA-VOID ${{ steps.version.outputs.version }}
+          body_path: release-notes.md
+          files: |
+            lapa-ide-void/extensions/lapa-swarm/lapa-swarm-${{ steps.version.outputs.version }}.vsix
+          draft: false
+          prerelease: ${{ contains(steps.version.outputs.version, '-') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
