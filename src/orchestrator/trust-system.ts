@@ -258,7 +258,7 @@ export class TrustSystem {
       );
       
       // Calculate confidence
-      const confidence = this.calculateConfidence(trustFactors, historicalTrust);
+      const confidence = this.calculateConfidenceFromFactors(trustFactors, currentTrust);
       
       // Generate recommendation
       const recommendation = this.generateRecommendation(trustScore, confidence);
@@ -726,6 +726,26 @@ export class TrustSystem {
     const performanceMultiplier = taskResult.performanceScore;
     
     return baseChange * performanceMultiplier;
+  }
+
+  private calculateConfidenceFromFactors(
+    trustFactors: TrustFactor[],
+    trust: AgentTrust | null | undefined
+  ): number {
+    // Base confidence from historical data
+    const historySize = trust?.history.length || 0;
+    const baseConfidence = Math.min(1.0, historySize / 20);
+    
+    // Factor confidence from trust factors quality
+    const factorQuality = trustFactors.length > 0
+      ? trustFactors.reduce((sum, f) => sum + f.weight, 0) / trustFactors.length
+      : 0.5;
+    
+    // Adjust based on consistency
+    const consistency = trust ? this.calculateConsistency(trust) : 0.5;
+    const consistencyBonus = consistency * 0.2;
+    
+    return Math.min(1.0, baseConfidence * 0.5 + factorQuality * 0.3 + consistencyBonus);
   }
 
   private updateConfidence(

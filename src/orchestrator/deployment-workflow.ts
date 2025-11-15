@@ -88,8 +88,8 @@ export interface DeploymentWorkflowResult {
  */
 export class DeploymentWorkflowOrchestrator {
   private langGraphOrchestrator: LangGraphOrchestrator;
-  private workflowId: string;
-  private startTime: number;
+  private workflowId: string = '';
+  private startTime: number = 0;
 
   constructor() {
     this.langGraphOrchestrator = new LangGraphOrchestrator('start');

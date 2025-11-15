@@ -187,7 +187,7 @@ export class CentralizedLQRSolver {
         );
         
         // Check convergence
-        const stability = this.evaluateStability(controller, systemState);
+        const stability = await this.evaluateStability(controller, systemState);
         controller.stability = stability.stabilityScore;
         
         if (stability.isStable && stability.stabilityScore > 0.95) {

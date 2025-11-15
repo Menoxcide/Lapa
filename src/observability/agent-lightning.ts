@@ -293,6 +293,27 @@ export class AgentLightningAdapter {
   }
 
   /**
+   * Emit a metric (for metrics tracking)
+   */
+  public emitMetric(
+    metricName: string,
+    attributes: Record<string, any> = {}
+  ): void {
+    if (!this.config.enabled) {
+      return;
+    }
+
+    // Create a metric span
+    const spanId = this.emitSpan(`metric.${metricName}`, {
+      ...attributes,
+      metricName
+    });
+
+    // Immediately end it as a metric span
+    this.endSpan(spanId, 'success', attributes);
+  }
+
+  /**
    * Get all active spans
    */
   public getActiveSpans(): AgentLightningSpan[] {

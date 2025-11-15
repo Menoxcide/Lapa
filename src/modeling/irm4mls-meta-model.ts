@@ -165,9 +165,11 @@ export interface AbstractionContext {
  */
 export interface AbstractionResult {
   success: boolean;
-  newRepresentation: AgentRepresentation;
-  resourceSavings: ResourceUsage;
+  newRepresentation?: AgentRepresentation;
+  resourceSavings?: ResourceUsage;
   informationPreserved: boolean;
+  abstractionsApplied?: number;
+  targetLevel?: number;
   error?: string;
 }
 
@@ -218,9 +220,11 @@ export interface RefinementContext {
  */
 export interface RefinementResult {
   success: boolean;
-  newRepresentation: AgentRepresentation;
-  resourceCost: ResourceUsage;
+  newRepresentation?: AgentRepresentation;
+  resourceCost?: ResourceUsage;
   accuracyGained: number;
+  refinementsApplied?: number;
+  targetLevel?: number;
   error?: string;
 }
 

@@ -118,6 +118,16 @@ export const agl = {
    */
   flushSpans: async () => {
     await getAdapter().flushSpans();
+  },
+
+  /**
+   * Emit a metric (for metrics tracking)
+   * 
+   * @param metricName - Metric name
+   * @param attributes - Metric attributes
+   */
+  emitMetric: (metricName: string, attributes: Record<string, any> = {}): void => {
+    getAdapter().emitMetric(metricName, attributes);
   }
 };
 

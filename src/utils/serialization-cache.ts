@@ -128,7 +128,7 @@ class SerializationCache {
   /**
    * Get cache metrics
    */
-  getMetrics() {
+  getMetrics(): ReturnType<typeof this.cache.getMetrics> {
     return this.cache.getMetrics();
   }
 }
