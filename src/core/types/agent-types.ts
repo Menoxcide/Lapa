@@ -15,7 +15,9 @@ export type AgentToolType =
   | 'research'
   | 'planning'
   | 'optimization'
-  | 'documentation';
+  | 'documentation'
+  | 'quality'    // Code quality analysis and smell detection
+  | 'utility';   // Utility functions and snippet libraries
 
 // Execution context for agent tools
 export interface AgentToolExecutionContext {
@@ -34,6 +36,7 @@ export interface AgentToolExecutionResult {
   error?: string;
   executionTime: number;
   metadata?: Record<string, any>;
+  data?: any;  // Additional data payload for tool-specific results
 }
 
 // Agent tool interface

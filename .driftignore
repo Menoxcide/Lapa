@@ -1,0 +1,48 @@
+# LAPA Code Drift Ignore File
+# Files listed here are expected to be IDE-only and should not trigger drift warnings
+
+# IDE-specific entry points
+extension.ts
+
+# IDE-specific features
+agents/code-smell-detector.ts
+agents/error-explainer.ts
+orchestrator/command-palette-ai.ts
+orchestrator/handoff-recorder.ts
+orchestrator/inline-documentation-generator.ts
+premium/feature-gate.ts
+
+# IDE-specific skills
+skills/
+
+# IDE-specific inference
+inference/models/aya.ts
+inference/models/command-r.ts
+inference/multilingual-detector.ts
+inference/multilingual-router.ts
+inference/ollama-flash-attention.ts
+
+# IDE-specific orchestration
+orchestrator/code-snippet-library.ts
+
+# IDE-specific swarm management
+swarm/swarm-manager.ts
+
+# IDE-specific UI components
+ui/LAPASwarmViewPane.tsx
+ui/LAPAActionBar.tsx
+ui/UpgradeDialog.tsx
+ui/webview-entry.tsx
+ui/__tests__/LAPAUI.test.tsx
+
+# IDE-specific tests
+__tests__/agents/code-smell-detector.test.ts
+__tests__/agents/error-explainer.test.ts
+__tests__/orchestrator/command-palette-ai.test.ts
+__tests__/orchestrator/handoff-recorder.test.ts
+__tests__/orchestrator/inline-documentation-generator.test.ts
+__tests__/premium/feature-gate.test.ts
+__tests__/skills/
+__tests__/extension.test.ts
+__tests__/orchestrator/code-snippet-library.test.ts
+

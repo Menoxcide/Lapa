@@ -1,4 +1,4 @@
-# LAPA-VOID: Swarm-Powered IDE
+# LAPA IDE: Swarm-Powered IDE
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/Menoxcide/Lapa/releases)
@@ -6,8 +6,8 @@
 
 <div align="center">
 	<img
-		src="./void_icons/slice_of_void.png"
-	 	alt="LAPA-VOID Logo"
+		src="./media/lapa-slice.svg"
+	 	alt="LAPA IDE Logo"
 		width="300"
 	 	height="300"
 	/>
@@ -15,19 +15,19 @@
 
 ## Overview
 
-**LAPA-VOID** is a fork of [Void IDE](https://github.com/voideditor/void) enhanced with **LAPA Swarm** capabilities. It combines Void's excellent AI-powered IDE features with LAPA's autonomous multi-agent swarm system.
+**LAPA IDE** is a **swarm-powered IDE** built on modern AI infrastructure. It combines an excellent AI-powered IDE foundation with LAPA's autonomous multi-agent swarm system.
 
-### What is LAPA-VOID?
+### What is LAPA IDE?
 
-LAPA-VOID is the **next frontier agent/IDE** - a complete development environment that:
-- ✅ Preserves **100% of Void IDE's core functionality** (inline edits, agent modes, local models)
+LAPA IDE is the **next frontier agent/IDE** - a complete development environment that:
+- ✅ Features **core AI-powered IDE functionality** (inline edits, agent modes, local models)
 - ✅ Adds **LAPA Swarm** - a 16-agent Helix system for autonomous coding
 - ✅ Runs **locally-first** with optional cloud scaling
 - ✅ Provides **free tier** with core features + **premium tier** for power users
 
 ## 🚀 Key Features
 
-### Void IDE Core (Inherited)
+### LAPA IDE Core
 - **Inline Edits**: Fast Apply (Search/Replace) and Slow Apply (whole file rewrite)
 - **Agent Modes**: Multiple coding behavior modes
 - **Local Models**: Full support for Ollama and NVIDIA NIM
@@ -94,7 +94,7 @@ yarn watch
 #### Option 2: Install Extension (For End Users)
 
 1. Download `lapa-swarm-*.vsix` from [Releases](https://github.com/Menoxcide/Lapa/releases)
-2. Open Void IDE (or VS Code)
+2. Open LAPA IDE (or VS Code)
 3. Go to Extensions view (`Ctrl+Shift+X`)
 4. Click "..." menu → "Install from VSIX"
 5. Select the downloaded VSIX file
@@ -156,8 +156,8 @@ npm test
 
 ```
 lapa-ide-void/
-├── src/                    # Void IDE core (forked from voideditor/void)
-│   └── vs/workbench/contrib/void/  # Void integration points
+├── src/                    # LAPA IDE core
+│   └── vs/workbench/contrib/void/  # LAPA integration points
 ├── extensions/
 │   └── lapa-swarm/        # LAPA extension
 │       ├── src/
@@ -199,9 +199,8 @@ This project is licensed under the **MIT License** - see the [LICENSE](../LICENS
 
 ## 🙏 Acknowledgments
 
-### Void IDE
-- **Void Team** - Original Void IDE fork of VS Code
-  - [voideditor/void](https://github.com/voideditor/void)
+### LAPA IDE Foundation
+- Built on modern IDE architecture with AI-first design
 
 ### LAPA Core
 - **Menoxcide** — Founder, Lead Architect, LAPA Creator
@@ -226,6 +225,6 @@ This project is licensed under the **MIT License** - see the [LICENSE](../LICENS
 
 ---
 
-**LAPA-VOID v1.0.0** - Swarm-Powered IDE - November 2025
+**LAPA IDE v1.0.0** - Swarm-Powered IDE - November 2025
 
 **Built with ❤️ by the LAPA team**

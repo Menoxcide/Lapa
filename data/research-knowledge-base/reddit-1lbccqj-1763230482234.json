@@ -1,0 +1,34 @@
+{
+  "finding": {
+    "findingId": "reddit-1lbccqj-1763230482234",
+    "source": "reddit",
+    "category": "nim-inference",
+    "title": "[D] Nvidia’s “Join Us or Compete” moment — the GPU cloud stack is collapsing",
+    "description": "Nvidia is no longer just selling chips. They’re now renting out full servers, launching APIs, releasing their own inference microservices (NIMs), and becoming an AI infrastructure provider in their own right.\n\nThis creates a very different competitive dynamic:\n\n\t•Traditional GPU cloud providers (and brokers) now compete with Nvidia itself.\n\t•AI infra startups who used to sit between Nvidia and developers may find themselves disintermediated.\n\t•The new moat is no longer just hardware access , its",
+    "data": {
+      "query": "NVIDIA NIM inference microservice",
+      "category": "nim-inference",
+      "subreddit": "MachineLearning",
+      "score": 60,
+      "numComments": 23,
+      "author": "pmv143",
+      "createdUtc": 1749917493,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.15000000000000002,
+    "implementationSuggestion": "Evaluate NVIDIA NIM integration opportunities for inference optimization",
+    "url": "https://reddit.com/r/MachineLearning/comments/1lbccqj/d_nvidias_join_us_or_compete_moment_the_gpu_cloud/",
+    "tags": [
+      "nim-inference",
+      "inference",
+      "nim"
+    ],
+    "timestamp": "2025-11-15T18:14:42.234Z"
+  },
+  "storedAt": "2025-11-15T18:14:42.546Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T18:14:42.546Z",
+  "implementationStatus": "pending"
+}

@@ -17,7 +17,13 @@
 	  "noEmit": true,
 	  "downlevelIteration": true,
 	  "incremental": true,
-	  "tsBuildInfoFile": ".tsbuildinfo"
+	  "tsBuildInfoFile": ".tsbuildinfo",
+	  "baseUrl": ".",
+	  "paths": {
+		"@lapa/core/*": ["src/core/*"],
+		"@lapa/ide-integration/*": ["src/ide-integration/*"],
+		"@lapa/extension/*": ["src/extension/*"]
+	  }
 	},
 	"include": ["src/**/*"],
 	"exclude": ["node_modules", "dist", "extension/dist"]

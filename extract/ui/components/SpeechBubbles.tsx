@@ -1,0 +1,66 @@
+import React from 'react';
+import { Message } from '../state/index.ts';
+
+interface SpeechBubblesProps {
+  messages: Message[];
+  onMessageClick?: (messageId: string) => void;
+}
+
+const SpeechBubbles: React.FC<SpeechBubblesProps> = ({ messages, onMessageClick }) => {
+  const getMessageStyle = (type: Message['type']) => {
+    switch (type) {
+      case 'thought': return 'bg-blue-100 border-blue-300';
+      case 'action': return 'bg-yellow-100 border-yellow-300';
+      case 'result': return 'bg-green-100 border-green-300';
+      default: return 'bg-gray-100 border-gray-300';
+    }
+  };
+
+  const getTypeIcon = (type: Message['type']) => {
+    switch (type) {
+      case 'thought': return '💭';
+      case 'action': return '⚡';
+      case 'result': return '✅';
+      default: return '💬';
+    }
+  };
+
+  return (
+    <div className="speech-bubbles-container" role="region" aria-label="Agent Conversations">
+      <h2>Agent Conversations</h2>
+      <div className="space-y-4 max-h-96 overflow-y-auto pr-2" role="log" aria-live="polite" aria-label="Agent Messages">
+        {messages.map(message => (
+          <div
+            key={message.id}
+            role={onMessageClick ? "button" : "article"}
+            aria-label={`Message from ${message.agentName}, type: ${message.type}`}
+            tabIndex={onMessageClick ? 0 : undefined}
+            className={`speech-bubble p-4 rounded-lg border-l-4 cursor-pointer transition-all hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              getMessageStyle(message.type)
+            }`}
+            onClick={() => onMessageClick?.(message.id)}
+            onKeyDown={(e) => {
+              if (onMessageClick && (e.key === 'Enter' || e.key === ' ')) {
+                e.preventDefault();
+                onMessageClick(message.id);
+              }
+            }}
+          >
+            <div className="flex justify-between items-start">
+              <div className="flex items-center">
+                <span className="text-lg mr-2">{getTypeIcon(message.type)}</span>
+                <span className="font-semibold">{message.agentName}</span>
+              </div>
+              <span className="text-xs text-gray-500">
+                {message.timestamp.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+              </span>
+            </div>
+            <p className="mt-2 text-gray-800 whitespace-pre-wrap">{message.content}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default SpeechBubbles;

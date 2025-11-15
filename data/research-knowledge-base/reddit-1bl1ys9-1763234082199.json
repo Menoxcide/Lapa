@@ -1,0 +1,34 @@
+{
+  "finding": {
+    "findingId": "reddit-1bl1ys9-1763234082199",
+    "source": "reddit",
+    "category": "nim-inference",
+    "title": "This week in AI - all the Major AI developments in a nutshell",
+    "description": "* **Meta AI** introduced [***SceneScript***](https://www.projectaria.com/scenescript),  a novel method of generating scene layouts and representing scenes  using language. SceneScript allows AR &amp; AI devices to understand the  geometry of physical spaces. It uses next token prediction like an LLM,  but instead of natural language SceneScript model predicts the next  architectural tokens such as ‘wall’ or ‘door.’ \\[[*Details*](https://ai.meta.com/blog/scenescript-3d-scene-reconstruction-realit",
+    "data": {
+      "query": "NVIDIA NIM inference microservice",
+      "category": "nim-inference",
+      "subreddit": "artificial",
+      "score": 27,
+      "numComments": 4,
+      "author": "wyem",
+      "createdUtc": 1711121283,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.05,
+    "implementationSuggestion": "Evaluate NVIDIA NIM integration opportunities for inference optimization",
+    "url": "https://reddit.com/r/artificial/comments/1bl1ys9/this_week_in_ai_all_the_major_ai_developments_in/",
+    "tags": [
+      "nim-inference",
+      "inference",
+      "nim"
+    ],
+    "timestamp": "2025-11-15T19:14:42.199Z"
+  },
+  "storedAt": "2025-11-15T19:14:42.506Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T19:14:42.506Z",
+  "implementationStatus": "pending"
+}

@@ -605,12 +605,14 @@ export async function generateDocumentation(
   const context: AgentToolExecutionContext = {
     taskId: `doc-${Date.now()}`,
     agentId: 'documentation-generator',
+    toolName: 'documentation-generate',
     parameters: {
       action: 'generate',
       code,
       style,
       language
-    }
+    },
+    context: {}
   };
 
   const result = await generator.execute(context);

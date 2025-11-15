@@ -109,7 +109,7 @@ export class ErrorExplainerAgent implements Agent {
     this.workload++;
     
     try {
-      const errorContext = task.context as ErrorContext;
+      const errorContext = (task.context || {}) as unknown as ErrorContext;
       
       if (!errorContext || !errorContext.errorMessage) {
         return {
@@ -632,15 +632,20 @@ import { Component } from './Component.js'; // With extension if needed`,
     this.errorPatterns.set(patternKey, explanation);
 
     // Store in memory engine
-    await this.memoriEngine.extractAndStoreEntities(
-      'error-explainer',
-      { id: `error-${Date.now()}` } as any,
-      JSON.stringify({
+    await this.memoriEngine.store({
+      id: `error-${Date.now()}-${Math.random()}`,
+      type: 'error-explanation',
+      content: JSON.stringify({
         error: context.errorMessage,
         category: explanation.category,
         explanation: explanation.plainLanguageExplanation
-      })
-    );
+      }),
+      metadata: {
+        errorMessage: context.errorMessage,
+        category: explanation.category
+      },
+      sourceAgentId: 'error-explainer'
+    });
   }
 }
 
@@ -691,7 +696,15 @@ export class ErrorExplanationTool extends BaseAgentTool {
         description: `Explain error: ${errorContext.errorMessage}`,
         type: 'error-explanation',
         priority: 1,
-        context: errorContext
+        context: {
+          errorMessage: errorContext.errorMessage,
+          stackTrace: errorContext.stackTrace,
+          filePath: errorContext.filePath,
+          lineNumber: errorContext.lineNumber,
+          codeSnippet: errorContext.codeSnippet,
+          language: errorContext.language,
+          projectType: errorContext.projectType
+        } as Record<string, unknown>
       };
 
       const result = await this.errorExplainer.execute(task);

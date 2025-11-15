@@ -1,0 +1,34 @@
+{
+  "finding": {
+    "findingId": "reddit-1hunssq-1763234082410",
+    "source": "reddit",
+    "category": "recursive-improvement",
+    "title": "Technical question: How could an AI system improve itself without human input while avoiding recursive validation?",
+    "description": "From an RFT (Relational Frame Theory) perspective, current AI systems operate through derived relational responding, based on their training. For true self-improvement, a system would need to validate its own derived responses to use them as new training basis.\n\nHow could this be achieved without falling into recursive loops where the system is essentially validating its derivations using its own derivations?\n\nLooking for technical perspectives, especially from those working on self-improving sy",
+    "data": {
+      "query": "recursive self-improvement AI systems",
+      "category": "recursive-improvement",
+      "subreddit": "singularity",
+      "score": 7,
+      "numComments": 8,
+      "author": "SiNosDejan",
+      "createdUtc": 1736128530,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.15000000000000002,
+    "implementationSuggestion": "Consider recursive improvement mechanisms for continuous evolution",
+    "url": "https://reddit.com/r/singularity/comments/1hunssq/technical_question_how_could_an_ai_system_improve/",
+    "tags": [
+      "recursive-improvement",
+      "ai",
+      "recursive"
+    ],
+    "timestamp": "2025-11-15T19:14:42.410Z"
+  },
+  "storedAt": "2025-11-15T19:14:42.558Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T19:14:42.558Z",
+  "implementationStatus": "pending"
+}

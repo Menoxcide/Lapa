@@ -1,0 +1,138 @@
+name: Code Drift Detection
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  detect-drift:
+    name: Detect Code Drift
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run drift detection
+        id: drift
+        run: |
+          node scripts/detect-drift.js || DRIFT_EXIT_CODE=$?
+          echo "exit_code=${DRIFT_EXIT_CODE:-0}" >> $GITHUB_OUTPUT
+        continue-on-error: true
+      
+      - name: Run IDE integration drift detection
+        id: ide-drift
+        run: |
+          node scripts/detect-ide-integration-drift.js || IDE_DRIFT_EXIT_CODE=$?
+          echo "exit_code=${IDE_DRIFT_EXIT_CODE:-0}" >> $GITHUB_OUTPUT
+        continue-on-error: true
+      
+      - name: Upload drift report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: drift-report
+          path: |
+            docs/reports/drift-report.html
+            docs/reports/drift-report.json
+            docs/reports/ide-integration-drift-report.json
+          retention-days: 30
+      
+      - name: Comment PR with drift report
+        if: github.event_name == 'pull_request' && steps.drift.outputs.exit_code != '0'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            
+            let reportContent = '## ⚠️ Code Drift Detected\n\n';
+            
+            try {
+              const jsonPath = path.join(process.cwd(), 'docs/reports/drift-report.json');
+              if (fs.existsSync(jsonPath)) {
+                const report = JSON.parse(fs.readFileSync(jsonPath, 'utf-8'));
+                
+                reportContent += `### Summary\n`;
+                reportContent += `- **Sync Percentage:** ${report.stats.syncPercentage}%\n`;
+                reportContent += `- **Core Files:** ${report.stats.coreFiles}\n`;
+                reportContent += `- **IDE Files:** ${report.stats.ideFiles}\n`;
+                reportContent += `- **Drift Issues:** ${report.stats.totalDrift}\n\n`;
+                
+                if (report.drift.onlyInCore.length > 0) {
+                  reportContent += `### Files Only in Core (${report.drift.onlyInCore.length})\n`;
+                  report.drift.onlyInCore.slice(0, 10).forEach(file => {
+                    reportContent += `- \`${file.path}\`\n`;
+                  });
+                  if (report.drift.onlyInCore.length > 10) {
+                    reportContent += `- ... and ${report.drift.onlyInCore.length - 10} more\n`;
+                  }
+                  reportContent += '\n';
+                }
+                
+                if (report.drift.onlyInIDE.length > 0) {
+                  reportContent += `### Files Only in IDE (${report.drift.onlyInIDE.length})\n`;
+                  report.drift.onlyInIDE.slice(0, 10).forEach(file => {
+                    reportContent += `- \`${file.path}\`\n`;
+                  });
+                  if (report.drift.onlyInIDE.length > 10) {
+                    reportContent += `- ... and ${report.drift.onlyInIDE.length - 10} more\n`;
+                  }
+                  reportContent += '\n';
+                }
+                
+                if (report.drift.different.length > 0) {
+                  reportContent += `### Files with Different Content (${report.drift.different.length})\n`;
+                  report.drift.different.slice(0, 10).forEach(file => {
+                    reportContent += `- \`${file.path}\`\n`;
+                  });
+                  if (report.drift.different.length > 10) {
+                    reportContent += `- ... and ${report.drift.different.length - 10} more\n`;
+                  }
+                  reportContent += '\n';
+                }
+                
+                reportContent += `\n📄 Full report available in workflow artifacts.\n`;
+                reportContent += `\n💡 To fix drift, run: \`npm run extract\` to sync core → IDE`;
+              }
+            } catch (error) {
+              reportContent += `Error reading drift report: ${error.message}\n`;
+            }
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: reportContent
+            });
+      
+      - name: Fail if drift detected
+        if: steps.drift.outputs.exit_code != '0' || steps.ide-drift.outputs.exit_code != '0'
+        run: |
+          if [ "${{ steps.drift.outputs.exit_code }}" != "0" ]; then
+            echo "❌ Code drift detected! Review the drift report in artifacts."
+            echo "💡 To fix: Run 'npm run extract' to sync core → IDE"
+          fi
+          if [ "${{ steps.ide-drift.outputs.exit_code }}" != "0" ]; then
+            echo "❌ IDE integration drift detected! Review ide-integration-drift-report.json"
+            echo "💡 Commands/types/config may be out of sync between IDE and extension"
+          fi
+          exit 1
+

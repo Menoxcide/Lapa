@@ -1,0 +1,33 @@
+{
+  "finding": {
+    "findingId": "reddit-1bfolbj-1763234082298",
+    "source": "reddit",
+    "category": "orchestration",
+    "title": "AutoDev: Automated AI-Driven Development - Microsoft 2024",
+    "description": "Paper: [https://arxiv.org/abs/2403.08299](https://arxiv.org/abs/2403.08299)\n\nSorry posted a wrong github link. The real code sadly isnt public yet! Thank you for everyone who pointed that out to me!\n\n~~Github includes Code + AutoDev Coder Model:~~ [~~https://github.com/unit-mesh/auto-dev~~](https://github.com/unit-mesh/auto-dev)\n\nAbstract:\n\n&gt;The landscape of software development has witnessed a paradigm shift with the advent of AI-powered assistants, exemplified by GitHub Copilot. However, ex",
+    "data": {
+      "query": "agent orchestration frameworks",
+      "category": "orchestration",
+      "subreddit": "singularity",
+      "score": 244,
+      "numComments": 89,
+      "author": "Singularian2501",
+      "createdUtc": 1710536967,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.4,
+    "implementationSuggestion": "Review orchestration patterns for potential NEURAFORGE enhancements",
+    "url": "https://reddit.com/r/singularity/comments/1bfolbj/autodev_automated_aidriven_development_microsoft/",
+    "tags": [
+      "orchestration",
+      "agent"
+    ],
+    "timestamp": "2025-11-15T19:14:42.298Z"
+  },
+  "storedAt": "2025-11-15T19:14:42.613Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T19:14:42.613Z",
+  "implementationStatus": "pending"
+}

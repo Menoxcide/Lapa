@@ -1,0 +1,49 @@
+{
+  "name": "lapa-monorepo",
+  "version": "1.0.0",
+  "description": "LAPA Monorepo - Local AI Pair Programmer Agent",
+  "private": true,
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Menoxcide/Lapa.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Menoxcide/Lapa/issues"
+  },
+  "homepage": "https://github.com/Menoxcide/Lapa#readme",
+  "keywords": [
+    "ai",
+    "cursor",
+    "mcp",
+    "ctx-zip",
+    "nim",
+    "moe",
+    "swarm",
+    "autogen",
+    "roo-code",
+    "monorepo"
+  ],
+  "author": "LAPA Team",
+  "license": "MIT",
+  "scripts": {
+    "build": "pnpm -r build",
+    "build:core": "pnpm --filter @lapa/core build",
+    "build:ide": "pnpm --filter @lapa/ide-extension build",
+    "build:watch": "pnpm -r build:watch",
+    "test": "pnpm -r test",
+    "test:core": "pnpm --filter @lapa/core test",
+    "test:ide": "pnpm --filter @lapa/ide-extension test",
+    "clean": "pnpm -r clean",
+    "drift:detect": "node scripts/detect-drift.js",
+    "drift:check": "node scripts/detect-drift.js",
+    "drift:ide": "node scripts/detect-ide-integration-drift.js",
+    "extract": "node scripts/extract-lapa.js",
+    "sync": "pnpm run build && npm run drift:detect"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.9"
+  }
+}
+

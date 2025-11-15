@@ -1,0 +1,35 @@
+{
+  "finding": {
+    "findingId": "reddit-1i3t4c3-1763234082412",
+    "source": "reddit",
+    "category": "continuous-learning",
+    "title": "[P] Building an Reinforcement Learning Agent to play The Legend of Zelda",
+    "description": "A year go I started trying to use PPO to play the original Legend of Zelda, and I was able to train a model to beat the first boss after a few months of work. I wanted to share the project just for show and tell. I'd love to hear feedback and suggestions as this is just a hobby project. I don't do this for a living. The code for that lives in the [original-design branch](https://github.com/DarkAutumn/triforce/tree/original-design) of my [Triforce repo](https://github.com/DarkAutumn/triforce). I'",
+    "data": {
+      "query": "continuous learning agents",
+      "category": "continuous-learning",
+      "subreddit": "MachineLearning",
+      "score": 169,
+      "numComments": 22,
+      "author": "DarkAutumn",
+      "createdUtc": 1737154326,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.15000000000000002,
+    "implementationSuggestion": "Review continuous learning approaches for agent adaptation",
+    "url": "https://reddit.com/r/MachineLearning/comments/1i3t4c3/p_building_an_reinforcement_learning_agent_to/",
+    "tags": [
+      "continuous-learning",
+      "agent",
+      "continuous",
+      "learning"
+    ],
+    "timestamp": "2025-11-15T19:14:42.412Z"
+  },
+  "storedAt": "2025-11-15T19:14:42.567Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T19:14:42.567Z",
+  "implementationStatus": "pending"
+}

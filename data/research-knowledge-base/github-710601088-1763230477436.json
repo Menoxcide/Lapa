@@ -1,0 +1,47 @@
+{
+  "finding": {
+    "findingId": "github-710601088-1763230477436",
+    "source": "github",
+    "category": "orchestration",
+    "title": "crewAIInc/crewAI",
+    "description": "Framework for orchestrating role-playing, autonomous AI agents. By fostering collaborative intelligence, CrewAI empowers agents to work together seamlessly, tackling complex tasks.",
+    "data": {
+      "query": "agent orchestration frameworks",
+      "category": "orchestration",
+      "stars": 40429,
+      "forks": 5395,
+      "language": "Python",
+      "topics": [
+        "agents",
+        "ai",
+        "ai-agents",
+        "aiagentframework",
+        "llms"
+      ],
+      "createdAt": "2023-10-27T03:26:59.000Z",
+      "updatedAt": "2025-11-15T17:52:23.000Z",
+      "owner": "crewAIInc",
+      "sources": [
+        "github"
+      ]
+    },
+    "valuePotential": 0.4,
+    "implementationSuggestion": "Review orchestration patterns for potential NEURAFORGE enhancements",
+    "url": "https://github.com/crewAIInc/crewAI",
+    "tags": [
+      "orchestration",
+      "agent",
+      "Python",
+      "agents",
+      "ai",
+      "ai-agents",
+      "aiagentframework",
+      "llms"
+    ],
+    "timestamp": "2025-11-15T18:14:37.436Z"
+  },
+  "storedAt": "2025-11-15T18:14:42.756Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T18:14:42.756Z",
+  "implementationStatus": "pending"
+}

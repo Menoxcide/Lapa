@@ -1,0 +1,36 @@
+{
+  "finding": {
+    "findingId": "reddit-1nxt3kz-1763234082386",
+    "source": "reddit",
+    "category": "ai-agents",
+    "title": "The Unitree G1 robot secretly sends data to China",
+    "description": "[https://arxiv.org/abs/2509.14139](https://arxiv.org/abs/2509.14139)",
+    "data": {
+      "query": "multi-agent orchestration systems 2025",
+      "category": "ai-agents",
+      "subreddit": "artificial",
+      "score": 353,
+      "numComments": 142,
+      "author": "MetaKnowing",
+      "createdUtc": 1759582110,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.55,
+    "implementationSuggestion": "Evaluate agent architecture improvements for LAPA-VOID agent system",
+    "url": "https://reddit.com/r/artificial/comments/1nxt3kz/the_unitree_g1_robot_secretly_sends_data_to_china/",
+    "tags": [
+      "ai-agents",
+      "agent",
+      "orchestration",
+      "multi-agent",
+      "2025"
+    ],
+    "timestamp": "2025-11-15T19:14:42.386Z"
+  },
+  "storedAt": "2025-11-15T19:14:42.479Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T19:14:42.479Z",
+  "implementationStatus": "pending"
+}

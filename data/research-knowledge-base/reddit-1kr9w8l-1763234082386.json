@@ -1,0 +1,36 @@
+{
+  "finding": {
+    "findingId": "reddit-1kr9w8l-1763234082386",
+    "source": "reddit",
+    "category": "ai-agents",
+    "title": "[P] OpenEvolve: Open Source Implementation of DeepMind's AlphaEvolve System",
+    "description": "Hey everyone! I'm excited to share **OpenEvolve**, an open-source implementation of Google DeepMind's AlphaEvolve system that I recently completed. For those who missed it, AlphaEvolve is an evolutionary coding agent that DeepMind announced in May that uses LLMs to discover new algorithms and optimize existing ones.\n\n## What is OpenEvolve?\n\nOpenEvolve is a framework that **evolves entire codebases** through an iterative process using LLMs. It orchestrates a pipeline of code generation, evaluatio",
+    "data": {
+      "query": "multi-agent orchestration systems 2025",
+      "category": "ai-agents",
+      "subreddit": "MachineLearning",
+      "score": 211,
+      "numComments": 53,
+      "author": "asankhs",
+      "createdUtc": 1747760044,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.55,
+    "implementationSuggestion": "Evaluate agent architecture improvements for LAPA-VOID agent system",
+    "url": "https://reddit.com/r/MachineLearning/comments/1kr9w8l/p_openevolve_open_source_implementation_of/",
+    "tags": [
+      "ai-agents",
+      "agent",
+      "orchestration",
+      "multi-agent",
+      "2025"
+    ],
+    "timestamp": "2025-11-15T19:14:42.386Z"
+  },
+  "storedAt": "2025-11-15T19:14:42.453Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T19:14:42.453Z",
+  "implementationStatus": "pending"
+}

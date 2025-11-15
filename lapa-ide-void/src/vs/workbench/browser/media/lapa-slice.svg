@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300">
+  <!-- LAPA Slice - Angular slice representing IDE view -->
+  <defs>
+    <linearGradient id="sliceGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4F46E5;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7C3AED;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Slice shape (pie slice) -->
+  <path d="M 150 150 L 150 50 A 100 100 0 0 1 250 150 Z" fill="url(#sliceGradient)"/>
+  
+  <!-- Inner arc for depth -->
+  <path d="M 150 150 L 150 100 A 50 50 0 0 1 200 150 Z" fill="white" opacity="0.2"/>
+  
+  <!-- Swarm nodes on slice -->
+  <circle cx="175" cy="100" r="4" fill="white" opacity="0.9"/>
+  <circle cx="200" cy="125" r="4" fill="white" opacity="0.9"/>
+  <circle cx="190" cy="140" r="4" fill="white" opacity="0.9"/>
+  
+  <!-- Connection to center -->
+  <line x1="150" y1="150" x2="175" y2="100" stroke="white" stroke-width="2" opacity="0.4"/>
+  <line x1="150" y1="150" x2="200" y2="125" stroke="white" stroke-width="2" opacity="0.4"/>
+  <line x1="150" y1="150" x2="190" y2="140" stroke="white" stroke-width="2" opacity="0.4"/>
+  
+  <!-- Center hub -->
+  <circle cx="150" cy="150" r="6" fill="white"/>
+</svg>

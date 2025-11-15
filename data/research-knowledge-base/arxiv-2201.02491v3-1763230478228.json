@@ -1,0 +1,43 @@
+{
+  "finding": {
+    "findingId": "arxiv-2201.02491v3-1763230478228",
+    "source": "arxiv",
+    "category": "inference-optimization",
+    "title": "An efficient and easy-to-extend Matlab code of the Moving Morphable Component (MMC) method for three-dimensional topology optimization",
+    "description": "Explicit topology optimization methods have received ever-increasing interest in recent years. In particular, a 188-line Matlab code of the two-dimensional (2D) Moving Morphable Component (MMC)-based topology optimization method was released by Zhang et al. (Struct Multidiscip Optim 53(6):1243-1260, 2016). The present work aims to propose an efficient and easy-to-extend 256-line Matlab code of the MMC method for three-dimensional (3D) topology optimization implementing some new numerical techniq",
+    "data": {
+      "query": "inference optimization techniques",
+      "category": "inference-optimization",
+      "authors": [
+        "Zongliang Du",
+        "Tianchen Cui",
+        "Chang Liu",
+        "Weisheng Zhang",
+        "Yilin Guo",
+        "Xu Guo"
+      ],
+      "categories": [
+        "math.OC"
+      ],
+      "published": "2022-01-07T15:10:53.000Z",
+      "updated": "2022-03-26T12:55:16.000Z",
+      "sources": [
+        "arxiv"
+      ]
+    },
+    "valuePotential": 0.2,
+    "implementationSuggestion": "Review inference optimization techniques for performance improvements",
+    "url": "http://arxiv.org/abs/2201.02491v3",
+    "tags": [
+      "inference-optimization",
+      "inference",
+      "optimization",
+      "math.OC"
+    ],
+    "timestamp": "2025-11-15T18:14:38.228Z"
+  },
+  "storedAt": "2025-11-15T18:14:42.804Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T18:14:42.804Z",
+  "implementationStatus": "pending"
+}

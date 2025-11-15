@@ -1,0 +1,34 @@
+{
+  "finding": {
+    "findingId": "reddit-1ks18uf-1763230482466",
+    "source": "reddit",
+    "category": "model-quantization",
+    "title": "Mistral's new Devstral coding model running on a single RTX 4090 with 54k context using Q4KM quantization with vLLM",
+    "description": "Full model announcement post on the Mistral blog [https://mistral.ai/news/devstral](https://mistral.ai/news/devstral)",
+    "data": {
+      "query": "model quantization methods",
+      "category": "model-quantization",
+      "subreddit": "LocalLLaMA",
+      "score": 231,
+      "numComments": 55,
+      "author": "erdaltoprak",
+      "createdUtc": 1747842612,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.15000000000000002,
+    "implementationSuggestion": "Explore model quantization methods for efficiency gains",
+    "url": "https://reddit.com/r/LocalLLaMA/comments/1ks18uf/mistrals_new_devstral_coding_model_running_on_a/",
+    "tags": [
+      "model-quantization",
+      "quantization",
+      "model"
+    ],
+    "timestamp": "2025-11-15T18:14:42.466Z"
+  },
+  "storedAt": "2025-11-15T18:14:42.836Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T18:14:42.836Z",
+  "implementationStatus": "pending"
+}

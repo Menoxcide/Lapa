@@ -1,0 +1,37 @@
+{
+  "finding": {
+    "findingId": "github-1009652092-1763230477528",
+    "source": "github",
+    "category": "inference-optimization",
+    "title": "microsoft/edgeai-for-beginners",
+    "description": "This course is designed to guide beginners through the exciting world of Edge AI, covering fundamental concepts, popular models, inference techniques, device-specific applications, model optimization, and the development of intelligent Edge AI agents.",
+    "data": {
+      "query": "inference optimization techniques",
+      "category": "inference-optimization",
+      "stars": 1147,
+      "forks": 211,
+      "language": "Jupyter Notebook",
+      "topics": [],
+      "createdAt": "2025-06-27T13:35:48.000Z",
+      "updatedAt": "2025-11-15T13:22:25.000Z",
+      "owner": "microsoft",
+      "sources": [
+        "github"
+      ]
+    },
+    "valuePotential": 0.15000000000000002,
+    "implementationSuggestion": "Review inference optimization techniques for performance improvements",
+    "url": "https://github.com/microsoft/edgeai-for-beginners",
+    "tags": [
+      "inference-optimization",
+      "inference",
+      "optimization",
+      "Jupyter Notebook"
+    ],
+    "timestamp": "2025-11-15T18:14:37.528Z"
+  },
+  "storedAt": "2025-11-15T18:14:42.813Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T18:14:42.813Z",
+  "implementationStatus": "pending"
+}

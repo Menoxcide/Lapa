@@ -1,0 +1,15 @@
+{
+  "timestamp": "2025-11-15T21:07:42.157Z",
+  "stats": {
+    "coreFiles": 412,
+    "ideFiles": 412,
+    "totalDrift": 0,
+    "syncPercentage": "100.00"
+  },
+  "drift": {
+    "onlyInCore": [],
+    "onlyInIDE": [],
+    "different": [],
+    "same": 412
+  }
+}

@@ -95,13 +95,16 @@ export class HandoffRecorder extends BaseAgentTool {
     );
     this.memoriEngine = memoriEngine;
     this.options = {
-      enabled: true,
       maxRecords: 1000,
       recordContext: true,
       recordFullContext: false,
       compressionEnabled: true,
       ...options
     };
+    // Ensure enabled is set (options may override it)
+    if (this.options.enabled === undefined) {
+      this.options.enabled = true;
+    }
     this.setupEventListeners();
   }
 
@@ -523,7 +526,6 @@ export class HandoffRecorder extends BaseAgentTool {
           timestamp: record.timestamp,
           success: record.success
         },
-        timestamp: record.timestamp
       }).catch(err => console.warn('Failed to store handoff record:', err));
     }
   }
@@ -551,6 +553,7 @@ export async function recordHandoff(
   const context_exec: AgentToolExecutionContext = {
     taskId: `record-${Date.now()}`,
     agentId: 'handoff-recorder',
+    toolName: 'handoff-record',
     parameters: {
       action: 'record',
       sourceAgentId,
@@ -559,7 +562,8 @@ export async function recordHandoff(
       context,
       handoffRequest,
       handoffResponse
-    }
+    },
+    context: {}
   };
 
   const result = await recorder.execute(context_exec);
@@ -581,11 +585,13 @@ export async function replayHandoff(
   const context: AgentToolExecutionContext = {
     taskId: `replay-${Date.now()}`,
     agentId: 'handoff-recorder',
+    toolName: 'handoff-replay',
     parameters: {
       action: 'replay',
       recordId,
       modifyContext
-    }
+    },
+    context: {}
   };
 
   const result = await recorder.execute(context);

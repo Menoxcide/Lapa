@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- LAPA Cube - Isometric view representing IDE -->
+  <defs>
+    <linearGradient id="cubeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4F46E5;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#6366F1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7C3AED;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="cubeTop" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366F1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4F46E5;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="cubeRight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7C3AED;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#5B21B6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Isometric cube faces -->
+  <!-- Top face -->
+  <polygon points="100,50 150,75 100,125 50,100" fill="url(#cubeTop)"/>
+  
+  <!-- Right face -->
+  <polygon points="150,75 175,125 125,150 100,125" fill="url(#cubeRight)"/>
+  
+  <!-- Left face -->
+  <polygon points="50,100 100,125 75,175 25,150" fill="url(#cubeGradient)"/>
+  
+  <!-- Cube edges -->
+  <polyline points="100,50 150,75 175,125 125,150 75,175 25,150 50,100 100,50" 
+            fill="none" stroke="white" stroke-width="2" opacity="0.3"/>
+  
+  <!-- Swarm indicators on cube faces -->
+  <circle cx="100" cy="75" r="3" fill="white" opacity="0.8"/>
+  <circle cx="125" cy="100" r="3" fill="white" opacity="0.8"/>
+  <circle cx="75" cy="125" r="3" fill="white" opacity="0.8"/>
+</svg>

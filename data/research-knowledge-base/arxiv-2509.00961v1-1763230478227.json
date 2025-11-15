@@ -1,0 +1,43 @@
+{
+  "finding": {
+    "findingId": "arxiv-2509.00961v1-1763230478227",
+    "source": "arxiv",
+    "category": "recursive-improvement",
+    "title": "Ultra Strong Machine Learning: Teaching Humans Active Learning Strategies via Automated AI Explanations",
+    "description": "Ultra Strong Machine Learning (USML) refers to symbolic learning systems that not only improve their own performance but can also teach their acquired knowledge to quantifiably improve human performance. In this work, we present LENS (Logic Programming Explanation via Neural Summarisation), a neuro-symbolic method that combines symbolic program synthesis with large language models (LLMs) to automate the explanation of machine-learned logic programs in natural language. LENS addresses a key limit",
+    "data": {
+      "query": "recursive self-improvement AI systems",
+      "category": "recursive-improvement",
+      "authors": [
+        "Lun Ai",
+        "Johannes Langer",
+        "Ute Schmid",
+        "Stephen Muggleton"
+      ],
+      "categories": [
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2025-08-31T19:04:31.000Z",
+      "updated": "2025-08-31T19:04:31.000Z",
+      "sources": [
+        "arxiv"
+      ]
+    },
+    "valuePotential": 0.30000000000000004,
+    "implementationSuggestion": "Consider recursive improvement mechanisms for continuous evolution",
+    "url": "http://arxiv.org/abs/2509.00961v1",
+    "tags": [
+      "recursive-improvement",
+      "ai",
+      "recursive",
+      "cs.AI",
+      "cs.LG"
+    ],
+    "timestamp": "2025-11-15T18:14:38.227Z"
+  },
+  "storedAt": "2025-11-15T18:14:42.653Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T18:14:42.653Z",
+  "implementationStatus": "pending"
+}

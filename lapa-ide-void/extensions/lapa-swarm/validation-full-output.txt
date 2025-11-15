@@ -1,0 +1,128 @@
+≡ƒöì Validating Commands...
+≡ƒöì Validating Views...
+≡ƒöì Validating UI Components...
+≡ƒöì Checking for Missing Commands...
+≡ƒöì Validating Integrations...
+
+≡ƒôè VALIDATION REPORT
+
+================================================================================
+
+Summary: 28 Passed | 0 Failed | 7 Warnings
+
+Γ£à PASS Command: lapa.swarm.start
+   Command registered in package.json and has handler in extension.ts
+
+Γ£à PASS Command: lapa.swarm.stop
+   Command registered in package.json and has handler in extension.ts
+
+Γ£à PASS Command: lapa.swarm.pause
+   Command registered in package.json and has handler in extension.ts
+
+Γ£à PASS Command: lapa.swarm.resume
+   Command registered in package.json and has handler in extension.ts
+
+Γ£à PASS Command: lapa.swarm.configure
+   Command registered in package.json and has handler in extension.ts
+
+Γ£à PASS Command: lapa.swarm.status
+   Command registered in package.json and has handler in extension.ts
+
+Γ£à PASS Command: lapa.swarm.upgrade
+   Command registered in package.json and has handler in extension.ts
+
+Γ£à PASS Command: lapa.swarm.activateLicense
+   Command registered in package.json and has handler in extension.ts
+
+Γ£à PASS Command: lapa.swarm.restore
+   Command registered in package.json and has handler in extension.ts
+
+Γ£à PASS Command: lapa.swarm.listSessions
+   Command registered in package.json and has handler in extension.ts
+
+Γ£à PASS Command: lapa.git.generateCommit
+   Command registered in package.json and has handler in extension.ts
+
+Γ£à PASS Command: lapa.commandPalette.ai
+   Command registered in package.json and has handler in extension.ts
+
+Γ£à PASS Command: lapa.personas.list
+   Command registered in package.json and has handler in extension.ts
+
+Γ£à PASS Command: lapa.personas.reload
+   Command registered in package.json and has handler in extension.ts
+
+Γ£à PASS Command: lapa.workflow.generate
+   Command registered in package.json and has handler in extension.ts
+
+Γ£à PASS Command: lapa.enhancePrompt
+   Command registered in package.json and has handler in extension.ts
+
+Γ£à PASS Command: lapa.switchProvider
+   Command registered in package.json and has handler in extension.ts
+
+Γ£à PASS Command: lapa.settings.open
+   Command registered in package.json and has handler in extension.ts
+
+Γ£à PASS Command: lapa.marketplace.open
+   Command registered in package.json and has handler in extension.ts
+
+Γ£à PASS Command: lapa.dashboard.open
+   Command registered in package.json and has handler in extension.ts
+
+Γ£à PASS View: lapaSwarmView
+   View registered in package.json
+
+Γ£à PASS View: lapaSwarmAuxiliaryView
+   View registered in package.json
+
+Γ£à PASS UI Component: SwarmView
+   Component exists and is accessible from views
+
+ΓÜá∩╕Å WARNING UI Component: Dashboard
+   Component exists but may not be accessible from UI
+   ≡ƒÆí Consider adding command or view to access this component
+
+ΓÜá∩╕Å WARNING UI Component: SettingsPanel
+   Component exists but may not be accessible from UI
+   ≡ƒÆí Consider adding command or view to access this component
+
+ΓÜá∩╕Å WARNING UI Component: MCP Marketplace
+   Component exists but may not be accessible from UI
+   ≡ƒÆí Consider adding command or view to access this component
+
+ΓÜá∩╕Å WARNING UI Component: ROI Widget
+   Component exists but may not be accessible from UI
+   ≡ƒÆí Consider adding command or view to access this component
+
+ΓÜá∩╕Å WARNING UI Component: Task History
+   Component exists but may not be accessible from UI
+   ≡ƒÆí Consider adding command or view to access this component
+
+ΓÜá∩╕Å WARNING Optional Command: Open Task History
+   Command 'lapa.taskHistory.open' not found - optional feature
+   ≡ƒÆí Consider adding command 'lapa.taskHistory.open' to access Open Task History component
+
+ΓÜá∩╕Å WARNING Optional Command: Open ROI Widget
+   Command 'lapa.roi.open' not found - optional feature
+   ≡ƒÆí Consider adding command 'lapa.roi.open' to access Open ROI Widget component
+
+Γ£à PASS Integration: Swarm Manager
+   Integration initialized in extension.ts
+
+Γ£à PASS Integration: A2A Mediator
+   Integration initialized in extension.ts
+
+Γ£à PASS Integration: Feature Gate
+   Integration initialized in extension.ts
+
+Γ£à PASS Integration: MCP Provider
+   Integration initialized in extension.ts
+
+Γ£à PASS Integration: Persona Loader
+   Integration initialized in extension.ts
+
+================================================================================
+
+Γ£à Validation Complete: 28/35 features validated
+

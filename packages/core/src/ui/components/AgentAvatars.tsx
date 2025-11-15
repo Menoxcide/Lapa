@@ -1,0 +1,75 @@
+import React from 'react';
+import { Agent } from '../state/index.ts';
+
+interface AgentAvatarsProps {
+  agents: Agent[];
+  onAgentClick?: (agentId: string) => void;
+}
+
+const AgentAvatars: React.FC<AgentAvatarsProps> = ({ agents, onAgentClick }) => {
+  const getStatusColor = (status: Agent['status']) => {
+    switch (status) {
+      case 'idle': return 'bg-gray-300';
+      case 'working': return 'bg-blue-500';
+      case 'paused': return 'bg-yellow-500';
+      case 'completed': return 'bg-green-500';
+      default: return 'bg-gray-300';
+    }
+  };
+
+  const getStatusIcon = (status: Agent['status']) => {
+    switch (status) {
+      case 'idle': return '⏸️';
+      case 'working': return '⚙️';
+      case 'paused': return '⏸️';
+      case 'completed': return '✅';
+      default: return '⏸️';
+    }
+  };
+
+  return (
+    <div className="agent-avatars-container" role="region" aria-label="Agent Swarm">
+      <h2>Agent Swarm</h2>
+      <div className="flex flex-wrap gap-4" role="list" aria-label="List of Agents">
+        {agents.map(agent => (
+          <div
+            key={agent.id}
+            data-testid="agent-avatar-card"
+            role={onAgentClick ? "button" : "listitem"}
+            aria-label={`Agent ${agent.name}, status: ${agent.status}`}
+            tabIndex={onAgentClick ? 0 : undefined}
+            className={`agent-avatar-card cursor-pointer rounded-lg p-4 shadow-md transition-all hover:shadow-lg ${
+              onAgentClick ? 'hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500' : ''
+            }`}
+            onClick={() => onAgentClick?.(agent.id)}
+            onKeyDown={(e) => {
+              if (onAgentClick && (e.key === 'Enter' || e.key === ' ')) {
+                e.preventDefault();
+                onAgentClick(agent.id);
+              }
+            }}
+          >
+            <div className="flex items-center">
+              <div
+                className="avatar-placeholder w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-xl mr-3"
+                style={{ backgroundColor: agent.avatarColor }}
+              >
+                {agent.name.charAt(0)}
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold truncate">{agent.name}</h3>
+                <p className="text-sm text-gray-600 truncate">{agent.role}</p>
+              </div>
+              <div className="flex items-center">
+                <span className="mr-2 text-lg">{getStatusIcon(agent.status)}</span>
+                <div data-testid="status-indicator" className={`status-indicator w-3 h-3 rounded-full ${getStatusColor(agent.status)}`}></div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default AgentAvatars;

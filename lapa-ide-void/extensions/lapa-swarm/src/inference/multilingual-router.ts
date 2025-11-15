@@ -8,7 +8,7 @@ import { AyaModel } from './models/aya.ts';
 import { CommandRModel } from './models/command-r.ts';
 import { detectCodebaseLanguages, LanguageDetectionResult } from './multilingual-detector.ts';
 import { InferenceManager } from './manager.ts';
-import { MoERouter } from '../../agents/moe-router.ts';
+import { MoERouter } from '../agents/moe-router.ts';
 
 export interface MultilingualRoutingOptions {
   preferLocal?: boolean;

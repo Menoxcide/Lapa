@@ -1,13 +1,15 @@
 // LAPA Swarm Extension Entry Point
-// This file serves as the main entry point for the LAPA extension in VoidChassis
+// This file serves as the main entry point for the LAPA extension in LAPA IDE
 
 import * as vscode from 'vscode';
-import { LAPASwarmViewPane } from './ui/LAPASwarmViewPane';
-import { getSwarmManager } from './swarm/swarm-manager.ts';
-import { a2aMediator } from './orchestrator/a2a-mediator.ts';
-import { featureGate } from './premium/feature-gate.ts';
-import { generateCommitMessage } from '../orchestrator/git-commit-generator.js';
-import { getPersonaLoader } from './agents/filesystem-persona-loader.ts';
+// Extension entry point - imports from extension's own source
+// Extension has its own copy of core modules in lapa-ide-void/extensions/lapa-swarm/src/
+import { LAPASwarmViewPane } from '../../../../src/extension/ui/LAPASwarmViewPane';
+import { getSwarmManager } from './swarm/swarm-manager.js';
+import { a2aMediator } from './orchestrator/a2a-mediator.js';
+import { featureGate } from './premium/feature-gate.js';
+import { generateCommitMessage } from './orchestrator/git-commit-generator.js';
+import { getPersonaLoader } from './agents/filesystem-persona-loader.js';
 
 export function activate(context: vscode.ExtensionContext) {
 	console.log('LAPA Swarm extension is now active!');
@@ -51,7 +53,7 @@ export function activate(context: vscode.ExtensionContext) {
 	
 	context.subscriptions.push(viewProvider, auxiliaryViewProvider);
 	
-	// Register view container and views following Void patterns
+	// Register view container and views following LAPA IDE patterns
 	registerViewContainer(context);
 	
 	// Register commands
@@ -193,11 +195,13 @@ function registerCommands(context: vscode.ExtensionContext, swarmManager: Return
 			const context = {
 				taskId: `palette-${Date.now()}`,
 				agentId: 'command-palette-ai',
+				toolName: 'command-search',
 				parameters: {
 					action: 'search',
 					query,
 					limit: 5
-				}
+				},
+				context: {}
 			};
 
 			const result = await ai.execute(context);
@@ -208,11 +212,11 @@ function registerCommands(context: vscode.ExtensionContext, swarmManager: Return
 			}
 
 			// Show quick pick with results
-			const items = result.data.results.map((r: any) => ({
-				label: r.command.title,
+			const items: Array<{ label: string; description: string; detail: string; commandId: string }> = result.data.results.map((r: any) => ({
+				label: r.command.title || '',
 				description: r.command.description || '',
-				detail: `Relevance: ${(r.relevanceScore * 100).toFixed(0)}% - ${r.matchReasons.join(', ')}`,
-				commandId: r.command.id
+				detail: `Relevance: ${(r.relevanceScore * 100).toFixed(0)}% - ${r.matchReasons?.join(', ') || ''}`,
+				commandId: r.command.id || ''
 			}));
 
 			const selected = await vscode.window.showQuickPick(items, {
@@ -233,10 +237,10 @@ function registerCommands(context: vscode.ExtensionContext, swarmManager: Return
 	const restoreSessionCommand = vscode.commands.registerCommand('lapa.swarm.restore', async () => {
 		try {
 			// Import session restore manager
-			const { SessionRestoreManager } = await import('../swarm/session-restore.js');
-			const { SessionPersistenceManager } = await import('../swarm/session-persistence.js');
-			const { MemoriEngine } = await import('../local/memori-engine.js');
-			const { EpisodicMemory } = await import('../local/episodic.js');
+			const { SessionRestoreManager } = await import('./swarm/session-restore.js');
+			const { SessionPersistenceManager } = await import('./swarm/session-persistence.js');
+			const { MemoriEngine } = await import('./local/memori-engine.js');
+			const { EpisodicMemory } = await import('./local/episodic.js');
 
 			// Initialize managers (simplified - would need proper initialization)
 			const memoriEngine = new MemoriEngine({});
@@ -257,11 +261,11 @@ function registerCommands(context: vscode.ExtensionContext, swarmManager: Return
 			}
 
 			// Show session picker
-			const sessionItems = savedSessions.map(s => ({
-				label: `Session: ${s.sessionId.substring(0, 8)}...`,
-				description: `Last active: ${s.lastActivity.toLocaleString()}`,
-				detail: `Status: ${s.status}`,
-				sessionId: s.sessionId
+			const sessionItems: Array<{ label: string; description: string; detail: string; sessionId: string }> = savedSessions.map((s: any) => ({
+				label: `Session: ${s.sessionId?.substring(0, 8) || 'unknown'}...`,
+				description: `Last active: ${s.lastActivity?.toLocaleString() || 'unknown'}`,
+				detail: `Status: ${s.status || 'unknown'}`,
+				sessionId: s.sessionId || ''
 			}));
 
 			const selected = await vscode.window.showQuickPick(sessionItems, {
@@ -299,9 +303,9 @@ function registerCommands(context: vscode.ExtensionContext, swarmManager: Return
 	// List Saved Sessions Command
 	const listSessionsCommand = vscode.commands.registerCommand('lapa.swarm.listSessions', async () => {
 		try {
-			const { SessionPersistenceManager } = await import('../swarm/session-persistence.js');
-			const { MemoriEngine } = await import('../local/memori-engine.js');
-			const { EpisodicMemory } = await import('../local/episodic.js');
+			const { SessionPersistenceManager } = await import('./swarm/session-persistence.js');
+			const { MemoriEngine } = await import('./local/memori-engine.js');
+			const { EpisodicMemory } = await import('./local/episodic.js');
 
 			const memoriEngine = new MemoriEngine({});
 			const episodicMemory = new EpisodicMemory({});
@@ -466,7 +470,7 @@ function registerCommands(context: vscode.ExtensionContext, swarmManager: Return
 				cancellable: false
 			}, async () => {
 				// Import workflow generator dynamically
-				const { workflowGenerator } = await import('./orchestrator/workflow-generator.ts');
+				const { workflowGenerator } = await import('./orchestrator/workflow-generator.js');
 				const workflow = await workflowGenerator.generateWorkflow(taskDescription);
 
 				// Show workflow details
@@ -790,12 +794,122 @@ function registerCommands(context: vscode.ExtensionContext, swarmManager: Return
 				</head>
 				<body>
 					<div id="root"></div>
+					<script nonce="${nonce}">
+						// Set panel type before loading main script
+						window.__LAPA_PANEL_TYPE__ = 'dashboard';
+					</script>
 					<script nonce="${nonce}" src="${scriptUri}"></script>
 				</body>
 				</html>`;
 		} catch (error) {
 			const message = error instanceof Error ? error.message : String(error);
 			vscode.window.showErrorMessage(`Failed to open dashboard: ${message}`);
+		}
+	});
+
+	// Open ROI Widget Command
+	const openROICommand = vscode.commands.registerCommand('lapa.roi.open', async () => {
+		try {
+			const panel = vscode.window.createWebviewPanel(
+				'lapaROI',
+				'LAPA ROI Widget',
+				vscode.ViewColumn.Beside,
+				{
+					enableScripts: true,
+					retainContextWhenHidden: true,
+					localResourceRoots: [context.extensionUri]
+				}
+			);
+
+			const scriptUri = panel.webview.asWebviewUri(
+				vscode.Uri.joinPath(context.extensionUri, 'media', 'main.js')
+			);
+			const styleResetUri = panel.webview.asWebviewUri(
+				vscode.Uri.joinPath(context.extensionUri, 'media', 'reset.css')
+			);
+			const styleVSCodeUri = panel.webview.asWebviewUri(
+				vscode.Uri.joinPath(context.extensionUri, 'media', 'vscode.css')
+			);
+			const styleMainUri = panel.webview.asWebviewUri(
+				vscode.Uri.joinPath(context.extensionUri, 'media', 'main.css')
+			);
+
+			const nonce = getNonce();
+			panel.webview.html = `<!DOCTYPE html>
+				<html lang="en">
+				<head>
+					<meta charset="UTF-8">
+					<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${panel.webview.cspSource}; script-src 'nonce-${nonce}';">
+					<meta name="viewport" content="width=device-width, initial-scale=1.0">
+					<link href="${styleResetUri}" rel="stylesheet">
+					<link href="${styleVSCodeUri}" rel="stylesheet">
+					<link href="${styleMainUri}" rel="stylesheet">
+					<title>LAPA ROI Widget</title>
+				</head>
+				<body>
+					<div id="root"></div>
+					<script nonce="${nonce}">
+						window.__LAPA_PANEL_TYPE__ = 'roi';
+					</script>
+					<script nonce="${nonce}" src="${scriptUri}"></script>
+				</body>
+				</html>`;
+		} catch (error) {
+			const message = error instanceof Error ? error.message : String(error);
+			vscode.window.showErrorMessage(`Failed to open ROI widget: ${message}`);
+		}
+	});
+
+	// Open Task History Command
+	const openTaskHistoryCommand = vscode.commands.registerCommand('lapa.taskHistory.open', async () => {
+		try {
+			const panel = vscode.window.createWebviewPanel(
+				'lapaTaskHistory',
+				'LAPA Task History',
+				vscode.ViewColumn.Beside,
+				{
+					enableScripts: true,
+					retainContextWhenHidden: true,
+					localResourceRoots: [context.extensionUri]
+				}
+			);
+
+			const scriptUri = panel.webview.asWebviewUri(
+				vscode.Uri.joinPath(context.extensionUri, 'media', 'main.js')
+			);
+			const styleResetUri = panel.webview.asWebviewUri(
+				vscode.Uri.joinPath(context.extensionUri, 'media', 'reset.css')
+			);
+			const styleVSCodeUri = panel.webview.asWebviewUri(
+				vscode.Uri.joinPath(context.extensionUri, 'media', 'vscode.css')
+			);
+			const styleMainUri = panel.webview.asWebviewUri(
+				vscode.Uri.joinPath(context.extensionUri, 'media', 'main.css')
+			);
+
+			const nonce = getNonce();
+			panel.webview.html = `<!DOCTYPE html>
+				<html lang="en">
+				<head>
+					<meta charset="UTF-8">
+					<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${panel.webview.cspSource}; script-src 'nonce-${nonce}';">
+					<meta name="viewport" content="width=device-width, initial-scale=1.0">
+					<link href="${styleResetUri}" rel="stylesheet">
+					<link href="${styleVSCodeUri}" rel="stylesheet">
+					<link href="${styleMainUri}" rel="stylesheet">
+					<title>LAPA Task History</title>
+				</head>
+				<body>
+					<div id="root"></div>
+					<script nonce="${nonce}">
+						window.__LAPA_PANEL_TYPE__ = 'taskHistory';
+					</script>
+					<script nonce="${nonce}" src="${scriptUri}"></script>
+				</body>
+				</html>`;
+		} catch (error) {
+			const message = error instanceof Error ? error.message : String(error);
+			vscode.window.showErrorMessage(`Failed to open task history: ${message}`);
 		}
 	});
 
@@ -829,7 +943,9 @@ function registerCommands(context: vscode.ExtensionContext, swarmManager: Return
 		switchProviderCommand,
 		openSettingsCommand,
 		openMarketplaceCommand,
-		openDashboardCommand
+		openDashboardCommand,
+		openROICommand,
+		openTaskHistoryCommand
 	);
 }
 
@@ -922,3 +1038,4 @@ async function initializePersonas(context: vscode.ExtensionContext) {
 export function deactivate() {
 	console.log('LAPA Swarm extension is now deactivated!');
 }
+

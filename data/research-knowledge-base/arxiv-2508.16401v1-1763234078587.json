@@ -1,0 +1,54 @@
+{
+  "finding": {
+    "findingId": "arxiv-2508.16401v1-1763234078587",
+    "source": "arxiv",
+    "category": "nim-inference",
+    "title": "Audio2Face-3D: Audio-driven Realistic Facial Animation For Digital Avatars",
+    "description": "Audio-driven facial animation presents an effective solution for animating digital avatars. In this paper, we detail the technical aspects of NVIDIA Audio2Face-3D, including data acquisition, network architecture, retargeting methodology, evaluation metrics, and use cases. Audio2Face-3D system enables real-time interaction between human users and interactive avatars, facilitating facial animation authoring for game characters. To assist digital avatar creators and game developers in generating r",
+    "data": {
+      "query": "NVIDIA NIM inference microservice",
+      "category": "nim-inference",
+      "authors": [
+        "NVIDIA",
+        ":",
+        "Chaeyeon Chung",
+        "Ilya Fedorov",
+        "Michael Huang",
+        "Aleksey Karmanov",
+        "Dmitry Korobchenko",
+        "Roger Ribera",
+        "Yeongho Seol"
+      ],
+      "categories": [
+        "cs.GR",
+        "cs.HC",
+        "cs.LG",
+        "cs.SD",
+        "eess.AS"
+      ],
+      "published": "2025-08-22T14:02:24.000Z",
+      "updated": "2025-08-22T14:02:24.000Z",
+      "sources": [
+        "arxiv"
+      ]
+    },
+    "valuePotential": 0.2,
+    "implementationSuggestion": "Evaluate NVIDIA NIM integration opportunities for inference optimization",
+    "url": "http://arxiv.org/abs/2508.16401v1",
+    "tags": [
+      "nim-inference",
+      "inference",
+      "nim",
+      "cs.GR",
+      "cs.HC",
+      "cs.LG",
+      "cs.SD",
+      "eess.AS"
+    ],
+    "timestamp": "2025-11-15T19:14:38.587Z"
+  },
+  "storedAt": "2025-11-15T19:14:42.520Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T19:14:42.520Z",
+  "implementationStatus": "pending"
+}

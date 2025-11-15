@@ -4,7 +4,6 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "outDir": "dist",
-    "rootDir": "src",
     "lib": ["ES2022", "DOM"],
     "sourceMap": true,
     "strict": true,
@@ -16,7 +15,14 @@
     "typeRoots": ["node_modules/@types"],
     "noEmit": false,
     "downlevelIteration": true,
-    "emitDeclarationOnly": false
+    "emitDeclarationOnly": false,
+    "allowImportingTsExtensions": true,
+    "baseUrl": "../../../",
+    "paths": {
+      "@lapa/core/*": ["src/core/*"],
+      "@lapa/ide-integration/*": ["src/ide-integration/*"],
+      "@lapa/extension/*": ["src/extension/*"]
+    }
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "**/__tests__/**", "**/*.test.ts", "**/*.spec.ts"]

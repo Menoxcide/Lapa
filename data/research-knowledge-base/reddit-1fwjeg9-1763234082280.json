@@ -1,0 +1,34 @@
+{
+  "finding": {
+    "findingId": "reddit-1fwjeg9-1763234082280",
+    "source": "reddit",
+    "category": "inference-optimization",
+    "title": "Optillm: An optimizing Inference Proxy with Plugins",
+    "description": "[Optillm](https://github.com/codelion/optillm) is an optimizing inference proxy that has over a dozen [techniques](https://github.com/codelion/optillm?tab=readme-ov-file#implemented-techniques) that aim to improve the accuracy of the responses using test-time compute. Over the last couple of months we have set several [SOTA results](https://github.com/codelion/optillm?tab=readme-ov-file#sota-results-on-benchmarks-with-optillm) using smaller and less capable models like gpt-4o-mini.   \n  \nRecentl",
+    "data": {
+      "query": "inference optimization techniques",
+      "category": "inference-optimization",
+      "subreddit": "LocalLLaMA",
+      "score": 19,
+      "numComments": 13,
+      "author": "asankhs",
+      "createdUtc": 1728106466,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.05,
+    "implementationSuggestion": "Review inference optimization techniques for performance improvements",
+    "url": "https://reddit.com/r/LocalLLaMA/comments/1fwjeg9/optillm_an_optimizing_inference_proxy_with_plugins/",
+    "tags": [
+      "inference-optimization",
+      "inference",
+      "optimization"
+    ],
+    "timestamp": "2025-11-15T19:14:42.280Z"
+  },
+  "storedAt": "2025-11-15T19:14:42.640Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T19:14:42.640Z",
+  "implementationStatus": "pending"
+}

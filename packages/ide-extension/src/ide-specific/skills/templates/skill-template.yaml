@@ -1,0 +1,29 @@
+# LAPA Skill Template
+# Copy this template and customize it for your skill
+
+id: skill-id              # Unique identifier (lowercase, hyphens)
+name: Skill Name          # Human-readable name
+description: Skill description  # What the skill does
+version: 1.0.0            # Semantic version
+author: Author Name       # Your name or organization
+category: other           # One of: code, test, debug, review, integrate, other
+
+# Input parameters
+inputs:
+  - name: inputName
+    type: string          # Type: string, number, boolean, object, array
+    required: true        # Whether input is required
+    description: Input description
+
+# Output values
+outputs:
+  - name: outputName
+    type: string          # Type of output value
+    description: Output description
+
+# Optional dependencies
+dependencies: []          # List of other skill IDs this depends on
+
+# Optional tags for categorization
+tags: []                  # List of tags for searchability
+

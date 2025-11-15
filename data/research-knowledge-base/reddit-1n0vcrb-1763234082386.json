@@ -1,0 +1,36 @@
+{
+  "finding": {
+    "findingId": "reddit-1n0vcrb-1763234082386",
+    "source": "reddit",
+    "category": "ai-agents",
+    "title": "[R] ΔAPT: critical review aimed at maximizing clinical outcomes in AI/LLM Psychotherapy",
+    "description": "Hi reddit, wanted to share my thesis on AI / LLM psychotherapy @ [https://osf.io/preprints/psyarxiv/4tmde\\_v1](https://osf.io/preprints/psyarxiv/4tmde_v1?fbclid=IwZXh0bgNhZW0CMTAAYnJpZBExNHhlVkhlWWpDVE1xN3dTeAEeoTtZ3pOVtRD7ODEFZo_qpyjjOEkW_2OFHqsH36X4xp7THoZC3F7YFDc1zJU_aem_Etq7yhCr4L3eA8v9QqrFgw)\n\nSince the rules for this subreddit require more than just a link, I thought I'd share some surprising conclusions in plain english. \n\n**1. AI therapy research tends to use arbitrary success metrics:**",
+    "data": {
+      "query": "multi-agent orchestration systems 2025",
+      "category": "ai-agents",
+      "subreddit": "MachineLearning",
+      "score": 116,
+      "numComments": 5,
+      "author": "JustinAngel",
+      "createdUtc": 1756236524,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.55,
+    "implementationSuggestion": "Evaluate agent architecture improvements for LAPA-VOID agent system",
+    "url": "https://reddit.com/r/MachineLearning/comments/1n0vcrb/r_δapt_critical_review_aimed_at_maximizing/",
+    "tags": [
+      "ai-agents",
+      "agent",
+      "orchestration",
+      "multi-agent",
+      "2025"
+    ],
+    "timestamp": "2025-11-15T19:14:42.386Z"
+  },
+  "storedAt": "2025-11-15T19:14:42.477Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T19:14:42.477Z",
+  "implementationStatus": "pending"
+}

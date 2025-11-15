@@ -223,6 +223,7 @@ export class AgentDocumentationGenerator {
       optimizer: 'The Optimizer agent improves code performance and efficiency. It analyzes bottlenecks and suggests optimizations.',
       tester: 'The Tester agent creates and executes tests to ensure code quality and reliability. It develops test cases and validates functionality.',
       researcher: 'The Researcher agent gathers information, explores documentation, and synthesizes findings to support decision making and implementation.',
+      'error-explainer': 'The Error Explainer agent (DebugSage) explains errors in plain language and provides fix suggestions. It analyzes error messages, stack traces, and code context.',
       custom: 'A Custom agent tailored for specialized tasks or workflows outside standard roles. Use for domain-specific responsibilities.',
       removable: 'A temporary agent type intended for short-lived roles. Can be added and removed dynamically based on workload.'
     };
@@ -244,6 +245,7 @@ export class AgentDocumentationGenerator {
       optimizer: 'Send performance optimization requests to this agent. It can analyze code for inefficiencies and suggest improvements.',
       tester: 'Assign test creation and execution tasks to this agent. Provide functionality specifications for comprehensive test coverage.',
       researcher: 'Delegate research tasks, documentation reviews, and competitive analysis. Provide questions or topics to investigate with desired depth.',
+      'error-explainer': 'Route error explanation requests to this agent. Provide error messages, stack traces, and code context for clear explanations and fix suggestions.',
       custom: 'Use for bespoke workflows. Clearly specify inputs, outputs, and guardrails. Ideal for domain-specific pipelines and integrations.',
       removable: 'Assign time-bound or experimental tasks. Use where elasticity is required and the agent may be taken down after completion.'
     };
@@ -265,6 +267,7 @@ export class AgentDocumentationGenerator {
       optimizer: 'Integrates with the Coder agent for performance improvements and with the Tester agent for validation.',
       tester: 'Integrates with the Coder agent for test creation and with the Debugger agent for bug reproduction.',
       researcher: 'Integrates with Planner for discovery tasks and with Coder for implementation details derived from findings.',
+      'error-explainer': 'Integrates with the Debugger agent for error analysis and with the Coder agent for fix implementation.',
       custom: 'Integrates through the MoE router with bespoke tools and pipelines defined per deployment.',
       removable: 'Integrates via lightweight registration with the router; designed for elastic scaling and ephemeral usage.'
     };

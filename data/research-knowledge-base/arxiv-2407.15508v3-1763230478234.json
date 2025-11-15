@@ -1,0 +1,44 @@
+{
+  "finding": {
+    "findingId": "arxiv-2407.15508v3-1763230478234",
+    "source": "arxiv",
+    "category": "model-quantization",
+    "title": "Compensate Quantization Errors+: Quantized Models Are Inquisitive Learners",
+    "description": "The quantization of large language models (LLMs) has been a prominent research area aimed at enabling their lightweight deployment in practice. Existing research about LLM's quantization has mainly explored the interplay between weights and activations, or employing auxiliary components while neglecting the necessity of adjusting weights during quantization. Consequently, original weight distributions frequently fail to yield desired results after round-to-nearest (RTN) quantization. Even though",
+    "data": {
+      "query": "model quantization methods",
+      "category": "model-quantization",
+      "authors": [
+        "Yifei Gao",
+        "Jie Ou",
+        "Lei Wang",
+        "Jun Cheng",
+        "Mengchu Zhou"
+      ],
+      "categories": [
+        "cs.CL",
+        "cs.AI"
+      ],
+      "published": "2024-07-22T09:45:16.000Z",
+      "updated": "2025-05-15T05:34:45.000Z",
+      "sources": [
+        "arxiv"
+      ]
+    },
+    "valuePotential": 0.2,
+    "implementationSuggestion": "Explore model quantization methods for efficiency gains",
+    "url": "http://arxiv.org/abs/2407.15508v3",
+    "tags": [
+      "model-quantization",
+      "quantization",
+      "model",
+      "cs.CL",
+      "cs.AI"
+    ],
+    "timestamp": "2025-11-15T18:14:38.234Z"
+  },
+  "storedAt": "2025-11-15T18:14:42.855Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T18:14:42.855Z",
+  "implementationStatus": "pending"
+}

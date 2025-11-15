@@ -6,19 +6,22 @@
  * and routes them to the most appropriate agent based on expertise and workload.
  */
 
+import { agl } from '../utils/agent-lightning-hooks.ts';
+import { MAEBEEvaluator } from '../orchestrator/maebe-evaluator.ts';
+import { TrustSystem, OrchestrationContext } from '../orchestrator/trust-system.ts';
+
 // Define agent types in the LAPA swarm
 export type AgentType =
-  | 'planner'         // High-level task planning and decomposition
-  | 'coder'           // Code generation and implementation
-  | 'reviewer'        // Code review and quality assurance
-  | 'debugger'        // Bug detection and fixing
-  | 'optimizer'       // Performance optimization
-  | 'tester'          // Test creation and execution
-  | 'researcher'      // Research and information gathering
-  | 'error-explainer'     // Error explanation and fix suggestions (DebugSage)
-  | 'code-smell-detector' // Code smell detection and refactoring suggestions
-  | 'custom'          // Custom agent type for specialized tasks
-  | 'removable';      // Removable agent type for temporary agents
+  | 'planner'      // High-level task planning and decomposition
+  | 'coder'        // Code generation and implementation
+  | 'reviewer'     // Code review and quality assurance
+  | 'debugger'     // Bug detection and fixing
+  | 'optimizer'    // Performance optimization
+  | 'tester'       // Test creation and execution
+  | 'researcher'   // Research and information gathering
+  | 'error-explainer'  // Error explanation and debugging assistance
+  | 'custom'       // Custom agent type for specialized tasks
+  | 'removable';   // Removable agent type for temporary agents
 
 // Define a task with its characteristics
 export interface Task {
@@ -44,6 +47,8 @@ export interface RoutingResult {
   agent: Agent;
   confidence: number;
   reasoning: string;
+  trustScore?: number;
+  trustRecommendation?: 'trust' | 'distrust' | 'cautious';
 }
 
 /**
@@ -53,18 +58,47 @@ export class MoERouter {
   private agents: Agent[] = [];
   private maxMemoryEntries: number;
   private routingMemory: Array<{ taskId: string; agentId: string; timestamp: Date }> = [];
+  private maebeEvaluator?: MAEBEEvaluator;
+  private trustSystem?: TrustSystem;
+  private enableTrustAwareRouting: boolean;
   
   /**
    * Registers an agent with the router
    * @param agent The agent to register
    */
-  constructor(maxMemoryEntries: number = 1000) {
+  constructor(
+    maxMemoryEntries: number = 1000, 
+    enableMAEBE: boolean = false,
+    trustSystem?: TrustSystem,
+    enableTrustAwareRouting: boolean = false
+  ) {
     this.maxMemoryEntries = maxMemoryEntries;
+    this.trustSystem = trustSystem;
+    this.enableTrustAwareRouting = enableTrustAwareRouting && trustSystem !== undefined;
+    
+    // Initialize MAEBE evaluator if enabled
+    if (enableMAEBE) {
+      this.maebeEvaluator = new MAEBEEvaluator({
+        enabled: true,
+        enableAgentLightningTracking: true
+      });
+    }
+
+    // Register agents with trust system if enabled
+    if (this.enableTrustAwareRouting && this.trustSystem) {
+      // Register existing agents
+      this.agents.forEach(agent => this.trustSystem!.registerAgent(agent));
+    }
   }
   
   registerAgent(agent: Agent): void {
     this.agents.push(agent);
     console.log(`Registered agent: ${agent.name} (${agent.type})`);
+    
+    // Register with trust system if enabled
+    if (this.enableTrustAwareRouting && this.trustSystem) {
+      this.trustSystem.registerAgent(agent);
+    }
   }
   
   /**
@@ -74,6 +108,11 @@ export class MoERouter {
   unregisterAgent(agentId: string): void {
     this.agents = this.agents.filter(agent => agent.id !== agentId);
     console.log(`Unregistered agent with ID: ${agentId}`);
+    
+    // Unregister from trust system if enabled
+    if (this.enableTrustAwareRouting && this.trustSystem) {
+      this.trustSystem.unregisterAgent(agentId);
+    }
   }
   
   /**
@@ -94,24 +133,145 @@ export class MoERouter {
    * @returns Routing result with selected agent and confidence
    */
   routeTask(task: Task): RoutingResult {
-    if (this.agents.length === 0) {
-      throw new Error('No agents registered with the router');
+    // Use async version if trust-aware routing is enabled
+    if (this.enableTrustAwareRouting && this.trustSystem) {
+      // For synchronous compatibility, we'll use a cached trust approach
+      // Full async trust evaluation should use routeTaskWithTrust
+      return this.routeTaskSync(task);
     }
-    
-    // Check routing memory first for recently used agents
-    const recentRouting = this.getRecentRouting(task.id);
-    if (recentRouting) {
-      const agent = this.agents.find(a => a.id === recentRouting.agentId);
-      if (agent && agent.workload < agent.capacity) {
-        return {
-          agent,
-          confidence: 0.9,
-          reasoning: 'Using recent routing decision'
-        };
+    return this.routeTaskSync(task);
+  }
+
+  /**
+   * Routes a task with trust-aware evaluation (async)
+   * @param task The task to route
+   * @returns Routing result with selected agent, confidence, and trust information
+   */
+  async routeTaskWithTrust(task: Task): Promise<RoutingResult> {
+    if (!this.trustSystem) {
+      // Fallback to sync routing if trust system not available
+      return this.routeTaskSync(task);
+    }
+
+    const spanId = agl.emitSpan('moe.router.route_trust', {
+      taskId: task.id,
+      taskType: task.type,
+      priority: task.priority
+    });
+
+    try {
+      if (this.agents.length === 0) {
+        agl.endSpan(spanId, 'error', { error: 'No agents registered' });
+        throw new Error('No agents registered with the router');
       }
+
+      // Get trust-ranked agents
+      const trustRanking = await this.trustSystem.rankAgentsByTrust(
+        this.agents,
+        task
+      );
+
+      // Filter agents by capacity and trust
+      const availableAgents = trustRanking.agents.filter(a => 
+        a.agent.workload < a.agent.capacity &&
+        a.trustEvaluation.recommendation !== 'distrust'
+      );
+
+      if (availableAgents.length === 0) {
+        // Fallback to sync routing if no trusted agents available
+        console.warn('No trusted agents available, falling back to standard routing');
+        return this.routeTaskSync(task);
+      }
+
+      // Select top trusted agent
+      const selected = availableAgents[0];
+      const trustEvaluation = selected.trustEvaluation;
+
+      // Calculate combined score (trust + expertise + workload)
+      const expertiseScore = this.calculateExpertiseMatch(task, selected.agent);
+      const workloadFactor = 1 - (selected.agent.workload / selected.agent.capacity);
+      
+      // Combine: trust 30%, expertise 50%, workload 20%
+      const totalScore = (
+        trustEvaluation.trustScore * 0.3 +
+        expertiseScore * 0.5 +
+        workloadFactor * 0.2
+      );
+
+      const result: RoutingResult = {
+        agent: selected.agent,
+        confidence: Math.min(totalScore, 1.0),
+        reasoning: `Trust-aware routing: ${trustEvaluation.reasoning}. Expertise: ${(expertiseScore * 100).toFixed(0)}%, Workload: ${(workloadFactor * 100).toFixed(0)}%`,
+        trustScore: trustEvaluation.trustScore,
+        trustRecommendation: trustEvaluation.recommendation
+      };
+
+      // Record routing decision
+      this.recordRoutingDecision(task.id, selected.agent.id);
+
+      agl.emitMetric('moe.router.trust_routing', {
+        taskId: task.id,
+        agentId: selected.agent.id,
+        trustScore: trustEvaluation.trustScore,
+        confidence: result.confidence
+      });
+
+      agl.endSpan(spanId, 'success', {
+        agentId: selected.agent.id,
+        agentType: selected.agent.type,
+        confidence: result.confidence,
+        trustScore: trustEvaluation.trustScore
+      });
+
+      return result;
+    } catch (error) {
+      agl.endSpan(spanId, 'error', {
+        error: error instanceof Error ? error.message : String(error)
+      });
+      // Fallback to sync routing on error
+      return this.routeTaskSync(task);
     }
+  }
+
+  /**
+   * Synchronous routing (original implementation)
+   * @param task The task to route
+   * @returns Routing result with selected agent and confidence
+   */
+  private routeTaskSync(task: Task): RoutingResult {
+    // Track task routing with Agent Lightning
+    const spanId = agl.emitSpan('moe.router.route', {
+      taskId: task.id,
+      taskType: task.type,
+      priority: task.priority
+    });
+
+    try {
+      if (this.agents.length === 0) {
+        agl.endSpan(spanId, 'error', { error: 'No agents registered' });
+        throw new Error('No agents registered with the router');
+      }
+      
+      // Check routing memory first for recently used agents
+      const recentRouting = this.getRecentRouting(task.id);
+      if (recentRouting) {
+        const agent = this.agents.find(a => a.id === recentRouting.agentId);
+        if (agent && agent.workload < agent.capacity) {
+          const result = {
+            agent,
+            confidence: 0.9,
+            reasoning: 'Using recent routing decision'
+          };
+          agl.endSpan(spanId, 'success', {
+            agentId: agent.id,
+            agentType: agent.type,
+            confidence: 0.9
+          });
+          return result;
+        }
+      }
     
-    // Calculate suitability scores for each agent
+      // Calculate suitability scores for each agent
     const scores = this.agents.map(agent => {
       // Skip agents at full capacity
       if (agent.workload >= agent.capacity) {
@@ -124,8 +284,29 @@ export class MoERouter {
       // Calculate workload factor (0-1, higher = less loaded)
       const workloadFactor = 1 - (agent.workload / agent.capacity);
       
-      // Combine scores with weights
-      const totalScore = (expertiseScore * 0.8) + (workloadFactor * 0.2);
+      // Calculate MAEBE emergent behavior score (if enabled)
+      // Note: MAEBE evaluation is async, so we use cached scores or default
+      // For full integration, consider making routeTask async or use cached scores
+      let maebeScore = 1.0; // Default: no risk
+      if (this.maebeEvaluator) {
+        try {
+          // Use cached behavior history for synchronous scoring
+          // Full async evaluation would require making routeTask async
+          const agentBehaviors = (this.maebeEvaluator as any).behaviorHistory?.get(agent.id);
+          if (agentBehaviors && agentBehaviors.length > 0) {
+            // Calculate average severity and invert for score (higher severity = lower score)
+            const avgSeverity = agentBehaviors.reduce((sum: number, b: any) => sum + b.severity, 0) / agentBehaviors.length;
+            maebeScore = Math.max(0, 1.0 - avgSeverity);
+          }
+        } catch (maebeError) {
+          console.warn('MAEBE score calculation failed, using default:', maebeError);
+          maebeScore = 1.0;
+        }
+      }
+      
+      // Combine scores with weights: expertise 70%, workload 20%, MAEBE 10%
+      // If trust-aware routing is enabled but we're in sync mode, trust is not included
+      const totalScore = (expertiseScore * 0.7) + (workloadFactor * 0.2) + (maebeScore * 0.1);
       
       return {
         agent,
@@ -140,11 +321,18 @@ export class MoERouter {
     if (validScores.length === 0) {
       // All agents at full capacity, select the one with lowest workload
       const leastLoaded = [...this.agents].sort((a, b) => a.workload - b.workload)[0];
-      return {
+      const result = {
         agent: leastLoaded,
         confidence: 0.3,
         reasoning: 'All agents at capacity, selecting least loaded agent'
       };
+      agl.endSpan(spanId, 'success', {
+        agentId: leastLoaded.id,
+        agentType: leastLoaded.type,
+        confidence: 0.3,
+        warning: 'All agents at capacity'
+      });
+      return result;
     }
     
     // Log scores for debugging
@@ -186,12 +374,27 @@ export class MoERouter {
     
     // Record routing decision for memory
     this.recordRoutingDecision(task.id, bestMatch.agent.id);
-    
-    return {
+
+    const result = {
       agent: bestMatch.agent,
       confidence,
       reasoning: bestMatch.reasoning
     };
+
+      // Track successful routing
+      agl.endSpan(spanId, 'success', {
+        agentId: bestMatch.agent.id,
+        agentType: bestMatch.agent.type,
+        confidence
+      });
+      
+      return result;
+    } catch (error) {
+      agl.endSpan(spanId, 'error', {
+        error: error instanceof Error ? error.message : String(error)
+      });
+      throw error;
+    }
   }
   
   /**
@@ -227,6 +430,29 @@ export class MoERouter {
    */
   getAgents(): Agent[] {
     return [...this.agents];
+  }
+
+  /**
+   * Gets registered agents (alias for getAgents for compatibility)
+   * @returns Array of registered agents
+   */
+  getRegisteredAgents(): Agent[] {
+    return this.getAgents();
+  }
+
+  /**
+   * Sets trust system for trust-aware routing
+   * @param trustSystem The trust system to use
+   * @param enable Whether to enable trust-aware routing
+   */
+  setTrustSystem(trustSystem: TrustSystem, enable: boolean = true): void {
+    this.trustSystem = trustSystem;
+    this.enableTrustAwareRouting = enable;
+    
+    // Register all existing agents with trust system
+    if (enable) {
+      this.agents.forEach(agent => trustSystem.registerAgent(agent));
+    }
   }
   
   /**

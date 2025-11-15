@@ -129,7 +129,7 @@ export class CodeSmellDetector extends BaseAgentTool {
         // Match numeric literals that aren't 0, 1, or -1
         const magicNumberRegex = /\b([2-9]|\d{2,})\b/g;
         const matches = code.match(magicNumberRegex);
-        return matches && matches.length > 3;
+        return !!(matches && matches.length > 3);
       },
       description: 'Code contains magic numbers without named constants',
       suggestion: 'Replace with named constants or configuration values'
@@ -179,7 +179,7 @@ export class CodeSmellDetector extends BaseAgentTool {
       detect: (code: string, language: string) => {
         // Check for commented-out code blocks
         const commentedBlocks = code.match(/\/\*[\s\S]{50,}\*\//g);
-        return commentedBlocks && commentedBlocks.length > 2;
+        return !!(commentedBlocks && commentedBlocks.length > 2);
       },
       description: 'Code contains commented-out or unused code',
       suggestion: 'Remove dead code or use version control for history'
@@ -598,8 +598,7 @@ export class CodeSmellDetector extends BaseAgentTool {
             smellType: smell.type,
             severity: smell.severity,
             filePath
-          },
-          timestamp: Date.now()
+          }
         });
       }
     } catch (error) {

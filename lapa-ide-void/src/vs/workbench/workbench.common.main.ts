@@ -12,8 +12,8 @@ import './browser/workbench.contribution.js';
 
 //#endregion
 
-//#region --- Void
-import './contrib/void/browser/void.contribution.js'; // Void added this
+//#region --- LAPA
+import './contrib/lapa/browser/lapa.contribution.js'; // LAPA added this
 //#endregion
 
 //#region --- workbench actions

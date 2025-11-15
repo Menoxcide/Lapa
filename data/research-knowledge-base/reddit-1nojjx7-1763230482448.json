@@ -1,0 +1,35 @@
+{
+  "finding": {
+    "findingId": "reddit-1nojjx7-1763230482448",
+    "source": "reddit",
+    "category": "continuous-learning",
+    "title": "Scaling Agents via Continual Pre-training : AgentFounder-30B (Tongyi DeepResearch)",
+    "description": "Most open-source “agents” today are just general LLMs with some post-training on tool-use demos. That creates a conflict: the model has to learn agent skills and align to expert behavior at the same time, which caps performance.\n\nThe paper *Scaling Agents via Continual Pre-training* (Alibaba, 2025) proposes **Agentic Continual Pre-training (CPT)** as a fix. Instead of skipping straight from pre-training → post-training, they add an intermediate stage where the model is continually pre-trained on",
+    "data": {
+      "query": "continuous learning agents",
+      "category": "continuous-learning",
+      "subreddit": "LocalLLaMA",
+      "score": 18,
+      "numComments": 2,
+      "author": "Technical-Love-8479",
+      "createdUtc": 1758639241,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.05,
+    "implementationSuggestion": "Review continuous learning approaches for agent adaptation",
+    "url": "https://reddit.com/r/LocalLLaMA/comments/1nojjx7/scaling_agents_via_continual_pretraining/",
+    "tags": [
+      "continuous-learning",
+      "agent",
+      "continuous",
+      "learning"
+    ],
+    "timestamp": "2025-11-15T18:14:42.448Z"
+  },
+  "storedAt": "2025-11-15T18:14:42.678Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T18:14:42.678Z",
+  "implementationStatus": "pending"
+}

@@ -91,6 +91,8 @@ const requiredCommands = [
   'lapa.settings.open',
   'lapa.marketplace.open',
   'lapa.dashboard.open',
+  'lapa.roi.open',
+  'lapa.taskHistory.open',
 ];
 
 requiredCommands.forEach(commandId => {
@@ -154,21 +156,30 @@ requiredViews.forEach(viewId => {
 // Validate UI components accessibility
 console.log('🔍 Validating UI Components...');
 const uiComponents = [
-  { path: 'SwarmView.tsx', name: 'SwarmView', accessible: true },
-  { path: 'Dashboard.tsx', name: 'Dashboard', accessible: false },
-  { path: 'SettingsPanel.tsx', name: 'SettingsPanel', accessible: false },
-  { path: 'McpMarketplace.tsx', name: 'MCP Marketplace', accessible: false },
-  { path: 'ROIWidget.tsx', name: 'ROI Widget', accessible: false },
-  { path: 'TaskHistory.tsx', name: 'Task History', accessible: false },
+  { path: 'SwarmView.tsx', name: 'SwarmView', accessible: true, command: 'lapa.swarm.start' },
+  { path: 'Dashboard.tsx', name: 'Dashboard', accessible: true, command: 'lapa.dashboard.open' },
+  { path: 'SettingsPanel.tsx', name: 'SettingsPanel', accessible: true, command: 'lapa.settings.open' },
+  { path: 'McpMarketplace.tsx', name: 'MCP Marketplace', accessible: true, command: 'lapa.marketplace.open' },
+  { path: 'ROIWidget.tsx', name: 'ROI Widget', accessible: true, command: 'lapa.roi.open' },
+  { path: 'TaskHistory.tsx', name: 'Task History', accessible: true, command: 'lapa.taskHistory.open' },
 ];
 
 uiComponents.forEach(component => {
   const exists = checkUIComponent(component.path);
-  if (exists && component.accessible) {
+  const hasCommand = component.command ? checkCommandInPackageJson(component.command) : false;
+  
+  if (exists && component.accessible && hasCommand) {
     results.push({
       feature: `UI Component: ${component.name}`,
       status: '✅ PASS',
-      details: 'Component exists and is accessible from views'
+      details: `Component exists, accessible via command '${component.command}', and integrated into webview entry`
+    });
+  } else if (exists && component.accessible && !hasCommand) {
+    results.push({
+      feature: `UI Component: ${component.name}`,
+      status: '⚠️ WARNING',
+      details: 'Component exists and marked accessible but command may be missing',
+      recommendation: component.command ? `Ensure command '${component.command}' is registered` : 'Add command to access this component'
     });
   } else if (exists && !component.accessible) {
     results.push({
@@ -189,28 +200,7 @@ uiComponents.forEach(component => {
 
 // Check for missing commands that might be needed
 console.log('🔍 Checking for Missing Commands...');
-// Check for additional optional commands
-const optionalCommands = [
-  { id: 'lapa.taskHistory.open', name: 'Open Task History', exists: checkCommandInPackageJson('lapa.taskHistory.open') },
-  { id: 'lapa.roi.open', name: 'Open ROI Widget', exists: checkCommandInPackageJson('lapa.roi.open') },
-];
-
-optionalCommands.forEach(cmd => {
-  if (!cmd.exists) {
-    results.push({
-      feature: `Optional Command: ${cmd.name}`,
-      status: '⚠️ WARNING',
-      details: `Command '${cmd.id}' not found - optional feature`,
-      recommendation: `Consider adding command '${cmd.id}' to access ${cmd.name} component`
-    });
-  } else {
-    results.push({
-      feature: `Optional Command: ${cmd.name}`,
-      status: '✅ PASS',
-      details: `Command '${cmd.id}' registered and available`
-    });
-  }
-});
+// Additional commands are now part of required commands list above
 
 // Check integrations
 console.log('🔍 Validating Integrations...');

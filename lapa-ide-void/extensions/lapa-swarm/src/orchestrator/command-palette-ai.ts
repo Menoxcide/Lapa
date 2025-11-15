@@ -530,11 +530,13 @@ export async function searchCommands(query: string, limit: number = 10): Promise
   const context: AgentToolExecutionContext = {
     taskId: `search-${Date.now()}`,
     agentId: 'command-palette-ai',
+    toolName: 'command-search',
     parameters: {
       action: 'search',
       query,
       limit
-    }
+    },
+    context: {}
   };
 
   const result = await ai.execute(context);
@@ -553,10 +555,12 @@ export async function suggestCommand(query: string): Promise<{ command: CommandM
   const context: AgentToolExecutionContext = {
     taskId: `suggest-${Date.now()}`,
     agentId: 'command-palette-ai',
+    toolName: 'command-suggest',
     parameters: {
       action: 'suggest',
       query
-    }
+    },
+    context: {}
   };
 
   const result = await ai.execute(context);

@@ -1648,7 +1648,7 @@ declare module 'vscode' {
 		/**
 		 * An {@link Event} which fires upon cancellation.
 		 */
-		onCancellationRequested: Event<any>;
+		readonly onCancellationRequested: Event<any>;
 	}
 
 	/**
@@ -8585,7 +8585,7 @@ declare module 'vscode' {
 		/**
 		 * Fires when a secret is stored or deleted.
 		 */
-		onDidChange: Event<SecretStorageChangeEvent>;
+		readonly onDidChange: Event<SecretStorageChangeEvent>;
 	}
 
 	/**

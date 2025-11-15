@@ -1,7 +1,7 @@
 {
   "name": "lapa-brain",
   "displayName": "LAPA Brain Extension",
-  "description": "LAPA Core extracted as a VoidChassis extension (Phase 2 ExtractPurity)",
+  "description": "LAPA Core extension for LAPA IDE (Phase 2 ExtractPurity)",
     "version": "1.0.0",
   "publisher": "LAPA",
   "license": "MIT",
@@ -133,6 +133,18 @@
         "title": "LAPA: Open Dashboard",
         "category": "LAPA Swarm",
         "icon": "$(dashboard)"
+      },
+      {
+        "command": "lapa.roi.open",
+        "title": "LAPA: Open ROI Widget",
+        "category": "LAPA Swarm",
+        "icon": "$(graph)"
+      },
+      {
+        "command": "lapa.taskHistory.open",
+        "title": "LAPA: Open Task History",
+        "category": "LAPA Swarm",
+        "icon": "$(history)"
       }
     ],
     "keybindings": [

@@ -1,0 +1,48 @@
+id: webapp-testing
+name: Webapp Testing
+description: Automated UI regression testing with Playwright for web applications
+version: 1.0.0
+author: LAPA Team
+category: test
+inputs:
+  - name: url
+    type: string
+    required: true
+    description: URL of the web application to test
+  - name: testType
+    type: string
+    required: false
+    description: Type of test (regression, screenshot, accessibility, performance)
+  - name: selectors
+    type: array
+    required: false
+    description: CSS selectors to test
+  - name: baselineName
+    type: string
+    required: false
+    description: Baseline name for comparison
+  - name: viewport
+    type: object
+    required: false
+    description: Viewport configuration (width, height)
+outputs:
+  - name: success
+    type: boolean
+    description: Whether tests passed
+  - name: testResults
+    type: array
+    description: Array of test results
+  - name: screenshots
+    type: array
+    description: Array of screenshot paths
+  - name: reportPath
+    type: string
+    description: Path to test report
+dependencies: []
+tags:
+  - playwright
+  - testing
+  - ui
+  - regression
+  - automation
+

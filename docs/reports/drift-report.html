@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LAPA Code Drift Report</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    h1 {
+      color: #333;
+      border-bottom: 3px solid #007acc;
+      padding-bottom: 10px;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin: 20px 0;
+    }
+    .stat-card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .stat-card h3 {
+      margin: 0 0 10px 0;
+      color: #666;
+      font-size: 14px;
+      text-transform: uppercase;
+    }
+    .stat-card .value {
+      font-size: 32px;
+      font-weight: bold;
+      color: #007acc;
+    }
+    .stat-card.warning .value {
+      color: #ff9800;
+    }
+    .stat-card.error .value {
+      color: #f44336;
+    }
+    .stat-card.success .value {
+      color: #4caf50;
+    }
+    .section {
+      background: white;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .section h2 {
+      margin-top: 0;
+      color: #333;
+    }
+    .file-list {
+      list-style: none;
+      padding: 0;
+    }
+    .file-list li {
+      padding: 8px;
+      margin: 4px 0;
+      background: #f9f9f9;
+      border-left: 3px solid #007acc;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+    }
+    .file-list li.different {
+      border-left-color: #ff9800;
+    }
+    .file-list li.missing {
+      border-left-color: #f44336;
+    }
+    .timestamp {
+      color: #666;
+      font-size: 12px;
+      margin-top: 20px;
+    }
+    .summary {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+    .summary.warning {
+      background: #fff3cd;
+      border-color: #ffc107;
+    }
+    .summary.error {
+      background: #f8d7da;
+      border-color: #f44336;
+    }
+    .summary.success {
+      background: #d4edda;
+      border-color: #4caf50;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔍 LAPA Code Drift Report</h1>
+  
+  <div class="timestamp">Generated: 2025-11-15T21:07:42.147Z</div>
+
+  <div class="stats">
+    <div class="stat-card success">
+      <h3>Sync Percentage</h3>
+      <div class="value">100.00%</div>
+    </div>
+    <div class="stat-card">
+      <h3>Core Files</h3>
+      <div class="value">412</div>
+    </div>
+    <div class="stat-card">
+      <h3>IDE Files</h3>
+      <div class="value">412</div>
+    </div>
+    <div class="stat-card success">
+      <h3>Drift Issues</h3>
+      <div class="value">0</div>
+    </div>
+  </div>
+
+  
+  <div class="summary success">
+    <strong>✅ No Drift Detected!</strong>
+    <p>All tracked files are in sync between core and IDE integration.</p>
+  </div>
+  
+
+  
+
+  
+
+  
+
+  
+  <div class="section">
+    <h2>✅ Files in Sync (412)</h2>
+    <p>These files are identical in both locations:</p>
+    <details>
+      <summary>Click to expand (412 files)</summary>
+      <ul class="file-list">
+        <li>agents/agent-mode-extension.ts</li>
+<li>agents/agent.md.generator.ts</li>
+<li>agents/feature-sandbox.index.ts</li>
+<li>agents/feature-sandbox.manager.ts</li>
+<li>agents/feature-sandbox.tool.ts</li>
+<li>agents/filesystem-persona-loader.ts</li>
+<li>agents/hybrid-persona-generator.ts</li>
+<li>agents/moe-router.ts</li>
+<li>agents/persona-auto-generator.ts</li>
+<li>agents/persona-bridge.ts</li>
+<li>agents/persona-markdown-parser.ts</li>
+<li>agents/persona-toon-optimizer.ts</li>
+<li>agents/persona.manager.ts</li>
+<li>agents/ray-parallel.ts</li>
+<li>agents/researcher.ts</li>
+<li>agents/tester.ts</li>
+<li>communication/madrl-communicator.ts</li>
+<li>coordination/conventions.ts</li>
+<li>core/ag-ui.ts</li>
+<li>core/agent-tool.ts</li>
+<li>core/agents/coder-wrapper.ts</li>
+<li>core/agents/compatibility-layer.ts</li>
+<li>core/agents/index.ts</li>
+<li>core/agents/multimodal/index.ts</li>
+<li>core/agents/researcher-wrapper.ts</li>
+<li>core/agents/tester-wrapper.ts</li>
+<li>core/event-bus.ts</li>
+<li>core/index.ts</li>
+<li>core/optimizations/caching.ts</li>
+<li>core/optimizations/event-pipeline.ts</li>
+<li>core/optimizations/mode-switching.ts</li>
+<li>core/optimizations/tool-execution.ts</li>
+<li>core/repo-rules.ts</li>
+<li>core/sandbox-manager.ts</li>
+<li>core/sandbox-tool.ts</li>
+<li>core/sandbox.index.ts</li>
+<li>core/types/agent-types.ts</li>
+<li>core/types/event-types.ts</li>
+<li>core/types/sandbox-types.ts</li>
+<li>core/utils/event-router.ts</li>
+<li>core/utils/tool-executor.ts</li>
+<li>core/yaml-agent-loader.ts</li>
+<li>DIRECTIONS.md</li>
+<li>generate-phase.js</li>
+<li>index.ts</li>
+<li>inference/manager.ts</li>
+<li>inference/nim.local.ts</li>
+<li>inference/ollama.local.ts</li>
+<li>local/episodic.ts</li>
+<li>local/index.ts</li>
+<li>local/llama-cpp-adapter.ts</li>
+<li>local/memori-engine.ts</li>
+<li>local/memori-sqlite.ts</li>
+<li>local/memory-unlock.ts</li>
+<li>local/nim-integration.ts</li>
+<li>local/ollama-compatibility.ts</li>
+<li>local/recall-metrics.ts</li>
+<li>local/resource-manager.ts</li>
+<li>marketplace/cursor.ts</li>
+<li>marketplace/index.ts</li>
+<li>marketplace/registry.ts</li>
+<li>mcp/cli.ts</li>
+<li>mcp/ctx-zip.integration.ts</li>
+<li>mcp/ctx-zip.mock.ts</li>
+<li>mcp/mcp-benchmarker.ts</li>
+<li>mcp/mcp-connector.ts</li>
+<li>mcp/mcp-security.ts</li>
+<li>mcp/mcp-versioning.ts</li>
+<li>mcp/scaffolding.ts</li>
+<li>mcp/servers/agent-coordination-mcp-server.ts</li>
+<li>mcp/servers/code-analysis-mcp-server.ts</li>
+<li>mcp/servers/index.ts</li>
+<li>mcp/servers/memory-mcp-server.ts</li>
+<li>modeling/dynamic-abstraction.ts</li>
+<li>modeling/dynamic-refinement.ts</li>
+<li>modeling/irm4mls-meta-model.ts</li>
+<li>modes/hooks/agent-adaptation.ts</li>
+<li>modes/modes.ts</li>
+<li>modes/types/mode-types.ts</li>
+<li>modes/utils/mode-transition.ts</li>
+<li>multimodal/advanced-voice-agent.ts</li>
+<li>multimodal/artifacts-builder-tool.ts</li>
+<li>multimodal/artifacts-builder.ts</li>
+<li>multimodal/index.ts</li>
+<li>multimodal/tts-stt.ts</li>
+<li>multimodal/types/index.ts</li>
+<li>multimodal/types.ts</li>
+<li>multimodal/utils/context-handler.ts</li>
+<li>multimodal/utils/event-publisher.ts</li>
+<li>multimodal/utils/index.ts</li>
+<li>multimodal/utils/voice-utils.ts</li>
+<li>multimodal/vision-agent-tool.ts</li>
+<li>multimodal/vision-agent-wrapper.ts</li>
+<li>multimodal/vision-agent.ts</li>
+<li>multimodal/vision-voice.ts</li>
+<li>multimodal/voice-agent-example.ts</li>
+<li>multimodal/voice-agent-tool.ts</li>
+<li>multimodal/voice-agent-wrapper.ts</li>
+<li>multimodal/voice-agent.ts</li>
+<li>multimodal/voice-command-parser.ts</li>
+        <li><em>... and 312 more files</em></li>
+      </ul>
+    </details>
+  </div>
+  
+</body>
+</html>
