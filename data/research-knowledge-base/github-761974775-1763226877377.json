@@ -1,0 +1,36 @@
+{
+  "finding": {
+    "findingId": "github-761974775-1763226877377",
+    "source": "github",
+    "category": "orchestration",
+    "title": "openai/swarm",
+    "description": "Educational framework exploring ergonomic, lightweight multi-agent orchestration. Managed by OpenAI Solution team.",
+    "data": {
+      "query": "agent orchestration frameworks",
+      "category": "orchestration",
+      "stars": 20612,
+      "forks": 2210,
+      "language": "Python",
+      "topics": [],
+      "createdAt": "2024-02-22T20:53:54.000Z",
+      "updatedAt": "2025-11-15T12:00:18.000Z",
+      "owner": "openai",
+      "sources": [
+        "github"
+      ]
+    },
+    "valuePotential": 0.4,
+    "implementationSuggestion": "Review orchestration patterns for potential NEURAFORGE enhancements",
+    "url": "https://github.com/openai/swarm",
+    "tags": [
+      "orchestration",
+      "agent",
+      "Python"
+    ],
+    "timestamp": "2025-11-15T17:14:37.377Z"
+  },
+  "storedAt": "2025-11-15T17:14:42.743Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T17:14:42.743Z",
+  "implementationStatus": "pending"
+}

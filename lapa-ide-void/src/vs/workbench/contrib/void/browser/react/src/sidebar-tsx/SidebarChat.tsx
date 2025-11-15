@@ -33,6 +33,20 @@ import { RawToolCallObj } from '../../../../common/sendLLMMessageTypes.js';
 import ErrorBoundary from './ErrorBoundary.js';
 import { ToolApprovalTypeSwitch } from '../void-settings-tsx/Settings.js';
 
+// LAPA Chat UI Components - try to import from extension, fallback to inline if not available
+let ChatInputToolbar: any = null;
+let ProviderType: any = null;
+try {
+	// Try to import from lapa-swarm extension
+	const lapaComponents = require('../../../../../../extensions/lapa-swarm/src/ui/components/ChatInputToolbar.js');
+	ChatInputToolbar = lapaComponents.ChatInputToolbar;
+	const providerSwitcher = require('../../../../../../extensions/lapa-swarm/src/ui/components/ProviderSwitcher.js');
+	ProviderType = providerSwitcher.ProviderType;
+} catch (e) {
+	// Components not available, will create inline fallback
+	console.warn('[SidebarChat] LAPA components not available, using fallback');
+}
+
 import { persistentTerminalNameOfId } from '../../../terminalToolService.js';
 import { removeMCPToolNamePrefix } from '../../../../common/mcpServiceTypes.js';
 
@@ -317,6 +331,9 @@ interface VoidChatAreaProps {
 	onClose?: () => void;
 
 	featureName: FeatureName;
+	
+	// Optional toolbar content (e.g., enhance prompt button, provider switcher)
+	bottomToolbar?: React.ReactNode;
 }
 
 export const VoidChatArea: React.FC<VoidChatAreaProps> = ({
@@ -336,6 +353,7 @@ export const VoidChatArea: React.FC<VoidChatAreaProps> = ({
 	setSelections,
 	featureName,
 	loadingIcon,
+	bottomToolbar,
 }) => {
 	return (
 		<div
@@ -382,16 +400,22 @@ export const VoidChatArea: React.FC<VoidChatAreaProps> = ({
 
 			{/* Bottom row */}
 			<div className='flex flex-row justify-between items-end gap-1'>
-				{showModelDropdown && (
-					<div className='flex flex-col gap-y-1'>
-						<ReasoningOptionSlider featureName={featureName} />
-
-						<div className='flex items-center flex-wrap gap-x-2 gap-y-1 text-nowrap '>
-							{featureName === 'Chat' && <ChatModeDropdown className='text-xs text-void-fg-3 bg-void-bg-1 border border-void-border-2 rounded py-0.5 px-1' />}
-							<ModelDropdown featureName={featureName} className='text-xs text-void-fg-3 bg-void-bg-1 rounded' />
+				<div className='flex flex-col gap-y-1 flex-1'>
+					{showModelDropdown && (
+						<>
+							<ReasoningOptionSlider featureName={featureName} />
+							<div className='flex items-center flex-wrap gap-x-2 gap-y-1 text-nowrap '>
+								{featureName === 'Chat' && <ChatModeDropdown className='text-xs text-void-fg-3 bg-void-bg-1 border border-void-border-2 rounded py-0.5 px-1' />}
+								<ModelDropdown featureName={featureName} className='text-xs text-void-fg-3 bg-void-bg-1 rounded' />
+							</div>
+						</>
+					)}
+					{bottomToolbar && (
+						<div className='mt-1'>
+							{bottomToolbar}
 						</div>
-					</div>
-				)}
+					)}
+				</div>
 
 				<div className="flex items-center gap-2">
 
@@ -2912,6 +2936,32 @@ export const SidebarChat = () => {
 	// state of current message
 	const initVal = ''
 	const [instructionsAreEmpty, setInstructionsAreEmpty] = useState(!initVal)
+	const [currentPrompt, setCurrentPrompt] = useState('')
+	
+	// Load initial provider from settings, default to 'ollama'
+	const [currentProvider, setCurrentProvider] = useState<'ollama' | 'nim' | 'cloud'>(() => {
+		try {
+			// Try to get from settings state, default to 'ollama'
+			const provider = (settingsState as any)?.inference?.provider || 'ollama'
+			// Map 'auto' to 'ollama' for UI display
+			return provider === 'auto' ? 'ollama' : (provider as 'ollama' | 'nim' | 'cloud')
+		} catch {
+			return 'ollama'
+		}
+	})
+	
+	// Load provider from settings on mount and when settings change
+	useEffect(() => {
+		try {
+			const provider = (settingsState as any)?.inference?.provider || 'ollama'
+			const mappedProvider = provider === 'auto' ? 'ollama' : (provider as 'ollama' | 'nim' | 'cloud')
+			if (mappedProvider !== currentProvider) {
+				setCurrentProvider(mappedProvider)
+			}
+		} catch (error) {
+			console.error('[SidebarChat] Failed to load provider from settings:', error)
+		}
+	}, [settingsState, currentProvider])
 
 	const isDisabled = instructionsAreEmpty || !!isFeatureNameDisabled('Chat', settingsState)
 
@@ -3054,6 +3104,7 @@ export const SidebarChat = () => {
 
 	const onChangeText = useCallback((newStr: string) => {
 		setInstructionsAreEmpty(!newStr)
+		setCurrentPrompt(newStr)
 	}, [setInstructionsAreEmpty])
 	const onKeyDown = useCallback((e: KeyboardEvent<HTMLTextAreaElement>) => {
 		if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
@@ -3062,6 +3113,39 @@ export const SidebarChat = () => {
 			onAbort()
 		}
 	}, [onSubmit, onAbort, isRunning])
+
+	// Handle enhanced prompt
+	const handleEnhanced = useCallback((enhanced: string) => {
+		if (textAreaFnsRef.current) {
+			textAreaFnsRef.current.setValue(enhanced)
+			setCurrentPrompt(enhanced)
+			setInstructionsAreEmpty(false)
+		}
+	}, [])
+
+	// Handle provider change
+	const handleProviderChange = useCallback(async (provider: 'ollama' | 'nim' | 'cloud') => {
+		setCurrentProvider(provider)
+		// Call the extension command to switch provider
+		try {
+			await commandService.executeCommand('lapa.switchProvider', provider)
+		} catch (error) {
+			console.error('[SidebarChat] Failed to switch provider:', error)
+		}
+	}, [commandService])
+
+	// Create toolbar component
+	const toolbarContent = ChatInputToolbar ? (
+		<ChatInputToolbar
+			currentPrompt={currentPrompt}
+			currentProvider={currentProvider}
+			onEnhanced={handleEnhanced}
+			onProviderChange={handleProviderChange}
+			disabled={isDisabled}
+			showEnhanceButton={true}
+			showProviderSwitcher={true}
+		/>
+	) : null
 
 	const inputChatArea = <VoidChatArea
 		featureName='Chat'
@@ -3074,6 +3158,7 @@ export const SidebarChat = () => {
 		selections={selections}
 		setSelections={setSelections}
 		onClickAnywhere={() => { textAreaRef.current?.focus() }}
+		bottomToolbar={toolbarContent}
 	>
 		<VoidInputBox2
 			enableAtToMention

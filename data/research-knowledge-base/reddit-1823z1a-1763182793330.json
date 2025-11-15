@@ -1,0 +1,35 @@
+{
+  "finding": {
+    "findingId": "reddit-1823z1a-1763182793330",
+    "source": "reddit",
+    "category": "continuous-learning",
+    "title": "A deeper look at the Q* Model as a combination of A* algorithms and Deep Q-learning networks.",
+    "description": "Hey, folks! Buckle up because the recent buzz in the AI sphere has been nothing short of an intense rollercoaster. Rumors about a groundbreaking AI, enigmatically named Q\\* (pronounced Q-Star), have been making waves, closely tied to a chaotic series of events that rocked OpenAI and came to light after the [abrupt firing of their CEO](https://edition.cnn.com/2023/11/17/tech/sam-altman-departs-open-ai/index.html) \\- Sam Altman ( [u/samaltman](https://www.reddit.com/u/samaltman/) **)**.\n\nThere are",
+    "data": {
+      "query": "continuous learning agents",
+      "category": "continuous-learning",
+      "subreddit": "ChatGPT",
+      "score": 858,
+      "numComments": 160,
+      "author": "Ok-Judgment-1181",
+      "createdUtc": 1700754320,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.15000000000000002,
+    "implementationSuggestion": "Review continuous learning approaches for agent adaptation",
+    "url": "https://reddit.com/r/ChatGPT/comments/1823z1a/a_deeper_look_at_the_q_model_as_a_combination_of/",
+    "tags": [
+      "continuous-learning",
+      "agent",
+      "continuous",
+      "learning"
+    ],
+    "timestamp": "2025-11-15T04:59:53.330Z"
+  },
+  "storedAt": "2025-11-15T04:59:53.535Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T04:59:53.535Z",
+  "implementationStatus": "pending"
+}

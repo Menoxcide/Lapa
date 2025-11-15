@@ -1,0 +1,38 @@
+{
+  "finding": {
+    "findingId": "arxiv-1808.06100v6-1763186389172",
+    "source": "arxiv",
+    "category": "inference-optimization",
+    "title": "On the solution existence and stability of polynomial optimization problems",
+    "description": "This paper introduces and investigates a regularity condition in the asymptotic sense for optimization problems whose objective functions are polynomial. Under this regularity condition, the normalization argument in asymptotic analysis enables us to see the solution existence as well as the solution stability of these problems. We prove a Frank-Wolfe type theorem for regular optimization problems and an Eaves type theorem for non-regular pseudoconvex optimization problems. Moreover, we show res",
+    "data": {
+      "query": "inference optimization techniques",
+      "category": "inference-optimization",
+      "authors": [
+        "Vu Trung Hieu"
+      ],
+      "categories": [
+        "math.OC"
+      ],
+      "published": "2018-08-18T16:27:40.000Z",
+      "updated": "2021-08-09T23:00:55.000Z",
+      "sources": [
+        "arxiv"
+      ]
+    },
+    "valuePotential": 0.2,
+    "implementationSuggestion": "Review inference optimization techniques for performance improvements",
+    "url": "http://arxiv.org/abs/1808.06100v6",
+    "tags": [
+      "inference-optimization",
+      "inference",
+      "optimization",
+      "math.OC"
+    ],
+    "timestamp": "2025-11-15T05:59:49.172Z"
+  },
+  "storedAt": "2025-11-15T05:59:53.453Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T05:59:53.453Z",
+  "implementationStatus": "pending"
+}

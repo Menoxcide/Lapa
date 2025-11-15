@@ -1,0 +1,34 @@
+{
+  "finding": {
+    "findingId": "reddit-1l1glmq-1763223284503",
+    "source": "reddit",
+    "category": "recursive-improvement",
+    "title": "Anyone tried this? - Self improving AI agents",
+    "description": "Repository for **Darwin Gödel Machine (DGM)**, a novel self-improving system that iteratively modifies its own code (thereby also improving its ability to modify its own codebase) and empirically validates each change using coding benchmarks. \n\n[https://github.com/jennyzzt/dgm](https://github.com/jennyzzt/dgm)\n\n",
+    "data": {
+      "query": "recursive self-improvement AI systems",
+      "category": "recursive-improvement",
+      "subreddit": "LocalLLaMA",
+      "score": 66,
+      "numComments": 27,
+      "author": "davesmith001",
+      "createdUtc": 1748866886,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.25,
+    "implementationSuggestion": "Consider recursive improvement mechanisms for continuous evolution",
+    "url": "https://reddit.com/r/LocalLLaMA/comments/1l1glmq/anyone_tried_this_self_improving_ai_agents/",
+    "tags": [
+      "recursive-improvement",
+      "ai",
+      "recursive"
+    ],
+    "timestamp": "2025-11-15T16:14:44.503Z"
+  },
+  "storedAt": "2025-11-15T16:14:44.694Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T16:14:44.694Z",
+  "implementationStatus": "pending"
+}

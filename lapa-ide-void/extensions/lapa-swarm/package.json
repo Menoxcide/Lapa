@@ -79,6 +79,60 @@
         "title": "LAPA: List Saved Sessions",
         "category": "LAPA Swarm",
         "icon": "$(list-unordered)"
+      },
+      {
+        "command": "lapa.commandPalette.ai",
+        "title": "LAPA: AI Command Search",
+        "category": "LAPA Swarm",
+        "icon": "$(search)"
+      },
+      {
+        "command": "lapa.personas.list",
+        "title": "LAPA: List Personas",
+        "category": "LAPA Swarm",
+        "icon": "$(person)"
+      },
+      {
+        "command": "lapa.personas.reload",
+        "title": "LAPA: Reload Personas",
+        "category": "LAPA Swarm",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "lapa.workflow.generate",
+        "title": "LAPA: Generate Workflow",
+        "category": "LAPA Swarm",
+        "icon": "$(workflow)"
+      },
+      {
+        "command": "lapa.enhancePrompt",
+        "title": "LAPA: Enhance Prompt",
+        "category": "LAPA Swarm",
+        "icon": "$(sparkle)"
+      },
+      {
+        "command": "lapa.switchProvider",
+        "title": "LAPA: Switch Inference Provider",
+        "category": "LAPA Swarm",
+        "icon": "$(sync)"
+      },
+      {
+        "command": "lapa.settings.open",
+        "title": "LAPA: Open Settings",
+        "category": "LAPA Swarm",
+        "icon": "$(settings)"
+      },
+      {
+        "command": "lapa.marketplace.open",
+        "title": "LAPA: Open MCP Marketplace",
+        "category": "LAPA Swarm",
+        "icon": "$(package)"
+      },
+      {
+        "command": "lapa.dashboard.open",
+        "title": "LAPA: Open Dashboard",
+        "category": "LAPA Swarm",
+        "icon": "$(dashboard)"
       }
     ],
     "keybindings": [

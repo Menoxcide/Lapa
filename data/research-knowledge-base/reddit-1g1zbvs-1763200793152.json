@@ -1,0 +1,36 @@
+{
+  "finding": {
+    "findingId": "reddit-1g1zbvs-1763200793152",
+    "source": "reddit",
+    "category": "ai-agents",
+    "title": "Multi-Agent Systems with OpenAI Swarm + RAG (Executable Code Inside)",
+    "description": "I’ve been experimenting with **OpenAI’s Swarm framework** and wanted to share a little project I compiled called **openai-swarm-simple-rag**. The goal was to showcase how multi-agent orchestration can work with OpenAI’s language models to perform tasks like text analysis, keyword extraction, summarization, and document search.\n\nSwarm + RAG Github repo: [https://github.com/lesteroliver911/openai-swam-simple-rag](https://github.com/lesteroliver911/openai-swam-simple-rag)\n\n**What is OpenAI Swarm?**",
+    "data": {
+      "query": "multi-agent orchestration systems 2025",
+      "category": "ai-agents",
+      "subreddit": "ChatGPT",
+      "score": 6,
+      "numComments": 1,
+      "author": "Motor-Draft8124",
+      "createdUtc": 1728737124,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.45,
+    "implementationSuggestion": "Evaluate agent architecture improvements for LAPA-VOID agent system",
+    "url": "https://reddit.com/r/ChatGPT/comments/1g1zbvs/multiagent_systems_with_openai_swarm_rag/",
+    "tags": [
+      "ai-agents",
+      "agent",
+      "orchestration",
+      "multi-agent",
+      "2025"
+    ],
+    "timestamp": "2025-11-15T09:59:53.152Z"
+  },
+  "storedAt": "2025-11-15T09:59:53.373Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T09:59:53.373Z",
+  "implementationStatus": "pending"
+}

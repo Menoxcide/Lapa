@@ -1,0 +1,42 @@
+{
+  "finding": {
+    "findingId": "arxiv-2303.08710v1-1763193589188",
+    "source": "arxiv",
+    "category": "inference-optimization",
+    "title": "Two-Scale Optimization of Graded Lattice Structures respecting Buckling on Micro- and Macroscale",
+    "description": "Interest in components with detailed structures increased with the progress in advanced manufacturing techniques in recent years. Parts with graded lattice elements can provide interesting mechanical, thermal, and acoustic properties compared to parts where only coarse features are included. One of these improvements is better global buckling resistance of the component. However, thin features are prone to local buckling. Normally, analyses with high computational effort are conducted on high-re",
+    "data": {
+      "query": "inference optimization techniques",
+      "category": "inference-optimization",
+      "authors": [
+        "Daniel Hübner",
+        "Fabian Wein",
+        "Michael Stingl"
+      ],
+      "categories": [
+        "cs.CE",
+        "math.OC"
+      ],
+      "published": "2023-03-15T15:44:31.000Z",
+      "updated": "2023-03-15T15:44:31.000Z",
+      "sources": [
+        "arxiv"
+      ]
+    },
+    "valuePotential": 0.2,
+    "implementationSuggestion": "Review inference optimization techniques for performance improvements",
+    "url": "http://arxiv.org/abs/2303.08710v1",
+    "tags": [
+      "inference-optimization",
+      "inference",
+      "optimization",
+      "cs.CE",
+      "math.OC"
+    ],
+    "timestamp": "2025-11-15T07:59:49.188Z"
+  },
+  "storedAt": "2025-11-15T07:59:53.560Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T07:59:53.560Z",
+  "implementationStatus": "pending"
+}

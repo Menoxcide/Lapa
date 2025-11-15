@@ -22,6 +22,12 @@ describe('Official SDK Handoff Integration', () => {
   beforeEach(() => {
     handoffSystem = new HybridHandoffSystem();
     orchestrator = new LangGraphOrchestrator('start');
+    // Add the initial state node so workflow execution can start
+    orchestrator.addNode({
+      id: 'start',
+      type: 'process',
+      label: 'Start Process'
+    });
     contextManager = new ContextHandoffManager();
     mockOpenAIAgent = {
       id: 'openai-official-agent-1',

@@ -5,6 +5,7 @@
  * to reduce computation overhead and improve performance.
  */
 
+// @ts-ignore - lru-cache types not available, using dynamic import
 import { LRUCache } from 'lru-cache';
 import { performance } from 'perf_hooks';
 
@@ -13,6 +14,12 @@ interface CacheConfig {
   maxSize: number;
   ttl: number; // Time to live in milliseconds
   enableMetrics: boolean;
+}
+
+// Cache entry with pre-calculated expiry
+interface CacheEntry<T> {
+  value: T;
+  expiresAt: number; // Pre-calculated expiry timestamp (Date.now() + ttl)
 }
 
 // Default cache configuration
@@ -32,9 +39,10 @@ interface CacheMetrics {
 
 /**
  * Generic Cache Manager with LRU eviction policy
+ * Optimized with pre-calculated expiry timestamps for faster TTL checks
  */
 export class CacheManager<T> {
-  private cache: LRUCache<string, { value: T; timestamp: number }>;
+  private cache: LRUCache<string, CacheEntry<T>>;
   private config: CacheConfig;
   private metrics: CacheMetrics;
 
@@ -60,6 +68,7 @@ export class CacheManager<T> {
 
   /**
    * Get a value from cache
+   * Optimized version with pre-calculated expiry for faster TTL check
    * @param key Cache key
    * @returns Cached value or undefined if not found
    */
@@ -67,15 +76,15 @@ export class CacheManager<T> {
     const entry = this.cache.get(key);
     
     if (entry) {
-      // Check if entry is still valid
-      if (performance.now() - entry.timestamp < this.config.ttl) {
+      // Fast path: simple timestamp comparison (Date.now() is faster than performance.now() for this)
+      if (Date.now() < entry.expiresAt) {
         if (this.config.enableMetrics) {
           this.metrics.hits++;
           this.updateHitRate();
         }
         return entry.value;
       } else {
-        // Expired entry, remove it
+        // Expired entry, remove immediately (no async delay for memory cleanup)
         this.cache.delete(key);
       }
     }
@@ -90,13 +99,14 @@ export class CacheManager<T> {
 
   /**
    * Set a value in cache
+   * Pre-calculates expiry timestamp for faster TTL checks
    * @param key Cache key
    * @param value Value to cache
    */
   set(key: string, value: T): void {
     this.cache.set(key, {
       value,
-      timestamp: performance.now()
+      expiresAt: Date.now() + this.config.ttl // Pre-calculate expiry for fast comparison
     });
   }
 
@@ -182,13 +192,26 @@ export class ToolExecutionCache {
 
   /**
    * Generate cache key for tool execution
+   * Optimized version with faster key generation
    * @param toolName Name of the tool
    * @param parameters Tool parameters
    * @returns Generated cache key
    */
   private generateKey(toolName: string, parameters: Record<string, any>): string {
-    // Create a deterministic key from tool name and parameters
-    const paramStr = JSON.stringify(parameters, Object.keys(parameters).sort());
+    // Fast path: if parameters are empty, use simple key
+    const paramKeys = Object.keys(parameters);
+    if (paramKeys.length === 0) {
+      return `tool:${toolName}:{}`;
+    }
+    
+    // Optimized: only sort if multiple keys (most common case is single key)
+    if (paramKeys.length === 1) {
+      const key = paramKeys[0];
+      return `tool:${toolName}:${key}=${JSON.stringify(parameters[key])}`;
+    }
+    
+    // Create a deterministic key from tool name and parameters (only for multiple keys)
+    const paramStr = JSON.stringify(parameters, paramKeys.sort());
     return `tool:${toolName}:${paramStr}`;
   }
 

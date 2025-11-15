@@ -1,4 +1,5 @@
 // Voice Agent Tool Test Suite
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { VoiceAgentTool } from '../../multimodal/voice-agent-tool.ts';
 import { AgentToolExecutionContext } from '../../core/types/agent-types.ts';
 

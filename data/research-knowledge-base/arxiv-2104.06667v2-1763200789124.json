@@ -1,0 +1,44 @@
+{
+  "finding": {
+    "findingId": "arxiv-2104.06667v2-1763200789124",
+    "source": "arxiv",
+    "category": "nim-inference",
+    "title": "Double Robust Semi-Supervised Inference for the Mean: Selection Bias under MAR Labeling with Decaying Overlap",
+    "description": "Semi-supervised (SS) inference has received much attention in recent years. Apart from a moderate-sized labeled data, L, the SS setting is characterized by an additional, much larger sized, unlabeled data, U. The setting of |U| &gt;&gt; |L|, makes SS inference unique and different from the standard missing data problems, owing to natural violation of the so-called \"positivity\" or \"overlap\" assumption. However, most of the SS literature implicitly assumes L and U to be equally distributed, i.e., ",
+    "data": {
+      "query": "NVIDIA NIM inference microservice",
+      "category": "nim-inference",
+      "authors": [
+        "Yuqian Zhang",
+        "Abhishek Chakrabortty",
+        "Jelena Bradic"
+      ],
+      "categories": [
+        "stat.ME",
+        "math.ST",
+        "stat.ML"
+      ],
+      "published": "2021-04-14T07:27:27.000Z",
+      "updated": "2023-05-18T12:10:21.000Z",
+      "sources": [
+        "arxiv"
+      ]
+    },
+    "valuePotential": 0.2,
+    "implementationSuggestion": "Evaluate NVIDIA NIM integration opportunities for inference optimization",
+    "url": "http://arxiv.org/abs/2104.06667v2",
+    "tags": [
+      "nim-inference",
+      "inference",
+      "nim",
+      "stat.ME",
+      "math.ST",
+      "stat.ML"
+    ],
+    "timestamp": "2025-11-15T09:59:49.124Z"
+  },
+  "storedAt": "2025-11-15T09:59:53.407Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T09:59:53.407Z",
+  "implementationStatus": "pending"
+}

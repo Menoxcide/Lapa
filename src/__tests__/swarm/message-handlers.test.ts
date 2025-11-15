@@ -105,7 +105,7 @@ describe('Swarm Session Message Handlers', () => {
       enableA2A: true
     };
     
-    sessionId = await swarmSessionManager.createSession(config);
+    sessionId = await swarmSessionManager.createSession(config, 'host-user');
   });
   
   afterEach(() => {
@@ -121,7 +121,8 @@ describe('Swarm Session Message Handlers', () => {
       const task: Task = {
         id: 'task-1',
         description: 'Test task',
-        type: 'test'
+        type: 'test',
+        priority: 5
       };
       
       const message: SessionMessage = {
@@ -153,7 +154,8 @@ describe('Swarm Session Message Handlers', () => {
       const task: Task = {
         id: 'task-1',
         description: 'Test task',
-        type: 'test'
+        type: 'test',
+        priority: 5
       };
       
       // First add the task
@@ -190,7 +192,8 @@ describe('Swarm Session Message Handlers', () => {
       const task: Task = {
         id: 'task-1',
         description: 'Test task',
-        type: 'test'
+        type: 'test',
+        priority: 5
       };
       
       const session = swarmSessionManager.getSession(sessionId);

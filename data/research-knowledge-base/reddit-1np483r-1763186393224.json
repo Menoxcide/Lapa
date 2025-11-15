@@ -1,0 +1,35 @@
+{
+  "finding": {
+    "findingId": "reddit-1np483r-1763186393224",
+    "source": "reddit",
+    "category": "swarm-architectures",
+    "title": "[D] Training smaller LLM for Agentic tasks.",
+    "description": "So I have a specific use case, in which Deepseek-v3.1 works well, but it's simply too big and takes time to load on our GPU (everything runs locally in my organization, we have **16 H100 GPUs** and maybe about **8 more A100s**) .I use Ollama since I can’t keep VLLM loaded across all GPUs without hogging resources that others need.\n\nWhat I want is a **smaller model** that I can use for an **agentic task** mainly to work with a set of custom MCP tools I’ve built.\n\nThe biggest reason I want to buil",
+    "data": {
+      "query": "LLM agent swarm architectures",
+      "category": "swarm-architectures",
+      "subreddit": "MachineLearning",
+      "score": 0,
+      "numComments": 6,
+      "author": "LifeguardNew6929",
+      "createdUtc": 1758692652,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.25,
+    "implementationSuggestion": "Explore swarm coordination patterns for multi-agent systems",
+    "url": "https://reddit.com/r/MachineLearning/comments/1np483r/d_training_smaller_llm_for_agentic_tasks/",
+    "tags": [
+      "swarm-architectures",
+      "agent",
+      "llm",
+      "swarm"
+    ],
+    "timestamp": "2025-11-15T05:59:53.224Z"
+  },
+  "storedAt": "2025-11-15T05:59:53.362Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T05:59:53.362Z",
+  "implementationStatus": "pending"
+}

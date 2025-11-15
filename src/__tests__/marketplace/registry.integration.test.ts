@@ -93,6 +93,8 @@ describe('Marketplace Registry Integration', () => {
       author: 'Test Author',
       category: 'test' as const,
       tags: ['test', 'integration'],
+      verified: false,
+      trustScore: 0,
       createdAt: Date.now(),
       updatedAt: Date.now()
     };
@@ -116,6 +118,8 @@ describe('Marketplace Registry Integration', () => {
         author: 'Test Author',
         category: 'code' as const,
         tags: ['javascript', 'formatter'],
+        verified: false,
+        trustScore: 0,
         createdAt: Date.now(),
         updatedAt: Date.now()
       },
@@ -127,6 +131,8 @@ describe('Marketplace Registry Integration', () => {
         author: 'Test Author',
         category: 'code' as const,
         tags: ['python', 'linter'],
+        verified: false,
+        trustScore: 0,
         createdAt: Date.now(),
         updatedAt: Date.now()
       }
@@ -151,6 +157,8 @@ describe('Marketplace Registry Integration', () => {
       author: 'Test Author',
       category: 'test' as const,
       tags: ['install'],
+      verified: false,
+      trustScore: 0,
       createdAt: Date.now(),
       updatedAt: Date.now()
     };
@@ -181,6 +189,8 @@ describe('Marketplace Registry Integration', () => {
       author: 'Test Author',
       category: 'test' as const,
       tags: ['rate'],
+      verified: false,
+      trustScore: 0,
       createdAt: Date.now(),
       updatedAt: Date.now()
     };
@@ -247,6 +257,8 @@ describe('Cursor Marketplace Integration', () => {
       signaturePublicKey: 'test-public-key',
       installCount: 0,
       ratingCount: 0,
+      verified: false,
+      trustScore: 0,
       createdAt: Date.now(),
       updatedAt: Date.now()
     };

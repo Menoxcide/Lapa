@@ -1,0 +1,34 @@
+{
+  "finding": {
+    "findingId": "reddit-dyjf03-1763189993214",
+    "source": "reddit",
+    "category": "recursive-improvement",
+    "title": "[D] ICML 2019 Machine Learning Talks",
+    "description": "---\nRecent Advances in Population-Based Search for Deep Neural Networks: Quality Diversity, Indirect Encodings, and Open-Ended Algorithms\n\nPresented by Jeff Clune, Joel Lehman and Kenneth Stanley\n\nhttps://www.facebook.com/icml.imls/videos/481758745967365/\n\n---\nNever-Ending Learning\n\nPresented by Tom Mitchell and Partha Talukdar.\n\nhttps://www.facebook.com/icml.imls/videos/350412952342021/\nhttps://www.facebook.com/icml.imls/videos/1083330081864839/\n\n---\nA Primer on PAC-Bayesian Learning\n\nPresented",
+    "data": {
+      "query": "recursive self-improvement AI systems",
+      "category": "recursive-improvement",
+      "subreddit": "MachineLearning",
+      "score": 92,
+      "numComments": 8,
+      "author": "goolulusaurs",
+      "createdUtc": 1574164283,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.25,
+    "implementationSuggestion": "Consider recursive improvement mechanisms for continuous evolution",
+    "url": "https://reddit.com/r/MachineLearning/comments/dyjf03/d_icml_2019_machine_learning_talks/",
+    "tags": [
+      "recursive-improvement",
+      "ai",
+      "recursive"
+    ],
+    "timestamp": "2025-11-15T06:59:53.214Z"
+  },
+  "storedAt": "2025-11-15T06:59:53.326Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T06:59:53.326Z",
+  "implementationStatus": "pending"
+}

@@ -1,0 +1,34 @@
+{
+  "finding": {
+    "findingId": "reddit-13r26k7-1763193593292",
+    "source": "reddit",
+    "category": "model-quantization",
+    "title": "Groundbreaking QLoRA method enables fine-tuning an LLM on consumer GPUs. Implications and full breakdown inside.",
+    "description": "Another day, another groundbreaking piece of research I had to share. This one uniquely ties into one of the biggest threats to OpenAI's business model: the rapid rise of open-source, and it's another  milestone moment in how fast open-source is advancing.\n\nAs always, [the full deep dive is available here](https://www.artisana.ai/articles/qlora-enables-efficient-ai-fine-tuning-on-consumer-gpus), but my Reddit-focused post contains all the key points for community discussion. \n\n**Why should I pay",
+    "data": {
+      "query": "model quantization methods",
+      "category": "model-quantization",
+      "subreddit": "ChatGPT",
+      "score": 358,
+      "numComments": 46,
+      "author": "ShotgunProxy",
+      "createdUtc": 1684972783,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.15000000000000002,
+    "implementationSuggestion": "Explore model quantization methods for efficiency gains",
+    "url": "https://reddit.com/r/ChatGPT/comments/13r26k7/groundbreaking_qlora_method_enables_finetuning_an/",
+    "tags": [
+      "model-quantization",
+      "quantization",
+      "model"
+    ],
+    "timestamp": "2025-11-15T07:59:53.292Z"
+  },
+  "storedAt": "2025-11-15T07:59:53.591Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T07:59:53.591Z",
+  "implementationStatus": "pending"
+}

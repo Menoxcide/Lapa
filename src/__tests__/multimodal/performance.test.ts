@@ -1,19 +1,20 @@
 // Multimodal Performance and Resource Usage Test Suite
-import { VisionVoiceController } from '../../multimodal/vision-voice';
-import { VisionAgent } from '../../multimodal/vision-agent';
-import { VoiceAgent } from '../../multimodal/voice-agent';
-import { MultimodalConfig } from '../../multimodal/types';
-import { eventBus } from '../../core/event-bus';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { VisionVoiceController } from '../../multimodal/vision-voice.ts';
+import { VisionAgent } from '../../multimodal/vision-agent.ts';
+import { VoiceAgent } from '../../multimodal/voice-agent.ts';
+import type { MultimodalConfig } from '../../multimodal/types/index.ts';
+import { eventBus } from '../../core/event-bus.ts';
 
 // Mock the event bus
-vi.mock('../../core/event-bus', () => ({
+vi.mock('../../core/event-bus.ts', () => ({
   eventBus: {
     publish: vi.fn()
   }
 }));
 
 // Mock NIM inference requests
-vi.mock('../../inference/nim.local', () => ({
+vi.mock('../../inference/nim.local.ts', () => ({
   sendNemotronVisionInferenceRequest: vi.fn().mockResolvedValue('Mocked vision result'),
   sendNIMInferenceRequest: vi.fn().mockResolvedValue('Mocked voice result')
 }));
@@ -87,7 +88,7 @@ describe('Multimodal Performance and Resource Usage', () => {
     });
     
     it('should measure multimodal coordination processing time', async () => {
-      const input = { image: Buffer.from('mock image data') };
+      const input = { imageData: Buffer.from('mock image data') };
       
       // Mock individual processing methods
       const mockProcessImage = vi.spyOn(visionVoiceController as any, 'processImage')
@@ -100,7 +101,7 @@ describe('Multimodal Performance and Resource Usage', () => {
       
       expect(result.text).toBe('Processed image description');
       expect(processingTime).toBeGreaterThanOrEqual(0);
-      expect(mockProcessImage).toHaveBeenCalledWith(input.image);
+      expect(mockProcessImage).toHaveBeenCalledWith(input.imageData);
       
       // Verify events were published
       expect(eventBus.publish).toHaveBeenCalledWith(expect.objectContaining({
@@ -153,9 +154,9 @@ describe('Multimodal Performance and Resource Usage', () => {
     it('should handle concurrent multimodal processing', async () => {
       // Create multiple inputs
       const inputs = [
-        { image: Buffer.from('mock image data 1') },
-        { audio: Buffer.from('mock audio data 1') },
-        { image: Buffer.from('mock image data 2'), audio: Buffer.from('mock audio data 2') }
+        { imageData: Buffer.from('mock image data 1') },
+        { audioData: Buffer.from('mock audio data 1') },
+        { imageData: Buffer.from('mock image data 2'), audioData: Buffer.from('mock audio data 2') }
       ];
       
       // Mock processing methods
@@ -177,7 +178,7 @@ describe('Multimodal Performance and Resource Usage', () => {
   
   describe('Throughput Testing', () => {
     it('should maintain acceptable throughput for sequential processing', async () => {
-      const input = { image: Buffer.from('mock image data') };
+      const input = { imageData: Buffer.from('mock image data') };
       
       // Mock processing to have a consistent delay
       const mockProcessImage = vi.spyOn(visionVoiceController as any, 'processImage')
@@ -209,8 +210,8 @@ describe('Multimodal Performance and Resource Usage', () => {
     it('should handle batch processing efficiently', async () => {
       // Create batch of inputs
       const batchInputs = Array.from({ length: 20 }, (_, i) => ({
-        image: Buffer.from(`mock image data ${i}`),
-        audio: Buffer.from(`mock audio data ${i}`)
+        imageData: Buffer.from(`mock image data ${i}`),
+        audioData: Buffer.from(`mock audio data ${i}`)
       }));
       
       // Mock processing methods
@@ -241,7 +242,7 @@ describe('Multimodal Performance and Resource Usage', () => {
   
   describe('Resource Cleanup', () => {
     it('should properly clean up resources after processing', async () => {
-      const input = { image: Buffer.from('mock image data') };
+      const input = { imageData: Buffer.from('mock image data') };
       
       // Mock processing
       const mockProcessImage = vi.spyOn(visionVoiceController as any, 'processImage')
@@ -251,7 +252,7 @@ describe('Multimodal Performance and Resource Usage', () => {
       const result = await visionVoiceController.processMultimodalInput(input);
       
       expect(result.text).toBe('Processed image');
-      expect(mockProcessImage).toHaveBeenCalledWith(input.image);
+      expect(mockProcessImage).toHaveBeenCalledWith(input.imageData);
       
       // Verify that buffers can be garbage collected
       // Note: We can't directly test garbage collection, but we can ensure references are properly managed
@@ -259,7 +260,7 @@ describe('Multimodal Performance and Resource Usage', () => {
     });
     
     it('should handle resource cleanup after errors', async () => {
-      const input = { image: Buffer.from('mock image data') };
+      const input = { imageData: Buffer.from('mock image data') };
       
       // Mock processing to throw an error
       const mockProcessImage = vi.spyOn(visionVoiceController as any, 'processImage')
@@ -269,7 +270,7 @@ describe('Multimodal Performance and Resource Usage', () => {
         .rejects
         .toThrow('Processing failed');
       
-      expect(mockProcessImage).toHaveBeenCalledWith(input.image);
+      expect(mockProcessImage).toHaveBeenCalledWith(input.imageData);
       
       // Again, we can't directly test garbage collection, but we ensure the error path completes
     });
@@ -279,8 +280,8 @@ describe('Multimodal Performance and Resource Usage', () => {
     it('should maintain stability under moderate load', async () => {
       // Create moderate load of concurrent requests
       const inputs = Array.from({ length: 50 }, (_, i) => ({
-        image: Buffer.from(`mock image data ${i}`),
-        audio: Buffer.from(`mock audio data ${i}`)
+        imageData: Buffer.from(`mock image data ${i}`),
+        audioData: Buffer.from(`mock audio data ${i}`)
       }));
       
       // Mock processing methods with small delays
@@ -314,7 +315,7 @@ describe('Multimodal Performance and Resource Usage', () => {
     it('should gracefully degrade under heavy load', async () => {
       // Create heavy load of concurrent requests
       const inputs = Array.from({ length: 100 }, (_, i) => ({
-        image: Buffer.from(`mock image data ${i}`)
+        imageData: Buffer.from(`mock image data ${i}`)
       }));
       
       // Mock processing methods with small delays

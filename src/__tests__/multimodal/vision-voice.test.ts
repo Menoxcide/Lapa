@@ -1,10 +1,11 @@
 // Vision-Voice Controller Test Suite
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { VisionVoiceController } from '../../multimodal/vision-voice.ts';
 import { MultimodalConfig } from '../../multimodal/types/index.ts';
 import { eventBus } from '../../core/event-bus.ts';
 
 // Mock the event bus
-vi.mock('../../core/event-bus', () => ({
+vi.mock('../../core/event-bus.ts', () => ({
   eventBus: {
     publish: vi.fn()
   }
@@ -104,7 +105,7 @@ describe('Vision-Voice Controller', () => {
   
   describe('Multimodal Input Processing', () => {
     it('should process image input successfully', async () => {
-      const input = { image: Buffer.from('mock image data') };
+      const input = { imageData: Buffer.from('mock image data') };
       
       // Mock vision agent processImage method
       const mockProcessImage = vi.spyOn(visionVoiceController as any, 'processImage')
@@ -113,8 +114,8 @@ describe('Vision-Voice Controller', () => {
       const result = await visionVoiceController.processMultimodalInput(input);
       
       expect(result.text).toBe('Processed image description');
-      expect(result.image).toBe(input.image);
-      expect(mockProcessImage).toHaveBeenCalledWith(input.image);
+      expect(result.imageData).toBe(input.imageData);
+      expect(mockProcessImage).toHaveBeenCalledWith(input.imageData);
       
       // Verify event publishing
       expect(eventBus.publish).toHaveBeenCalledWith(expect.objectContaining({
@@ -127,7 +128,7 @@ describe('Vision-Voice Controller', () => {
     });
     
     it('should process audio input successfully', async () => {
-      const input = { audio: Buffer.from('mock audio data') };
+      const input = { audioData: Buffer.from('mock audio data') };
       
       // Mock voice agent processAudio method
       const mockProcessAudio = vi.spyOn(visionVoiceController as any, 'processAudio')
@@ -136,15 +137,15 @@ describe('Vision-Voice Controller', () => {
       const result = await visionVoiceController.processMultimodalInput(input);
       
       expect(result.text).toBe('Transcribed audio text');
-      expect(result.audio).toBe(input.audio);
-      expect(mockProcessAudio).toHaveBeenCalledWith(input.audio);
+      expect(result.audioData).toBe(input.audioData);
+      expect(mockProcessAudio).toHaveBeenCalledWith(input.audioData);
     });
     
     it('should process both image and audio inputs with parallel strategy', async () => {
       config.fallbackStrategy = 'parallel';
       visionVoiceController = new VisionVoiceController(config);
       
-      const input = { image: Buffer.from('mock image data'), audio: Buffer.from('mock audio data') };
+      const input = { imageData: Buffer.from('mock image data'), audioData: Buffer.from('mock audio data') };
       
       // Mock both agents
       const mockProcessImage = vi.spyOn(visionVoiceController as any, 'processImage')
@@ -156,14 +157,14 @@ describe('Vision-Voice Controller', () => {
       
       expect(result.text).toContain('[VISION] Processed image description');
       expect(result.text).toContain('[AUDIO] Transcribed audio text');
-      expect(result.image).toBe(input.image);
-      expect(result.audio).toBe(input.audio);
-      expect(mockProcessImage).toHaveBeenCalledWith(input.image);
-      expect(mockProcessAudio).toHaveBeenCalledWith(input.audio);
+      expect(result.imageData).toBe(input.imageData);
+      expect(result.audioData).toBe(input.audioData);
+      expect(mockProcessImage).toHaveBeenCalledWith(input.imageData);
+      expect(mockProcessAudio).toHaveBeenCalledWith(input.audioData);
     });
     
     it('should handle processing errors gracefully', async () => {
-      const input = { image: Buffer.from('mock image data') };
+      const input = { imageData: Buffer.from('mock image data') };
       
       // Mock vision agent to throw an error
       const mockProcessImage = vi.spyOn(visionVoiceController as any, 'processImage')
@@ -173,7 +174,7 @@ describe('Vision-Voice Controller', () => {
         .rejects
         .toThrow('Image processing failed');
       
-      expect(mockProcessImage).toHaveBeenCalledWith(input.image);
+      expect(mockProcessImage).toHaveBeenCalledWith(input.imageData);
       
       // Verify error event publishing
       expect(eventBus.publish).toHaveBeenCalledWith(expect.objectContaining({
@@ -185,7 +186,7 @@ describe('Vision-Voice Controller', () => {
       config.fallbackStrategy = 'sequential';
       visionVoiceController = new VisionVoiceController(config);
       
-      const input = { image: Buffer.from('mock image data'), audio: Buffer.from('mock audio data') };
+      const input = { imageData: Buffer.from('mock image data'), audioData: Buffer.from('mock audio data') };
       
       // Mock vision agent to throw an error and voice agent to succeed
       const mockProcessImage = vi.spyOn(visionVoiceController as any, 'processImage')
@@ -196,16 +197,16 @@ describe('Vision-Voice Controller', () => {
       const result = await visionVoiceController.processMultimodalInput(input);
       
       expect(result.text).toBe('Transcribed audio text');
-      expect(result.audio).toBe(input.audio);
-      expect(mockProcessImage).toHaveBeenCalledWith(input.image);
-      expect(mockProcessAudio).toHaveBeenCalledWith(input.audio);
+      expect(result.audioData).toBe(input.audioData);
+      expect(mockProcessImage).toHaveBeenCalledWith(input.imageData);
+      expect(mockProcessAudio).toHaveBeenCalledWith(input.audioData);
     });
     
     it('should return fallback message when all modalities fail', async () => {
       config.fallbackStrategy = 'sequential';
       visionVoiceController = new VisionVoiceController(config);
       
-      const input = { image: Buffer.from('mock image data') };
+      const input = { imageData: Buffer.from('mock image data') };
       
       // Mock vision agent to throw an error
       const mockProcessImage = vi.spyOn(visionVoiceController as any, 'processImage')
@@ -214,7 +215,7 @@ describe('Vision-Voice Controller', () => {
       const result = await visionVoiceController.processMultimodalInput(input);
       
       expect(result.text).toBe('No input processed successfully');
-      expect(mockProcessImage).toHaveBeenCalledWith(input.image);
+      expect(mockProcessImage).toHaveBeenCalledWith(input.imageData);
       
       // Verify fallback event publishing
       expect(eventBus.publish).toHaveBeenCalledWith(expect.objectContaining({

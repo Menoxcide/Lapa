@@ -1,0 +1,34 @@
+{
+  "finding": {
+    "findingId": "reddit-1k2uz3t-1763226882356",
+    "source": "reddit",
+    "category": "model-quantization",
+    "title": "We built a data-free method for compressing heavy LLMs",
+    "description": "Hey folks! I’ve been working with the team at Yandex Research on a way to make LLMs easier to run locally, without calibration data, GPU farms, or cloud setups.\n\nWe just published a paper on HIGGS, a data-free quantization method that skips calibration entirely. No datasets or activations required. It’s meant to help teams compress and deploy big models like DeepSeek-R1 or Llama 4 Maverick on laptops or even mobile devices.\n\nThe core idea comes from a theoretical link between per-layer reconstru",
+    "data": {
+      "query": "model quantization methods",
+      "category": "model-quantization",
+      "subreddit": "artificial",
+      "score": 21,
+      "numComments": 2,
+      "author": "azalio",
+      "createdUtc": 1745065136,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.05,
+    "implementationSuggestion": "Explore model quantization methods for efficiency gains",
+    "url": "https://reddit.com/r/artificial/comments/1k2uz3t/we_built_a_datafree_method_for_compressing_heavy/",
+    "tags": [
+      "model-quantization",
+      "quantization",
+      "model"
+    ],
+    "timestamp": "2025-11-15T17:14:42.356Z"
+  },
+  "storedAt": "2025-11-15T17:14:42.811Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T17:14:42.811Z",
+  "implementationStatus": "pending"
+}

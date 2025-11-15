@@ -1,0 +1,35 @@
+{
+  "finding": {
+    "findingId": "reddit-1g9ohnw-1763223284418",
+    "source": "reddit",
+    "category": "swarm-architectures",
+    "title": "OpenAI SWARM architecture + Claude Sonnet 3.56 Computer use? ",
+    "description": "As you know, Anthropic dropped Computer Use on us today, and it just seems like such a big deal to me. I am still learning my way around the systems, but are we at the point of having the technology to implement agents working with agents, today, right now? If so, can someone drop a repo? I realize they aren't even close to perfect at executing tasks yet, but some inter-model architecture and checkpointing, are we there? Are the coming weeks... today?  ",
+    "data": {
+      "query": "LLM agent swarm architectures",
+      "category": "swarm-architectures",
+      "subreddit": "singularity",
+      "score": 18,
+      "numComments": 7,
+      "author": "willitexplode",
+      "createdUtc": 1729619796,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.25,
+    "implementationSuggestion": "Explore swarm coordination patterns for multi-agent systems",
+    "url": "https://reddit.com/r/singularity/comments/1g9ohnw/openai_swarm_architecture_claude_sonnet_356/",
+    "tags": [
+      "swarm-architectures",
+      "agent",
+      "llm",
+      "swarm"
+    ],
+    "timestamp": "2025-11-15T16:14:44.418Z"
+  },
+  "storedAt": "2025-11-15T16:14:44.658Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T16:14:44.658Z",
+  "implementationStatus": "pending"
+}

@@ -1,0 +1,33 @@
+{
+  "finding": {
+    "findingId": "reddit-1mqswk6-1763223284445",
+    "source": "reddit",
+    "category": "orchestration",
+    "title": "Why Custom Agents Orchestrators?",
+    "description": "I am observing a lot of people writing custom orchestrators to manage their agentic workflows, I fail to understand why?\n\nThis is really troubling me, is it just an ego question to write custom orchestrators or just about laziness to search online or there is some actual need which current frameworks/orchestrators (langgraph, autogen and so many others) are unable to fulfill.\n\nHelp me!",
+    "data": {
+      "query": "agent orchestration frameworks",
+      "category": "orchestration",
+      "subreddit": "LocalLLaMA",
+      "score": 0,
+      "numComments": 15,
+      "author": "jain-nivedit",
+      "createdUtc": 1755250542,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.30000000000000004,
+    "implementationSuggestion": "Review orchestration patterns for potential NEURAFORGE enhancements",
+    "url": "https://reddit.com/r/LocalLLaMA/comments/1mqswk6/why_custom_agents_orchestrators/",
+    "tags": [
+      "orchestration",
+      "agent"
+    ],
+    "timestamp": "2025-11-15T16:14:44.445Z"
+  },
+  "storedAt": "2025-11-15T16:14:44.866Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T16:14:44.866Z",
+  "implementationStatus": "pending"
+}

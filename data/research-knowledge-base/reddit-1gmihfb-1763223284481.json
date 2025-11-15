@@ -1,0 +1,36 @@
+{
+  "finding": {
+    "findingId": "reddit-1gmihfb-1763223284481",
+    "source": "reddit",
+    "category": "ai-agents",
+    "title": "New paper: Large Language Models Orchestrating Structured Reasoning Achieve Kaggle Grandmaster Level",
+    "description": "We introduce Agent K v1.0, an end-to-end autonomous data science agent designed to automate, optimise, and generalise across diverse data science tasks. Fully automated, Agent K v1.0 manages the entire data science life cycle by learning from experience. It leverages a highly flexible structured reasoning framework to enable it to dynamically process memory in a nested structure, effectively learning from accumulated experience stored to handle complex reasoning tasks. It optimises long- and sho",
+    "data": {
+      "query": "multi-agent orchestration systems 2025",
+      "category": "ai-agents",
+      "subreddit": "singularity",
+      "score": 147,
+      "numComments": 81,
+      "author": "katerinaptrv12",
+      "createdUtc": 1731072411,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.55,
+    "implementationSuggestion": "Evaluate agent architecture improvements for LAPA-VOID agent system",
+    "url": "https://reddit.com/r/singularity/comments/1gmihfb/new_paper_large_language_models_orchestrating/",
+    "tags": [
+      "ai-agents",
+      "agent",
+      "orchestration",
+      "multi-agent",
+      "2025"
+    ],
+    "timestamp": "2025-11-15T16:14:44.481Z"
+  },
+  "storedAt": "2025-11-15T16:14:44.548Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T16:14:44.548Z",
+  "implementationStatus": "pending"
+}

@@ -1,0 +1,34 @@
+{
+  "finding": {
+    "findingId": "reddit-1gb5ouq-1763186393307",
+    "source": "reddit",
+    "category": "model-quantization",
+    "title": "Meta released quantized Llama models ",
+    "description": "[Meta released quantized Llama models, leveraging Quantization-Aware Training, LoRA and SpinQuant. ](https://ai.meta.com/blog/meta-llama-quantized-lightweight-models/)\n\nI believe this is the first time Meta released quantized versions of the llama models. I'm getting some really good results with these. Kinda amazing given the size difference. They're small and fast enough to use pretty much anywhere.\n\nhttps://preview.redd.it/hchinb795qwd1.png?width=1920&amp;format=png&amp;auto=webp&amp;s=1ecaa2",
+    "data": {
+      "query": "model quantization methods",
+      "category": "model-quantization",
+      "subreddit": "LocalLLaMA",
+      "score": 248,
+      "numComments": 34,
+      "author": "Vegetable_Sun_9225",
+      "createdUtc": 1729784548,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.15000000000000002,
+    "implementationSuggestion": "Explore model quantization methods for efficiency gains",
+    "url": "https://reddit.com/r/LocalLLaMA/comments/1gb5ouq/meta_released_quantized_llama_models/",
+    "tags": [
+      "model-quantization",
+      "quantization",
+      "model"
+    ],
+    "timestamp": "2025-11-15T05:59:53.307Z"
+  },
+  "storedAt": "2025-11-15T05:59:53.477Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T05:59:53.477Z",
+  "implementationStatus": "pending"
+}

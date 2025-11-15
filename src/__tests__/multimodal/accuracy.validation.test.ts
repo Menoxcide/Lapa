@@ -1,4 +1,5 @@
 // Multimodal Accuracy Validation Test Suite
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { VisionVoiceController } from '../../multimodal/vision-voice.ts';
 import { VisionAgent } from '../../multimodal/vision-agent.ts';
 import { VoiceAgent } from '../../multimodal/voice-agent.ts';
@@ -6,15 +7,15 @@ import { MultimodalConfig } from '../../multimodal/types/index.ts';
 import { eventBus } from '../../core/event-bus.ts';
 
 // Mock the event bus
-vi.mock('../../core/event-bus', () => ({
+vi.mock('../../core/event-bus.ts', () => ({
   eventBus: {
     publish: vi.fn()
   }
 }));
 
 // Mock NIM inference requests
-vi.mock('../../inference/nim.local', () => ({
-  sendNemotronVisionInferenceRequest: vi.fn().mockImplementation((model, prompt, imageData, options) => {
+vi.mock('../../inference/nim.local.ts', () => ({
+  sendNemotronVisionInferenceRequest: vi.fn().mockImplementation((model: any, prompt: any, imageData: any, options: any) => {
     // Return different responses based on the prompt
     if (prompt.includes('Describe this image')) {
       return Promise.resolve('This is a test image showing a user interface with buttons and text fields.');
@@ -73,7 +74,7 @@ vi.mock('../../inference/nim.local', () => ({
     }
     return Promise.resolve('Mocked vision result');
   }),
-  sendNIMInferenceRequest: vi.fn().mockImplementation((model, prompt, options) => {
+  sendNIMInferenceRequest: vi.fn().mockImplementation((model: any, prompt: any, options: any) => {
     // Return different responses based on the prompt
     if (prompt.includes('transcribe')) {
       return Promise.resolve(JSON.stringify({
@@ -325,7 +326,7 @@ describe('Multimodal Accuracy Validation', () => {
       // Mock command recognition accuracy
       const intentRecognitionAccuracy = 0.97; // 97% intent recognition accuracy
 
-      const result = await voiceAgent.executeVoiceCommand(command);
+      const result = await voiceAgent.executeVoiceCommand(typeof command === 'string' ? command : command.command);
 
       // Validate accuracy
       const isAccurate = accuracyValidator.validate(
@@ -349,7 +350,7 @@ describe('Multimodal Accuracy Validation', () => {
       // Mock question answering accuracy
       const answerRelevanceScore = 0.93; // 93% relevance to question
 
-      const result = await voiceAgent.askQuestion(question);
+      const result = await voiceAgent.askQuestion(typeof question === 'string' ? question : question.question);
 
       // Validate accuracy
       const isAccurate = accuracyValidator.validate(
@@ -367,7 +368,7 @@ describe('Multimodal Accuracy Validation', () => {
 
   describe('Multimodal Coordination Accuracy Validation', () => {
     it('should maintain context accuracy across modalities', async () => {
-      const input = { image: Buffer.from('mock image data') };
+      const input = { imageData: Buffer.from('mock image data') };
 
       // Mock context preservation accuracy
       const contextPreservationScore = 0.95; // 95% context preserved
@@ -387,7 +388,7 @@ describe('Multimodal Accuracy Validation', () => {
       );
 
       expect(result.text).toBe('Processed image description');
-      expect(mockProcessImage).toHaveBeenCalledWith(input.image);
+      expect(mockProcessImage).toHaveBeenCalledWith(input.imageData);
       expect(isAccurate).toBe(true);
       expect(contextPreservationScore).toBeGreaterThan(0.9);
     });
@@ -396,7 +397,7 @@ describe('Multimodal Accuracy Validation', () => {
       config.fallbackStrategy = 'sequential';
       const fallbackController = new VisionVoiceController(config);
 
-      const input = { image: Buffer.from('mock image data'), audio: Buffer.from('mock audio data') };
+      const input = { imageData: Buffer.from('mock image data'), audioData: Buffer.from('mock audio data') };
 
       // Mock vision agent to throw an error and voice agent to succeed
       const mockProcessImage = vi.spyOn(fallbackController as any, 'processImage')
@@ -418,8 +419,8 @@ describe('Multimodal Accuracy Validation', () => {
       );
 
       expect(result.text).toBe('Transcribed audio text');
-      expect(mockProcessImage).toHaveBeenCalledWith(input.image);
-      expect(mockProcessAudio).toHaveBeenCalledWith(input.audio);
+      expect(mockProcessImage).toHaveBeenCalledWith(input.imageData);
+      expect(mockProcessAudio).toHaveBeenCalledWith(input.audioData);
       expect(isAccurate).toBe(true);
       expect(fallbackSuccessRate).toBeGreaterThan(0.9);
     });
@@ -436,7 +437,7 @@ describe('Multimodal Accuracy Validation', () => {
       const voiceInput = `Describe this UI: ${visionResult}`;
 
       // Process with voice agent
-      const voiceResult = await voiceAgent.executeVoiceCommand({ command: voiceInput });
+      const voiceResult = await voiceAgent.executeVoiceCommand(voiceInput);
 
       // Mock cross-modal accuracy
       const crossModalAccuracy = 0.87; // 87% accuracy in cross-modal transfer
@@ -459,7 +460,7 @@ describe('Multimodal Accuracy Validation', () => {
       const voiceCommand = 'Create a login form with username and password fields';
 
       // Process voice command
-      const voiceResult = await voiceAgent.executeVoiceCommand({ command: voiceCommand });
+      const voiceResult = await voiceAgent.executeVoiceCommand(voiceCommand);
 
       // Convert voice result to vision input (simulated)
       const designPrompt = voiceResult.response || voiceCommand;
@@ -561,7 +562,10 @@ describe('Multimodal Accuracy Validation', () => {
       expect(isAccurate).toBe(false);
       expect(results).toHaveLength(1);
       expect(results[0].passed).toBe(false);
-      expect(results[0].actualValue).toBeLessThan(results[0].expectedValue['min']);
+      const expectedValue = typeof results[0].expectedValue === 'object' && results[0].expectedValue !== null && 'min' in results[0].expectedValue
+        ? (results[0].expectedValue as { min: number }).min
+        : results[0].expectedValue;
+      expect(results[0].actualValue).toBeLessThan(expectedValue);
       expect(passRate).toBe(0); // 0% pass rate
     });
   });

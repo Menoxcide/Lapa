@@ -1,0 +1,49 @@
+{
+  "finding": {
+    "findingId": "github-498673936-1763189988266",
+    "source": "github",
+    "category": "inference-optimization",
+    "title": "nebuly-ai/exploring-AI-optimization",
+    "description": "Curated list of awesome material on optimization techniques to make artificial intelligence faster and more efficient 🚀",
+    "data": {
+      "query": "inference optimization techniques",
+      "category": "inference-optimization",
+      "stars": 119,
+      "forks": 12,
+      "language": "",
+      "topics": [
+        "acceleration",
+        "artificial-intelligence",
+        "deep-learning",
+        "inference",
+        "machine-learning",
+        "neural-network"
+      ],
+      "createdAt": "2022-06-01T09:35:11.000Z",
+      "updatedAt": "2025-10-03T07:11:41.000Z",
+      "owner": "nebuly-ai",
+      "sources": [
+        "github"
+      ]
+    },
+    "valuePotential": 0.15000000000000002,
+    "implementationSuggestion": "Review inference optimization techniques for performance improvements",
+    "url": "https://github.com/nebuly-ai/exploring-AI-optimization",
+    "tags": [
+      "inference-optimization",
+      "inference",
+      "optimization",
+      "acceleration",
+      "artificial-intelligence",
+      "deep-learning",
+      "inference",
+      "machine-learning",
+      "neural-network"
+    ],
+    "timestamp": "2025-11-15T06:59:48.266Z"
+  },
+  "storedAt": "2025-11-15T06:59:53.406Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T06:59:53.406Z",
+  "implementationStatus": "pending"
+}

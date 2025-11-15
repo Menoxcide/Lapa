@@ -3,7 +3,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import SkillCreatorForm from '../../ui/components/SkillCreatorForm';
+import SkillCreatorForm from '../../ui/components/SkillCreatorForm.js';
 
 describe('SkillCreatorForm', () => {
   const mockOnSubmit = jest.fn();

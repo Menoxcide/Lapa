@@ -100,7 +100,7 @@ describe('Phase 3 - Phase 4 Coordination', () => {
       });
     });
 
-    it('should verify Phase 3 components don't break Phase 4 tests', () => {
+    it('should verify Phase 3 components do not break Phase 4 tests', () => {
       // Test that Phase 3 components are isolated from Phase 4 tests
       const phase4TestFiles = [
         'src/__tests__/phase4-coverage.audit.spec.ts',
@@ -206,7 +206,7 @@ describe('Phase 3 - Phase 4 Coordination', () => {
       expect(Object.keys(accessibilityCompliance).length).toBeGreaterThan(0);
     });
 
-    it('should verify Phase 3 CmdPal doesn't interfere with Phase 4 performance tests', () => {
+    it('should verify Phase 3 CmdPal does not interfere with Phase 4 performance tests', () => {
       // Test that command palette doesn't add latency to Phase 4 performance tests
       const performanceThreshold = 1000; // 1 second
       
@@ -263,7 +263,7 @@ describe('Phase 3 - Phase 4 Coordination', () => {
       expect(Object.keys(securityCompliance).length).toBeGreaterThan(0);
     });
 
-    it('should verify Phase 3 ProtoWire doesn't break Phase 4 protocol tests', () => {
+    it('should verify Phase 3 ProtoWire does not break Phase 4 protocol tests', () => {
       // Test that Phase 3 protocol wiring is compatible with Phase 4 tests
       const protocolFiles = [
         'src/mcp/mcp-connector.ts',
@@ -291,7 +291,7 @@ describe('Phase 3 - Phase 4 Coordination', () => {
   });
 
   describe('Test Isolation Strategy', () => {
-    it('should ensure Phase 3 tests don't break Phase 4 tests', () => {
+    it('should ensure Phase 3 tests do not break Phase 4 tests', () => {
       // Test isolation strategy
       const isolationStrategies = {
         'Mock Phase 3 components in Phase 4 tests': true,
@@ -325,7 +325,7 @@ describe('Phase 3 - Phase 4 Coordination', () => {
       console.log(`  Status: ${phase4TestsCanRun ? 'ISOLATED' : 'COUPLED'}`);
     });
 
-    it('should validate test suite doesn't have circular dependencies', () => {
+    it('should validate test suite does not have circular dependencies', () => {
       // Test dependency graph
       const testDependencies = {
         'Phase 4 tests': {

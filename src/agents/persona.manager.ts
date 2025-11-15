@@ -4,6 +4,10 @@
  * This module manages agent personas, including their personalities, behaviors,
  * and communication styles. It allows for dynamic persona configuration and
  * customization of agent interactions.
+ * 
+ * Now supports loading personas from markdown files in docs/personas/
+ * 
+ * TOON optimization enabled for minimal token usage.
  */
 
 // Define persona characteristics
@@ -22,29 +26,73 @@ export interface Persona {
   customInstructions: string;
 }
 
+// Enhanced persona with markdown content (extends base Persona)
+export interface EnhancedPersona extends Persona {
+  markdownContent?: string;
+  metadata?: {
+    version?: string;
+    lastUpdated?: string;
+    status?: 'ACTIVE' | 'DEPRECATED' | 'DRAFT';
+    project?: string;
+    role?: string;
+  };
+  sections?: {
+    identity?: {
+      name: string;
+      role: string;
+      mission: string;
+      coreResponsibilities: string[];
+    };
+    criticalRules?: string[];
+    coreDirectives?: string;
+    metricsDashboard?: string;
+    workflowPatterns?: string[];
+    decisionFrameworks?: string;
+    codePatterns?: string;
+  };
+}
+
 // Persona configuration options
 export interface PersonaConfig {
   defaultPersonas?: Record<string, Persona>;
   enableDynamicPersonas?: boolean;
   personaStoragePath?: string;
+  enableMarkdownLoading?: boolean;
+  markdownPersonasPath?: string;
 }
 
 /**
  * LAPA Persona Manager
+ * 
+ * Now supports loading personas from markdown files in addition to default personas.
  */
 export class PersonaManager {
   private personas: Map<string, Persona> = new Map();
   private defaultPersonas: Record<string, Persona>;
   private enableDynamicPersonas: boolean;
   private personaStoragePath: string;
+  private enableMarkdownLoading: boolean;
+  private markdownPersonasPath: string;
+  private initialized: boolean = false;
+  private enableTOONOptimization: boolean = true;
   
   constructor(config: PersonaConfig = {}) {
     this.defaultPersonas = config.defaultPersonas || this.getDefaultPersonas();
     this.enableDynamicPersonas = config.enableDynamicPersonas ?? true;
     this.personaStoragePath = config.personaStoragePath || '.lapa/personas';
+    this.enableMarkdownLoading = config.enableMarkdownLoading ?? true;
+    this.markdownPersonasPath = config.markdownPersonasPath || 'docs/personas';
     
-    // Initialize with default personas
+    // Initialize with default personas (synchronous)
     this.initializeDefaultPersonas();
+    
+    // Load markdown personas asynchronously if enabled
+    if (this.enableMarkdownLoading) {
+      this.loadMarkdownPersonas().catch(error => {
+        console.error('Failed to load markdown personas:', error);
+        // Continue with default personas only
+      });
+    }
   }
   
   /**
@@ -58,12 +106,145 @@ export class PersonaManager {
   }
   
   /**
+   * Load personas from markdown files
+   */
+  private async loadMarkdownPersonas(): Promise<void> {
+    try {
+      // Dynamic import to avoid circular dependencies
+      const personaParserModule = await import('./persona-markdown-parser.ts');
+      const { PersonaMarkdownParser, personaMarkdownParser } = personaParserModule;
+      
+      // Create parser with custom path if provided
+      const parser = this.markdownPersonasPath !== 'docs/personas' 
+        ? new PersonaMarkdownParser(this.markdownPersonasPath)
+        : personaMarkdownParser;
+      
+      const parsedPersonas = await parser.loadAllPersonas();
+      
+      // Merge markdown personas (they take precedence over defaults)
+      let loadedCount = 0;
+      for (const parsedPersona of parsedPersonas) {
+        // Convert ParsedPersona to Persona (base interface)
+        const persona: Persona = {
+          id: parsedPersona.id,
+          name: parsedPersona.name,
+          personality: parsedPersona.personality,
+          communicationStyle: parsedPersona.communicationStyle,
+          expertiseAreas: parsedPersona.expertiseAreas,
+          interactionPreferences: parsedPersona.interactionPreferences,
+          behaviorRules: parsedPersona.behaviorRules,
+          customInstructions: parsedPersona.customInstructions
+        };
+        
+        // Store as EnhancedPersona if sections exist
+        const enhancedPersona = persona as EnhancedPersona;
+        if (parsedPersona.sections || parsedPersona.metadata) {
+          enhancedPersona.markdownContent = parsedPersona.markdownContent;
+          enhancedPersona.metadata = parsedPersona.metadata;
+          enhancedPersona.sections = parsedPersona.sections;
+        }
+        
+        this.personas.set(persona.id, enhancedPersona);
+        loadedCount++;
+      }
+      
+      console.log(`✅ Loaded ${loadedCount} personas from markdown files`);
+      this.initialized = true;
+    } catch (error) {
+      console.warn('Markdown persona loading failed, using defaults only:', error);
+      this.initialized = true; // Mark as initialized even if loading failed
+    }
+  }
+  
+  /**
+   * Wait for initialization to complete
+   */
+  async waitForInitialization(): Promise<void> {
+    if (this.initialized) {
+      return;
+    }
+    
+    // Poll until initialized (with timeout)
+    const maxWait = 5000; // 5 seconds
+    const startTime = Date.now();
+    
+    while (!this.initialized && (Date.now() - startTime) < maxWait) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    
+    if (!this.initialized) {
+      console.warn('PersonaManager initialization timeout, proceeding with defaults');
+      this.initialized = true;
+    }
+  }
+  
+  /**
    * Gets a persona by ID
+   * Optimized version with lazy TOON optimization loading
    * @param id Persona ID
+   * @param optimizeForTOON Whether to return TOON-optimized persona
    * @returns The persona or undefined if not found
    */
-  getPersona(id: string): Persona | undefined {
-    return this.personas.get(id);
+  async getPersona(id: string, optimizeForTOON: boolean = false): Promise<Persona | undefined | any> {
+    // Fast path: return immediately if no TOON optimization needed
+    if (!optimizeForTOON || !this.enableTOONOptimization) {
+      return this.personas.get(id);
+    }
+
+    const persona = this.personas.get(id);
+    if (!persona) {
+      return undefined;
+    }
+
+    // Lazy load TOON optimizer only when needed
+    try {
+      const { personaTOONOptimizer } = await import('./persona-toon-optimizer.ts');
+      return personaTOONOptimizer.optimizePersona(persona);
+    } catch (error) {
+      console.warn('TOON optimization failed, returning original persona:', error);
+      return persona;
+    }
+  }
+  
+  /**
+   * Gets an enhanced persona by ID (with markdown content)
+   * @param id Persona ID
+   * @param optimizeForTOON Whether to return TOON-optimized persona
+   * @returns The enhanced persona or undefined if not found
+   */
+  async getEnhancedPersona(id: string, optimizeForTOON: boolean = false): Promise<EnhancedPersona | undefined | any> {
+    const persona = this.personas.get(id);
+    if (!persona) {
+      return undefined;
+    }
+
+    const enhanced = 'sections' in persona 
+      ? persona as EnhancedPersona
+      : { ...persona, sections: {}, metadata: {} } as EnhancedPersona;
+
+    if (optimizeForTOON && this.enableTOONOptimization) {
+      try {
+        const { personaTOONOptimizer } = await import('./persona-toon-optimizer.ts');
+        return personaTOONOptimizer.optimizePersona(enhanced);
+      } catch (error) {
+        console.warn('TOON optimization failed, returning original persona:', error);
+        return enhanced;
+      }
+    }
+
+    return enhanced;
+  }
+  
+  /**
+   * Reload personas from markdown files
+   */
+  async reloadMarkdownPersonas(): Promise<void> {
+    if (!this.enableMarkdownLoading) {
+      throw new Error('Markdown persona loading is disabled');
+    }
+    
+    this.initialized = false;
+    await this.loadMarkdownPersonas();
   }
   
   /**
@@ -174,25 +355,154 @@ export class PersonaManager {
   
   /**
    * Lists all personas
-   * @returns Array of all personas
+   * Optimized version with efficient array handling
+   * @param optimizeForTOON Whether to return TOON-optimized personas
+   * @returns Array of all personas (optionally TOON-optimized)
    */
-  listPersonas(): Persona[] {
-    return Array.from(this.personas.values());
+  async listPersonas(optimizeForTOON: boolean = false): Promise<Persona[] | any[]> {
+    // Fast path: return immediately if no TOON optimization needed
+    if (!optimizeForTOON || !this.enableTOONOptimization) {
+      return Array.from(this.personas.values());
+    }
+
+    const personas = Array.from(this.personas.values());
+    
+    // Only optimize if we have enough personas (TOON is more efficient for 3+)
+    if (personas.length < 3) {
+      return personas;
+    }
+
+    try {
+      const { personaTOONOptimizer } = await import('./persona-toon-optimizer.ts');
+      const result = personaTOONOptimizer.optimizePersonaList(personas);
+      return result.optimized;
+    } catch (error) {
+      console.warn('TOON optimization failed, returning original personas:', error);
+      return personas;
+    }
   }
   
   /**
    * Gets personas by expertise area
+   * Optimized version with efficient filtering and TOON optimization
    * @param expertiseArea Expertise area to filter by
-   * @returns Array of matching personas
+   * @param optimizeForTOON Whether to return TOON-optimized personas
+   * @returns Array of matching personas (optionally TOON-optimized)
    */
-  getPersonasByExpertise(expertiseArea: string): Persona[] {
-    return Array.from(this.personas.values()).filter(persona =>
+  async getPersonasByExpertise(expertiseArea: string, optimizeForTOON: boolean = false): Promise<Persona[] | any[]> {
+    // Optimized: use lowercase search term once
+    const searchTerm = expertiseArea.toLowerCase();
+    
+    // Optimized: filter with early exit
+    const matching = Array.from(this.personas.values()).filter(persona =>
       persona.expertiseAreas.some(area => 
-        area.toLowerCase().includes(expertiseArea.toLowerCase())
+        area.toLowerCase().includes(searchTerm)
       )
     );
+
+    // Fast path: return immediately if no TOON optimization needed or not enough results
+    if (!optimizeForTOON || !this.enableTOONOptimization || matching.length === 0 || matching.length < 3) {
+      return matching;
+    }
+
+    try {
+      const { personaTOONOptimizer } = await import('./persona-toon-optimizer.ts');
+      const result = personaTOONOptimizer.optimizePersonaList(matching);
+      return result.optimized;
+    } catch (error) {
+      console.warn('TOON optimization failed, returning original personas:', error);
+      return matching;
+    }
+  }
+
+  /**
+   * Creates a hybrid persona from multiple base personas
+   * @param basePersonaIds Array of persona IDs to merge
+   * @param options Optional configuration for hybrid generation
+   * @returns The created hybrid persona
+   */
+  async createHybridPersona(
+    basePersonaIds: string[],
+    options?: {
+      weights?: number[];
+      targetExpertise?: string[];
+      tokenOptimization?: 'minimal' | 'balanced' | 'maximum';
+    }
+  ): Promise<EnhancedPersona> {
+    // Dynamic import to avoid circular dependencies
+    const { hybridPersonaGenerator } = await import('./hybrid-persona-generator.ts');
+    
+    const result = await hybridPersonaGenerator.generateHybridPersona({
+      basePersonas: basePersonaIds,
+      weights: options?.weights,
+      targetExpertise: options?.targetExpertise,
+      tokenOptimization: options?.tokenOptimization || 'balanced',
+      enableTOON: true,
+      mergeStrategy: 'intelligent'
+    });
+
+    // Store the hybrid persona
+    this.personas.set(result.persona.id, result.persona);
+    console.log(`✅ Created hybrid persona: ${result.persona.name} (${result.persona.id})`);
+    if (result.tokenReduction) {
+      console.log(`   Token reduction: ${result.tokenReduction.toFixed(1)}%`);
+    }
+
+    return result.persona;
+  }
+
+  /**
+   * Self-generate hybrid persona based on task requirements
+   * @param taskDescription Description of the task
+   * @param requiredExpertise Required expertise areas
+   * @returns The generated hybrid persona
+   */
+  async selfGenerateHybridPersona(
+    taskDescription: string,
+    requiredExpertise: string[]
+  ): Promise<EnhancedPersona> {
+    // Dynamic import to avoid circular dependencies
+    const { hybridPersonaGenerator } = await import('./hybrid-persona-generator.ts');
+    
+    const result = await hybridPersonaGenerator.selfGenerateHybridPersona(
+      taskDescription,
+      requiredExpertise
+    );
+
+    // Store the hybrid persona
+    this.personas.set(result.persona.id, result.persona);
+    console.log(`✅ Self-generated hybrid persona: ${result.persona.name} (${result.persona.id})`);
+    if (result.tokenReduction) {
+      console.log(`   Token reduction: ${result.tokenReduction.toFixed(1)}%`);
+    }
+
+    return result.persona;
   }
   
+  /**
+   * Gets persona optimized for LLM transmission
+   * @param personaId Persona ID
+   * @returns TOON-optimized persona data for LLM
+   */
+  async getPersonaForLLM(personaId: string): Promise<Record<string, any> | undefined> {
+    const persona = this.personas.get(personaId);
+    if (!persona) {
+      return undefined;
+    }
+
+    if (this.enableTOONOptimization) {
+      try {
+        const { personaTOONOptimizer } = await import('./persona-toon-optimizer.ts');
+        return personaTOONOptimizer.optimizeForLLM(persona);
+      } catch (error) {
+        console.warn('TOON optimization failed, returning original persona:', error);
+        return persona as any;
+      }
+    }
+
+    return persona as any;
+  }
+
   /**
    * Applies a persona to an agent interaction
    * @param personaId Persona ID

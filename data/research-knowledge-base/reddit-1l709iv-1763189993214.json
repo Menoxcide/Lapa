@@ -1,0 +1,34 @@
+{
+  "finding": {
+    "findingId": "reddit-1l709iv-1763189993214",
+    "source": "reddit",
+    "category": "model-quantization",
+    "title": "ChatGPT not reading the entire prompt. Someone else facing this issue?",
+    "description": "I gave chatgpt a randomly generated paragraph and asked it to give the last 3 words:  \n  \nwhat are the last 3 words of this prompt,\n\nLarge Language Models (LLMs) have emerged as one of the most significant technological advancements in the field of artificial intelligence, transforming the way machines understand and generate human language. These models, built using deep neural networks with billions of parameters, are trained on vast corpora of text data scraped from books, websites, articles,",
+    "data": {
+      "query": "model quantization methods",
+      "category": "model-quantization",
+      "subreddit": "ChatGPT",
+      "score": 0,
+      "numComments": 4,
+      "author": "akshats911",
+      "createdUtc": 1749460940,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.05,
+    "implementationSuggestion": "Explore model quantization methods for efficiency gains",
+    "url": "https://reddit.com/r/ChatGPT/comments/1l709iv/chatgpt_not_reading_the_entire_prompt_someone/",
+    "tags": [
+      "model-quantization",
+      "quantization",
+      "model"
+    ],
+    "timestamp": "2025-11-15T06:59:53.214Z"
+  },
+  "storedAt": "2025-11-15T06:59:53.430Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T06:59:53.430Z",
+  "implementationStatus": "pending"
+}

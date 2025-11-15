@@ -101,15 +101,12 @@ describe('ContextPreservationManager', () => {
       // First preserve the context
       await contextPreservationManager.preserveContext(handoffId, context);
 
-      // Manually corrupt the stored context to simulate integrity failure
-      // We need to access the private contextStore, so we'll simulate this by
-      // preserving again with different data but same handoffId
-      const corruptedContext = { data: 'corrupted context', taskId: 'task-456' };
-      await contextPreservationManager.preserveContext(handoffId, corruptedContext);
+      // Corrupt the checksum using test helper method
+      contextPreservationManager._testCorruptChecksum(handoffId);
 
       const publishSpy = vi.spyOn(eventBus, 'publish');
 
-      // Try to restore with original expectation
+      // Try to restore - should fail with checksum validation error
       await expect(contextPreservationManager.restoreContext(handoffId))
         .rejects
         .toThrow(/Context integrity check failed/);
@@ -189,20 +186,32 @@ describe('ContextPreservationManager', () => {
 
   describe('getStatistics', () => {
     it('should return correct statistics', async () => {
-      // Initially stats should be empty
-      let stats = contextPreservationManager.getStatistics();
-      expect(stats.preservedContexts).toBe(0);
-      expect(stats.totalSize).toBe(0);
+      // Use unique handoff IDs to avoid conflicts with other tests
+      const uniqueId1 = `handoff-stats-1-${Date.now()}`;
+      const uniqueId2 = `handoff-stats-2-${Date.now()}`;
 
-      // Preserve some contexts
-      await contextPreservationManager.preserveContext('handoff-1', { data: 'test1' });
-      await contextPreservationManager.preserveContext('handoff-2', { data: 'test2'.repeat(100) }); // Larger context
+      // Get initial stats (may have contexts from other tests)
+      const initialStats = contextPreservationManager.getStatistics();
+      const initialCount = initialStats.preservedContexts;
 
-      stats = contextPreservationManager.getStatistics();
-      expect(stats.preservedContexts).toBe(2);
-      expect(stats.totalSize).toBeGreaterThan(0);
+      // Preserve some contexts with unique IDs
+      await contextPreservationManager.preserveContext(uniqueId1, { data: 'test1' });
+      await contextPreservationManager.preserveContext(uniqueId2, { data: 'test2'.repeat(100) }); // Larger context
+
+      // Verify stats after preserving
+      const stats = contextPreservationManager.getStatistics();
+      expect(stats.preservedContexts).toBe(initialCount + 2);
+      expect(stats.totalSize).toBeGreaterThan(initialStats.totalSize);
       expect(stats.oldestContextAge).toBeGreaterThanOrEqual(0);
       expect(stats.newestContextAge).toBeGreaterThanOrEqual(0);
+
+      // Clean up
+      await contextPreservationManager.rollbackContext(uniqueId1);
+      await contextPreservationManager.rollbackContext(uniqueId2);
+
+      // Verify stats after cleanup
+      const finalStats = contextPreservationManager.getStatistics();
+      expect(finalStats.preservedContexts).toBe(initialCount);
     });
   });
 
@@ -235,11 +244,12 @@ describe('ContextPreservationManager', () => {
 
     it('should handle serialization errors gracefully', async () => {
       const handoffId = 'handoff-123';
-      // Functions cannot be serialized to JSON
-      const context = {
-        data: 'test',
-        func: () => console.log('test') // Function property
+      // JSON.stringify omits functions silently, so we need to create a truly non-serializable object
+      // Use circular reference instead which will cause JSON.stringify to fail
+      const context: any = {
+        data: 'test'
       };
+      context.self = context; // Circular reference that will cause serialization to fail
 
       await expect(contextPreservationManager.preserveContext(handoffId, context))
         .rejects

@@ -1,0 +1,39 @@
+{
+  "finding": {
+    "findingId": "arxiv-2504.14689v1-1763179178636",
+    "source": "arxiv",
+    "category": "recursive-improvement",
+    "title": "Designing AI Systems that Augment Human Performed vs. Demonstrated Critical Thinking",
+    "description": "The recent rapid advancement of LLM-based AI systems has accelerated our search and production of information. While the advantages brought by these systems seemingly improve the performance or efficiency of human activities, they do not necessarily enhance human capabilities. Recent research has started to examine the impact of generative AI on individuals' cognitive abilities, especially critical thinking. Based on definitions of critical thinking across psychology and education, this position",
+    "data": {
+      "query": "recursive self-improvement AI systems",
+      "category": "recursive-improvement",
+      "authors": [
+        "Katelyn Xiaoying Mei",
+        "Nic Weber"
+      ],
+      "categories": [
+        "cs.HC"
+      ],
+      "published": "2025-04-20T17:40:28.000Z",
+      "updated": "2025-04-20T17:40:28.000Z",
+      "sources": [
+        "arxiv"
+      ]
+    },
+    "valuePotential": 0.30000000000000004,
+    "implementationSuggestion": "Consider recursive improvement mechanisms for continuous evolution",
+    "url": "http://arxiv.org/abs/2504.14689v1",
+    "tags": [
+      "recursive-improvement",
+      "ai",
+      "recursive",
+      "cs.HC"
+    ],
+    "timestamp": "2025-11-15T03:59:38.637Z"
+  },
+  "storedAt": "2025-11-15T03:59:43.373Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T03:59:43.373Z",
+  "implementationStatus": "pending"
+}

@@ -6,6 +6,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { ProviderSwitcher, ProviderType } from './components/ProviderSwitcher.tsx';
 
 interface SettingsConfig {
   // General
@@ -13,7 +14,7 @@ interface SettingsConfig {
   onboardingTour: boolean;
   
   // Inference
-  backend: 'ollama' | 'nim' | 'auto';
+  backend: 'ollama' | 'nim' | 'auto' | 'cloud';
   perfMode: number; // 1-10
   model: string;
   compression: boolean;
@@ -247,16 +248,37 @@ const SettingsPanel: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
               <div className="space-y-4">
                 <h3 className="text-xl font-semibold mb-4">Inference Settings</h3>
                 <div>
-                  <label className="block mb-2">Backend</label>
-                  <select
-                    value={config.backend}
-                    onChange={(e) => updateConfig({ backend: e.target.value as any })}
-                    className="w-full p-2 border rounded"
-                  >
-                    <option value="ollama">Ollama (Default)</option>
-                    <option value="nim">NIM (52 t/s, 9.2GB VRAM)</option>
-                    <option value="auto">Auto (Smart Switching)</option>
-                  </select>
+                  <label className="block mb-2">Backend Provider</label>
+                  <ProviderSwitcher
+                    currentProvider={(config.backend === 'auto' ? 'ollama' : config.backend) as ProviderType}
+                    onProviderChange={(provider) => {
+                      // Map cloud to auto for now, or handle separately
+                      const backend = provider === 'cloud' ? 'cloud' : provider;
+                      updateConfig({ backend: backend as any });
+                    }}
+                    size="md"
+                    showLabels={true}
+                    className="mb-2"
+                  />
+                  <div className="text-sm text-gray-600 mt-2">
+                    {config.backend === 'ollama' && 'Local inference using Ollama (default, free)'}
+                    {config.backend === 'nim' && 'Fast local inference using NVIDIA NIM (52 t/s, requires 9.2GB VRAM)'}
+                    {config.backend === 'cloud' && 'Cloud inference using NVIDIA NIM Cloud (premium feature)'}
+                    {config.backend === 'auto' && 'Auto-switching between available backends based on performance'}
+                  </div>
+                  {config.backend === 'auto' && (
+                    <div className="mt-2">
+                      <label className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={true}
+                          disabled
+                          className="mr-2"
+                        />
+                        <span className="text-sm text-gray-600">Smart switching enabled</span>
+                      </label>
+                    </div>
+                  )}
                 </div>
                 <div>
                   <label className="block mb-2">Performance Mode: {config.perfMode}</label>

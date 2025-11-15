@@ -22,6 +22,12 @@ describe('OpenAI Agent Integration', () => {
   beforeEach(() => {
     handoffSystem = new HybridHandoffSystem();
     orchestrator = new LangGraphOrchestrator('start');
+    // Add the initial state node so workflow execution can start
+    orchestrator.addNode({
+      id: 'start',
+      type: 'process',
+      label: 'Start Process'
+    });
     mockOpenAIAgent = {
       id: 'openai-agent-1',
       name: 'Test OpenAI Agent',

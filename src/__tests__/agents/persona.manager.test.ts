@@ -9,12 +9,12 @@ describe('PersonaManager', () => {
   });
 
   describe('constructor', () => {
-    it('should initialize with default personas', () => {
-      const personas = personaManager.listPersonas();
+    it('should initialize with default personas', async () => {
+      const personas = await personaManager.listPersonas();
       expect(personas.length).toBeGreaterThan(0);
     });
 
-    it('should accept custom configuration', () => {
+    it('should accept custom configuration', async () => {
       const customPersonas = {
         'custom-1': {
           id: 'custom-1',
@@ -37,28 +37,28 @@ describe('PersonaManager', () => {
         enableDynamicPersonas: true
       });
 
-      const personas = customManager.listPersonas();
+      const personas = await customManager.listPersonas();
       expect(personas).toHaveLength(1);
       expect(personas[0].id).toBe('custom-1');
     });
   });
 
   describe('getPersona', () => {
-    it('should return a persona by ID', () => {
-      const persona = personaManager.getPersona('coder-default');
+    it('should return a persona by ID', async () => {
+      const persona = await personaManager.getPersona('coder-default');
       expect(persona).toBeDefined();
       expect(persona?.id).toBe('coder-default');
       expect(persona?.name).toBe('Expert Coder');
     });
 
-    it('should return undefined for non-existent persona', () => {
-      const persona = personaManager.getPersona('non-existent');
+    it('should return undefined for non-existent persona', async () => {
+      const persona = await personaManager.getPersona('non-existent');
       expect(persona).toBeUndefined();
     });
   });
 
   describe('createPersona', () => {
-    it('should create a new persona when dynamic personas are enabled', () => {
+    it('should create a new persona when dynamic personas are enabled', async () => {
       const newPersona: Persona = {
         id: 'new-persona',
         name: 'New Persona',
@@ -77,7 +77,7 @@ describe('PersonaManager', () => {
       const created = personaManager.createPersona(newPersona);
       expect(created).toEqual(newPersona);
       
-      const retrieved = personaManager.getPersona('new-persona');
+      const retrieved = await personaManager.getPersona('new-persona');
       expect(retrieved).toEqual(newPersona);
     });
 
@@ -135,7 +135,7 @@ describe('PersonaManager', () => {
   });
 
   describe('deletePersona', () => {
-    it('should delete an existing persona', () => {
+    it('should delete an existing persona', async () => {
       // First create a persona to delete
       const personaToDelete: Persona = {
         id: 'delete-me',
@@ -153,11 +153,11 @@ describe('PersonaManager', () => {
       };
 
       personaManager.createPersona(personaToDelete);
-      expect(personaManager.getPersona('delete-me')).toBeDefined();
+      expect(await personaManager.getPersona('delete-me')).toBeDefined();
 
       const result = personaManager.deletePersona('delete-me');
       expect(result).toBe(true);
-      expect(personaManager.getPersona('delete-me')).toBeUndefined();
+      expect(await personaManager.getPersona('delete-me')).toBeUndefined();
     });
 
     it('should return false when deleting non-existent persona', () => {
@@ -176,28 +176,28 @@ describe('PersonaManager', () => {
   });
 
   describe('listPersonas', () => {
-    it('should return all personas', () => {
-      const personas = personaManager.listPersonas();
+    it('should return all personas', async () => {
+      const personas = await personaManager.listPersonas();
       expect(personas.length).toBeGreaterThan(0);
-      expect(personas.some(p => p.id === 'coder-default')).toBe(true);
-      expect(personas.some(p => p.id === 'reviewer-default')).toBe(true);
+      expect(personas.some((p: Persona) => p.id === 'coder-default')).toBe(true);
+      expect(personas.some((p: Persona) => p.id === 'reviewer-default')).toBe(true);
     });
   });
 
   describe('getPersonasByExpertise', () => {
-    it('should return personas matching expertise area', () => {
-      const coderPersonas = personaManager.getPersonasByExpertise('coding');
+    it('should return personas matching expertise area', async () => {
+      const coderPersonas = await personaManager.getPersonasByExpertise('coding');
       expect(coderPersonas.length).toBeGreaterThan(0);
-      expect(coderPersonas.some(p => p.id === 'coder-default')).toBe(true);
+      expect(coderPersonas.some((p: Persona) => p.id === 'coder-default')).toBe(true);
     });
 
-    it('should handle case insensitive matching', () => {
-      const personas = personaManager.getPersonasByExpertise('CODING');
-      expect(personas.some(p => p.id === 'coder-default')).toBe(true);
+    it('should handle case insensitive matching', async () => {
+      const personas = await personaManager.getPersonasByExpertise('CODING');
+      expect(personas.some((p: Persona) => p.id === 'coder-default')).toBe(true);
     });
 
-    it('should return empty array for non-matching expertise', () => {
-      const personas = personaManager.getPersonasByExpertise('non-existent-expertise');
+    it('should return empty array for non-matching expertise', async () => {
+      const personas = await personaManager.getPersonasByExpertise('non-existent-expertise');
       expect(personas).toHaveLength(0);
     });
   });

@@ -319,8 +319,10 @@ describe('Phase 14 Integration', () => {
     it('should publish events on component actions', async () => {
       const events: any[] = [];
       
-      eventBus.subscribe('prompt-engineer.vague-detected', (event) => {
-        events.push(event);
+      eventBus.subscribe('system.warning', (event) => {
+        if ((event.payload as any)?.type === 'vague-prompt') {
+          events.push(event);
+        }
       });
 
       // Trigger vague prompt detection

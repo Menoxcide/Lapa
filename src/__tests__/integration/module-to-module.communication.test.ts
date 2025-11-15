@@ -76,18 +76,12 @@ describe('Module-to-Module Communication Integration', () => {
   beforeEach(async () => {
     // Setup mock event bus
     mockEventSubscribers = new Map();
-    vi.spyOn(eventBus, 'subscribe').mockImplementation((eventType: string, handler: Function) => {
+    vi.spyOn(eventBus, 'subscribe').mockImplementation((eventType: any, handler: any, filter?: any) => {
       if (!mockEventSubscribers.has(eventType)) {
         mockEventSubscribers.set(eventType, []);
       }
       mockEventSubscribers.get(eventType)!.push(handler);
-      return () => {
-        const handlers = mockEventSubscribers.get(eventType);
-        if (handlers) {
-          const index = handlers.indexOf(handler);
-          if (index > -1) handlers.splice(index, 1);
-        }
-      };
+      return `subscription-${Date.now()}-${Math.random()}`;
     });
 
     vi.spyOn(eventBus, 'publish').mockImplementation(async (event: any) => {
@@ -98,20 +92,20 @@ describe('Module-to-Module Communication Integration', () => {
 
     a2aMediator = new A2AMediator();
     sessionManager = new SwarmSessionManager();
-    orchestrator = new LangGraphOrchestrator();
+    orchestrator = new LangGraphOrchestrator('start');
     handoffSystem = new HybridHandoffSystem();
     memoriEngine = new MemoriEngine();
     episodicMemory = new EpisodicMemoryStore();
     mcpConnector = new MCPConnector();
     rbacSystem = new RBACSystem();
-    metrics = new PrometheusMetrics();
+    metrics = new PrometheusMetrics({ enabled: true }, eventBus);
 
     await memoriEngine.initialize();
     await episodicMemory.initialize();
   });
 
   afterEach(() => {
-    eventBus.removeAllListeners();
+    eventBus.clear();
   });
 
   describe('Event Bus ↔ All Modules', () => {
@@ -126,10 +120,12 @@ describe('Module-to-Module Communication Integration', () => {
         targetAgentId: 'agent-2',
         capabilities: ['coding'],
         protocolVersion: '1.0',
-        taskId: 'task-123',
-        taskDescription: 'Test task',
-        context: {},
-        priority: 'medium' as const
+        metadata: {
+          taskId: 'task-123',
+          taskDescription: 'Test task',
+          context: {},
+          priority: 'medium' as 'low' | 'medium' | 'high'
+        }
       };
 
       await a2aMediator.initiateHandshake(handshakeRequest);
@@ -164,8 +160,12 @@ describe('Module-to-Module Communication Integration', () => {
     it('should allow observability to track all module events', async () => {
       const trackedEvents: any[] = [];
       
-      eventBus.subscribe('*', (event) => {
-        trackedEvents.push(event);
+      // Subscribe to all known event types
+      const eventTypes: any[] = ['a2a.handshake.request', 'memory.episode.stored', 'system.warning'];
+      eventTypes.forEach(eventType => {
+        eventBus.subscribe(eventType, (event: any) => {
+          trackedEvents.push(event);
+        });
       });
 
       // Generate events from multiple modules
@@ -174,10 +174,12 @@ describe('Module-to-Module Communication Integration', () => {
         targetAgentId: 'agent-2',
         capabilities: ['coding'],
         protocolVersion: '1.0',
-        taskId: 'task-123',
-        taskDescription: 'Test',
-        context: {},
-        priority: 'medium' as const
+        metadata: {
+          taskId: 'task-123',
+          taskDescription: 'Test',
+          context: {},
+          priority: 'medium' as 'low' | 'medium' | 'high'
+        }
       });
 
       await eventBus.publish({
@@ -194,11 +196,14 @@ describe('Module-to-Module Communication Integration', () => {
 
   describe('A2A Mediator ↔ Swarm Sessions', () => {
     it('should integrate A2A handshakes with swarm sessions', async () => {
-      const sessionId = await sessionManager.createSession({
-        name: 'Test Session',
+      const sessionId = 'test-session-1';
+      await sessionManager.createSession({
+        sessionId: sessionId,
+        hostUserId: 'host-user',
         enableA2A: true,
-        maxParticipants: 5
-      });
+        maxParticipants: 5,
+        enableVetoes: false
+      }, 'host-user');
 
       const handshakeRequest = {
         sourceAgentId: 'agent-1',
@@ -208,7 +213,7 @@ describe('Module-to-Module Communication Integration', () => {
         taskId: 'task-123',
         taskDescription: 'Test task',
         context: { sessionId },
-        priority: 'medium' as const
+        priority: 'medium' as 'low' | 'medium' | 'high'
       };
 
       const handshakeResponse = await a2aMediator.initiateHandshake(handshakeRequest);
@@ -216,7 +221,7 @@ describe('Module-to-Module Communication Integration', () => {
         sessionId,
         'agent-1',
         'agent-2',
-        { id: 'task-123', description: 'Test task', priority: 'medium' }
+        { id: 'task-123', description: 'Test task', type: 'task', priority: 5 }
       );
 
       expect(handshakeResponse.success).toBe(true);
@@ -224,29 +229,24 @@ describe('Module-to-Module Communication Integration', () => {
     });
 
     it('should synchronize A2A state across swarm sessions', async () => {
-      const sessionId = await sessionManager.createSession({
-        name: 'Test Session',
-        enableA2A: true
-      });
+      const sessionId = 'test-session-2';
+      await sessionManager.createSession({
+        sessionId: sessionId,
+        hostUserId: 'host-user',
+        enableA2A: true,
+        maxParticipants: 5,
+        enableVetoes: false
+      }, 'host-user');
 
-      await sessionManager.addParticipant(sessionId, {
-        agentId: 'agent-1',
-        capabilities: ['coding'],
-        role: 'coder'
-      });
-
-      await sessionManager.addParticipant(sessionId, {
-        agentId: 'agent-2',
-        capabilities: ['testing'],
-        role: 'tester'
-      });
+      await sessionManager.joinSession(sessionId, 'user-1', 'Agent 1', 'agent-1');
+      await sessionManager.joinSession(sessionId, 'user-2', 'Agent 2', 'agent-2');
 
       const syncRequest = {
         sourceAgentId: 'agent-1',
         targetAgentId: 'agent-2',
         syncType: 'full' as const,
         state: { currentTask: 'task-123' },
-        context: { sessionId }
+        handshakeId: 'handshake-123'
       };
 
       const syncResponse = await a2aMediator.syncState(syncRequest);
@@ -342,11 +342,11 @@ describe('Module-to-Module Communication Integration', () => {
 
     it('should allow memory systems to query each other', async () => {
       // Store in episodic
-      await episodicMemory.store({
+      await episodicMemory.storeEpisode({
         agentId: 'agent-1',
-        content: 'Completed task X',
-        importance: 0.9,
-        tags: ['task', 'completion']
+        taskId: 'task-x',
+        sessionId: 'session-1',
+        content: 'Completed task X'
       });
 
       // Query from Memori (cross-memory query)
@@ -357,13 +357,9 @@ describe('Module-to-Module Communication Integration', () => {
 
   describe('MCP Connector ↔ Agents', () => {
     it('should allow agents to use MCP tools', async () => {
-      await mcpConnector.connect({
-        name: 'test-server',
-        command: 'node',
-        args: ['test-mcp-server.js']
-      });
+      await mcpConnector.connect();
 
-      const tools = await mcpConnector.listTools();
+      const tools = await (mcpConnector as any).getTools?.() || [];
       expect(tools.length).toBeGreaterThan(0);
 
       // Agent should be able to call MCP tool
@@ -384,30 +380,34 @@ describe('Module-to-Module Communication Integration', () => {
 
   describe('Security ↔ All Modules', () => {
     it('should enforce RBAC on all module operations', async () => {
-      await rbacSystem.createRole('developer', [
-        'agent.create',
-        'agent.read',
-        'task.create'
-      ]);
+      rbacSystem.createRole({
+        id: 'developer',
+        name: 'Developer',
+        description: 'Developer role',
+        permissions: new Set(['agent.create', 'agent.read', 'task.create'] as any[])
+      });
 
-      await rbacSystem.assignRole('user-1', 'developer');
+      rbacSystem.assignRole('user-1', 'developer');
 
-      const hasPermission = await rbacSystem.checkPermission(
+      const hasPermission = rbacSystem.hasPermission(
         'user-1',
-        'agent.create',
-        'agent'
+        'agent.create' as any
       );
 
       expect(hasPermission).toBe(true);
     });
 
     it('should block unauthorized module access', async () => {
-      await rbacSystem.createRole('viewer', ['agent.read']);
+      rbacSystem.createRole({
+        id: 'viewer',
+        name: 'Viewer',
+        description: 'Viewer role',
+        permissions: new Set(['agent.read'] as any[])
+      });
 
-      const hasPermission = await rbacSystem.checkPermission(
+      const hasPermission = rbacSystem.hasPermission(
         'viewer-user',
-        'agent.create',
-        'agent'
+        'agent.create' as any
       );
 
       expect(hasPermission).toBe(false);
@@ -415,11 +415,11 @@ describe('Module-to-Module Communication Integration', () => {
 
     it('should audit all security-relevant events', async () => {
       const auditEvents: any[] = [];
-      eventBus.subscribe('security.audit', (event) => {
+      eventBus.subscribe('system.warning', (event: any) => {
         auditEvents.push(event);
       });
 
-      await rbacSystem.checkPermission('user-1', 'agent.create', 'agent');
+      rbacSystem.hasPermission('user-1', 'agent.create' as any);
       expect(auditEvents.length).toBeGreaterThan(0);
     });
   });
@@ -432,10 +432,7 @@ describe('Module-to-Module Communication Integration', () => {
         targetAgentId: 'agent-2',
         capabilities: ['coding'],
         protocolVersion: '1.0',
-        taskId: 'task-123',
-        taskDescription: 'Test',
-        context: {},
-        priority: 'medium' as const
+        metadata: { taskId: 'task-123' }
       });
 
       await eventBus.publish({
@@ -444,11 +441,11 @@ describe('Module-to-Module Communication Integration', () => {
         timestamp: Date.now(),
         source: 'test-agent',
         payload: { taskId: 'task-123', duration: 100 }
-      });
+      } as any);
 
-      const metrics = await metrics.getMetrics();
-      expect(metrics).toBeDefined();
-      expect(Object.keys(metrics).length).toBeGreaterThan(0);
+      const metricsData = await metrics.getMetrics();
+      expect(metricsData).toBeDefined();
+      expect(Object.keys(metricsData).length).toBeGreaterThan(0);
     });
 
     it('should track cross-module communication latency', async () => {
@@ -459,10 +456,12 @@ describe('Module-to-Module Communication Integration', () => {
         targetAgentId: 'agent-2',
         capabilities: ['coding'],
         protocolVersion: '1.0',
-        taskId: 'task-123',
-        taskDescription: 'Test',
-        context: {},
-        priority: 'medium' as const
+        metadata: {
+          taskId: 'task-123',
+          taskDescription: 'Test',
+          context: {},
+          priority: 'medium' as 'low' | 'medium' | 'high'
+        }
       });
 
       const latency = Date.now() - startTime;
@@ -474,16 +473,15 @@ describe('Module-to-Module Communication Integration', () => {
     it('should handle complete workflow across all modules', async () => {
       // 1. Create session
       const sessionId = await sessionManager.createSession({
-        name: 'E2E Test',
-        enableA2A: true
-      });
+        sessionId: 'e2e-session',
+        hostUserId: 'host-user',
+        enableA2A: true,
+        maxParticipants: 10,
+        enableVetoes: false
+      }, 'host-user');
 
       // 2. Add agents
-      await sessionManager.addParticipant(sessionId, {
-        agentId: 'agent-1',
-        capabilities: ['coding'],
-        role: 'coder'
-      });
+      await sessionManager.joinSession(sessionId, 'agent-1', 'Agent 1', 'agent-1');
 
       // 3. A2A handshake
       const handshake = await a2aMediator.initiateHandshake({
@@ -491,10 +489,12 @@ describe('Module-to-Module Communication Integration', () => {
         targetAgentId: 'agent-2',
         capabilities: ['testing'],
         protocolVersion: '1.0',
-        taskId: 'task-123',
-        taskDescription: 'E2E test',
-        context: { sessionId },
-        priority: 'high' as const
+        metadata: {
+          taskId: 'task-123',
+          taskDescription: 'E2E test',
+          context: { sessionId },
+          priority: 'high' as const
+        }
       });
 
       expect(handshake.success).toBe(true);
@@ -518,10 +518,12 @@ describe('Module-to-Module Communication Integration', () => {
       expect(workflowResult.success).toBe(true);
 
       // 5. Store in memory
-      await episodicMemory.store({
+      await episodicMemory.storeEpisode({
         agentId: 'agent-1',
+        taskId: 'task-123',
+        sessionId: sessionId,
         content: 'Completed E2E workflow',
-        importance: 1.0,
+        context: {},
         tags: ['e2e', 'workflow']
       });
 

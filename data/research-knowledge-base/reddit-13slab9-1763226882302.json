@@ -1,0 +1,35 @@
+{
+  "finding": {
+    "findingId": "reddit-13slab9-1763226882302",
+    "source": "reddit",
+    "category": "continuous-learning",
+    "title": "Voyager: An Open-Ended Embodied Agent with Large Language Models - Nvidia 2023 - LLM-powered (GPT-4) embodied lifelong learning agent in Minecraft that continuously explores the world!!!!",
+    "description": "Paper: [https://arxiv.org/abs/2305.16291](https://arxiv.org/abs/2305.16291)\n\nGithub: [https://github.com/MineDojo/Voyager](https://github.com/MineDojo/Voyager) \n\nBlog: [https://voyager.minedojo.org/](https://voyager.minedojo.org/) \n\nAbstract:\n\n&gt;We introduce Voyager, the first **LLM-powered embodied lifelong learning agent in Minecraft that continuously explores the world, acquires diverse skills, and makes novel discoveries without human intervention.** Voyager consists of three key component",
+    "data": {
+      "query": "continuous learning agents",
+      "category": "continuous-learning",
+      "subreddit": "artificial",
+      "score": 11,
+      "numComments": 2,
+      "author": "Singularian2501",
+      "createdUtc": 1685127041,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.05,
+    "implementationSuggestion": "Review continuous learning approaches for agent adaptation",
+    "url": "https://reddit.com/r/artificial/comments/13slab9/voyager_an_openended_embodied_agent_with_large/",
+    "tags": [
+      "continuous-learning",
+      "agent",
+      "continuous",
+      "learning"
+    ],
+    "timestamp": "2025-11-15T17:14:42.302Z"
+  },
+  "storedAt": "2025-11-15T17:14:42.619Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T17:14:42.619Z",
+  "implementationStatus": "pending"
+}

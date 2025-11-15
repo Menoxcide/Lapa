@@ -1,0 +1,33 @@
+{
+  "finding": {
+    "findingId": "reddit-1gvghyl-1763223284445",
+    "source": "reddit",
+    "category": "orchestration",
+    "title": "Which Multi-AI Agent framework is the best? ",
+    "description": "Recently, the focus has shifted from improving LLMs to AI Agentic systems. That too, towards Multi AI Agent systems leading to a plethora of Multi-Agent Orchestration frameworks like AutoGen, LangGraph, Microsoft's Magentic-One and TinyTroupe alongside OpenAI's Swarm. Check out this detailed post on pros and cons of these frameworks and which framework should you use depending on your usecase : https://youtu.be/B-IojBoSQ4c?si=rc5QzwG5sJ4NBsyX",
+    "data": {
+      "query": "agent orchestration frameworks",
+      "category": "orchestration",
+      "subreddit": "ChatGPT",
+      "score": 4,
+      "numComments": 5,
+      "author": "mehul_gupta1997",
+      "createdUtc": 1732074094,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.30000000000000004,
+    "implementationSuggestion": "Review orchestration patterns for potential NEURAFORGE enhancements",
+    "url": "https://reddit.com/r/ChatGPT/comments/1gvghyl/which_multiai_agent_framework_is_the_best/",
+    "tags": [
+      "orchestration",
+      "agent"
+    ],
+    "timestamp": "2025-11-15T16:14:44.445Z"
+  },
+  "storedAt": "2025-11-15T16:14:44.903Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T16:14:44.903Z",
+  "implementationStatus": "pending"
+}

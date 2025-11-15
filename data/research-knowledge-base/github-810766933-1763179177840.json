@@ -1,0 +1,52 @@
+{
+  "finding": {
+    "findingId": "github-810766933-1763179177840",
+    "source": "github",
+    "category": "model-quantization",
+    "title": "TsingmaoAI/MI-optimize",
+    "description": "mi-optimize is a versatile tool designed for the quantization and evaluation of large language models (LLMs). The library's seamless integration of various quantization methods and evaluation techniques empowers users to customize their approaches according to specific requirements and constraints, providing a high level of flexibility. ",
+    "data": {
+      "query": "model quantization methods",
+      "category": "model-quantization",
+      "stars": 23,
+      "forks": 5,
+      "language": "Python",
+      "topics": [
+        "benchmark",
+        "inference",
+        "large-language-model",
+        "llm",
+        "ptq",
+        "qat",
+        "quantization"
+      ],
+      "createdAt": "2024-06-05T10:13:24.000Z",
+      "updatedAt": "2025-07-10T02:05:26.000Z",
+      "owner": "TsingmaoAI",
+      "sources": [
+        "github"
+      ]
+    },
+    "valuePotential": 0.1,
+    "implementationSuggestion": "Explore model quantization methods for efficiency gains",
+    "url": "https://github.com/TsingmaoAI/MI-optimize",
+    "tags": [
+      "model-quantization",
+      "quantization",
+      "model",
+      "Python",
+      "benchmark",
+      "inference",
+      "large-language-model",
+      "llm",
+      "ptq",
+      "qat",
+      "quantization"
+    ],
+    "timestamp": "2025-11-15T03:59:37.840Z"
+  },
+  "storedAt": "2025-11-15T03:59:46.942Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T03:59:46.942Z",
+  "implementationStatus": "pending"
+}

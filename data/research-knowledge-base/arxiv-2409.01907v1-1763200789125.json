@@ -1,0 +1,42 @@
+{
+  "finding": {
+    "findingId": "arxiv-2409.01907v1-1763200789125",
+    "source": "arxiv",
+    "category": "swarm-architectures",
+    "title": "Focus Agent: LLM-Powered Virtual Focus Group",
+    "description": "In the domain of Human-Computer Interaction, focus groups represent a widely utilised yet resource-intensive methodology, often demanding the expertise of skilled moderators and meticulous preparatory efforts. This study introduces the ``Focus Agent,'' a Large Language Model (LLM) powered framework that simulates both the focus group (for data collection) and acts as a moderator in a focus group setting with human participants. To assess the data quality derived from the Focus Agent, we ran five",
+    "data": {
+      "query": "LLM agent swarm architectures",
+      "category": "swarm-architectures",
+      "authors": [
+        "Taiyu Zhang",
+        "Xuesong Zhang",
+        "Robbe Cools",
+        "Adalberto L. Simeone"
+      ],
+      "categories": [
+        "cs.HC"
+      ],
+      "published": "2024-09-03T13:56:14.000Z",
+      "updated": "2024-09-03T13:56:14.000Z",
+      "sources": [
+        "arxiv"
+      ]
+    },
+    "valuePotential": 0.4,
+    "implementationSuggestion": "Explore swarm coordination patterns for multi-agent systems",
+    "url": "http://arxiv.org/abs/2409.01907v1",
+    "tags": [
+      "swarm-architectures",
+      "agent",
+      "llm",
+      "swarm",
+      "cs.HC"
+    ],
+    "timestamp": "2025-11-15T09:59:49.125Z"
+  },
+  "storedAt": "2025-11-15T09:59:53.434Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T09:59:53.434Z",
+  "implementationStatus": "pending"
+}

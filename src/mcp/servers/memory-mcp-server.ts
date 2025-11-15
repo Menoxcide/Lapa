@@ -68,30 +68,31 @@ export class MemoryMCPServer {
    */
   private setupTools(): void {
     // Tool: Read memory
-    this.server.setRequestHandler('tools/call', async (request) => {
-      if (request.params.name === 'read_memory') {
-        return this.handleReadMemory(request.params.arguments as any);
+    this.server.setRequestHandler('tools/call' as any, async (request: any) => {
+      const params = request.params as any;
+      if (params.name === 'read_memory') {
+        return this.handleReadMemory(params.arguments as any);
       }
-      if (request.params.name === 'query_episodic_memory') {
-        return this.handleQueryEpisodicMemory(request.params.arguments as any);
+      if (params.name === 'query_episodic_memory') {
+        return this.handleQueryEpisodicMemory(params.arguments as any);
       }
-      if (request.params.name === 'store_memory') {
-        return this.handleStoreMemory(request.params.arguments as any);
+      if (params.name === 'store_memory') {
+        return this.handleStoreMemory(params.arguments as any);
       }
-      if (request.params.name === 'search_memories') {
-        return this.handleSearchMemories(request.params.arguments as any);
+      if (params.name === 'search_memories') {
+        return this.handleSearchMemories(params.arguments as any);
       }
-      if (request.params.name === 'get_memory_unlock_level') {
-        return this.handleGetMemoryUnlockLevel(request.params.arguments as any);
+      if (params.name === 'get_memory_unlock_level') {
+        return this.handleGetMemoryUnlockLevel(params.arguments as any);
       }
-      if (request.params.name === 'delete_memory') {
-        return this.handleDeleteMemory(request.params.arguments as any);
+      if (params.name === 'delete_memory') {
+        return this.handleDeleteMemory(params.arguments as any);
       }
-      throw new Error(`Unknown tool: ${request.params.name}`);
+      throw new Error(`Unknown tool: ${params.name}`);
     });
 
     // Tool: List available tools
-    this.server.setRequestHandler('tools/list', async () => {
+    this.server.setRequestHandler('tools/list' as any, async () => {
       return {
         tools: [
           {

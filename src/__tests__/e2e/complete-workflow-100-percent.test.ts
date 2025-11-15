@@ -65,29 +65,25 @@ describe('Complete Workflow E2E - 100% Coverage', () => {
 
   beforeEach(async () => {
     mockEventHandlers = new Map();
-    vi.spyOn(eventBus, 'subscribe').mockImplementation((eventType: string, handler: Function) => {
-      if (!mockEventHandlers.has(eventType)) {
-        mockEventHandlers.set(eventType, []);
+    vi.spyOn(eventBus, 'subscribe').mockImplementation((eventType: any, handler: any, filter?: any) => {
+      const eventTypeStr = String(eventType);
+      if (!mockEventHandlers.has(eventTypeStr)) {
+        mockEventHandlers.set(eventTypeStr, []);
       }
-      mockEventHandlers.get(eventType)!.push(handler);
-      return () => {
-        const handlers = mockEventHandlers.get(eventType);
-        if (handlers) {
-          const index = handlers.indexOf(handler);
-          if (index > -1) handlers.splice(index, 1);
-        }
-      };
+      mockEventHandlers.get(eventTypeStr)!.push(handler);
+      const subscriptionId = `sub-${Date.now()}-${Math.random()}`;
+      return subscriptionId;
     });
 
     vi.spyOn(eventBus, 'publish').mockImplementation(async (event: any) => {
       const handlers = mockEventHandlers.get(event.type) || [];
-      handlers.forEach(handler => handler(event));
+      handlers.forEach((handler: Function) => handler(event));
       return Promise.resolve();
     });
 
     a2aMediator = new A2AMediator();
     sessionManager = new SwarmSessionManager();
-    orchestrator = new LangGraphOrchestrator();
+    orchestrator = new LangGraphOrchestrator('start');
     handoffSystem = new HybridHandoffSystem();
     memoriEngine = new MemoriEngine();
     episodicMemory = new EpisodicMemoryStore();
@@ -109,27 +105,20 @@ describe('Complete Workflow E2E - 100% Coverage', () => {
     it('should execute complete feature implementation workflow', async () => {
       // Create session
       const sessionId = await sessionManager.createSession({
-        name: 'Feature Implementation',
+        sessionId: 'session-feature-impl',
+        hostUserId: 'user-1',
         enableA2A: true,
-        maxParticipants: 5
-      });
+        maxParticipants: 5,
+        enableVetoes: false
+      }, 'user-1');
 
       expect(sessionId).toBeDefined();
       expect(typeof sessionId).toBe('string');
       expect(sessionId.length).toBeGreaterThan(0);
 
       // Add agents
-      await sessionManager.addParticipant(sessionId, {
-        agentId: 'architect',
-        capabilities: ['architecture'],
-        role: 'architect'
-      });
-
-      await sessionManager.addParticipant(sessionId, {
-        agentId: 'coder',
-        capabilities: ['coding'],
-        role: 'coder'
-      });
+      await sessionManager.joinSession(sessionId, 'user-architect', 'Architect', 'architect');
+      await sessionManager.joinSession(sessionId, 'user-coder', 'Coder', 'coder');
 
       // Establish A2A connection
       const handshake = await a2aMediator.initiateHandshake({
@@ -158,18 +147,16 @@ describe('Complete Workflow E2E - 100% Coverage', () => {
 
     it('should execute multi-agent collaboration workflow', async () => {
       const sessionId = await sessionManager.createSession({
-        name: 'Collaboration',
+        sessionId: 'session-collaboration',
+        hostUserId: 'user-1',
         enableA2A: true,
-        maxParticipants: 10
-      });
+        maxParticipants: 10,
+        enableVetoes: false
+      }, 'user-1');
 
       const agents = ['agent-1', 'agent-2', 'agent-3', 'agent-4'];
       for (const agentId of agents) {
-        await sessionManager.addParticipant(sessionId, {
-          agentId,
-          capabilities: ['coding'],
-          role: 'coder'
-        });
+        await sessionManager.joinSession(sessionId, `user-${agentId}`, `Agent ${agentId}`, agentId);
       }
 
       // Establish multiple A2A connections
@@ -203,15 +190,14 @@ describe('Complete Workflow E2E - 100% Coverage', () => {
   describe('Error Recovery Workflows', () => {
     it('should recover from agent failure in workflow', async () => {
       const sessionId = await sessionManager.createSession({
-        name: 'Error Recovery',
-        enableA2A: true
-      });
+        sessionId: 'session-error-recovery',
+        hostUserId: 'user-1',
+        enableA2A: true,
+        maxParticipants: 5,
+        enableVetoes: false
+      }, 'user-1');
 
-      await sessionManager.addParticipant(sessionId, {
-        agentId: 'failing-agent',
-        capabilities: ['coding'],
-        role: 'coder'
-      });
+      await sessionManager.joinSession(sessionId, 'user-failing-agent', 'Failing Agent', 'failing-agent');
 
       // Simulate agent failure
       vi.spyOn(orchestrator, 'executeWorkflow').mockRejectedValueOnce(
@@ -228,7 +214,12 @@ describe('Complete Workflow E2E - 100% Coverage', () => {
       vi.spyOn(orchestrator, 'executeWorkflow').mockResolvedValueOnce({
         success: true,
         executionPath: ['start', 'end'],
-        output: { result: 'recovered' }
+        output: { result: 'recovered' },
+        finalState: {
+          nodeId: 'end',
+          context: {},
+          history: []
+        }
       });
 
       const recovered = await orchestrator.executeWorkflow({
@@ -238,7 +229,7 @@ describe('Complete Workflow E2E - 100% Coverage', () => {
       });
 
       expect(recovered.success).toBe(true);
-      expect(recovered.output.result).toBe('recovered');
+      expect((recovered.output as any)?.result).toBe('recovered');
     });
 
     it('should recover from handshake failures', async () => {
@@ -258,7 +249,9 @@ describe('Complete Workflow E2E - 100% Coverage', () => {
       // Recovery: retry succeeds
       vi.spyOn(a2aMediator, 'initiateHandshake').mockResolvedValueOnce({
         success: true,
-        handshakeId: 'handshake-recovered'
+        accepted: true,
+        handshakeId: 'handshake-recovered',
+        protocolVersion: '1.0'
       });
 
       const recovered = await a2aMediator.initiateHandshake({
@@ -277,10 +270,12 @@ describe('Complete Workflow E2E - 100% Coverage', () => {
   describe('Edge Case Workflows', () => {
     it('should handle empty session workflow', async () => {
       const sessionId = await sessionManager.createSession({
-        name: 'Empty Session',
+        sessionId: 'session-empty',
+        hostUserId: 'user-1',
         enableA2A: false,
-        maxParticipants: 0
-      });
+        maxParticipants: 1,
+        enableVetoes: false
+      }, 'user-1');
 
       const result = await orchestrator.executeWorkflow({
         feature: 'Test',
@@ -294,16 +289,14 @@ describe('Complete Workflow E2E - 100% Coverage', () => {
 
     it('should handle single agent workflow', async () => {
       const sessionId = await sessionManager.createSession({
-        name: 'Single Agent',
+        sessionId: 'session-single-agent',
+        hostUserId: 'user-1',
         enableA2A: false,
-        maxParticipants: 1
-      });
+        maxParticipants: 1,
+        enableVetoes: false
+      }, 'user-1');
 
-      await sessionManager.addParticipant(sessionId, {
-        agentId: 'solo-agent',
-        capabilities: ['coding'],
-        role: 'coder'
-      });
+      await sessionManager.joinSession(sessionId, 'user-solo-agent', 'Solo Agent', 'solo-agent');
 
       const result = await orchestrator.executeWorkflow({
         feature: 'Solo Feature',
@@ -333,9 +326,12 @@ describe('Complete Workflow E2E - 100% Coverage', () => {
     it('should complete workflow within acceptable time', async () => {
       const start = Date.now();
       const sessionId = await sessionManager.createSession({
-        name: 'Performance Test',
-        enableA2A: true
-      });
+        sessionId: 'session-performance',
+        hostUserId: 'user-1',
+        enableA2A: true,
+        maxParticipants: 5,
+        enableVetoes: false
+      }, 'user-1');
 
       const result = await orchestrator.executeWorkflow({
         feature: 'Performance Feature',
@@ -369,16 +365,19 @@ describe('Complete Workflow E2E - 100% Coverage', () => {
   describe('Memory Integration Workflows', () => {
     it('should integrate memory in workflow execution', async () => {
       const sessionId = await sessionManager.createSession({
-        name: 'Memory Integration',
-        enableA2A: true
-      });
+        sessionId: 'session-memory',
+        hostUserId: 'user-1',
+        enableA2A: true,
+        maxParticipants: 5,
+        enableVetoes: false
+      }, 'user-1');
 
       // Store workflow context in memory
-      await episodicMemory.store({
+      await episodicMemory.storeEpisode({
         agentId: 'system',
         taskId: 'workflow-1',
+        sessionId: sessionId,
         content: 'Workflow context',
-        importance: 0.9,
         tags: ['workflow']
       });
 

@@ -1,0 +1,38 @@
+{
+  "finding": {
+    "findingId": "github-171565876-1763179177852",
+    "source": "github",
+    "category": "continuous-learning",
+    "title": "EnnaSachdeva/Recurrent-Multiagent-Deep-Deterministic-Policy-Gradient-with-Difference-Rewards",
+    "description": "Deep Reinforcement Learning (DRL) algorithms have been successfully applied to a range of challenging simulated continuous control single agent tasks. These methods have further been extended to multiagent domains in cooperative, competitive or mixed environments. This paper primarily focuses on multiagent cooperative settings which can be modeled for several real world problems such as coordination of autonomous vehicles and warehouse robots. However, these systems suffer from several challenges such as, structural credit assignment and partial observability. In this paper, we propose Recurrent Multiagent Deep Deterministic Policy Gradient (RMADDPG) algorithm which extends Multiagent Deep Determinisitic Policy Gradient algorithm - MADDPG \\cite{lowe2017multi} by using a recurrent neural network for the actor policy. This helps to address partial observability by maintaining a sequence of past observations which networks learn to preserve in order to solve the POMDP. In addition, we use reward shaping through difference rewards to address structural credit assignment in a partially observed environment. We evaluate the performance of MADDPG and R-MADDPG with and without reward shaping in a Multiagent Particle Environment. We further show that reward shaped RMADDPG outperforms the baseline algorithm MADDPG in a partially observable environmental setting.",
+    "data": {
+      "query": "continuous learning agents",
+      "category": "continuous-learning",
+      "stars": 52,
+      "forks": 10,
+      "language": "Python",
+      "topics": [],
+      "createdAt": "2019-02-19T23:20:32.000Z",
+      "updatedAt": "2025-08-05T19:20:18.000Z",
+      "owner": "EnnaSachdeva",
+      "sources": [
+        "github"
+      ]
+    },
+    "valuePotential": 0.1,
+    "implementationSuggestion": "Review continuous learning approaches for agent adaptation",
+    "url": "https://github.com/EnnaSachdeva/Recurrent-Multiagent-Deep-Deterministic-Policy-Gradient-with-Difference-Rewards",
+    "tags": [
+      "continuous-learning",
+      "agent",
+      "continuous",
+      "learning",
+      "Python"
+    ],
+    "timestamp": "2025-11-15T03:59:37.852Z"
+  },
+  "storedAt": "2025-11-15T03:59:44.285Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T03:59:44.285Z",
+  "implementationStatus": "pending"
+}

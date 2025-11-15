@@ -1,0 +1,51 @@
+{
+  "finding": {
+    "findingId": "arxiv-2506.03053v2-1763179178667",
+    "source": "arxiv",
+    "category": "ai-agents",
+    "title": "MAEBE: Multi-Agent Emergent Behavior Framework",
+    "description": "Traditional AI safety evaluations on isolated LLMs are insufficient as multi-agent AI ensembles become prevalent, introducing novel emergent risks. This paper introduces the Multi-Agent Emergent Behavior Evaluation (MAEBE) framework to systematically assess such risks. Using MAEBE with the Greatest Good Benchmark (and a novel double-inversion question technique), we demonstrate that: (1) LLM moral preferences, particularly for Instrumental Harm, are surprisingly brittle and shift significantly w",
+    "data": {
+      "query": "multi-agent orchestration systems 2025",
+      "category": "ai-agents",
+      "authors": [
+        "Sinem Erisken",
+        "Timothy Gothard",
+        "Martin Leitgab",
+        "Ram Potham"
+      ],
+      "categories": [
+        "cs.MA",
+        "cs.AI",
+        "cs.CL",
+        "cs.CY",
+        "cs.LG"
+      ],
+      "published": "2025-06-03T16:33:47.000Z",
+      "updated": "2025-07-10T14:54:28.000Z",
+      "sources": [
+        "arxiv"
+      ]
+    },
+    "valuePotential": 0.6,
+    "implementationSuggestion": "Evaluate agent architecture improvements for LAPA-VOID agent system",
+    "url": "http://arxiv.org/abs/2506.03053v2",
+    "tags": [
+      "ai-agents",
+      "agent",
+      "orchestration",
+      "multi-agent",
+      "2025",
+      "cs.MA",
+      "cs.AI",
+      "cs.CL",
+      "cs.CY",
+      "cs.LG"
+    ],
+    "timestamp": "2025-11-15T03:59:38.667Z"
+  },
+  "storedAt": "2025-11-15T03:59:42.949Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T03:59:42.949Z",
+  "implementationStatus": "pending"
+}

@@ -5,7 +5,7 @@
  * Features: Batch delete, Quick copy (prompts/MD), Auto-cleanup toggle, Replay GIF button.
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
 
 interface TaskHistoryEntry {
   id: string;
@@ -75,65 +75,73 @@ const TaskHistory: React.FC<TaskHistoryProps> = ({ onClose }) => {
     setTasks(mockTasks);
   };
 
-  const handleSelectTask = (taskId: string) => {
-    const newSelected = new Set(selectedTasks);
-    if (newSelected.has(taskId)) {
-      newSelected.delete(taskId);
-    } else {
-      newSelected.add(taskId);
-    }
-    setSelectedTasks(newSelected);
-  };
+  // Optimized: Memoize callbacks to prevent unnecessary re-renders
+  const handleSelectTask = useCallback((taskId: string) => {
+    setSelectedTasks(prev => {
+      const newSelected = new Set(prev);
+      if (newSelected.has(taskId)) {
+        newSelected.delete(taskId);
+      } else {
+        newSelected.add(taskId);
+      }
+      return newSelected;
+    });
+  }, []);
 
-  const handleSelectAll = () => {
-    if (selectedTasks.size === tasks.length) {
-      setSelectedTasks(new Set());
-    } else {
-      setSelectedTasks(new Set(tasks.map(t => t.id)));
-    }
-  };
+  const handleSelectAll = useCallback(() => {
+    setSelectedTasks(prev => {
+      if (prev.size === tasks.length) {
+        return new Set();
+      } else {
+        return new Set(tasks.map(t => t.id));
+      }
+    });
+  }, [tasks]);
 
-  const handleBatchDelete = () => {
+  const handleBatchDelete = useCallback(() => {
     if (selectedTasks.size === 0) {
       alert('Please select tasks to delete.');
       return;
     }
 
     if (confirm(`Delete ${selectedTasks.size} task(s)?`)) {
-      setTasks(tasks.filter(t => !selectedTasks.has(t.id)));
+      setTasks(prev => prev.filter(t => !selectedTasks.has(t.id)));
       setSelectedTasks(new Set());
     }
-  };
+  }, [selectedTasks]);
 
-  const handleCopyPrompt = (task: TaskHistoryEntry) => {
+  const handleCopyPrompt = useCallback((task: TaskHistoryEntry) => {
     navigator.clipboard.writeText(task.prompt);
     // TODO: Show toast notification
-  };
+  }, []);
 
-  const handleCopyMarkdown = (task: TaskHistoryEntry) => {
+  const handleCopyMarkdown = useCallback((task: TaskHistoryEntry) => {
     const markdown = `# ${task.task}\n\n**Mode:** ${task.mode}\n\n**Prompt:**\n${task.prompt}\n\n**Result:**\n${task.result || 'N/A'}`;
     navigator.clipboard.writeText(markdown);
     // TODO: Show toast notification
-  };
+  }, []);
 
-  const handleReplayGIF = async (task: TaskHistoryEntry) => {
+  const handleReplayGIF = useCallback(async (task: TaskHistoryEntry) => {
     // TODO: Implement GIF replay using html2canvas
     // This would capture the session state and create an animated GIF
     alert(`GIF replay for task "${task.task}" - Feature coming soon!`);
-  };
+  }, []);
 
-  const filteredTasks = tasks.filter(task => {
-    if (filterMode !== 'all' && task.mode !== filterMode) return false;
-    if (filterDate !== 'all') {
-      const taskDate = new Date(task.timestamp);
-      const now = new Date();
-      const daysDiff = Math.floor((now.getTime() - taskDate.getTime()) / (1000 * 60 * 60 * 24));
-      if (filterDate === 'today' && daysDiff > 0) return false;
-      if (filterDate === 'week' && daysDiff > 7) return false;
-      if (filterDate === 'month' && daysDiff > 30) return false;
-    }
-    return true;
-  });
+  // Optimized: Memoize filtered tasks to avoid recalculating on every render
+  const filteredTasks = useMemo(() => {
+    return tasks.filter(task => {
+      if (filterMode !== 'all' && task.mode !== filterMode) return false;
+      if (filterDate !== 'all') {
+        const taskDate = new Date(task.timestamp);
+        const now = new Date();
+        const daysDiff = Math.floor((now.getTime() - taskDate.getTime()) / (1000 * 60 * 60 * 24));
+        if (filterDate === 'today' && daysDiff > 0) return false;
+        if (filterDate === 'week' && daysDiff > 7) return false;
+        if (filterDate === 'month' && daysDiff > 30) return false;
+      }
+      return true;
+    });
+  }, [tasks, filterMode, filterDate]);
 
   return (
     <div className="task-history h-full flex flex-col bg-white">

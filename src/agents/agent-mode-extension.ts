@@ -211,7 +211,7 @@ export class ModeAwareAgentDecorator implements ModeAwareAgent {
     const personaId = this.modePersonas.get(currentMode);
     if (personaId) {
       // Verify persona exists
-      const persona = personaManager.getPersona(personaId);
+      const persona = await personaManager.getPersona(personaId);
       if (persona) {
         // In a real implementation, we would apply the persona to the agent
         // For now, we'll just log the change
@@ -239,7 +239,7 @@ export class ModeAwareAgentDecorator implements ModeAwareAgent {
     // Apply persona to task description if persona is configured
     let processedTask = task;
     if (this.currentModePersona) {
-      const persona = personaManager.getPersona(this.currentModePersona);
+      const persona = await personaManager.getPersona(this.currentModePersona);
       if (persona) {
         const adjustedDescription = personaManager.applyPersonaToContent(
           this.currentModePersona, 

@@ -1,14 +1,15 @@
 // Multimodal Latency Benchmark Test Suite
-import { VisionVoiceController } from '../../multimodal/vision-voice';
-import { VisionAgent } from '../../multimodal/vision-agent';
-import { VoiceAgent } from '../../multimodal/voice-agent';
-import { MultimodalConfig } from '../../multimodal/types';
-import { eventBus } from '../../core/event-bus';
-import { BenchmarkSuiteV2, BenchmarkResult } from '../../observability/bench-v2';
-import { PrometheusMetrics } from '../../observability/prometheus';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { VisionVoiceController } from '../../multimodal/vision-voice.ts';
+import { VisionAgent } from '../../multimodal/vision-agent.ts';
+import { VoiceAgent } from '../../multimodal/voice-agent.ts';
+import type { MultimodalConfig } from '../../multimodal/types/index.ts';
+import { eventBus } from '../../core/event-bus.ts';
+import { BenchmarkSuiteV2, BenchmarkResult } from '../../observability/bench-v2.ts';
+import { PrometheusMetrics } from '../../observability/prometheus.ts';
 
 // Mock the event bus
-vi.mock('../../core/event-bus', () => ({
+vi.mock('../../core/event-bus.ts', () => ({
   eventBus: {
     publish: vi.fn()
   }
@@ -205,7 +206,7 @@ describe('Multimodal Latency Benchmarking', () => {
         success: true,
         metrics: {
           imageSize: imageBuffer.length,
-          framework: 'react',
+          framework: 'react' as any,
           codeLength: result.length,
           processingTime
         },
@@ -383,7 +384,7 @@ describe('Multimodal Latency Benchmarking', () => {
 
   describe('Multimodal Coordination Latency Benchmarks', () => {
     it('should measure multimodal input processing latency under 3 seconds', async () => {
-      const input = { image: Buffer.from('mock image data') };
+      const input = { imageData: Buffer.from('mock image data') };
 
       // Mock individual processing methods
       const mockProcessImage = vi.spyOn(visionVoiceController as any, 'processImage')
@@ -396,7 +397,7 @@ describe('Multimodal Latency Benchmarking', () => {
 
       expect(result.text).toBe('Processed image description');
       expect(processingTime).toBeLessThan(3000); // Less than 3 seconds
-      expect(mockProcessImage).toHaveBeenCalledWith(input.image);
+      expect(mockProcessImage).toHaveBeenCalledWith(input.imageData);
 
       // Verify events were published
       expect(eventBus.publish).toHaveBeenCalledWith(expect.objectContaining({
@@ -416,7 +417,6 @@ describe('Multimodal Latency Benchmarking', () => {
         duration: processingTime,
         success: true,
         metrics: {
-          inputTypes: 'image',
           processingTime
         },
         timestamp: Date.now()
@@ -438,7 +438,7 @@ describe('Multimodal Latency Benchmarking', () => {
       config.fallbackStrategy = 'parallel';
       const parallelController = new VisionVoiceController(config);
 
-      const input = { image: Buffer.from('mock image data'), audio: Buffer.from('mock audio data') };
+      const input = { imageData: Buffer.from('mock image data'), audioData: Buffer.from('mock audio data') };
 
       // Mock processing methods
       const mockProcessImage = vi.spyOn(parallelController as any, 'processImage')
@@ -454,8 +454,8 @@ describe('Multimodal Latency Benchmarking', () => {
       expect(result.text).toContain('[VISION] Processed image');
       expect(result.text).toContain('[AUDIO] Processed audio');
       expect(processingTime).toBeLessThan(3000); // Less than 3 seconds
-      expect(mockProcessImage).toHaveBeenCalledWith(input.image);
-      expect(mockProcessAudio).toHaveBeenCalledWith(input.audio);
+      expect(mockProcessImage).toHaveBeenCalledWith(input.imageData);
+      expect(mockProcessAudio).toHaveBeenCalledWith(input.audioData);
 
       // Record benchmark result
       const benchmarkResult: BenchmarkResult = {
@@ -464,7 +464,6 @@ describe('Multimodal Latency Benchmarking', () => {
         duration: processingTime,
         success: true,
         metrics: {
-          inputTypes: 'image,audio',
           processingTime
         },
         timestamp: Date.now()
@@ -512,7 +511,7 @@ describe('Multimodal Latency Benchmarking', () => {
 
       // Run coordination benchmarks
       results.push(await benchmarkSuite.runBenchmark('multimodal_input_processing_baseline', 'coordination', async () => {
-        const input = { image: Buffer.from('mock image data') };
+        const input = { imageData: Buffer.from('mock image data') };
         await visionVoiceController.processMultimodalInput(input);
       }));
 
@@ -525,7 +524,7 @@ describe('Multimodal Latency Benchmarking', () => {
 
   describe('Load Testing', () => {
     it('should maintain acceptable latency under moderate load', async () => {
-      const input = { image: Buffer.from('mock image data') };
+      const input = { imageData: Buffer.from('mock image data') };
 
       // Mock processing to have a consistent delay
       const mockProcessImage = vi.spyOn(visionVoiceController as any, 'processImage')
@@ -581,9 +580,9 @@ describe('Multimodal Latency Benchmarking', () => {
     it('should handle concurrent multimodal processing efficiently', async () => {
       // Create multiple inputs
       const inputs = [
-        { image: Buffer.from('mock image data 1') },
-        { audio: Buffer.from('mock audio data 1') },
-        { image: Buffer.from('mock image data 2'), audio: Buffer.from('mock audio data 2') }
+        { imageData: Buffer.from('mock image data 1') },
+        { audioData: Buffer.from('mock audio data 1') },
+        { imageData: Buffer.from('mock image data 2'), audioData: Buffer.from('mock audio data 2') }
       ];
 
       // Mock processing methods

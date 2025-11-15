@@ -1,0 +1,34 @@
+{
+  "finding": {
+    "findingId": "reddit-1bj7wqs-1763189993152",
+    "source": "reddit",
+    "category": "inference-optimization",
+    "title": "OpenAI Q*",
+    "description": "Source, some random paste bin: [https://pastebin.com/RkBUQPLb#google\\_vignette](https://pastebin.com/RkBUQPLb#google_vignette). This should really be considered speculative because the source is unknown, but the ideas presented are definitely something to ponder.\n\nLeaked info:\n\nQ\\* is a dialog system conceptualized by OpenAI, designed to enhance the traditional dialog generation approach through the implementation of an energy-based model (EBM). Distinct from the prevalent autoregressive token p",
+    "data": {
+      "query": "inference optimization techniques",
+      "category": "inference-optimization",
+      "subreddit": "singularity",
+      "score": 57,
+      "numComments": 50,
+      "author": "FeltSteam",
+      "createdUtc": 1710920075,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.15000000000000002,
+    "implementationSuggestion": "Review inference optimization techniques for performance improvements",
+    "url": "https://reddit.com/r/singularity/comments/1bj7wqs/openai_q/",
+    "tags": [
+      "inference-optimization",
+      "inference",
+      "optimization"
+    ],
+    "timestamp": "2025-11-15T06:59:53.152Z"
+  },
+  "storedAt": "2025-11-15T06:59:53.393Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T06:59:53.393Z",
+  "implementationStatus": "pending"
+}

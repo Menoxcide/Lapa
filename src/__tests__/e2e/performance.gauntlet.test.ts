@@ -13,7 +13,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { ContextHandoffManager } from '../../swarm/context.handoff.ts';
 import { BenchmarkSuiteV2 } from '../../observability/bench-v2.ts';
-import { chromaRefine } from '../../rag/chroma-refine.ts';
+import { chromaRefine, type VectorDocument } from '../../rag/chroma-refine.ts';
 import { performance } from 'perf_hooks';
 
 describe('Performance End-to-End Gauntlet (4.2)', () => {
@@ -29,7 +29,6 @@ describe('Performance End-to-End Gauntlet (4.2)', () => {
     handoffManager = new ContextHandoffManager();
     benchmarkSuite = new BenchmarkSuiteV2({
       enabled: true,
-      includePrometheus: false,
     });
     
     // Initialize components if needed
@@ -70,7 +69,7 @@ describe('Performance End-to-End Gauntlet (4.2)', () => {
             targetAgentId: targetAgent,
             taskId: context.taskId,
             context,
-            priority: 'normal' as const,
+            priority: 'medium' as const,
           };
 
           // Execute handoff
@@ -132,7 +131,7 @@ describe('Performance End-to-End Gauntlet (4.2)', () => {
               taskId: `task-${batchIndex}-${handoffIndex}`,
               content: `Batch ${batchIndex}, handoff ${handoffIndex}`,
             },
-            priority: 'normal' as const,
+            priority: 'medium' as const,
           };
           
           try {
@@ -208,19 +207,52 @@ describe('Performance End-to-End Gauntlet (4.2)', () => {
         totalQueries++;
         
         try {
-          // Perform RAG search
-          const results = await chromaRefine.search(benchmark.query, {
+          // Perform RAG search with REFRAG for efficient decoding
+          const rawResults = await chromaRefine.searchSimilar(benchmark.query, {
             limit: 10,
-            includeMetadata: true,
           });
+          
+          // Process through REFRAG if available
+          let results: Array<{ document: string | VectorDocument; metadata?: any; similarity: number }> = rawResults.map(r => ({
+            document: r.document,
+            metadata: r.document.metadata,
+            similarity: r.similarity
+          }));
+          try {
+            const { refragEngine } = await import('../../rag/refrag.ts');
+            if (refragEngine) {
+              await refragEngine.initialize().catch(() => {});
+              const refragResult = await refragEngine.processChunks(
+                rawResults.map((r) => ({
+                  id: r.document.id || `result_${Date.now()}_${Math.random()}`,
+                  content: r.document.content || r.document.metadata?.content || '',
+                  metadata: r.document.metadata || {},
+                  similarity: r.similarity || 0
+                })),
+                benchmark.query
+              );
+              // Use expanded chunks (most relevant) for testing
+              results = refragResult.expandedChunks.map(chunk => ({
+                document: chunk.originalContent,
+                metadata: { ...chunk.metadata, content: chunk.originalContent },
+                similarity: chunk.relevanceScore || 0
+              }));
+            }
+          } catch (refragError) {
+            // Fallback to raw results if REFRAG unavailable
+            console.warn('REFRAG processing skipped in test:', refragError);
+          }
 
           // Check if results contain expected keywords
-          const resultTexts = results.map(r => 
-            (r.metadata?.content as string || r.document || '').toLowerCase()
-          );
+          const resultTexts = results.map((r) => {
+            const content = typeof r.document === 'string' 
+              ? r.document 
+              : r.document.content || r.metadata?.content || '';
+            return content.toLowerCase();
+          });
           
-          const foundKeywords = benchmark.expectedKeywords.filter(keyword =>
-            resultTexts.some(text => text.includes(keyword.toLowerCase()))
+          const foundKeywords = benchmark.expectedKeywords.filter((keyword) =>
+            resultTexts.some((text: string) => text.includes(keyword.toLowerCase()))
           );
           
           const keywordRecall = foundKeywords.length / benchmark.expectedKeywords.length;
@@ -265,18 +297,51 @@ describe('Performance End-to-End Gauntlet (4.2)', () => {
         totalQueries++;
         
         try {
-          const results = await chromaRefine.search(query, {
+          // Use REFRAG for efficient decoding
+          const rawResults = await chromaRefine.searchSimilar(query, {
             limit: 5,
-            includeMetadata: true,
           });
+          
+          // Process through REFRAG if available
+          let results: Array<{ document: string | VectorDocument; metadata?: any; similarity: number }> = rawResults.map(r => ({
+            document: r.document,
+            metadata: r.document.metadata,
+            similarity: r.similarity
+          }));
+          try {
+            const { refragEngine } = await import('../../rag/refrag.ts');
+            if (refragEngine) {
+              await refragEngine.initialize().catch(() => {});
+              const refragResult = await refragEngine.processChunks(
+                rawResults.map((r) => ({
+                  id: r.document.id || `result_${Date.now()}_${Math.random()}`,
+                  content: r.document.content || r.document.metadata?.content || '',
+                  metadata: r.document.metadata || {},
+                  similarity: r.similarity || 0
+                })),
+                query
+              );
+              // Use expanded chunks for semantic relevance testing
+              results = refragResult.expandedChunks.map(chunk => ({
+                document: chunk.originalContent,
+                metadata: { ...chunk.metadata, content: chunk.originalContent },
+                similarity: chunk.relevanceScore || 0
+              }));
+            }
+          } catch (refragError) {
+            // Fallback to raw results if REFRAG unavailable
+            console.warn('REFRAG processing skipped in test:', refragError);
+          }
 
           // Verify semantic relevance
-          const hasRelevantContent = results.some(result => {
-            const content = (result.metadata?.content as string || result.document || '').toLowerCase();
-            return content.includes('auth') || 
-                   content.includes('login') || 
-                   content.includes('security') ||
-                   content.includes('password');
+          const hasRelevantContent = results.some((result) => {
+            const content = typeof result.document === 'string'
+              ? result.document
+              : result.document.content || result.metadata?.content || '';
+            return content.toLowerCase().includes('auth') || 
+                   content.toLowerCase().includes('login') || 
+                   content.toLowerCase().includes('security') ||
+                   content.toLowerCase().includes('password');
           });
 
           if (hasRelevantContent && results.length > 0) {

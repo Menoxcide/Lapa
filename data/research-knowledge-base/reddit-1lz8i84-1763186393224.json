@@ -1,0 +1,35 @@
+{
+  "finding": {
+    "findingId": "reddit-1lz8i84-1763186393224",
+    "source": "reddit",
+    "category": "swarm-architectures",
+    "title": "I cancelled my Cursor subscription. I built multi-agent swarms with Claude Code instead. Here's why.",
+    "description": "After spending way too many hours manually grinding through GitHub issues, I had a realization: Why am I doing this one by one when Claude can handle most of these tasks autonomously? So I cancelled my Cursor subscription and started building something completely different.\n\nInstead of one AI assistant helping you code, imagine deploying 10 AI agents simultaneously to work on 10 different GitHub issues. While you sleep. In parallel. Each in their own isolated environment. The workflow is stupidl",
+    "data": {
+      "query": "LLM agent swarm architectures",
+      "category": "swarm-architectures",
+      "subreddit": "artificial",
+      "score": 63,
+      "numComments": 8,
+      "author": "Illustrious-King8421",
+      "createdUtc": 1752453206,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.35,
+    "implementationSuggestion": "Explore swarm coordination patterns for multi-agent systems",
+    "url": "https://reddit.com/r/artificial/comments/1lz8i84/i_cancelled_my_cursor_subscription_i_built/",
+    "tags": [
+      "swarm-architectures",
+      "agent",
+      "llm",
+      "swarm"
+    ],
+    "timestamp": "2025-11-15T05:59:53.224Z"
+  },
+  "storedAt": "2025-11-15T05:59:53.367Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T05:59:53.367Z",
+  "implementationStatus": "pending"
+}

@@ -1,12 +1,13 @@
 // Multimodal Error Handling and Fallback Strategies Test Suite
-import { VisionVoiceController } from '../../multimodal/vision-voice';
-import { VisionAgentTool } from '../../multimodal/vision-agent-tool';
-import { VoiceAgentTool } from '../../multimodal/voice-agent-tool';
-import { MultimodalConfig } from '../../multimodal/types';
-import { eventBus } from '../../core/event-bus';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { VisionVoiceController } from '../../multimodal/vision-voice.ts';
+import { VisionAgentTool } from '../../multimodal/vision-agent-tool.ts';
+import { VoiceAgentTool } from '../../multimodal/voice-agent-tool.ts';
+import type { MultimodalConfig } from '../../multimodal/types/index.ts';
+import { eventBus } from '../../core/event-bus.ts';
 
 // Mock the event bus
-vi.mock('../../core/event-bus', () => ({
+vi.mock('../../core/event-bus.ts', () => ({
   eventBus: {
     publish: vi.fn()
   }
@@ -48,8 +49,8 @@ describe('Multimodal Error Handling and Fallback Strategies', () => {
       const sequentialController = new VisionVoiceController(config);
       
       const input = { 
-        image: Buffer.from('mock image data'), 
-        audio: Buffer.from('mock audio data') 
+        imageData: Buffer.from('mock image data'), 
+        audioData: Buffer.from('mock audio data') 
       };
       
       // Mock vision processing to fail and voice to succeed
@@ -62,11 +63,11 @@ describe('Multimodal Error Handling and Fallback Strategies', () => {
       
       // Should get voice result due to fallback
       expect(result.text).toBe('Transcribed audio text');
-      expect(result.audio).toBe(input.audio);
+      expect(result.audioData).toBe(input.audioData);
       
       // Both methods should be called
-      expect(mockProcessImage).toHaveBeenCalledWith(input.image);
-      expect(mockProcessAudio).toHaveBeenCalledWith(input.audio);
+      expect(mockProcessImage).toHaveBeenCalledWith(input.imageData);
+      expect(mockProcessAudio).toHaveBeenCalledWith(input.audioData);
       
       // Verify error event was published
       expect(eventBus.publish).toHaveBeenCalledWith(expect.objectContaining({
@@ -78,7 +79,7 @@ describe('Multimodal Error Handling and Fallback Strategies', () => {
       config.fallbackStrategy = 'sequential';
       const sequentialController = new VisionVoiceController(config);
       
-      const input = { image: Buffer.from('mock image data') };
+      const input = { imageData: Buffer.from('mock image data') };
       
       // Mock vision processing to fail
       const mockProcessImage = vi.spyOn(sequentialController as any, 'processImage')
@@ -90,7 +91,7 @@ describe('Multimodal Error Handling and Fallback Strategies', () => {
       expect(result.text).toBe('No input processed successfully');
       
       // Verify method was called
-      expect(mockProcessImage).toHaveBeenCalledWith(input.image);
+      expect(mockProcessImage).toHaveBeenCalledWith(input.imageData);
       
       // Verify error and fallback events were published
       expect(eventBus.publish).toHaveBeenCalledWith(expect.objectContaining({
@@ -106,8 +107,8 @@ describe('Multimodal Error Handling and Fallback Strategies', () => {
       const noneController = new VisionVoiceController(config);
       
       const input = { 
-        image: Buffer.from('mock image data'), 
-        audio: Buffer.from('mock audio data') 
+        imageData: Buffer.from('mock image data'), 
+        audioData: Buffer.from('mock audio data') 
       };
       
       // Mock vision to succeed (should stop here with 'none' strategy)
@@ -120,10 +121,10 @@ describe('Multimodal Error Handling and Fallback Strategies', () => {
       
       // Should only get vision result
       expect(result.text).toBe('Processed image description');
-      expect(result.image).toBe(input.image);
+      expect(result.imageData).toBe(input.imageData);
       
       // Only vision method should be called
-      expect(mockProcessImage).toHaveBeenCalledWith(input.image);
+      expect(mockProcessImage).toHaveBeenCalledWith(input.imageData);
       expect(mockProcessAudio).not.toHaveBeenCalled();
     });
   });
@@ -134,8 +135,8 @@ describe('Multimodal Error Handling and Fallback Strategies', () => {
       const parallelController = new VisionVoiceController(config);
       
       const input = { 
-        image: Buffer.from('mock image data'), 
-        audio: Buffer.from('mock audio data') 
+        imageData: Buffer.from('mock image data'), 
+        audioData: Buffer.from('mock audio data') 
       };
       
       // Mock both processing methods to succeed
@@ -149,12 +150,12 @@ describe('Multimodal Error Handling and Fallback Strategies', () => {
       // Should get combined results
       expect(result.text).toContain('[VISION] Processed image description');
       expect(result.text).toContain('[AUDIO] Transcribed audio text');
-      expect(result.image).toBe(input.image);
-      expect(result.audio).toBe(input.audio);
+      expect(result.imageData).toBe(input.imageData);
+      expect(result.audioData).toBe(input.audioData);
       
       // Both methods should be called
-      expect(mockProcessImage).toHaveBeenCalledWith(input.image);
-      expect(mockProcessAudio).toHaveBeenCalledWith(input.audio);
+      expect(mockProcessImage).toHaveBeenCalledWith(input.imageData);
+      expect(mockProcessAudio).toHaveBeenCalledWith(input.audioData);
     });
     
     it('should handle partial failures in parallel processing', async () => {
@@ -162,8 +163,8 @@ describe('Multimodal Error Handling and Fallback Strategies', () => {
       const parallelController = new VisionVoiceController(config);
       
       const input = { 
-        image: Buffer.from('mock image data'), 
-        audio: Buffer.from('mock audio data') 
+        imageData: Buffer.from('mock image data'), 
+        audioData: Buffer.from('mock audio data') 
       };
       
       // Mock vision to fail and audio to succeed
@@ -176,12 +177,12 @@ describe('Multimodal Error Handling and Fallback Strategies', () => {
       
       // Should get only audio result
       expect(result.text).toBe('\n[AUDIO] Transcribed audio text');
-      expect(result.audio).toBe(input.audio);
-      expect(result.image).toBeUndefined();
+      expect(result.audioData).toBe(input.audioData);
+      expect(result.imageData).toBeUndefined();
       
       // Both methods should be called
-      expect(mockProcessImage).toHaveBeenCalledWith(input.image);
-      expect(mockProcessAudio).toHaveBeenCalledWith(input.audio);
+      expect(mockProcessImage).toHaveBeenCalledWith(input.imageData);
+      expect(mockProcessAudio).toHaveBeenCalledWith(input.audioData);
       
       // Verify error event was published
       expect(eventBus.publish).toHaveBeenCalledWith(expect.objectContaining({
@@ -194,8 +195,8 @@ describe('Multimodal Error Handling and Fallback Strategies', () => {
       const parallelController = new VisionVoiceController(config);
       
       const input = { 
-        image: Buffer.from('mock image data'), 
-        audio: Buffer.from('mock audio data') 
+        imageData: Buffer.from('mock image data'), 
+        audioData: Buffer.from('mock audio data') 
       };
       
       // Mock both processing methods to fail
@@ -210,8 +211,8 @@ describe('Multimodal Error Handling and Fallback Strategies', () => {
       expect(result.text).toBe('No input processed successfully');
       
       // Both methods should be called
-      expect(mockProcessImage).toHaveBeenCalledWith(input.image);
-      expect(mockProcessAudio).toHaveBeenCalledWith(input.audio);
+      expect(mockProcessImage).toHaveBeenCalledWith(input.imageData);
+      expect(mockProcessAudio).toHaveBeenCalledWith(input.audioData);
       
       // Verify error events were published
       expect(eventBus.publish).toHaveBeenCalledWith(expect.objectContaining({
@@ -234,7 +235,9 @@ describe('Multimodal Error Handling and Fallback Strategies', () => {
           action: 'processImage',
           imageData: 'base64imageString'
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-1',
+        agentId: 'test-agent-1'
       };
       
       // Mock the internal handler to throw an error
@@ -255,7 +258,9 @@ describe('Multimodal Error Handling and Fallback Strategies', () => {
           action: 'transcribe',
           audioData: 'base64audioString'
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-2',
+        agentId: 'test-agent-2'
       };
       
       // Mock the internal handler to throw an error
@@ -287,7 +292,9 @@ describe('Multimodal Error Handling and Fallback Strategies', () => {
           action: 'processImage',
           imageData: 12345 // Invalid format
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-3',
+        agentId: 'test-agent-3'
       };
       
       const result = await visionAgentTool.execute(context);
@@ -303,7 +310,9 @@ describe('Multimodal Error Handling and Fallback Strategies', () => {
           action: 'transcribe',
           audioData: 12345 // Invalid format
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-4',
+        agentId: 'test-agent-4'
       };
       
       const result = await voiceAgentTool.execute(context);
@@ -318,7 +327,7 @@ describe('Multimodal Error Handling and Fallback Strategies', () => {
       config.fallbackStrategy = 'sequential';
       const recoveryController = new VisionVoiceController(config);
       
-      const input = { image: Buffer.from('mock image data') };
+      const input = { imageData: Buffer.from('mock image data') };
       
       // Mock vision processing to fail first, then succeed
       let callCount = 0;
@@ -337,7 +346,7 @@ describe('Multimodal Error Handling and Fallback Strategies', () => {
         .rejects
         .toThrow('Temporary vision processing failure');
       
-      expect(mockProcessImage).toHaveBeenCalledWith(input.image);
+      expect(mockProcessImage).toHaveBeenCalledWith(input.imageData);
     });
   });
 });

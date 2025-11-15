@@ -57,6 +57,7 @@ export class LAPAEventBus {
   private eventQueue: LAPAEvent[];
   private activeEventCount: number;
   private eventTimers: Map<string, NodeJS.Timeout>;
+  private readonly MAX_QUEUE_SIZE: number = 1000; // Bounded queue limit
 
   constructor(config?: Partial<EventBusConfig>) {
     this.emitter = new EventEmitter();
@@ -78,6 +79,19 @@ export class LAPAEventBus {
   async publish<T extends keyof LAPAEventMap>(event: LAPAEventMap[T]): Promise<void> {
     // Check if we've exceeded maximum concurrent events
     if (this.activeEventCount >= this.config.maxConcurrentEvents) {
+      // Bounded queue with backpressure: drop oldest events if queue is full
+      if (this.eventQueue.length >= this.MAX_QUEUE_SIZE) {
+        // Drop oldest event (FIFO) to prevent unbounded growth
+        const droppedEvent = this.eventQueue.shift();
+        if (droppedEvent) {
+          // Emit warning event for monitoring
+          this.emitter.emit('event.dropped', { 
+            eventId: droppedEvent.id, 
+            type: droppedEvent.type,
+            reason: 'queue_full'
+          });
+        }
+      }
       // Queue the event for later processing
       this.eventQueue.push(event);
       return;
@@ -233,6 +247,7 @@ export class LAPAEventBus {
 
   /**
    * Clears all subscriptions and queued events
+   * Optimized to prevent memory leaks
    */
   clear(): void {
     // Clear all subscriptions
@@ -240,16 +255,23 @@ export class LAPAEventBus {
     for (const subscriptionId of subscriptionIds) {
       this.unsubscribe(subscriptionId);
     }
+    this.subscriptions.clear();
     
-    // Clear event queue
+    // Clear event queue (optimized: set length to 0 for faster GC)
     this.eventQueue.length = 0;
     
-    // Clear all timers
+    // Clear all timers (optimized: clear all at once)
     const timers = Array.from(this.eventTimers.values());
     for (const timer of timers) {
       clearTimeout(timer);
     }
     this.eventTimers.clear();
+    
+    // Reset active event count
+    this.activeEventCount = 0;
+    
+    // Remove all listeners from emitter to prevent memory leaks
+    this.emitter.removeAllListeners();
   }
 
   /**

@@ -1,15 +1,16 @@
 // Multimodal Benchmark Reporting Test Suite
-import { VisionVoiceController } from '../../multimodal/vision-voice';
-import { VisionAgent } from '../../multimodal/vision-agent';
-import { VoiceAgent } from '../../multimodal/voice-agent';
-import { MultimodalConfig } from '../../multimodal/types';
-import { eventBus } from '../../core/event-bus';
-import { BenchmarkSuiteV2, BenchmarkResult, PerformanceMetrics } from '../../observability/bench-v2';
-import { PrometheusMetrics } from '../../observability/prometheus';
-import { MultimodalEventPublisher } from '../../multimodal/utils/event-publisher';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { VisionVoiceController } from '../../multimodal/vision-voice.ts';
+import { VisionAgent } from '../../multimodal/vision-agent.ts';
+import { VoiceAgent } from '../../multimodal/voice-agent.ts';
+import type { MultimodalConfig } from '../../multimodal/types/index.ts';
+import { eventBus } from '../../core/event-bus.ts';
+import { BenchmarkSuiteV2, BenchmarkResult, PerformanceMetrics } from '../../observability/bench-v2.ts';
+import { PrometheusMetrics } from '../../observability/prometheus.ts';
+import { MultimodalEventPublisher } from '../../multimodal/utils/event-publisher.ts';
 
 // Mock the event bus
-vi.mock('../../core/event-bus', () => ({
+vi.mock('../../core/event-bus.ts', () => ({
   eventBus: {
     publish: vi.fn()
   }
@@ -299,7 +300,7 @@ describe('Multimodal Benchmark Reporting', () => {
           const command = {
             command: 'Hello, how are you?'
           };
-          const result = await voiceAgent.executeVoiceCommand(command);
+          const result = await voiceAgent.executeVoiceCommand(typeof command === 'string' ? command : command.command);
           expect(result).toBeDefined();
         }
       );
@@ -311,7 +312,7 @@ describe('Multimodal Benchmark Reporting', () => {
           const question = {
             question: 'What is the weather like today?'
           };
-          const result = await voiceAgent.askQuestion(question);
+          const result = await voiceAgent.askQuestion(typeof question === 'string' ? question : question.question);
           expect(result).toBeDefined();
         }
       );
@@ -378,7 +379,7 @@ describe('Multimodal Benchmark Reporting', () => {
         'multimodal_input_processing',
         'coordination',
         async () => {
-          const input = { image: Buffer.from('mock image data') };
+          const input = { imageData: Buffer.from('mock image data') };
           await visionVoiceController.processMultimodalInput(input);
         }
       );
@@ -389,7 +390,7 @@ describe('Multimodal Benchmark Reporting', () => {
         async () => {
           config.fallbackStrategy = 'parallel';
           const parallelController = new VisionVoiceController(config);
-          const input = { image: Buffer.from('mock image data'), audio: Buffer.from('mock audio data') };
+          const input = { imageData: Buffer.from('mock image data'), audioData: Buffer.from('mock audio data') };
           await parallelController.processMultimodalInput(input);
         }
       );

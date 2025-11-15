@@ -1,0 +1,34 @@
+{
+  "finding": {
+    "findingId": "reddit-1g62otv-1763200793279",
+    "source": "reddit",
+    "category": "model-quantization",
+    "title": "𝐋𝐀𝐏𝐀: the first unsupervised pretraining method for Vision-Language-Action models. Outperforms SOTA models trained with ground-truth actions 30x more efficient than conventional VLA pretraining",
+    "description": "**Project page:** [LAPA (latentactionpretraining.github.io)](https://latentactionpretraining.github.io/)\n\n\n\n# Abstract\n\nWe introduce **L**atent **A**ction **P**retraining for general **A**ction models (LAPA), the first unsupervised method for pretraining Vision-Language-Action (VLA) models without ground-truth robot action labels. Existing Vision-Language-Action models require action labels typically collected by human teleoperators during pretraining, which significantly limits possible data so",
+    "data": {
+      "query": "model quantization methods",
+      "category": "model-quantization",
+      "subreddit": "singularity",
+      "score": 38,
+      "numComments": 1,
+      "author": "Gothsim10",
+      "createdUtc": 1729202568,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.05,
+    "implementationSuggestion": "Explore model quantization methods for efficiency gains",
+    "url": "https://reddit.com/r/singularity/comments/1g62otv/𝐋𝐀𝐏𝐀_the_first_unsupervised_pretraining_method/",
+    "tags": [
+      "model-quantization",
+      "quantization",
+      "model"
+    ],
+    "timestamp": "2025-11-15T09:59:53.279Z"
+  },
+  "storedAt": "2025-11-15T09:59:53.594Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T09:59:53.594Z",
+  "implementationStatus": "pending"
+}

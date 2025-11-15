@@ -1,21 +1,22 @@
 // Multimodal User Acceptance Testing Scenarios
-import { VisionVoiceController } from '../../multimodal/vision-voice';
-import { VisionAgentTool } from '../../multimodal/vision-agent-tool';
-import { VoiceAgentTool } from '../../multimodal/voice-agent-tool';
-import { MultimodalConfig } from '../../multimodal/types';
-import { eventBus } from '../../core/event-bus';
-import { AgentToolExecutionContext, AgentToolExecutionResult } from '../../core/types/agent-types';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { VisionVoiceController } from '../../multimodal/vision-voice.ts';
+import { VisionAgentTool } from '../../multimodal/vision-agent-tool.ts';
+import { VoiceAgentTool } from '../../multimodal/voice-agent-tool.ts';
+import type { MultimodalConfig } from '../../multimodal/types/index.ts';
+import { eventBus } from '../../core/event-bus.ts';
+import { AgentToolExecutionContext, AgentToolExecutionResult } from '../../core/types/agent-types.ts';
 
 // Mock the event bus
-vi.mock('../../core/event-bus', () => ({
+vi.mock('../../core/event-bus.ts', () => ({
   eventBus: {
     publish: vi.fn()
   }
 }));
 
 // Mock NIM inference requests
-vi.mock('../../inference/nim.local', () => ({
-  sendNemotronVisionInferenceRequest: vi.fn().mockImplementation((model, prompt, imageData, options) => {
+vi.mock('../../inference/nim.local.ts', () => ({
+  sendNemotronVisionInferenceRequest: vi.fn().mockImplementation((model: any, prompt: any, imageData: any, options: any) => {
     // Return different responses based on the prompt
     if (prompt.includes('Describe this image')) {
       return Promise.resolve('This is a test image showing a user interface with buttons and text fields.');

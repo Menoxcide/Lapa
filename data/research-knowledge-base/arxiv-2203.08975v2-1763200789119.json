@@ -1,0 +1,41 @@
+{
+  "finding": {
+    "findingId": "arxiv-2203.08975v2-1763200789119",
+    "source": "arxiv",
+    "category": "orchestration",
+    "title": "A Survey of Multi-Agent Deep Reinforcement Learning with Communication",
+    "description": "Communication is an effective mechanism for coordinating the behaviors of multiple agents, broadening their views of the environment, and to support their collaborations. In the field of multi-agent deep reinforcement learning (MADRL), agents can improve the overall learning performance and achieve their objectives by communication. Agents can communicate various types of messages, either to all agents or to specific agent groups, or conditioned on specific constraints. With the growing body of ",
+    "data": {
+      "query": "agent orchestration frameworks",
+      "category": "orchestration",
+      "authors": [
+        "Changxi Zhu",
+        "Mehdi Dastani",
+        "Shihan Wang"
+      ],
+      "categories": [
+        "cs.MA",
+        "cs.LG"
+      ],
+      "published": "2022-03-16T22:39:46.000Z",
+      "updated": "2024-10-18T10:14:58.000Z",
+      "sources": [
+        "arxiv"
+      ]
+    },
+    "valuePotential": 0.45000000000000007,
+    "implementationSuggestion": "Review orchestration patterns for potential NEURAFORGE enhancements",
+    "url": "http://arxiv.org/abs/2203.08975v2",
+    "tags": [
+      "orchestration",
+      "agent",
+      "cs.MA",
+      "cs.LG"
+    ],
+    "timestamp": "2025-11-15T09:59:49.119Z"
+  },
+  "storedAt": "2025-11-15T09:59:53.547Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T09:59:53.547Z",
+  "implementationStatus": "pending"
+}

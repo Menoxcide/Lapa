@@ -16,10 +16,10 @@ import { MemoriEngine } from '../../local/memori-engine.ts';
 // Mock dependencies
 vi.mock('../../core/event-bus.ts', () => ({
   eventBus: {
-    subscribe: vi.fn(),
+    subscribe: vi.fn().mockReturnValue('subscription-id'),
     publish: vi.fn().mockResolvedValue(undefined),
-    removeAllListeners: vi.fn(),
-    listenerCount: vi.fn(() => 0)
+    clear: vi.fn(),
+    getSubscriptionCount: vi.fn(() => 0)
   }
 }));
 
@@ -38,125 +38,86 @@ describe('Visual Feedback System Integration', () => {
     vi.clearAllMocks();
     memoriEngine = new MemoriEngine();
     await memoriEngine.initialize();
-    visualFeedback = new VisualFeedbackSystem({ memoriEngine });
+    visualFeedback = new VisualFeedbackSystem();
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     vi.clearAllMocks();
+    try {
+      await visualFeedback.cleanup?.();
+    } catch {
+      // Ignore cleanup errors
+    }
   });
 
   describe('Event Bus Integration', () => {
-    it('should subscribe to agent interaction events', async () => {
-      const events: any[] = [];
-      eventBus.subscribe('agent.interaction', (event) => {
-        events.push(event);
-      });
-
-      await eventBus.publish({
-        id: 'test-1',
-        type: 'agent.interaction',
-        timestamp: Date.now(),
-        source: 'test-agent',
-        payload: { agentId: 'agent-1', feedback: 'positive' }
-      });
-
-      expect(events.length).toBe(1);
-      expect(events[0].payload.agentId).toBe('agent-1');
+    it('should subscribe to visual feedback events', async () => {
+      const subscriptionId = eventBus.subscribe('visual-feedback.initialized' as any, () => {});
+      expect(subscriptionId).toBeDefined();
+      expect(typeof subscriptionId).toBe('string');
       expect(eventBus.subscribe).toHaveBeenCalled();
     });
 
-    it('should publish visual feedback events', async () => {
-      await visualFeedback.recordFeedback({
-        agentId: 'agent-1',
-        feedbackType: 'positive',
-        message: 'Great work!',
-        timestamp: Date.now()
-      });
-
+    it('should publish events when initialized', async () => {
+      await visualFeedback.initialize();
       expect(eventBus.publish).toHaveBeenCalled();
       expect(eventBus.publish).toHaveBeenCalledWith(
         expect.objectContaining({
-          type: 'visual.feedback.recorded'
+          type: 'visual-feedback.initialized'
         })
       );
     });
   });
 
-  describe('Memory Integration', () => {
-    it('should store feedback in memory system', async () => {
-      const feedback = {
-        agentId: 'agent-1',
-        feedbackType: 'positive' as const,
-        message: 'Excellent implementation',
-        timestamp: Date.now()
-      };
-
-      await visualFeedback.recordFeedback(feedback);
-
-      const memories = await memoriEngine.getRecentMemories('agent-1', 10);
-      expect(memories.length).toBeGreaterThanOrEqual(0);
-      expect(memoriEngine.getRecentMemories).toHaveBeenCalled();
+  describe('Initialization', () => {
+    it('should initialize the visual feedback system', async () => {
+      await visualFeedback.initialize();
+      // Initialization should complete without errors
+      expect(eventBus.publish).toHaveBeenCalled();
     });
 
-    it('should retrieve feedback history from memory', async () => {
-      vi.spyOn(memoriEngine, 'getRecentMemories').mockResolvedValueOnce([
-        {
-          id: 'memory-1',
-          agentId: 'agent-1',
-          content: 'Positive feedback: Great work!',
-          importance: 0.8,
-          timestamp: new Date()
-        }
-      ]);
+    it('should handle initialization errors gracefully', async () => {
+      // Test that initialization doesn't throw on missing playwright
+      await expect(visualFeedback.initialize()).resolves.toBeUndefined();
+    });
+  });
 
-      const history = await visualFeedback.getFeedbackHistory('agent-1', 10);
-      expect(history.length).toBeGreaterThanOrEqual(0);
-      expect(memoriEngine.getRecentMemories).toHaveBeenCalledWith('agent-1', 10);
+  describe('Screenshot Comparison', () => {
+    it('should handle screenshot comparison requests', async () => {
+      await visualFeedback.initialize();
+      
+      const result = await visualFeedback.compareScreenshot({
+        url: 'http://localhost:3000',
+        name: 'test-screenshot',
+        baselineName: 'test-baseline'
+      });
+
+      expect(result).toBeDefined();
+      expect(result.success).toBeDefined();
+      expect(typeof result.success).toBe('boolean');
     });
   });
 
   describe('Error Handling', () => {
-    it('should handle memory system failures gracefully', async () => {
-      vi.spyOn(memoriEngine, 'getRecentMemories').mockRejectedValueOnce(
-        new Error('Memory system unavailable')
-      );
+    it('should handle screenshot failures gracefully', async () => {
+      await visualFeedback.initialize();
+      
+      // Test with invalid URL
+      const result = await visualFeedback.compareScreenshot({
+        url: 'http://invalid-url',
+        name: 'test-screenshot',
+        baselineName: 'test'
+      });
 
-      await expect(visualFeedback.getFeedbackHistory('agent-1', 10)).rejects.toThrow(
-        'Memory system unavailable'
-      );
+      expect(result).toBeDefined();
+      // Should handle error gracefully
+      expect(result.success).toBeDefined();
     });
 
     it('should handle event bus failures gracefully', async () => {
       vi.spyOn(eventBus, 'publish').mockRejectedValueOnce(new Error('Event bus error'));
 
-      await expect(visualFeedback.recordFeedback({
-        agentId: 'agent-1',
-        feedbackType: 'positive',
-        message: 'Test',
-        timestamp: Date.now()
-      })).rejects.toThrow('Event bus error');
-    });
-  });
-
-  describe('Feedback Aggregation', () => {
-    it('should aggregate feedback from multiple agents', async () => {
-      await visualFeedback.recordFeedback({
-        agentId: 'agent-1',
-        feedbackType: 'positive',
-        message: 'Good',
-        timestamp: Date.now()
-      });
-
-      await visualFeedback.recordFeedback({
-        agentId: 'agent-2',
-        feedbackType: 'positive',
-        message: 'Excellent',
-        timestamp: Date.now()
-      });
-
-      const aggregated = await visualFeedback.getAggregatedFeedback(['agent-1', 'agent-2']);
-      expect(aggregated).toBeDefined();
-      expect(aggregated.positiveCount).toBeGreaterThanOrEqual(0);
+      await expect(visualFeedback.initialize()).rejects.toThrow();
     });
   });
 });

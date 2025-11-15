@@ -96,77 +96,109 @@ export class ErrorRecoveryManager {
   }
 
   /**
-   * Execute a handoff with fallback mechanism
-   * @param handoffFn Function to execute handoff
-   * @param fallbackFn Fallback function if handoff fails
+   * Execute a handoff with retry and fallback mechanism
+   * @param handoffFn Function to execute handoff (will be retried on failure)
+   * @param fallbackFn Fallback function if handoff fails after retries
    * @returns Promise that resolves with the handoff result
    */
   async executeHandoffWithFallback<T>(
     handoffFn: () => Promise<T>,
     fallbackFn: () => Promise<T>
   ): Promise<T> {
-    try {
-      // Attempt primary handoff
-      const result = await handoffFn();
-      
-      // Publish success event
-      await this.eventBus.publish({
-        id: `handoff-success-${Date.now()}`,
-        type: 'handoff.recovered',
-        timestamp: Date.now(),
-        source: 'error-recovery-manager',
-        payload: {
-          strategy: 'primary',
-          result
-        }
-      });
-      
-      return result;
-    } catch (primaryError) {
-      console.warn('Primary handoff failed, attempting fallback:', primaryError);
-      
-      // Publish fallback initiation event
-      await this.eventBus.publish({
-        id: `handoff-fallback-init-${Date.now()}`,
-        type: 'handoff.fallback.initiated',
-        timestamp: Date.now(),
-        source: 'error-recovery-manager',
-        payload: {
-          primaryError: primaryError instanceof Error ? primaryError.message : String(primaryError)
-        }
-      });
-      
+    let lastError: Error | null = null;
+    
+    // First, try handoff with retries
+    for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
       try {
-        // Attempt fallback
-        const result = await fallbackFn();
+        // Attempt primary handoff
+        const result = await handoffFn();
         
-        // Publish fallback success event
+        // Publish success event
         await this.eventBus.publish({
-          id: `handoff-fallback-success-${Date.now()}`,
-          type: 'handoff.fallback.succeeded',
+          id: `handoff-success-${Date.now()}`,
+          type: 'handoff.recovered',
           timestamp: Date.now(),
           source: 'error-recovery-manager',
           payload: {
+            strategy: 'primary',
+            attempt,
             result
           }
         });
         
         return result;
-      } catch (fallbackError) {
-        // Publish permanent failure event
-        await this.eventBus.publish({
-          id: `handoff-failure-${Date.now()}`,
-          type: 'handoff.failed.permanently',
-          timestamp: Date.now(),
-          source: 'error-recovery-manager',
-          payload: {
-            primaryError: primaryError instanceof Error ? primaryError.message : String(primaryError),
-            fallbackError: fallbackError instanceof Error ? fallbackError.message : String(fallbackError)
-          }
-        });
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error(String(error));
         
-        throw new Error(`Both primary handoff and fallback failed. Primary: ${primaryError instanceof Error ? primaryError.message : String(primaryError)}. Fallback: ${fallbackError instanceof Error ? fallbackError.message : String(fallbackError)}`);
+        // If this isn't the last attempt, wait before retrying
+        if (attempt < this.maxRetries) {
+          const delay = this.calculateExponentialBackoff(attempt);
+          console.log(`Retrying handoff in ${delay}ms (attempt ${attempt + 1}/${this.maxRetries})`);
+          
+          // Publish retry event
+          await this.eventBus.publish({
+            id: `handoff-retry-${Date.now()}`,
+            type: 'handoff.retry',
+            timestamp: Date.now(),
+            source: 'error-recovery-manager',
+            payload: {
+              attempt: attempt + 1,
+              maxAttempts: this.maxRetries,
+              delay,
+              error: lastError.message
+            }
+          });
+          
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
       }
+    }
+    
+    // If all retries failed, try fallback
+    console.warn('Primary handoff failed after retries, attempting fallback:', lastError);
+    
+    // Publish fallback initiation event
+    await this.eventBus.publish({
+      id: `handoff-fallback-init-${Date.now()}`,
+      type: 'handoff.fallback.initiated',
+      timestamp: Date.now(),
+      source: 'error-recovery-manager',
+      payload: {
+        primaryError: lastError instanceof Error ? lastError.message : String(lastError),
+        retriesAttempted: this.maxRetries
+      }
+    });
+    
+    try {
+      // Attempt fallback
+      const result = await fallbackFn();
+      
+      // Publish fallback success event
+      await this.eventBus.publish({
+        id: `handoff-fallback-success-${Date.now()}`,
+        type: 'handoff.fallback.succeeded',
+        timestamp: Date.now(),
+        source: 'error-recovery-manager',
+        payload: {
+          result
+        }
+      });
+      
+      return result;
+    } catch (fallbackError) {
+      // Publish permanent failure event
+      await this.eventBus.publish({
+        id: `handoff-failure-${Date.now()}`,
+        type: 'handoff.failed.permanently',
+        timestamp: Date.now(),
+        source: 'error-recovery-manager',
+        payload: {
+          primaryError: lastError instanceof Error ? lastError.message : String(lastError),
+          fallbackError: fallbackError instanceof Error ? fallbackError.message : String(fallbackError)
+        }
+      });
+      
+      throw new Error(`Both primary handoff (after ${this.maxRetries} retries) and fallback failed. Primary: ${lastError instanceof Error ? lastError.message : String(lastError)}. Fallback: ${fallbackError instanceof Error ? fallbackError.message : String(fallbackError)}`);
     }
   }
 

@@ -7,6 +7,7 @@ import { getSwarmManager } from './swarm/swarm-manager.ts';
 import { a2aMediator } from './orchestrator/a2a-mediator.ts';
 import { featureGate } from './premium/feature-gate.ts';
 import { generateCommitMessage } from '../orchestrator/git-commit-generator.js';
+import { getPersonaLoader } from './agents/filesystem-persona-loader.ts';
 
 export function activate(context: vscode.ExtensionContext) {
 	console.log('LAPA Swarm extension is now active!');
@@ -19,6 +20,9 @@ export function activate(context: vscode.ExtensionContext) {
 	} else {
 		console.log('[LAPA] Free tier active - upgrade to Pro for full features');
 	}
+	
+	// Initialize persona loader and load all personas from filesystem
+	initializePersonas(context);
 	
 	// Initialize swarm manager
 	const swarmManager = getSwarmManager();
@@ -167,6 +171,61 @@ function registerCommands(context: vscode.ExtensionContext, swarmManager: Return
 			vscode.window.showInformationMessage(
 				`LAPA Swarm Status: ${state.status.toUpperCase()} | Agents: ${state.agents} | Progress: ${state.progress}% | ID: ${state.id}`
 			);
+		}
+	});
+
+	// Command Palette AI Command
+	const commandPaletteAICommand = vscode.commands.registerCommand('lapa.commandPalette.ai', async () => {
+		try {
+			const { CommandPaletteAI } = await import('./orchestrator/command-palette-ai.js');
+			const ai = new CommandPaletteAI();
+			
+			const query = await vscode.window.showInputBox({
+				prompt: 'What would you like to do?',
+				placeHolder: 'e.g., "How do I run tests?", "Save file", "Open terminal"',
+			});
+
+			if (!query) {
+				return;
+			}
+
+			// Search for matching commands
+			const context = {
+				taskId: `palette-${Date.now()}`,
+				agentId: 'command-palette-ai',
+				parameters: {
+					action: 'search',
+					query,
+					limit: 5
+				}
+			};
+
+			const result = await ai.execute(context);
+			
+			if (!result.success || !result.data?.results || result.data.results.length === 0) {
+				vscode.window.showInformationMessage(`No commands found for: "${query}"`);
+				return;
+			}
+
+			// Show quick pick with results
+			const items = result.data.results.map((r: any) => ({
+				label: r.command.title,
+				description: r.command.description || '',
+				detail: `Relevance: ${(r.relevanceScore * 100).toFixed(0)}% - ${r.matchReasons.join(', ')}`,
+				commandId: r.command.id
+			}));
+
+			const selected = await vscode.window.showQuickPick(items, {
+				placeHolder: `Found ${result.data.results.length} command(s) for "${query}"`
+			});
+
+			if (selected) {
+				await vscode.commands.executeCommand(selected.commandId);
+				vscode.window.showInformationMessage(`Executed: ${selected.label}`);
+			}
+		} catch (error) {
+			const message = error instanceof Error ? error.message : String(error);
+			vscode.window.showErrorMessage(`Command Palette AI error: ${message}`);
 		}
 	});
 
@@ -329,6 +388,123 @@ function registerCommands(context: vscode.ExtensionContext, swarmManager: Return
 		}
 	});
 
+	// Persona Management Commands
+	const listPersonasCommand = vscode.commands.registerCommand('lapa.personas.list', async () => {
+		try {
+			const personaLoader = getPersonaLoader();
+			const personas = personaLoader.getAllPersonas();
+			
+			if (personas.length === 0) {
+				vscode.window.showInformationMessage('No personas loaded. Use "LAPA: Reload Personas" to load from filesystem.');
+				return;
+			}
+
+			const items = personas.map(p => ({
+				label: p.personaName,
+				description: `ID: ${p.personaId}`,
+				detail: `Version: ${p.metadata.version || 'N/A'} | Status: ${p.metadata.status || 'N/A'}`,
+				personaId: p.personaId
+			}));
+
+			const selected = await vscode.window.showQuickPick(items, {
+				placeHolder: `Found ${personas.length} loaded personas`
+			});
+
+			if (selected) {
+				const persona = personaLoader.getParsedPersona(selected.personaId);
+				if (persona) {
+					const filePath = personaLoader.getPersonaFilePath(selected.personaId);
+					if (filePath) {
+						const doc = await vscode.workspace.openTextDocument(filePath);
+						await vscode.window.showTextDocument(doc);
+					}
+				}
+			}
+		} catch (error) {
+			const message = error instanceof Error ? error.message : String(error);
+			vscode.window.showErrorMessage(`Failed to list personas: ${message}`);
+		}
+	});
+
+	const reloadPersonasCommand = vscode.commands.registerCommand('lapa.personas.reload', async () => {
+		try {
+			await vscode.window.withProgress({
+				location: vscode.ProgressLocation.Notification,
+				title: 'Reloading personas from filesystem...',
+				cancellable: false
+			}, async () => {
+				const personaLoader = getPersonaLoader();
+				const loadedCount = await personaLoader.loadAllPersonas();
+				
+				if (loadedCount > 0) {
+					vscode.window.showInformationMessage(`✅ Reloaded ${loadedCount} personas from filesystem`);
+				} else {
+					vscode.window.showWarningMessage('⚠️ No personas found. Ensure docs/personas/ directory exists.');
+				}
+			});
+		} catch (error) {
+			const message = error instanceof Error ? error.message : String(error);
+			vscode.window.showErrorMessage(`Failed to reload personas: ${message}`);
+		}
+	});
+
+	// Workflow Commands
+	const generateWorkflowCommand = vscode.commands.registerCommand('lapa.workflow.generate', async () => {
+		try {
+			const taskDescription = await vscode.window.showInputBox({
+				prompt: 'Describe the task for workflow generation',
+				placeHolder: 'e.g., "Implement user authentication feature"',
+			});
+
+			if (!taskDescription) {
+				return;
+			}
+
+			await vscode.window.withProgress({
+				location: vscode.ProgressLocation.Notification,
+				title: 'Generating workflow...',
+				cancellable: false
+			}, async () => {
+				// Import workflow generator dynamically
+				const { workflowGenerator } = await import('./orchestrator/workflow-generator.ts');
+				const workflow = await workflowGenerator.generateWorkflow(taskDescription);
+
+				// Show workflow details
+				const workflowDetails = [
+					`**Workflow:** ${workflow.name}`,
+					`**Agents:** ${workflow.agentSequence.join(' → ')}`,
+					`**Sequence:** ${workflow.sequence}`,
+					`**Confidence:** ${(workflow.confidence * 100).toFixed(0)}%`,
+					`**Estimated Duration:** ${(workflow.estimatedDuration / 1000).toFixed(1)}s`,
+					`**Reasoning:** ${workflow.reasoning}`
+				].join('\n');
+
+				const action = await vscode.window.showInformationMessage(
+					`Workflow generated: ${workflow.name}`,
+					'Execute Workflow',
+					'View Details'
+				);
+
+				if (action === 'Execute Workflow') {
+					// Execute workflow via swarm manager
+					await vscode.commands.executeCommand('lapa.swarm.start', {
+						goal: taskDescription,
+						workflow: workflow
+					});
+				} else if (action === 'View Details') {
+					const doc = await vscode.workspace.openTextDocument({
+						content: workflowDetails,
+						language: 'markdown'
+					});
+					await vscode.window.showTextDocument(doc);
+				}
+			});
+		} catch (error) {
+			const message = error instanceof Error ? error.message : String(error);
+			vscode.window.showErrorMessage(`Failed to generate workflow: ${message}`);
+		}
+	});
+
 	// Upgrade Command (if not already defined)
 	const upgradeCommand = vscode.commands.registerCommand('lapa.swarm.upgrade', async () => {
 		vscode.window.showInformationMessage('Upgrade to LAPA Swarm Pro for advanced features!', 'Learn More')
@@ -353,10 +529,291 @@ function registerCommands(context: vscode.ExtensionContext, swarmManager: Return
 		}
 	});
 
+	// Enhance Prompt Command
+	const enhancePromptCommand = vscode.commands.registerCommand('lapa.enhancePrompt', async (prompt: string) => {
+		try {
+			const { promptEngineer } = await import('./orchestrator/prompt-engineer.js');
+			
+			// Ensure PromptEngineer is started
+			await promptEngineer.start();
+
+			// Refine the prompt
+			const result = await promptEngineer.refinePrompt({
+				originalPrompt: prompt,
+				taskType: 'other'
+			});
+
+			if (result.success && result.refinedPrompt) {
+				return {
+					success: true,
+					refinedPrompt: result.refinedPrompt,
+					structuredPlan: result.structuredPlan,
+					confidence: result.confidence
+				};
+			} else if (result.clarificationQuestions && result.clarificationQuestions.length > 0) {
+				return {
+					success: true,
+					clarificationQuestions: result.clarificationQuestions,
+					confidence: result.confidence
+				};
+			} else {
+				throw new Error(result.error || 'Failed to enhance prompt');
+			}
+		} catch (error) {
+			const message = error instanceof Error ? error.message : String(error);
+			console.error('[lapa.enhancePrompt] Error:', error);
+			return {
+				success: false,
+				error: message
+			};
+		}
+	});
+
+	// Switch Provider Command
+	const switchProviderCommand = vscode.commands.registerCommand('lapa.switchProvider', async (provider: 'ollama' | 'nim' | 'cloud') => {
+		try {
+			const { getInferenceManager } = await import('./inference/manager.js');
+			
+			// Get or create inference manager instance (singleton pattern)
+			// For cloud, we'll map it to 'auto' or handle separately
+			const backend = provider === 'cloud' ? 'auto' : provider;
+			
+			// Get the singleton instance
+			const manager = getInferenceManager({
+				defaultBackend: backend as any,
+				perfMode: 5,
+				enableThermalGuard: true,
+				maxCpuTemp: 85,
+				maxGpuTemp: 90,
+				enableAutoFallback: true,
+				healthCheckInterval: 5000,
+				enableLivePreview: false,
+				alertThresholds: {
+					cpuTempWarning: 70,
+					cpuTempCritical: 85,
+					gpuTempWarning: 75,
+					gpuTempCritical: 90,
+					cpuUsageWarning: 80,
+					memoryUsageWarning: 85,
+					vramUsageWarning: 90,
+					vramUsageCritical: 95
+				}
+			});
+
+			// Ensure initialized
+			if (!manager.isInitialized()) {
+				await manager.initialize();
+			}
+
+			// Switch backend
+			await manager.switchBackend(backend as any);
+
+			// Save provider preference to settings
+			const config = vscode.workspace.getConfiguration('lapa');
+			await config.update('inference.provider', provider, vscode.ConfigurationTarget.Global);
+
+			vscode.window.showInformationMessage(`Switched inference provider to: ${provider}`);
+			
+			return {
+				success: true,
+				provider: provider
+			};
+		} catch (error) {
+			const message = error instanceof Error ? error.message : String(error);
+			console.error('[lapa.switchProvider] Error:', error);
+			vscode.window.showErrorMessage(`Failed to switch provider: ${message}`);
+			return {
+				success: false,
+				error: message
+			};
+		}
+	});
+
+	// Open Settings Panel Command
+	const openSettingsCommand = vscode.commands.registerCommand('lapa.settings.open', async () => {
+		try {
+			// Create and show settings webview panel
+			const panel = vscode.window.createWebviewPanel(
+				'lapaSettings',
+				'LAPA Settings',
+				vscode.ViewColumn.Beside,
+				{
+					enableScripts: true,
+					retainContextWhenHidden: true,
+					localResourceRoots: [context.extensionUri]
+				}
+			);
+
+			// Import SettingsPanel component
+			const { SettingsPanel } = await import('./ui/SettingsPanel.tsx');
+			
+			// Get webview HTML for SettingsPanel
+			const scriptUri = panel.webview.asWebviewUri(
+				vscode.Uri.joinPath(context.extensionUri, 'media', 'main.js')
+			);
+			const styleResetUri = panel.webview.asWebviewUri(
+				vscode.Uri.joinPath(context.extensionUri, 'media', 'reset.css')
+			);
+			const styleVSCodeUri = panel.webview.asWebviewUri(
+				vscode.Uri.joinPath(context.extensionUri, 'media', 'vscode.css')
+			);
+			const styleMainUri = panel.webview.asWebviewUri(
+				vscode.Uri.joinPath(context.extensionUri, 'media', 'main.css')
+			);
+
+			const nonce = getNonce();
+			panel.webview.html = `<!DOCTYPE html>
+				<html lang="en">
+				<head>
+					<meta charset="UTF-8">
+					<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${panel.webview.cspSource}; script-src 'nonce-${nonce}';">
+					<meta name="viewport" content="width=device-width, initial-scale=1.0">
+					<link href="${styleResetUri}" rel="stylesheet">
+					<link href="${styleVSCodeUri}" rel="stylesheet">
+					<link href="${styleMainUri}" rel="stylesheet">
+					<title>LAPA Settings</title>
+				</head>
+				<body>
+					<div id="root"></div>
+					<script nonce="${nonce}" src="${scriptUri}"></script>
+				</body>
+				</html>`;
+
+			// Handle messages from webview
+			panel.webview.onDidReceiveMessage(async message => {
+				if (message.command === 'updateConfig') {
+					const config = vscode.workspace.getConfiguration('lapa');
+					await config.update(message.key, message.value, vscode.ConfigurationTarget.Global);
+				}
+			});
+		} catch (error) {
+			const message = error instanceof Error ? error.message : String(error);
+			vscode.window.showErrorMessage(`Failed to open settings: ${message}`);
+		}
+	});
+
+	// Open MCP Marketplace Command
+	const openMarketplaceCommand = vscode.commands.registerCommand('lapa.marketplace.open', async () => {
+		try {
+			const panel = vscode.window.createWebviewPanel(
+				'lapaMarketplace',
+				'LAPA MCP Marketplace',
+				vscode.ViewColumn.Beside,
+				{
+					enableScripts: true,
+					retainContextWhenHidden: true,
+					localResourceRoots: [context.extensionUri]
+				}
+			);
+
+			const scriptUri = panel.webview.asWebviewUri(
+				vscode.Uri.joinPath(context.extensionUri, 'media', 'main.js')
+			);
+			const styleResetUri = panel.webview.asWebviewUri(
+				vscode.Uri.joinPath(context.extensionUri, 'media', 'reset.css')
+			);
+			const styleVSCodeUri = panel.webview.asWebviewUri(
+				vscode.Uri.joinPath(context.extensionUri, 'media', 'vscode.css')
+			);
+			const styleMainUri = panel.webview.asWebviewUri(
+				vscode.Uri.joinPath(context.extensionUri, 'media', 'main.css')
+			);
+
+			const nonce = getNonce();
+			panel.webview.html = `<!DOCTYPE html>
+				<html lang="en">
+				<head>
+					<meta charset="UTF-8">
+					<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${panel.webview.cspSource}; script-src 'nonce-${nonce}';">
+					<meta name="viewport" content="width=device-width, initial-scale=1.0">
+					<link href="${styleResetUri}" rel="stylesheet">
+					<link href="${styleVSCodeUri}" rel="stylesheet">
+					<link href="${styleMainUri}" rel="stylesheet">
+					<title>LAPA MCP Marketplace</title>
+				</head>
+				<body>
+					<div id="root"></div>
+					<script nonce="${nonce}" src="${scriptUri}"></script>
+				</body>
+				</html>`;
+
+			panel.webview.onDidReceiveMessage(async message => {
+				if (message.command === 'installSkill') {
+					// Handle skill installation
+					vscode.window.showInformationMessage(`Installing skill: ${message.skillId}`);
+				}
+			});
+		} catch (error) {
+			const message = error instanceof Error ? error.message : String(error);
+			vscode.window.showErrorMessage(`Failed to open marketplace: ${message}`);
+		}
+	});
+
+	// Open Dashboard Command
+	const openDashboardCommand = vscode.commands.registerCommand('lapa.dashboard.open', async () => {
+		try {
+			const panel = vscode.window.createWebviewPanel(
+				'lapaDashboard',
+				'LAPA Dashboard',
+				vscode.ViewColumn.Beside,
+				{
+					enableScripts: true,
+					retainContextWhenHidden: true,
+					localResourceRoots: [context.extensionUri]
+				}
+			);
+
+			const scriptUri = panel.webview.asWebviewUri(
+				vscode.Uri.joinPath(context.extensionUri, 'media', 'main.js')
+			);
+			const styleResetUri = panel.webview.asWebviewUri(
+				vscode.Uri.joinPath(context.extensionUri, 'media', 'reset.css')
+			);
+			const styleVSCodeUri = panel.webview.asWebviewUri(
+				vscode.Uri.joinPath(context.extensionUri, 'media', 'vscode.css')
+			);
+			const styleMainUri = panel.webview.asWebviewUri(
+				vscode.Uri.joinPath(context.extensionUri, 'media', 'main.css')
+			);
+
+			const nonce = getNonce();
+			panel.webview.html = `<!DOCTYPE html>
+				<html lang="en">
+				<head>
+					<meta charset="UTF-8">
+					<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${panel.webview.cspSource}; script-src 'nonce-${nonce}';">
+					<meta name="viewport" content="width=device-width, initial-scale=1.0">
+					<link href="${styleResetUri}" rel="stylesheet">
+					<link href="${styleVSCodeUri}" rel="stylesheet">
+					<link href="${styleMainUri}" rel="stylesheet">
+					<title>LAPA Dashboard</title>
+				</head>
+				<body>
+					<div id="root"></div>
+					<script nonce="${nonce}" src="${scriptUri}"></script>
+				</body>
+				</html>`;
+		} catch (error) {
+			const message = error instanceof Error ? error.message : String(error);
+			vscode.window.showErrorMessage(`Failed to open dashboard: ${message}`);
+		}
+	});
+
+	// Helper function for nonce generation
+	function getNonce() {
+		let text = '';
+		const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+		for (let i = 0; i < 32; i++) {
+			text += possible.charAt(Math.floor(Math.random() * possible.length));
+		}
+		return text;
+	}
+
 	context.subscriptions.push(
 		startSwarmCommand,
 		stopSwarmCommand,
 		pauseSwarmCommand,
+		commandPaletteAICommand,
 		resumeSwarmCommand,
 		configureSwarmCommand,
 		statusSwarmCommand,
@@ -364,7 +821,15 @@ function registerCommands(context: vscode.ExtensionContext, swarmManager: Return
 		listSessionsCommand,
 		generateCommitCommand,
 		upgradeCommand,
-		activateLicenseCommand
+		activateLicenseCommand,
+		listPersonasCommand,
+		reloadPersonasCommand,
+		generateWorkflowCommand,
+		enhancePromptCommand,
+		switchProviderCommand,
+		openSettingsCommand,
+		openMarketplaceCommand,
+		openDashboardCommand
 	);
 }
 
@@ -428,6 +893,29 @@ function initializeA2AMediator(context: vscode.ExtensionContext) {
 		}
 	} catch (error) {
 		console.warn('Failed to initialize A2A mediator:', error);
+	}
+}
+
+// Initialize persona system
+async function initializePersonas(context: vscode.ExtensionContext) {
+	try {
+		const personaLoader = getPersonaLoader();
+		const loadedCount = await personaLoader.initialize();
+		
+		if (loadedCount > 0) {
+			console.log(`✅ Loaded ${loadedCount} agent personas from filesystem`);
+			vscode.window.showInformationMessage(
+				`LAPA: Loaded ${loadedCount} agent personas`,
+				{ modal: false }
+			);
+		} else {
+			console.warn('⚠️ No personas loaded from filesystem. Ensure docs/personas/ directory exists.');
+		}
+	} catch (error) {
+		console.error('Failed to initialize personas:', error);
+		vscode.window.showErrorMessage(
+			`Failed to load personas: ${error instanceof Error ? error.message : String(error)}`
+		);
 	}
 }
 

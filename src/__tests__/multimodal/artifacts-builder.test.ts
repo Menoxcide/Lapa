@@ -1,5 +1,6 @@
 // Tests for Artifacts Builder implementation
 
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ArtifactsBuilder } from '../../multimodal/artifacts-builder.ts';
 import { MultimodalConfig } from '../../multimodal/types/index.ts';
 

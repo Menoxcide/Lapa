@@ -1,0 +1,43 @@
+{
+  "finding": {
+    "findingId": "arxiv-1311.5108v1-1763179178667",
+    "source": "arxiv",
+    "category": "ai-agents",
+    "title": "A Methodology to Engineer and Validate Dynamic Multi-level Multi-agent Based Simulations",
+    "description": "This article proposes a methodology to model and simulate complex systems, based on IRM4MLS, a generic agent-based meta-model able to deal with multi-level systems. This methodology permits the engineering of dynamic multi-level agent-based models, to represent complex systems over several scales and domains of interest. Its goal is to simulate a phenomenon using dynamically the lightest representation to save computer resources without loss of information. This methodology is based on two mecha",
+    "data": {
+      "query": "multi-agent orchestration systems 2025",
+      "category": "ai-agents",
+      "authors": [
+        "Jean-Baptiste Soyez",
+        "Gildas Morvan",
+        "Daniel Dupont",
+        "Rochdi Merzouki"
+      ],
+      "categories": [
+        "cs.MA"
+      ],
+      "published": "2013-11-20T15:44:26.000Z",
+      "updated": "2013-11-20T15:44:26.000Z",
+      "sources": [
+        "arxiv"
+      ]
+    },
+    "valuePotential": 0.6,
+    "implementationSuggestion": "Evaluate agent architecture improvements for LAPA-VOID agent system",
+    "url": "http://arxiv.org/abs/1311.5108v1",
+    "tags": [
+      "ai-agents",
+      "agent",
+      "orchestration",
+      "multi-agent",
+      "2025",
+      "cs.MA"
+    ],
+    "timestamp": "2025-11-15T03:59:38.667Z"
+  },
+  "storedAt": "2025-11-15T03:59:42.944Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T03:59:42.944Z",
+  "implementationStatus": "pending"
+}

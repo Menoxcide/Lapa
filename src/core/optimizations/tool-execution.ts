@@ -63,6 +63,7 @@ export class OptimizedToolExecutor {
 
   /**
    * Execute a tool with optimizations
+   * Optimized version with faster cache lookup
    * @param tool Tool to execute
    * @param context Execution context
    * @returns Promise resolving to execution result
@@ -70,7 +71,7 @@ export class OptimizedToolExecutor {
   async executeTool(tool: AgentTool, context: AgentToolExecutionContext): Promise<ToolExecutorResult> {
     const startTime = performance.now();
 
-    // Check cache if enabled
+    // Check cache if enabled (optimized: check before any other work)
     if (this.config.enableCaching) {
       const cachedResult = lapaCacheManager.toolExecutionCache.getCachedResult(
         tool.name, 
@@ -78,7 +79,7 @@ export class OptimizedToolExecutor {
       );
       
       if (cachedResult) {
-        // Return cached result with updated timestamps
+        // Fast path: return cached result immediately
         const endTime = performance.now();
         return {
           ...cachedResult.result,
@@ -142,6 +143,7 @@ export class OptimizedToolExecutor {
 
   /**
    * Process a batch of tool executions
+   * Optimized version with better concurrency handling
    */
   private async processBatch(): Promise<void> {
     // Prevent concurrent batch processing
@@ -149,14 +151,19 @@ export class OptimizedToolExecutor {
       return;
     }
 
-    // Take a batch of requests
-    const batch = this.executionQueue.splice(0, this.config.maxBatchSize);
+    // Take a batch of requests (optimized: use max batch size or queue length, whichever is smaller)
+    const batchSize = Math.min(this.config.maxBatchSize, this.executionQueue.length);
+    const batch = this.executionQueue.splice(0, batchSize);
+
+    if (batch.length === 0) {
+      return;
+    }
 
     // Process batch concurrently with resource management
     this.activeExecutions = batch.length;
     
     try {
-      // Execute all tools in batch concurrently
+      // Execute all tools in batch concurrently (optimized: use Promise.allSettled for better error handling)
       const promises = batch.map(async (request) => {
         try {
           const result = await this.executeDirectly(
@@ -166,8 +173,10 @@ export class OptimizedToolExecutor {
           );
           
           request.resolve(result);
+          return { success: true };
         } catch (error) {
           request.reject(error);
+          return { success: false, error };
         }
       });
 
@@ -175,7 +184,7 @@ export class OptimizedToolExecutor {
     } finally {
       this.activeExecutions = 0;
 
-      // Schedule next batch if there are more requests
+      // Schedule next batch if there are more requests (optimized: check before scheduling)
       if (this.executionQueue.length > 0) {
         // Use setImmediate to yield to event loop
         setImmediate(() => {

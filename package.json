@@ -64,7 +64,11 @@
     "vsix:install": "cmd /c \"\"%LOCALAPPDATA%\\Programs\\cursor\\resources\\app\\bin\\cursor\" --install-extension lapa-core-1.0.0.vsix --force\"",
     "setup:nim": "bash scripts/install-nim.sh",
     "dev": "npm run build:watch",
-    "prepublishOnly": "npm run build && npm run test"
+    "prepublishOnly": "npm run build && npm run test",
+    "deploy": "tsx scripts/deploy-with-github.ts",
+    "deploy:staging": "tsx scripts/deploy-with-github.ts staging",
+    "deploy:production": "tsx scripts/deploy-with-github.ts production",
+    "deploy:skip-github": "tsx scripts/deploy-with-github.ts production --skip-github"
   },
   "files": [
     "extension/dist/",
@@ -93,8 +97,10 @@
     "jsdom": "^27.1.0",
     "prettier": "^3.6.2",
     "rimraf": "^6.1.0",
+    "std-env": "^3.10.0",
+    "tinyexec": "^1.0.2",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.8"
+    "vitest": "^4.0.9"
   },
   "dependencies": {
     "@ai-sdk/openai": "^2.0.62",
@@ -122,7 +128,6 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "sqlite3": "^5.1.7",
-    "std-env": "^3.10.0",
     "stripe": "^19.3.0",
     "systeminformation": "^5.27.11",
     "uuid": "^13.0.0",

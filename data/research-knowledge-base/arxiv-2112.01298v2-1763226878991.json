@@ -1,0 +1,52 @@
+{
+  "finding": {
+    "findingId": "arxiv-2112.01298v2-1763226878991",
+    "source": "arxiv",
+    "category": "recursive-improvement",
+    "title": "Meaningful human control: actionable properties for AI system development",
+    "description": "How can humans remain in control of artificial intelligence (AI)-based systems designed to perform tasks autonomously? Such systems are increasingly ubiquitous, creating benefits - but also undesirable situations where moral responsibility for their actions cannot be properly attributed to any particular person or group. The concept of meaningful human control has been proposed to address responsibility gaps and mitigate them by establishing conditions that enable a proper attribution of respons",
+    "data": {
+      "query": "recursive self-improvement AI systems",
+      "category": "recursive-improvement",
+      "authors": [
+        "Luciano Cavalcante Siebert",
+        "Maria Luce Lupetti",
+        "Evgeni Aizenberg",
+        "Niek Beckers",
+        "Arkady Zgonnikov",
+        "Herman Veluwenkamp",
+        "David Abbink",
+        "Elisa Giaccardi",
+        "Geert-Jan Houben",
+        "Catholijn M. Jonker",
+        "Jeroen van den Hoven",
+        "Deborah Forster",
+        "Reginald L. Lagendijk"
+      ],
+      "categories": [
+        "cs.CY",
+        "cs.AI"
+      ],
+      "published": "2021-11-25T11:05:37.000Z",
+      "updated": "2022-05-19T15:28:01.000Z",
+      "sources": [
+        "arxiv"
+      ]
+    },
+    "valuePotential": 0.30000000000000004,
+    "implementationSuggestion": "Consider recursive improvement mechanisms for continuous evolution",
+    "url": "http://arxiv.org/abs/2112.01298v2",
+    "tags": [
+      "recursive-improvement",
+      "ai",
+      "recursive",
+      "cs.CY",
+      "cs.AI"
+    ],
+    "timestamp": "2025-11-15T17:14:38.991Z"
+  },
+  "storedAt": "2025-11-15T17:14:42.596Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T17:14:42.596Z",
+  "implementationStatus": "pending"
+}

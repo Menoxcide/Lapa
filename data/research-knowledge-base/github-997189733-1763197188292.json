@@ -1,0 +1,37 @@
+{
+  "finding": {
+    "findingId": "github-997189733-1763197188292",
+    "source": "github",
+    "category": "inference-optimization",
+    "title": "OpenBMB/CPM.cu",
+    "description": "CPM.cu is a lightweight, high-performance CUDA implementation for LLMs, optimized for end-device inference and featuring cutting-edge techniques in sparse architecture, speculative sampling and quantization.",
+    "data": {
+      "query": "inference optimization techniques",
+      "category": "inference-optimization",
+      "stars": 204,
+      "forks": 21,
+      "language": "Cuda",
+      "topics": [],
+      "createdAt": "2025-06-06T05:31:19.000Z",
+      "updatedAt": "2025-11-08T02:23:18.000Z",
+      "owner": "OpenBMB",
+      "sources": [
+        "github"
+      ]
+    },
+    "valuePotential": 0.15000000000000002,
+    "implementationSuggestion": "Review inference optimization techniques for performance improvements",
+    "url": "https://github.com/OpenBMB/CPM.cu",
+    "tags": [
+      "inference-optimization",
+      "inference",
+      "optimization",
+      "Cuda"
+    ],
+    "timestamp": "2025-11-15T08:59:48.292Z"
+  },
+  "storedAt": "2025-11-15T08:59:53.527Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T08:59:53.527Z",
+  "implementationStatus": "pending"
+}

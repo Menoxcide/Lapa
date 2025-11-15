@@ -18,6 +18,12 @@ describe('Swarm Workflow Integration', () => {
     votingSystem = new ConsensusVotingSystem();
     contextHandoff = new ContextHandoffManager();
     orchestrator = new LangGraphOrchestrator('start');
+    // Add the initial state node so workflow execution can start
+    orchestrator.addNode({
+      id: 'start',
+      type: 'process',
+      label: 'Start Process'
+    });
   });
 
   describe('Agent Routing and Parallel Execution', () => {

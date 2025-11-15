@@ -63,30 +63,31 @@ export class AgentCoordinationMCPServer {
    */
   private setupTools(): void {
     // Tool: Initiate handoff
-    this.server.setRequestHandler('tools/call', async (request) => {
-      if (request.params.name === 'initiate_handoff') {
-        return this.handleInitiateHandoff(request.params.arguments as any);
+    this.server.setRequestHandler('tools/call' as any, async (request: any) => {
+      const params = request.params as any;
+      if (params.name === 'initiate_handoff') {
+        return this.handleInitiateHandoff(params.arguments as any);
       }
-      if (request.params.name === 'get_agent_status') {
-        return this.handleGetAgentStatus(request.params.arguments as any);
+      if (params.name === 'get_agent_status') {
+        return this.handleGetAgentStatus(params.arguments as any);
       }
-      if (request.params.name === 'get_agent_capabilities') {
-        return this.handleGetAgentCapabilities(request.params.arguments as any);
+      if (params.name === 'get_agent_capabilities') {
+        return this.handleGetAgentCapabilities(params.arguments as any);
       }
-      if (request.params.name === 'coordinate_task') {
-        return this.handleCoordinateTask(request.params.arguments as any);
+      if (params.name === 'coordinate_task') {
+        return this.handleCoordinateTask(params.arguments as any);
       }
-      if (request.params.name === 'vote_on_decision') {
-        return this.handleVoteOnDecision(request.params.arguments as any);
+      if (params.name === 'vote_on_decision') {
+        return this.handleVoteOnDecision(params.arguments as any);
       }
-      if (request.params.name === 'get_consensus_status') {
-        return this.handleGetConsensusStatus(request.params.arguments as any);
+      if (params.name === 'get_consensus_status') {
+        return this.handleGetConsensusStatus(params.arguments as any);
       }
-      throw new Error(`Unknown tool: ${request.params.name}`);
+      throw new Error(`Unknown tool: ${params.name}`);
     });
 
     // Tool: List available tools
-    this.server.setRequestHandler('tools/list', async () => {
+    this.server.setRequestHandler('tools/list' as any, async () => {
       return {
         tools: [
           {
@@ -188,7 +189,7 @@ export class AgentCoordinationMCPServer {
             type: 'text',
             text: JSON.stringify({
               success: response.accepted,
-              handoffId: response.handoffId,
+              handoffId: response.handshakeId,
               message: response.accepted ? 'Handoff initiated successfully' : 'Handoff rejected',
               reason: response.reason,
             }),

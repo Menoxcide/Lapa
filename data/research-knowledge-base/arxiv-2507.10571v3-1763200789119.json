@@ -1,0 +1,42 @@
+{
+  "finding": {
+    "findingId": "arxiv-2507.10571v3-1763200789119",
+    "source": "arxiv",
+    "category": "orchestration",
+    "title": "Agentic AI with Orchestrator-Agent Trust: A Modular Visual Classification Framework with Trust-Aware Orchestration and RAG-Based Reasoning",
+    "description": "Modern Artificial Intelligence (AI) increasingly relies on multi-agent architectures that blend visual and language understanding. Yet, a pressing challenge remains: How can we trust these agents especially in zero-shot settings with no fine-tuning? We introduce a novel modular Agentic AI visual classification framework that integrates generalist multimodal agents with a non-visual reasoning orchestrator and a Retrieval-Augmented Generation (RAG) module. Applied to apple leaf disease diagnosis, ",
+    "data": {
+      "query": "agent orchestration frameworks",
+      "category": "orchestration",
+      "authors": [
+        "Konstantinos I. Roumeliotis",
+        "Ranjan Sapkota",
+        "Manoj Karkee",
+        "Nikolaos D. Tselikas"
+      ],
+      "categories": [
+        "cs.AI",
+        "cs.CL"
+      ],
+      "published": "2025-07-09T16:39:29.000Z",
+      "updated": "2025-09-21T06:44:14.000Z",
+      "sources": [
+        "arxiv"
+      ]
+    },
+    "valuePotential": 0.45000000000000007,
+    "implementationSuggestion": "Review orchestration patterns for potential NEURAFORGE enhancements",
+    "url": "http://arxiv.org/abs/2507.10571v3",
+    "tags": [
+      "orchestration",
+      "agent",
+      "cs.AI",
+      "cs.CL"
+    ],
+    "timestamp": "2025-11-15T09:59:49.119Z"
+  },
+  "storedAt": "2025-11-15T09:59:53.548Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T09:59:53.548Z",
+  "implementationStatus": "pending"
+}

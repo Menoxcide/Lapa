@@ -1,0 +1,40 @@
+{
+  "finding": {
+    "findingId": "arxiv-2403.19308v1-1763200789124",
+    "source": "arxiv",
+    "category": "nim-inference",
+    "title": "Maximum Nim and Josephus Problem",
+    "description": "In this study, we study the relation between Grundy numbers of a Maximum Nim and Josephus problem. Let f(x) = floor(x/k), where floor( ) is the floor function and k is a positive integer. We prove that there is a simple relation with a Maximum Nim with the rule function f and the Josephus problem in which every k-th numbers are to be removed.",
+    "data": {
+      "query": "NVIDIA NIM inference microservice",
+      "category": "nim-inference",
+      "authors": [
+        "Shoei Takahashi",
+        "Hikaru Manabe",
+        "Ryohei Miyadera"
+      ],
+      "categories": [
+        "math.CO"
+      ],
+      "published": "2024-03-28T10:47:30.000Z",
+      "updated": "2024-03-28T10:47:30.000Z",
+      "sources": [
+        "arxiv"
+      ]
+    },
+    "valuePotential": 0.2,
+    "implementationSuggestion": "Evaluate NVIDIA NIM integration opportunities for inference optimization",
+    "url": "http://arxiv.org/abs/2403.19308v1",
+    "tags": [
+      "nim-inference",
+      "inference",
+      "nim",
+      "math.CO"
+    ],
+    "timestamp": "2025-11-15T09:59:49.124Z"
+  },
+  "storedAt": "2025-11-15T09:59:53.400Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T09:59:53.400Z",
+  "implementationStatus": "pending"
+}

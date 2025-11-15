@@ -1,0 +1,33 @@
+{
+  "finding": {
+    "findingId": "reddit-1li8kwy-1763197193097",
+    "source": "reddit",
+    "category": "orchestration",
+    "title": "[P] Fenix: An open-source framework using a crew of local LLM agents for financial market analysis (Visual, Technical &amp; Sentiment).",
+    "description": "Hi r/MachineLearning,\n\nI'd like to share a project I've developed, **Fenix**, an open-source framework for algorithmic trading that leverages a multi-agent system to tackle the noisy and complex domain of financial markets.\n\nInstead of a single model, the architecture is **heterogeneous**, using specialized local LLMs orchestrated by `CrewAI` for different sub-tasks:\n\n1. **Visual Analysis:** A key feature is the `VisualAnalystAgent`, which uses `LLaVA` to perform visual analysis on chart images,",
+    "data": {
+      "query": "agent orchestration frameworks",
+      "category": "orchestration",
+      "subreddit": "MachineLearning",
+      "score": 1,
+      "numComments": 9,
+      "author": "MoveDecent3455",
+      "createdUtc": 1750656699,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.30000000000000004,
+    "implementationSuggestion": "Review orchestration patterns for potential NEURAFORGE enhancements",
+    "url": "https://reddit.com/r/MachineLearning/comments/1li8kwy/p_fenix_an_opensource_framework_using_a_crew_of/",
+    "tags": [
+      "orchestration",
+      "agent"
+    ],
+    "timestamp": "2025-11-15T08:59:53.097Z"
+  },
+  "storedAt": "2025-11-15T08:59:53.487Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T08:59:53.487Z",
+  "implementationStatus": "pending"
+}

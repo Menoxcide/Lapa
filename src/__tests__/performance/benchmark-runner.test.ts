@@ -1102,6 +1102,13 @@ describe('Performance Benchmark Runner', () => {
   it('should run LangGraph Orchestration Performance test', async () => {
     const orchestrator = new OptimizedLangGraphOrchestrator('start');
     
+    // Add the initial state node so workflow execution can start
+    orchestrator.addNode({
+      id: 'start',
+      type: 'process',
+      label: 'Start Process'
+    });
+    
     // Create a complex workflow graph
     const nodeCount = 50;
     const nodes: Array<{ id: string; type: 'agent' | 'process' | 'decision'; label: string; agentType?: string }> = [];
@@ -1169,6 +1176,13 @@ describe('Performance Benchmark Runner', () => {
 
   it('should run Decision-Heavy Workflow Performance test', async () => {
     const orchestrator = new OptimizedLangGraphOrchestrator('start');
+    
+    // Add the initial state node so workflow execution can start
+    orchestrator.addNode({
+      id: 'start',
+      type: 'process',
+      label: 'Start Process'
+    });
     
     // Create workflow with many decision points
     const decisionNodes: Array<{ id: string; type: 'decision'; label: string }> = [];

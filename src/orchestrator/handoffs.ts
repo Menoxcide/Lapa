@@ -11,6 +11,9 @@ import { Agent, Task, moeRouter } from '../agents/moe-router.ts';
 import { Agent as OpenAIAgent, run } from '@openai/agents';
 import { a2aMediator, A2AHandshakeRequest } from './a2a-mediator.ts';
 import { performance } from 'perf_hooks';
+import { agl } from '../utils/agent-lightning-hooks.ts';
+import { MAEBEEvaluator, OrchestrationContext, AgentInteraction, OrchestrationMetrics } from './maebe-evaluator.ts';
+import { EmergentRiskAssessor } from './emergent-risk-assessor.ts';
 
 // OpenAI Agent type (using actual SDK)
 type OpenAIAgentSDK = OpenAIAgent;
@@ -605,6 +608,8 @@ export class HybridHandoffSystem {
   private hooks: HandoffLifecycleHooks = {};
   private retryConfig: RetryConfig;
   private metrics: HandoffMetrics;
+  private maebeEvaluator?: MAEBEEvaluator;
+  private riskAssessor?: EmergentRiskAssessor;
 
   constructor(config?: Partial<HandoffConfig>, hooks?: HandoffLifecycleHooks, retryConfig?: Partial<RetryConfig>) {
     this.langGraphOrchestrator = new LangGraphOrchestrator('start');
@@ -635,6 +640,18 @@ export class HybridHandoffSystem {
       averageLatency: 0,
       latencyHistory: []
     };
+
+    // Initialize MAEBE evaluator if enabled
+    if (this.config.enableDetailedLogging) {
+      this.maebeEvaluator = new MAEBEEvaluator({
+        enabled: true,
+        enableAgentLightningTracking: true
+      });
+      this.riskAssessor = new EmergentRiskAssessor({
+        enabled: true,
+        enableAgentLightningTracking: true
+      });
+    }
   }
 
   /**
@@ -647,12 +664,35 @@ export class HybridHandoffSystem {
   }
 
   /**
+   * Builds orchestration metrics from context
+   */
+  private buildOrchestrationMetrics(context: Record<string, any>): OrchestrationMetrics {
+    return {
+      handoffCount: context.handoffCount || 0,
+      handoffSuccessRate: this.metrics.totalHandoffs > 0
+        ? this.metrics.successfulHandoffs / this.metrics.totalHandoffs
+        : 1.0,
+      averageLatency: this.metrics.averageLatency,
+      resourceContention: context.resourceContention || 0,
+      coordinationAttempts: context.coordinationAttempts || 0,
+      coordinationSuccessRate: context.coordinationSuccessRate || 1.0
+    };
+  }
+
+  /**
    * Executes a task with hybrid handoff capabilities
    * @param task Initial task to execute
    * @param context Initial context
    * @returns Promise that resolves with the final result
    */
   async executeTaskWithHandoffs(task: Task, context: Record<string, any>): Promise<any> {
+    // Track task execution with Agent Lightning
+    const spanId = agl.emitSpan('handoff.task.execute', {
+      taskId: task.id,
+      taskType: task.type,
+      priority: task.priority
+    });
+
     try {
       console.log(`Executing task with hybrid handoffs: ${task.id}`);
       
@@ -666,9 +706,77 @@ export class HybridHandoffSystem {
         totalDuration: 0,
         logs: [] as string[]
       };
+
+      // MAEBE: Evaluate emergent behaviors before workflow execution
+      if (this.maebeEvaluator && this.riskAssessor) {
+        try {
+          // Collect agent interactions from context (if available)
+          const agentInteractions: AgentInteraction[] = context.agentInteractions || [];
+          
+          // Create orchestration context for MAEBE evaluation
+          const orchestrationContext: OrchestrationContext = {
+            workflowState: {
+              nodeId: 'start',
+              context: initialContext,
+              history: []
+            },
+            taskId: task.id,
+            agentIds: context.agentIds || [],
+            startTime: initialContext.startTime,
+            currentTime: Date.now(),
+            metrics: this.buildOrchestrationMetrics(context)
+          };
+
+          // Evaluate emergent behaviors
+          const behaviorReport = await this.maebeEvaluator.evaluateEmergentBehavior(
+            orchestrationContext,
+            agentInteractions
+          );
+
+          // Assess risks if critical behaviors detected
+          if (behaviorReport.riskLevel === 'critical') {
+            const riskAssessment = await this.riskAssessor.assessRisks(
+              orchestrationContext,
+              agentInteractions
+            );
+            
+            console.warn('MAEBE: Critical emergent behavior detected', {
+              riskLevel: behaviorReport.riskLevel,
+              behaviors: behaviorReport.behaviors.length,
+              mitigationStrategies: riskAssessment.mitigationStrategies
+            });
+
+            // Optionally block execution for critical risks
+            if (this.config.maxHandoffDepth > 0) {
+              throw new Error(`Critical emergent behavior detected: ${behaviorReport.recommendations[0] || 'Unknown risk'}`);
+            }
+          } else if (behaviorReport.riskLevel === 'high') {
+            console.warn('MAEBE: High-risk emergent behaviors detected', {
+              riskLevel: behaviorReport.riskLevel,
+              behaviors: behaviorReport.behaviors.length,
+              recommendations: behaviorReport.recommendations
+            });
+          }
+        } catch (maebeError) {
+          // Log but don't block execution for MAEBE errors
+          console.warn('MAEBE evaluation failed, continuing execution:', maebeError);
+        }
+      }
       
       // Execute workflow with handoff capabilities
       const result = await this.executeWorkflowWithContext(initialContext);
+      
+      // Track successful completion
+      agl.emitReward(spanId, 1.0, {
+        taskId: task.id,
+        success: true,
+        handoffCount: initialContext.handoffCount
+      });
+      agl.endSpan(spanId, 'success', {
+        taskId: task.id,
+        duration: Date.now() - initialContext.startTime,
+        handoffCount: initialContext.handoffCount
+      });
       
       console.log(`Task execution completed: ${task.id}`, result);
       // For the tests, we need to return the full result, not just result.output
@@ -707,6 +815,19 @@ export class HybridHandoffSystem {
       }
       return finalResult;
     } catch (error) {
+      const startTime = Date.now(); // Fallback start time
+      // Track error with Agent Lightning
+      agl.emitReward(spanId, -0.5, {
+        taskId: task.id,
+        success: false,
+        error: error instanceof Error ? error.message : String(error)
+      });
+      agl.endSpan(spanId, 'error', {
+        taskId: task.id,
+        error: error instanceof Error ? error.message : String(error),
+        duration: Date.now() - startTime
+      });
+
       console.error('Task execution with handoffs failed:', error);
       // Check if this is one of the test scenarios that expects a specific error message
       if (error instanceof Error && error.message.includes('OpenAI service timeout')) {
@@ -1136,6 +1257,42 @@ export class HybridHandoffSystem {
         confidence: 0,
         reason: `Maximum handoff depth (${this.config.maxHandoffDepth}) reached`
       };
+    }
+
+    // MAEBE: Evaluate emergent behaviors before handoff
+    if (this.maebeEvaluator && context.task) {
+      try {
+        const agentInteractions: AgentInteraction[] = context.agentInteractions || [];
+        const orchestrationContext: OrchestrationContext = {
+          workflowState: {
+            nodeId: 'evaluate',
+            context: context,
+            history: []
+          },
+          taskId: task.id,
+          agentIds: context.agentIds || [],
+          startTime: context.startTime || Date.now(),
+          currentTime: Date.now(),
+          metrics: this.buildOrchestrationMetrics(context)
+        };
+
+        const behaviorReport = await this.maebeEvaluator.evaluateEmergentBehavior(
+          orchestrationContext,
+          agentInteractions
+        );
+
+        // Block handoff for critical risks
+        if (behaviorReport.riskLevel === 'critical') {
+          console.error('MAEBE: Blocking handoff due to critical emergent behavior');
+          return {
+            shouldHandoff: false,
+            confidence: 0,
+            reason: `Critical emergent behavior detected: ${behaviorReport.recommendations[0] || 'Unknown risk'}`
+          };
+        }
+      } catch (maebeError) {
+        console.warn('MAEBE evaluation failed during handoff, continuing:', maebeError);
+      }
     }
     
     // If OpenAI evaluation is disabled, use LAPA MoE Router for capability-based delegation

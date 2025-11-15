@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { MoERouter, Agent, Task } from '../../agents/moe-router.ts';
 import { RayParallelExecutor } from '../../agents/ray-parallel.ts';
 import { ConsensusVotingSystem } from '../../swarm/consensus.voting.ts';
@@ -633,6 +633,13 @@ describe('Swarm Orchestration Stress Tests', () => {
     it('should handle extremely complex workflow graphs', async () => {
       const orchestrator = new LangGraphOrchestrator('start');
       
+      // Add the initial state node so workflow execution can start
+      orchestrator.addNode({
+        id: 'start',
+        type: 'process',
+        label: 'Start Process'
+      });
+      
       // Create an extremely complex graph
       const nodeCount = 1000;
       const nodes: any[] = [];
@@ -746,6 +753,13 @@ describe('Swarm Orchestration Stress Tests', () => {
       while (Date.now() - startTime < duration) {
         try {
           const orchestrator = new LangGraphOrchestrator('start');
+          
+          // Add the initial state node so workflow execution can start
+          orchestrator.addNode({
+            id: 'start',
+            type: 'process',
+            label: 'Start Process'
+          });
           
           // Create a moderately complex workflow
           const nodes = [

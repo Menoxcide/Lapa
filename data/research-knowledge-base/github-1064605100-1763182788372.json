@@ -1,0 +1,46 @@
+{
+  "finding": {
+    "findingId": "github-1064605100-1763182788372",
+    "source": "github",
+    "category": "model-quantization",
+    "title": "huawei-csl/SINQ",
+    "description": "Welcome to the official repository of SINQ! A novel, fast and high-quality quantization method designed to make any Large Language Model smaller while preserving accuracy.",
+    "data": {
+      "query": "model quantization methods",
+      "category": "model-quantization",
+      "stars": 569,
+      "forks": 44,
+      "language": "Python",
+      "topics": [
+        "ai",
+        "huawei",
+        "large-language-models",
+        "quantization"
+      ],
+      "createdAt": "2025-09-26T09:28:30.000Z",
+      "updatedAt": "2025-11-14T14:16:28.000Z",
+      "owner": "huawei-csl",
+      "sources": [
+        "github"
+      ]
+    },
+    "valuePotential": 0.15000000000000002,
+    "implementationSuggestion": "Explore model quantization methods for efficiency gains",
+    "url": "https://github.com/huawei-csl/SINQ",
+    "tags": [
+      "model-quantization",
+      "quantization",
+      "model",
+      "Python",
+      "ai",
+      "huawei",
+      "large-language-models",
+      "quantization"
+    ],
+    "timestamp": "2025-11-15T04:59:48.372Z"
+  },
+  "storedAt": "2025-11-15T04:59:53.710Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T04:59:53.710Z",
+  "implementationStatus": "pending"
+}

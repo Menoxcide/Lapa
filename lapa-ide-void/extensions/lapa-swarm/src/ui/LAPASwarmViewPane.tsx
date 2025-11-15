@@ -36,7 +36,7 @@ export class LAPASwarmViewPane implements vscode.WebviewViewProvider {
 		webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
 		// Handle messages from the webview
-		webviewView.webview.onDidReceiveMessage(message => {
+		webviewView.webview.onDidReceiveMessage(async message => {
 			switch (message.command) {
 				case 'alert':
 					vscode.window.showErrorMessage(message.text);
@@ -55,6 +55,44 @@ export class LAPASwarmViewPane implements vscode.WebviewViewProvider {
 					return;
 				case 'showStatus':
 					vscode.commands.executeCommand('lapa.swarm.status');
+					return;
+				case 'lapa.enhancePrompt':
+					// Handle enhance prompt request
+					try {
+						const result = await vscode.commands.executeCommand('lapa.enhancePrompt', message.prompt);
+						// Send result back to webview
+						webviewView.webview.postMessage({
+							id: message.id,
+							result: result,
+							error: result?.success === false ? result.error : undefined
+						});
+					} catch (error) {
+						const errorMessage = error instanceof Error ? error.message : String(error);
+						webviewView.webview.postMessage({
+							id: message.id,
+							error: errorMessage
+						});
+					}
+					return;
+				case 'lapa.switchProvider':
+					// Handle provider switch request
+					try {
+						const result = await vscode.commands.executeCommand('lapa.switchProvider', message.provider);
+						// Send result back to webview
+						webviewView.webview.postMessage({
+							command: 'lapa.switchProvider',
+							provider: message.provider,
+							success: result?.success !== false
+						});
+					} catch (error) {
+						const errorMessage = error instanceof Error ? error.message : String(error);
+						webviewView.webview.postMessage({
+							command: 'lapa.switchProvider',
+							provider: message.provider,
+							success: false,
+							error: errorMessage
+						});
+					}
 					return;
 			}
 		});

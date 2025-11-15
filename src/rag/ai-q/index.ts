@@ -67,10 +67,8 @@ export class AIQResearchAssistant {
       documents.push(...await this.ragPipeline.processDocuments(researchQuery.documentPaths));
     }
     
-    // Extract relevant information based on the query
-    // In a real implementation, this would use the NeMo Retriever models
-    // to find relevant information in the processed documents
-    const extractedInformation = this.extractInformation(documents, researchQuery.query);
+    // Extract relevant information based on the query using RAG with REFRAG
+    const extractedInformation = await this.extractInformation(documents, researchQuery.query);
     
     return {
       query: researchQuery.query,
@@ -82,24 +80,42 @@ export class AIQResearchAssistant {
   
   /**
    * Extract information from processed documents based on query
+   * Uses RAG pipeline with REFRAG for efficient decoding
    * @param documents Processed documents
    * @param query Research query
    * @returns Extracted information
    */
-  private extractInformation(documents: ProcessedDocument[], query: string): string {
-    // In a real implementation, this would use NeMo Retriever's embedding and search capabilities
-    // to find relevant information in the documents based on the query
-    
-    // For demonstration, we'll return a summary
+  private async extractInformation(documents: ProcessedDocument[], query: string): Promise<string> {
+    // Use RAG pipeline search with REFRAG for efficient decoding
     if (documents.length === 0) {
       return `No documents provided for query: "${query}"`;
     }
-    
+
+    try {
+      // Initialize pipeline if not already initialized
+      await this.ragPipeline.initialize();
+
+      // Search using RAG pipeline (REFRAG enabled by default)
+      const searchResults = await this.ragPipeline.searchSimilar(query, 10, true);
+
+      if (searchResults.length > 0) {
+        // Extract relevant information from search results
+        const relevantContent = searchResults
+          .map(result => result.content)
+          .join('\n\n');
+        
+        return `Found ${searchResults.length} relevant chunks for query "${query}":\n\n${relevantContent.substring(0, 1000)}${relevantContent.length > 1000 ? '...' : ''}`;
+      }
+    } catch (error) {
+      console.warn('RAG search failed, falling back to summary:', error);
+    }
+
+    // Fallback to summary if search fails
     const docTypes = [...new Set(documents.map(d => d.metadata.fileType))];
     const totalSize = documents.reduce((sum, doc) => sum + doc.metadata.fileSize, 0);
     const totalProcessingTime = documents.reduce((sum, doc) => sum + doc.metadata.processingTime, 0);
     
-    return `Processed ${documents.length} documents (${docTypes.join(', ')}) with total size of ${totalSize} bytes in ${totalProcessingTime}ms. Relevant information for query "${query}" would be extracted using NeMo Retriever's semantic search capabilities.`;
+    return `Processed ${documents.length} documents (${docTypes.join(', ')}) with total size of ${totalSize} bytes in ${totalProcessingTime}ms. Relevant information for query "${query}" would be extracted using RAG pipeline with REFRAG optimization.`;
   }
   
   /**

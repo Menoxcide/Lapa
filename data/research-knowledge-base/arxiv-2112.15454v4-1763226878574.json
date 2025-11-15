@@ -1,0 +1,43 @@
+{
+  "finding": {
+    "findingId": "arxiv-2112.15454v4-1763226878574",
+    "source": "arxiv",
+    "category": "swarm-architectures",
+    "title": "Advanced Drone Swarm Security by Using Blockchain Governance Game",
+    "description": "This research contributes to the security design of an advanced smart drone swarm network based on a variant of the Blockchain Governance Game (BGG), which is the theoretical game model to predict the moments of security actions before attacks, and the Strategic Alliance for Blockchain Governance Game (SABGG), which is one of the BGG variants which has been adapted to construct the best strategies to take preliminary actions based on strategic alliance for protecting smart drones in a blockchain",
+    "data": {
+      "query": "LLM agent swarm architectures",
+      "category": "swarm-architectures",
+      "authors": [
+        "Song-Kyoo Kim"
+      ],
+      "categories": [
+        "eess.SY",
+        "cs.CR",
+        "cs.GT"
+      ],
+      "published": "2021-12-29T18:05:46.000Z",
+      "updated": "2022-11-24T01:52:56.000Z",
+      "sources": [
+        "arxiv"
+      ]
+    },
+    "valuePotential": 0.4,
+    "implementationSuggestion": "Explore swarm coordination patterns for multi-agent systems",
+    "url": "http://arxiv.org/abs/2112.15454v4",
+    "tags": [
+      "swarm-architectures",
+      "agent",
+      "llm",
+      "swarm",
+      "eess.SY",
+      "cs.CR",
+      "cs.GT"
+    ],
+    "timestamp": "2025-11-15T17:14:38.574Z"
+  },
+  "storedAt": "2025-11-15T17:14:42.526Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T17:14:42.526Z",
+  "implementationStatus": "pending"
+}

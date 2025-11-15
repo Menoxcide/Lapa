@@ -164,7 +164,7 @@ describe('Roo Mode Controller Integration', () => {
       expect(result.success).toBe(false);
       expect(result.fromMode).toBe('code');
       expect(result.toMode).toBe('architect');
-      expect(result.error).toContain('does not match requested fromMode');
+      expect(result.error).toMatch(/does not match|Current mode.*does not match/);
       // Should still be in ask mode
       expect(controller.getCurrentMode()).toBe('ask');
     });

@@ -1,0 +1,34 @@
+{
+  "finding": {
+    "findingId": "reddit-1nrydrb-1763182793355",
+    "source": "reddit",
+    "category": "model-quantization",
+    "title": "Pardon me, but my \"regenerate\"button disappeared🤣",
+    "description": "I restarted my app, but it's GONE🤣",
+    "data": {
+      "query": "model quantization methods",
+      "category": "model-quantization",
+      "subreddit": "ChatGPT",
+      "score": 11,
+      "numComments": 5,
+      "author": "onceyoulearn",
+      "createdUtc": 1758987650,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.05,
+    "implementationSuggestion": "Explore model quantization methods for efficiency gains",
+    "url": "https://reddit.com/r/ChatGPT/comments/1nrydrb/pardon_me_but_my_regeneratebutton_disappeared/",
+    "tags": [
+      "model-quantization",
+      "quantization",
+      "model"
+    ],
+    "timestamp": "2025-11-15T04:59:53.355Z"
+  },
+  "storedAt": "2025-11-15T04:59:53.696Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T04:59:53.696Z",
+  "implementationStatus": "pending"
+}

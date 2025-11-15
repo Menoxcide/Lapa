@@ -1,125 +1,119 @@
-# LAPA Documentation Cleanup Summary
+# Documentation Cleanup & Restructure Summary
 
-## Overview
-This document summarizes the documentation consolidation and cleanup performed for LAPA v1.3.0-preview. The process involved analyzing all documentation files, updating them to reflect current project status, consolidating redundant information, and removing deprecated content. This cleanup incorporates v1.3 SwarmOS features and phases.
-
-## Cleanup Actions Performed
-
-### ✅ Updated Documentation Files
-
-#### 1. [`START_HERE.md`](START_HERE.md)
-- **Previous Status**: v1.2.2 references
-- **Updated**: v1.3.0-preview status with SwarmOS features
-- **Changes**: 
-  - Version bump to v1.3.0-preview
-  - Added v1.3 in-development and planned features
-  - Updated project structure and key files
-
-#### 2. [`AGENT.md`](AGENT.md)
-- **Previous Status**: v1.2.2 mixed content
-- **Updated**: v1.3.0-preview comprehensive status
-- **Changes**:
-  - Status to v1.3 preview with Phase 19-21
-  - Expanded in-development sections
-  - Updated next steps with SwarmOS roadmap
-
-#### 3. [`PROTOCOLS.md`](PROTOCOLS.md)
-- **Previous Status**: v1.2.2 specs
-- **Updated**: v1.3.0-preview with SwarmOS protocols
-- **Changes**:
-  - Added WebRTC, Vision-Voice, Marketplace protocols
-  - Extended compliance matrix
-  - Updated future enhancements
-
-#### 4. [`PHASE14_IMPLEMENTATION.md`](PHASE14_IMPLEMENTATION.md)
-- **Previous Status**: Phase 14 in development
-- **Updated**: Marked complete with v1.3 transition
-- **Changes**:
-  - Status to ✅ Complete
-  - Added v1.3 next phases
-  - Incorporated new skills into future enhancements
-
-#### 5. [`LAPA_Founding_Vision.md`](LAPA_Founding_Vision.md)
-- **Previous Status**: v1.2.2 timeline
-- **Updated**: v1.3 SwarmOS vision
-- **Changes**:
-  - Extended solution with Phases 19-21
-  - Updated timeline and tech stack for SwarmOS
-
-#### 6. [`LAPA_Master_Plan.toon`](LAPA_Master_Plan.toon)
-- **Previous Status**: v1.2.2 phases to 18
-- **Updated**: v1.3 preview with Phases 19-21
-- **Changes**:
-  - Version to 1.3.0-preview
-  - Extended phases, protocols, helix-team, resonance-core, tech stack
-  - Added v1.3 drafts for SwarmOS
-
-#### 7. [`LAPA_Mode_Workflow.md`](LAPA_Mode_Workflow.md)
-- **Previous Status**: v1.2.2 workflow
-- **Updated**: Extended with v1.3 SwarmOS steps
-- **Changes**:
-  - Added v1.3 workflow extensions (Phases 19-21)
-  - Updated roadmap and metrics for SwarmOS
-  - Extended Mermaid flowchart
-
-#### 8. [`DOCUMENTATION_CLEANUP_SUMMARY.md`](DOCUMENTATION_CLEANUP_SUMMARY.md)
-- **Previous Status**: v1.2.2 cleanup
-- **Updated**: v1.3.0-preview with SwarmOS additions
-- **Changes**:
-  - Updated overview for v1.3
-  - Extended cleanup actions with all v1.3 changes
-  - Updated impact assessment and recommendations
-
-### 📁 Archived Files
-- **Old Versions**: v1.2.2 and prior moved to `docs/archive/`
-- **Deprecated Sections**: Removed outdated phase references
-
-### 3. Improvements in Clarity and Accessibility
-- Simplified entry point with [`START_HERE.md`](START_HERE.md)
-- Clear status indicators (✅/🚧/📋) for quick assessment
-- Consistent file references using clickable markdown links
-
-### 4. Maintenance and Future Updates
-- Archive structure preserves historical documentation
-- Clear separation between current and historical content
-- Standardized format for easier future updates
-
-## Impact Assessment
-
-### Positive Outcomes
-- **Reduced Cognitive Load**: Developers can now trust documentation accuracy
-- **Improved Onboarding**: Clear entry point with accurate current status
-- **Better Maintenance**: Standardized structure for future updates
-- **Historical Preservation**: Archived documents available for reference
-
-### Risk Mitigation
-- **No Data Loss**: All historical content preserved in archive
-- **Backward Compatibility**: Archived versions available if needed
-- **Clear Versioning**: Current vs. historical documentation clearly separated
-
-## Recommendations for Future Documentation
-
-### 1. Regular Reviews
-- Schedule quarterly documentation reviews to ensure accuracy
-- Update status indicators as features are implemented
-- Archive outdated versions when major releases occur
-
-### 2. Contribution Guidelines
-- Encourage contributors to update documentation alongside code changes
-- Provide templates for consistent documentation format
-- Include documentation updates in pull request requirements
-
-### 3. Automation Considerations
-- Consider automated documentation generation from code comments
-- Implement version-aware documentation linking
-- Explore tools for documentation testing and validation
-
-## Conclusion
-
-The LAPA documentation cleanup successfully transformed a fragmented and outdated documentation set into a coherent, accurate, and maintainable resource. The current documentation now accurately reflects the v1.3.0-preview implementation status while preserving historical context through proper archiving.
-
-The cleanup establishes a foundation for sustainable documentation practices that will support the project's continued growth and development.
+**Date:** 2025-01-XX  
+**Status:** ✅ IN PROGRESS  
+**Scope:** Complete documentation cleanup, persona system restructure, workflow breakdown
 
 ---
 
-*Cleanup performed: November 2025 - LAPA v1.3.0-preview*
+## ✅ Completed Tasks
+
+### 1. Persona-Generated Document Archiving
+- ✅ Archived all CLEANING_*.md files to `docs/archive/persona-generated/`
+- ✅ Archived all NEURAFORGE_*.md files (except persona) to `docs/archive/persona-generated/`
+- ✅ Archived all OPTIMIZATION_*.md files to `docs/archive/persona-generated/`
+- ✅ Archived all WEB_RESEARCH_HYBRID_*.md files (except persona) to `docs/archive/persona-generated/`
+- ✅ Archived feature markdown files (FEATURE_SANDBOX.md, GIT_COMMIT_GENERATOR.md, GLOBAL_SANDBOX.md, SESSION_CONTINUITY.md)
+
+### 2. Persona System Restructure
+- ✅ Merged ARCHITECT_AGENT_PROMPT.txt into ARCHITECT_AGENT_PERSONA.md (Quick Start section)
+- ✅ Merged CODER_AGENT_PROMPT.txt into CODER_AGENT_PERSONA.md
+- ✅ Merged FEATURE_AGENT_PROMPT.txt into FEATURE_AGENT_PERSONA.md
+- ✅ Merged TEST_AGENT_PROMPT.txt into TEST_AGENT_PERSONA.md
+- ✅ Merged REVIEWER_AGENT_PROMPT.txt into REVIEWER_AGENT_PERSONA.md
+- ✅ Merged DEBUGGER_AGENT_PROMPT.txt into DEBUGGER_AGENT_PERSONA.md
+- ✅ Merged PLANNER_AGENT_PROMPT.txt into PLANNER_AGENT_PERSONA.md
+- ✅ Merged VALIDATOR_AGENT_PROMPT.txt into VALIDATOR_AGENT_PERSONA.md
+- ✅ Merged INTEGRATOR_AGENT_PROMPT.txt into INTEGRATOR_AGENT_PERSONA.md
+- ✅ Merged DEPLOYER_AGENT_PROMPT.txt into DEPLOYER_AGENT_PERSONA.md
+- ✅ Merged OPTIMIZER_AGENT_PROMPT.txt into OPTIMIZER_AGENT_PERSONA.md
+
+**Format:** All prompts merged as "⚡ Quick Start Prompt" section at top of persona files for token efficiency
+
+### 3. Workflow Breakdown
+- ✅ Created `docs/workflows/CODING_WORKFLOW.md` (extracted from AGENT_PERSONA_ACTION_WORKFLOWS.md)
+- ✅ Created `docs/workflows/DEBUGGING_WORKFLOW.md`
+- ✅ Created `docs/workflows/FEATURE_DEVELOPMENT_WORKFLOW.md`
+
+---
+
+## 🔄 In Progress
+
+### 4. Remaining Persona Merges
+- ⏳ Merge remaining persona prompts:
+  - DOCUMENTATION_SPECIALIST_PROMPT.txt
+  - FILESYSTEM_EXPERT_PROMPT.txt
+  - MCP_AGENT_PROMPT.txt
+  - NEURAFORGE_PROMPT.txt
+  - RESEARCH_WIZARD_PROMPT.txt
+  - WEB_RESEARCH_HYBRID_PROMPT.txt
+  - GITHUB_OPERATIONS_PROMPT.txt
+  - PERSONA_EVOLVER_PROMPT.txt
+
+### 5. Workflow File Creation
+- ⏳ Extract remaining workflows from AGENT_PERSONA_ACTION_WORKFLOWS.md:
+  - Performance Optimization Workflow
+  - Architecture Review Workflow
+  - Integration Workflow
+  - Deployment Workflow
+  - Code Review Workflow
+  - Testing Workflow
+  - Refactoring Workflow
+  - Project Cleaning Workflow
+  - Comprehensive Test Fixing Workflow
+
+### 6. Feature Overview Update
+- ⏳ Add archived features to FEATURE_OVERVIEW.md:
+  - FEATURE_SANDBOX
+  - GIT_COMMIT_GENERATOR
+  - GLOBAL_SANDBOX
+  - SESSION_CONTINUITY
+
+### 7. File Organization
+- ⏳ Move remaining non-core docs to proper subdirectories
+- ⏳ Ensure only 9 core files remain in docs root:
+  - TROUBLESHOOTING.md
+  - START_HERE.md
+  - PROTOCOLS.md
+  - ONBOARDING.md
+  - FEATURE_OVERVIEW.md
+  - CONTRIBUTING.md
+  - CHANGELOG.md
+  - CODE_OF_CONDUCT.md
+  - DEPLOYMENT.md
+
+---
+
+## 📋 Remaining Tasks
+
+1. **Complete Persona Merges** - Merge all remaining prompt files into personas
+2. **Complete Workflow Breakdown** - Extract all workflows into separate files
+3. **Archive AGENT_PERSONA_ACTION_WORKFLOWS.md** - After all workflows extracted
+4. **Update FEATURE_OVERVIEW.md** - Add archived features documentation
+5. **File Reorganization** - Move all non-core files to proper subdirectories
+6. **Delete Prompt Files** - Remove .txt prompt files after merging
+7. **System Validation** - Stress-test the entire system
+
+---
+
+## 🎯 Token Optimization Achieved
+
+- **Persona Files:** Reduced from 2 files per agent (persona + prompt) to 1 file per agent
+- **Workflow Files:** Breaking large 2827-line file into ~10 focused workflow files
+- **Archived Files:** Moved 25+ persona-generated documents to archive
+
+**Estimated Token Savings:** ~40-50% reduction in documentation token usage
+
+---
+
+## 📝 Notes
+
+- All persona files now have "⚡ Quick Start Prompt" section for immediate use
+- Workflow files are concise and focused on specific use cases
+- Archive structure: `docs/archive/persona-generated/` for all generated docs
+- Feature files archived but need to be documented in FEATURE_OVERVIEW.md
+
+---
+
+**Next Steps:** Continue with remaining persona merges and workflow extractions, then complete file reorganization.
+

@@ -1,0 +1,37 @@
+{
+  "finding": {
+    "findingId": "github-790916393-1763197188292",
+    "source": "github",
+    "category": "inference-optimization",
+    "title": "NVIDIA/TensorRT-Model-Optimizer",
+    "description": "A unified library of state-of-the-art model optimization techniques like quantization, pruning, distillation, speculative decoding, etc. It compresses deep learning models for downstream deployment frameworks like TensorRT-LLM or TensorRT to optimize inference speed.",
+    "data": {
+      "query": "inference optimization techniques",
+      "category": "inference-optimization",
+      "stars": 1537,
+      "forks": 193,
+      "language": "Python",
+      "topics": [],
+      "createdAt": "2024-04-23T19:00:54.000Z",
+      "updatedAt": "2025-11-14T19:01:22.000Z",
+      "owner": "NVIDIA",
+      "sources": [
+        "github"
+      ]
+    },
+    "valuePotential": 0.15000000000000002,
+    "implementationSuggestion": "Review inference optimization techniques for performance improvements",
+    "url": "https://github.com/NVIDIA/TensorRT-Model-Optimizer",
+    "tags": [
+      "inference-optimization",
+      "inference",
+      "optimization",
+      "Python"
+    ],
+    "timestamp": "2025-11-15T08:59:48.292Z"
+  },
+  "storedAt": "2025-11-15T08:59:53.525Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T08:59:53.525Z",
+  "implementationStatus": "pending"
+}

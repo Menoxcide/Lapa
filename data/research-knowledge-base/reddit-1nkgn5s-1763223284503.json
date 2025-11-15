@@ -1,0 +1,34 @@
+{
+  "finding": {
+    "findingId": "reddit-1nkgn5s-1763223284503",
+    "source": "reddit",
+    "category": "recursive-improvement",
+    "title": "[Essay] Discovery, Automated: A deep dive into the new AI systems that are accelerating science – and the political battle that threatens to stop them.",
+    "description": "My new essay highlights advancements in AI systems that are able to mirror the scientific method and evolutionary selective pressure to generate new discoveries. I briefly describe 14 incredible breakthroughs that have been made by these systems across a wide range of scientific fields. I also talk about science funding and how our IP system can be tweaked to make sure these discoveries benefit as many people as possible.\n\n**Here's the NotebookLM Brief for your convenience:**\n\n# Discovery, Autom",
+    "data": {
+      "query": "recursive self-improvement AI systems",
+      "category": "recursive-improvement",
+      "subreddit": "singularity",
+      "score": 34,
+      "numComments": 5,
+      "author": "avilacjf",
+      "createdUtc": 1758221008,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.15000000000000002,
+    "implementationSuggestion": "Consider recursive improvement mechanisms for continuous evolution",
+    "url": "https://reddit.com/r/singularity/comments/1nkgn5s/essay_discovery_automated_a_deep_dive_into_the/",
+    "tags": [
+      "recursive-improvement",
+      "ai",
+      "recursive"
+    ],
+    "timestamp": "2025-11-15T16:14:44.503Z"
+  },
+  "storedAt": "2025-11-15T16:14:44.727Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T16:14:44.727Z",
+  "implementationStatus": "pending"
+}

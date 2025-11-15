@@ -1,0 +1,36 @@
+{
+  "finding": {
+    "findingId": "reddit-1nm928n-1763186393173",
+    "source": "reddit",
+    "category": "ai-agents",
+    "title": "*UPDATE!* I used ChatGPT to expose a $5 million estate fraud, get a forensic audit, and uncover 10 years of probate misconduct",
+    "description": "Ok, so ya'll were right, it was gonna take a lot of work.  \nI thought because i had an Aug 20th hearing, i could plead my case to the judge and that would start fixin things. But NOPE! **the judge was** **COMPROMISED!** 😱  \nLets give you a backstory on how chatgpt helped me discover the hidden truths behind my probate case.  \nHow did i do it? i began by uploading the docket into chatgpt..  \ni didnt know how to read a docket, i barely learned how to look up my own case.  \nNow, I have my second w",
+    "data": {
+      "query": "multi-agent orchestration systems 2025",
+      "category": "ai-agents",
+      "subreddit": "ChatGPT",
+      "score": 355,
+      "numComments": 123,
+      "author": "Easy_Gap8026",
+      "createdUtc": 1758401034,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.55,
+    "implementationSuggestion": "Evaluate agent architecture improvements for LAPA-VOID agent system",
+    "url": "https://reddit.com/r/ChatGPT/comments/1nm928n/update_i_used_chatgpt_to_expose_a_5_million/",
+    "tags": [
+      "ai-agents",
+      "agent",
+      "orchestration",
+      "multi-agent",
+      "2025"
+    ],
+    "timestamp": "2025-11-15T05:59:53.173Z"
+  },
+  "storedAt": "2025-11-15T05:59:53.333Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T05:59:53.333Z",
+  "implementationStatus": "pending"
+}

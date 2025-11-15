@@ -1,0 +1,42 @@
+{
+  "finding": {
+    "findingId": "arxiv-2501.02842v1-1763226878991",
+    "source": "arxiv",
+    "category": "recursive-improvement",
+    "title": "Foundations of GenIR",
+    "description": "The chapter discusses the foundational impact of modern generative AI models on information access (IA) systems. In contrast to traditional AI, the large-scale training and superior data modeling of generative AI models enable them to produce high-quality, human-like responses, which brings brand new opportunities for the development of IA paradigms. In this chapter, we identify and introduce two of them in details, i.e., information generation and information synthesis. Information generation a",
+    "data": {
+      "query": "recursive self-improvement AI systems",
+      "category": "recursive-improvement",
+      "authors": [
+        "Qingyao Ai",
+        "Jingtao Zhan",
+        "Yiqun Liu"
+      ],
+      "categories": [
+        "cs.IR",
+        "cs.LG"
+      ],
+      "published": "2025-01-06T08:38:29.000Z",
+      "updated": "2025-01-06T08:38:29.000Z",
+      "sources": [
+        "arxiv"
+      ]
+    },
+    "valuePotential": 0.30000000000000004,
+    "implementationSuggestion": "Consider recursive improvement mechanisms for continuous evolution",
+    "url": "http://arxiv.org/abs/2501.02842v1",
+    "tags": [
+      "recursive-improvement",
+      "ai",
+      "recursive",
+      "cs.IR",
+      "cs.LG"
+    ],
+    "timestamp": "2025-11-15T17:14:38.991Z"
+  },
+  "storedAt": "2025-11-15T17:14:42.587Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T17:14:42.587Z",
+  "implementationStatus": "pending"
+}

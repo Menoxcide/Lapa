@@ -1,10 +1,11 @@
 // Vision Agent Test Suite
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { VisionAgent } from '../../multimodal/vision-agent.ts';
 import { MultimodalEventPublisher } from '../../multimodal/utils/event-publisher.ts';
 import { eventBus } from '../../core/event-bus.ts';
 
 // Mock the event bus
-vi.mock('../../core/event-bus', () => ({
+vi.mock('../../core/event-bus.ts', () => ({
   eventBus: {
     publish: vi.fn()
   }

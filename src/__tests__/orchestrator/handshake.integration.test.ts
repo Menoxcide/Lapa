@@ -9,7 +9,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { HandshakeSystem } from '../../orchestrator/handshake.ts';
+import { A2AHandshakeProtocol, initiateHandshake } from '../../orchestrator/handshake.ts';
 import { A2AMediator } from '../../swarm/a2a-mediator.ts';
 import { eventBus } from '../../core/event-bus.ts';
 
@@ -33,13 +33,13 @@ vi.mock('../../swarm/a2a-mediator.ts', () => ({
 }));
 
 describe('Handshake System Integration', () => {
-  let handshakeSystem: HandshakeSystem;
+  let handshakeProtocol: A2AHandshakeProtocol;
   let a2aMediator: A2AMediator;
 
   beforeEach(() => {
     vi.clearAllMocks();
     a2aMediator = new A2AMediator();
-    handshakeSystem = new HandshakeSystem({ a2aMediator });
+    handshakeProtocol = new A2AHandshakeProtocol();
   });
 
   afterEach(() => {
@@ -48,7 +48,7 @@ describe('Handshake System Integration', () => {
 
   describe('A2A Mediator Integration', () => {
     it('should initiate handshake through A2A mediator', async () => {
-      const result = await handshakeSystem.initiateHandshake({
+      const result = await handshakeProtocol.initiateHandshake({
         sourceAgentId: 'agent-1',
         targetAgentId: 'agent-2',
         capabilities: ['coding']
@@ -64,7 +64,7 @@ describe('Handshake System Integration', () => {
         new Error('Handshake failed')
       );
 
-      await expect(handshakeSystem.initiateHandshake({
+      await expect(handshakeProtocol.initiateHandshake({
         sourceAgentId: 'agent-1',
         targetAgentId: 'agent-2',
         capabilities: ['coding']
@@ -74,7 +74,7 @@ describe('Handshake System Integration', () => {
 
   describe('Event Bus Integration', () => {
     it('should publish handshake events', async () => {
-      await handshakeSystem.initiateHandshake({
+      await handshakeProtocol.initiateHandshake({
         sourceAgentId: 'agent-1',
         targetAgentId: 'agent-2',
         capabilities: ['coding']
@@ -83,20 +83,20 @@ describe('Handshake System Integration', () => {
       expect(eventBus.publish).toHaveBeenCalled();
       expect(eventBus.publish).toHaveBeenCalledWith(
         expect.objectContaining({
-          type: 'handshake.initiated'
+          type: 'a2a.handshake.request' as any
         })
       );
     });
 
     it('should subscribe to handshake completion events', async () => {
       const events: any[] = [];
-      eventBus.subscribe('handshake.completed', (event) => {
+      eventBus.subscribe('a2a.handshake.completed' as any, (event) => {
         events.push(event);
       });
 
       await eventBus.publish({
         id: 'handshake-1',
-        type: 'handshake.completed',
+        type: 'a2a.handshake.completed' as any,
         timestamp: Date.now(),
         source: 'handshake-system',
         payload: { handshakeId: 'handshake-123' }
@@ -109,12 +109,12 @@ describe('Handshake System Integration', () => {
 
   describe('Error Handling', () => {
     it('should handle invalid handshake requests', async () => {
-      await expect(handshakeSystem.initiateHandshake(null as any)).rejects.toThrow();
-      await expect(handshakeSystem.initiateHandshake(undefined as any)).rejects.toThrow();
+      await expect(handshakeProtocol.initiateHandshake(null as any)).rejects.toThrow();
+      await expect(handshakeProtocol.initiateHandshake(undefined as any)).rejects.toThrow();
     });
 
     it('should handle missing capabilities', async () => {
-      await expect(handshakeSystem.initiateHandshake({
+      await expect(handshakeProtocol.initiateHandshake({
         sourceAgentId: 'agent-1',
         targetAgentId: 'agent-2',
         capabilities: []

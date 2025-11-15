@@ -1,0 +1,35 @@
+{
+  "finding": {
+    "findingId": "reddit-1oj95ji-1763197193229",
+    "source": "reddit",
+    "category": "continuous-learning",
+    "title": "\"Agent Lightning: Train ANY AI Agents with Reinforcement Learning\"",
+    "description": "[https://arxiv.org/abs/2508.03680](https://arxiv.org/abs/2508.03680) \n\n\"We present Agent Lightning, a flexible and extensible framework that enables Reinforcement Learning (RL)-based training of Large Language Models (LLMs) for any AI agent. Unlike existing methods that tightly couple RL training with agent or rely on sequence concatenation with masking, Agent Lightning achieves complete decoupling between agent execution and training, allowing seamless integration with existing agents developed",
+    "data": {
+      "query": "continuous learning agents",
+      "category": "continuous-learning",
+      "subreddit": "singularity",
+      "score": 12,
+      "numComments": 0,
+      "author": "AngleAccomplished865",
+      "createdUtc": 1761755218,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.05,
+    "implementationSuggestion": "Review continuous learning approaches for agent adaptation",
+    "url": "https://reddit.com/r/singularity/comments/1oj95ji/agent_lightning_train_any_ai_agents_with/",
+    "tags": [
+      "continuous-learning",
+      "agent",
+      "continuous",
+      "learning"
+    ],
+    "timestamp": "2025-11-15T08:59:53.229Z"
+  },
+  "storedAt": "2025-11-15T08:59:53.462Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T08:59:53.462Z",
+  "implementationStatus": "pending"
+}

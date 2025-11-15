@@ -1,0 +1,34 @@
+{
+  "finding": {
+    "findingId": "reddit-1g4w93d-1763182793173",
+    "source": "reddit",
+    "category": "nim-inference",
+    "title": "Engineers at Fireworks AI have successfully ported FireAttention to AMD MI300s, resulting in 80% more throughput and 60% faster latency than NIM on Nvidia H100s. With these improvements, FireAttention V3 enables AMD MI300 to become a viable alternative for GPU inference.",
+    "description": "Engineers at Fireworks AI have successfully ported FireAttention to AMD MI300s, resulting in 80% more throughput and 60% faster latency than NIM on Nvidia H100s. With these improvements, FireAttention V3 enables AMD MI300 to become a viable alternative for GPU inference.",
+    "data": {
+      "query": "NVIDIA NIM inference microservice",
+      "category": "nim-inference",
+      "subreddit": "singularity",
+      "score": 88,
+      "numComments": 17,
+      "author": "Gothsim10",
+      "createdUtc": 1729074913,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.15000000000000002,
+    "implementationSuggestion": "Evaluate NVIDIA NIM integration opportunities for inference optimization",
+    "url": "https://reddit.com/r/singularity/comments/1g4w93d/engineers_at_fireworks_ai_have_successfully/",
+    "tags": [
+      "nim-inference",
+      "inference",
+      "nim"
+    ],
+    "timestamp": "2025-11-15T04:59:53.173Z"
+  },
+  "storedAt": "2025-11-15T04:59:53.417Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T04:59:53.417Z",
+  "implementationStatus": "pending"
+}

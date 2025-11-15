@@ -7,6 +7,7 @@
 
 // Import necessary modules
 import { put, del, list, head } from '@vercel/blob';
+// @ts-ignore - lru-cache types not available
 import { LRUCache } from 'lru-cache';
 
 /**

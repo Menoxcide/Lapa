@@ -58,7 +58,9 @@ See [lapa-ide-void/README.md](lapa-ide-void/README.md) for detailed instructions
 
 ## Documentation
 
+- **[DOCUMENTATION_INDEX.md](docs/DOCUMENTATION_INDEX.md)** - Complete documentation catalog and search guide
 - **[START_HERE.md](docs/START_HERE.md)** - Getting started guide
+- **[NEURAFORGE_USAGE_GUIDE.md](docs/NEURAFORGE_USAGE_GUIDE.md)** - Agent orchestrator usage guide
 - **[FEATURE_OVERVIEW.md](docs/FEATURE_OVERVIEW.md)** - Complete feature list
 - **[PROTOCOLS.md](docs/PROTOCOLS.md)** - Protocol specifications
 - **[CONTRIBUTING.md](docs/CONTRIBUTING.md)** - Contribution guidelines

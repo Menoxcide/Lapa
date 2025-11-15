@@ -1,17 +1,18 @@
 // Multimodal Production Readiness Assessment Test Suite
-import { VisionVoiceController } from '../../multimodal/vision-voice';
-import { VisionAgentTool } from '../../multimodal/vision-agent-tool';
-import { VoiceAgentTool } from '../../multimodal/voice-agent-tool';
-import { MultimodalConfig } from '../../multimodal/types';
-import { eventBus } from '../../core/event-bus';
-import { AgentToolExecutionContext, AgentToolExecutionResult } from '../../core/types/agent-types';
-import { HelixTeamAgentWrapper, AgentToolRegistry, agentToolRegistry } from '../../core/agent-tool';
-import { HybridHandoffSystem } from '../../orchestrator/handoffs';
-import { BenchmarkSuiteV2, PerformanceMetrics } from '../../observability/bench-v2';
-import { PrometheusMetrics } from '../../observability/prometheus';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { VisionVoiceController } from '../../multimodal/vision-voice.ts';
+import { VisionAgentTool } from '../../multimodal/vision-agent-tool.ts';
+import { VoiceAgentTool } from '../../multimodal/voice-agent-tool.ts';
+import type { MultimodalConfig } from '../../multimodal/types/index.ts';
+import { eventBus } from '../../core/event-bus.ts';
+import { AgentToolExecutionContext, AgentToolExecutionResult } from '../../core/types/agent-types.ts';
+import { HelixTeamAgentWrapper, AgentToolRegistry, agentToolRegistry } from '../../core/agent-tool.ts';
+import { HybridHandoffSystem } from '../../orchestrator/handoffs.ts';
+import { BenchmarkSuiteV2, PerformanceMetrics } from '../../observability/bench-v2.ts';
+import { PrometheusMetrics } from '../../observability/prometheus.ts';
 
 // Mock the event bus
-vi.mock('../../core/event-bus', () => ({
+vi.mock('../../core/event-bus.ts', () => ({
   eventBus: {
     publish: vi.fn()
   }

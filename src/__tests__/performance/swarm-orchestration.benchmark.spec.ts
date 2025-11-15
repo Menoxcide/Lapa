@@ -508,6 +508,13 @@ describe('Swarm Orchestration Performance Benchmarks', () => {
     it('should execute complex workflows efficiently', async () => {
       const orchestrator = new LangGraphOrchestrator('start');
       
+      // Add the initial state node so workflow execution can start
+      orchestrator.addNode({
+        id: 'start',
+        type: 'process',
+        label: 'Start Process'
+      });
+      
       // Create a complex workflow graph
       const nodeCount = 50;
       const nodes: Array<{ id: string; type: 'agent' | 'process' | 'decision'; label: string; agentType?: string }> = [];
@@ -580,6 +587,13 @@ describe('Swarm Orchestration Performance Benchmarks', () => {
 
     it('should handle workflow with many decision points', async () => {
       const orchestrator = new LangGraphOrchestrator('start');
+      
+      // Add the initial state node so workflow execution can start
+      orchestrator.addNode({
+        id: 'start',
+        type: 'process',
+        label: 'Start Process'
+      });
       
       // Create workflow with many decision points
       const decisionNodes: Array<{ id: string; type: 'decision'; label: string }> = [];

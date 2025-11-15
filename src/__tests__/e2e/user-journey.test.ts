@@ -26,6 +26,12 @@ describe('End-to-End User Journeys', () => {
       votingSystem = new ConsensusVotingSystem();
       contextHandoff = new ContextHandoffManager();
       orchestrator = new LangGraphOrchestrator('start');
+      // Add the initial state node so workflow execution can start
+      orchestrator.addNode({
+        id: 'start',
+        type: 'process',
+        label: 'Start Process'
+      });
       personaManager = new PersonaManager();
     });
 

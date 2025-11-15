@@ -1,10 +1,11 @@
 // Cross-Modal Context Preservation During Handoffs Test Suite
-import { VisionVoiceController } from '../../multimodal/vision-voice';
-import { MultimodalConfig } from '../../multimodal/types';
-import { eventBus } from '../../core/event-bus';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { VisionVoiceController } from '../../multimodal/vision-voice.ts';
+import type { MultimodalConfig } from '../../multimodal/types/index.ts';
+import { eventBus } from '../../core/event-bus.ts';
 
 // Mock the event bus
-vi.mock('../../core/event-bus', () => ({
+vi.mock('../../core/event-bus.ts', () => ({
   eventBus: {
     publish: vi.fn(),
     subscribe: vi.fn()
@@ -175,7 +176,7 @@ describe('Cross-Modal Context Preservation During Handoffs', () => {
       // Process both image and audio in parallel
       const imageBuffer = Buffer.from('mock image data');
       const audioBuffer = Buffer.from('mock audio data');
-      const input = { image: imageBuffer, audio: audioBuffer };
+      const input = { imageData: imageBuffer, audioData: audioBuffer };
       
       // Mock both processing methods
       const mockProcessImage = vi.spyOn(parallelController as any, 'processImage')
@@ -254,7 +255,7 @@ describe('Cross-Modal Context Preservation During Handoffs', () => {
       // Process multimodal input where vision fails but voice succeeds
       const imageBuffer = Buffer.from('mock image data');
       const audioBuffer = Buffer.from('mock audio data');
-      const input = { image: imageBuffer, audio: audioBuffer };
+      const input = { imageData: imageBuffer, audioData: audioBuffer };
       
       // Mock vision to fail and voice to succeed
       const mockProcessImage = vi.spyOn(fallbackController as any, 'processImage')

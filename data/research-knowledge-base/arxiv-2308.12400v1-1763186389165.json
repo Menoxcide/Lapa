@@ -1,0 +1,38 @@
+{
+  "finding": {
+    "findingId": "arxiv-2308.12400v1-1763186389165",
+    "source": "arxiv",
+    "category": "recursive-improvement",
+    "title": "Towards The Ultimate Brain: Exploring Scientific Discovery with ChatGPT AI",
+    "description": "This paper presents a novel approach to scientific discovery using an artificial intelligence (AI) environment known as ChatGPT, developed by OpenAI. This is the first paper entirely generated with outputs from ChatGPT. We demonstrate how ChatGPT can be instructed through a gamification environment to define and benchmark hypothetical physical theories. Through this environment, ChatGPT successfully simulates the creation of a new improved model, called GPT$^4$, which combines the concepts of GP",
+    "data": {
+      "query": "recursive self-improvement AI systems",
+      "category": "recursive-improvement",
+      "authors": [
+        "Gerardo Adesso"
+      ],
+      "categories": [
+        "cs.OH"
+      ],
+      "published": "2023-07-08T09:59:22.000Z",
+      "updated": "2023-07-08T09:59:22.000Z",
+      "sources": [
+        "arxiv"
+      ]
+    },
+    "valuePotential": 0.30000000000000004,
+    "implementationSuggestion": "Consider recursive improvement mechanisms for continuous evolution",
+    "url": "http://arxiv.org/abs/2308.12400v1",
+    "tags": [
+      "recursive-improvement",
+      "ai",
+      "recursive",
+      "cs.OH"
+    ],
+    "timestamp": "2025-11-15T05:59:49.165Z"
+  },
+  "storedAt": "2025-11-15T05:59:53.390Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T05:59:53.390Z",
+  "implementationStatus": "pending"
+}

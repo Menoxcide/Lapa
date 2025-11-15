@@ -1,0 +1,34 @@
+{
+  "finding": {
+    "findingId": "reddit-1efkpt6-1763193593070",
+    "source": "reddit",
+    "category": "nim-inference",
+    "title": "One-Minute Daily AI News 7/29/2024",
+    "description": "1. One of the world’s largest AI communities — comprising 4 million developers on the **Hugging Face** platform — is gaining easy access to **NVIDIA**-accelerated inference on some of the most popular AI models.\\[1\\]\n2. Transforming Database Access: The LLM-based Text-to-SQL Approach.\\[2\\]\n3. **Samsung** Begins Closing Gap in Making AI Memory Chips for Nvidia.\\[3\\]\n4. **Apple** says its AI models were trained on Google’s custom chips.\\[4\\]\n5. **Tencent** Cloud downplays AI hype when it comes to ",
+    "data": {
+      "query": "NVIDIA NIM inference microservice",
+      "category": "nim-inference",
+      "subreddit": "artificial",
+      "score": 8,
+      "numComments": 0,
+      "author": "Excellent-Target-847",
+      "createdUtc": 1722314585,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.05,
+    "implementationSuggestion": "Evaluate NVIDIA NIM integration opportunities for inference optimization",
+    "url": "https://reddit.com/r/artificial/comments/1efkpt6/oneminute_daily_ai_news_7292024/",
+    "tags": [
+      "nim-inference",
+      "inference",
+      "nim"
+    ],
+    "timestamp": "2025-11-15T07:59:53.070Z"
+  },
+  "storedAt": "2025-11-15T07:59:53.381Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T07:59:53.381Z",
+  "implementationStatus": "pending"
+}

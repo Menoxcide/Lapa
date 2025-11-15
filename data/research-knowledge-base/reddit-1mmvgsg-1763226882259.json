@@ -1,0 +1,35 @@
+{
+  "finding": {
+    "findingId": "reddit-1mmvgsg-1763226882259",
+    "source": "reddit",
+    "category": "swarm-architectures",
+    "title": "We built a visual drag-n-drop builder for multi-agent LLM Orchestration (TFrameX + Agent Builder, fully local, MIT licensed)",
+    "description": "[https://github.com/TesslateAI/Agent-Builder](https://github.com/TesslateAI/Agent-Builder) \n\nThis is a Visual flow builder for multi-agent LLM systems. Drag, drop, connect agents, tools, put agents in patterns, create triggers, work on outputs, etc.\n\n**TFrameX** \\- The orchestration framework that runs your agents. It has patterns for agent collaboration (sequential, parallel, router, discussion patterns built-in). Agents can call other agents as tools, which opens up supervisor-worker architect",
+    "data": {
+      "query": "LLM agent swarm architectures",
+      "category": "swarm-architectures",
+      "subreddit": "LocalLLaMA",
+      "score": 102,
+      "numComments": 8,
+      "author": "smirkishere",
+      "createdUtc": 1754863251,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.35,
+    "implementationSuggestion": "Explore swarm coordination patterns for multi-agent systems",
+    "url": "https://reddit.com/r/LocalLLaMA/comments/1mmvgsg/we_built_a_visual_dragndrop_builder_for/",
+    "tags": [
+      "swarm-architectures",
+      "agent",
+      "llm",
+      "swarm"
+    ],
+    "timestamp": "2025-11-15T17:14:42.259Z"
+  },
+  "storedAt": "2025-11-15T17:14:42.505Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T17:14:42.505Z",
+  "implementationStatus": "pending"
+}

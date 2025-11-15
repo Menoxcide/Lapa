@@ -1,0 +1,46 @@
+{
+  "finding": {
+    "findingId": "arxiv-2407.20798v1-1763179178551",
+    "source": "arxiv",
+    "category": "continuous-learning",
+    "title": "Diffusion Augmented Agents: A Framework for Efficient Exploration and Transfer Learning",
+    "description": "We introduce Diffusion Augmented Agents (DAAG), a novel framework that leverages large language models, vision language models, and diffusion models to improve sample efficiency and transfer learning in reinforcement learning for embodied agents. DAAG hindsight relabels the agent's past experience by using diffusion models to transform videos in a temporally and geometrically consistent way to align with target instructions with a technique we call Hindsight Experience Augmentation. A large lang",
+    "data": {
+      "query": "continuous learning agents",
+      "category": "continuous-learning",
+      "authors": [
+        "Norman Di Palo",
+        "Leonard Hasenclever",
+        "Jan Humplik",
+        "Arunkumar Byravan"
+      ],
+      "categories": [
+        "cs.LG",
+        "cs.AI",
+        "cs.RO"
+      ],
+      "published": "2024-07-30T13:01:31.000Z",
+      "updated": "2024-07-30T13:01:31.000Z",
+      "sources": [
+        "arxiv"
+      ]
+    },
+    "valuePotential": 0.2,
+    "implementationSuggestion": "Review continuous learning approaches for agent adaptation",
+    "url": "http://arxiv.org/abs/2407.20798v1",
+    "tags": [
+      "continuous-learning",
+      "agent",
+      "continuous",
+      "learning",
+      "cs.LG",
+      "cs.AI",
+      "cs.RO"
+    ],
+    "timestamp": "2025-11-15T03:59:38.551Z"
+  },
+  "storedAt": "2025-11-15T03:59:44.092Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T03:59:44.092Z",
+  "implementationStatus": "pending"
+}

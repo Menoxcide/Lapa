@@ -1,0 +1,35 @@
+{
+  "finding": {
+    "findingId": "reddit-1ma6rle-1763200793186",
+    "source": "reddit",
+    "category": "swarm-architectures",
+    "title": "[P] LLM Economist: Large Population Models and Mechanism Design via Multi‑Agent Language Simulacra",
+    "description": "Co-author here. We’ve released a new preprint, **LLM Economist**, which explores how LLM-based agents can learn and optimize economic policy through multi-agent simulation.\n\nIn our setup, a planner agent proposes marginal tax schedules, while a population of 100 worker agents respond by choosing how much labor to supply based on their individual personas. All agents are instantiated from a calibrated skill and demographic prior and operate entirely through language—interacting via in-context mes",
+    "data": {
+      "query": "LLM agent swarm architectures",
+      "category": "swarm-architectures",
+      "subreddit": "MachineLearning",
+      "score": 14,
+      "numComments": 8,
+      "author": "PokeAgentChallenge",
+      "createdUtc": 1753570442,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.25,
+    "implementationSuggestion": "Explore swarm coordination patterns for multi-agent systems",
+    "url": "https://reddit.com/r/MachineLearning/comments/1ma6rle/p_llm_economist_large_population_models_and/",
+    "tags": [
+      "swarm-architectures",
+      "agent",
+      "llm",
+      "swarm"
+    ],
+    "timestamp": "2025-11-15T09:59:53.186Z"
+  },
+  "storedAt": "2025-11-15T09:59:53.412Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T09:59:53.412Z",
+  "implementationStatus": "pending"
+}

@@ -312,14 +312,13 @@ describe('TeamStateManager', () => {
 
   describe('getSharedContext', () => {
     beforeEach(() => {
-      teamStateManager.createTeamState('team-123', [], {
-        project: 'test-project',
-        status: 'active'
-      });
+      teamStateManager.createTeamState('team-123', []);
       
-      teamStateManager.updateSharedContext('team-123', 'user1', {
-        project: 'test-project',
-        status: 'active'
+      teamStateManager.updateTeamState('team-123', 'user1', {
+        sharedContext: {
+          project: 'test-project',
+          status: 'active'
+        }
       });
     });
 

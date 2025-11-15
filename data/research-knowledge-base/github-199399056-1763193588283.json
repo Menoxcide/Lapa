@@ -1,0 +1,38 @@
+{
+  "finding": {
+    "findingId": "github-199399056-1763193588283",
+    "source": "github",
+    "category": "continuous-learning",
+    "title": "SajadAHMAD1/Chaotic-GSA-for-Engineering-Design-Problems",
+    "description": "All nature-inspired algorithms involve two processes namely exploration and exploitation. For getting optimal performance, there should be a proper balance between these processes. Further, the majority of the optimization algorithms suffer from local minima entrapment problem and slow convergence speed. To alleviate these problems, researchers are now using chaotic maps. The Chaotic Gravitational Search Algorithm (CGSA) is a physics-based heuristic algorithm inspired by Newton's gravity principle and laws of motion. It uses 10 chaotic maps for global search and fast convergence speed. Basically, in GSA gravitational constant (G) is utilized for adaptive learning of the agents. For increasing the learning speed of the agents, chaotic maps are added to gravitational constant. The practical applicability of CGSA has been accessed through by applying it to nine Mechanical and Civil engineering design problems which include Welded Beam Design (WBD), Compression Spring Design (CSD), Pressure Vessel Design (PVD), Speed Reducer Design (SRD), Gear Train Design (GTD), Three Bar Truss (TBT), Stepped Cantilever Beam design (SCBD), Multiple Disc Clutch Brake Design (MDCBD), and Hydrodynamic Thrust Bearing Design (HTBD). The CGSA has been compared with seven state of the art stochastic algorithms particularly Constriction Coefficient based Particle Swarm Optimization and Gravitational Search Algorithm (CPSOGSA), Standard Gravitational Search Algorithm (GSA), Classical Particle Swarm Optimization (PSO), Biogeography Based Optimization (BBO), Continuous Genetic Algorithm (GA), Differential Evolution (DE), and Ant Colony Optimization (ACO). The experimental results indicate that CGSA shows efficient performance as compared to other seven participating algorithms.",
+    "data": {
+      "query": "continuous learning agents",
+      "category": "continuous-learning",
+      "stars": 101,
+      "forks": 27,
+      "language": "MATLAB",
+      "topics": [],
+      "createdAt": "2019-07-29T07:13:14.000Z",
+      "updatedAt": "2025-10-04T14:10:44.000Z",
+      "owner": "SajadAHMAD1",
+      "sources": [
+        "github"
+      ]
+    },
+    "valuePotential": 0.15000000000000002,
+    "implementationSuggestion": "Review continuous learning approaches for agent adaptation",
+    "url": "https://github.com/SajadAHMAD1/Chaotic-GSA-for-Engineering-Design-Problems",
+    "tags": [
+      "continuous-learning",
+      "agent",
+      "continuous",
+      "learning",
+      "MATLAB"
+    ],
+    "timestamp": "2025-11-15T07:59:48.283Z"
+  },
+  "storedAt": "2025-11-15T07:59:53.494Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T07:59:53.494Z",
+  "implementationStatus": "pending"
+}

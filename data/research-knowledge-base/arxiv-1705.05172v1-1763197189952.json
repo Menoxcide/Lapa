@@ -1,0 +1,49 @@
+{
+  "finding": {
+    "findingId": "arxiv-1705.05172v1-1763197189952",
+    "source": "arxiv",
+    "category": "continuous-learning",
+    "title": "Emotion in Reinforcement Learning Agents and Robots: A Survey",
+    "description": "This article provides the first survey of computational models of emotion in reinforcement learning (RL) agents. The survey focuses on agent/robot emotions, and mostly ignores human user emotions. Emotions are recognized as functional in decision-making by influencing motivation and action selection. Therefore, computational emotion models are usually grounded in the agent's decision making architecture, of which RL is an important subclass. Studying emotions in RL-based agents is useful for thr",
+    "data": {
+      "query": "continuous learning agents",
+      "category": "continuous-learning",
+      "authors": [
+        "Thomas M. Moerland",
+        "Joost Broekens",
+        "Catholijn M. Jonker"
+      ],
+      "categories": [
+        "cs.LG",
+        "cs.AI",
+        "cs.HC",
+        "cs.RO",
+        "stat.ML"
+      ],
+      "published": "2017-05-15T11:49:56.000Z",
+      "updated": "2017-05-15T11:49:56.000Z",
+      "sources": [
+        "arxiv"
+      ]
+    },
+    "valuePotential": 0.2,
+    "implementationSuggestion": "Review continuous learning approaches for agent adaptation",
+    "url": "http://arxiv.org/abs/1705.05172v1",
+    "tags": [
+      "continuous-learning",
+      "agent",
+      "continuous",
+      "learning",
+      "cs.LG",
+      "cs.AI",
+      "cs.HC",
+      "cs.RO",
+      "stat.ML"
+    ],
+    "timestamp": "2025-11-15T08:59:49.953Z"
+  },
+  "storedAt": "2025-11-15T08:59:53.470Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T08:59:53.470Z",
+  "implementationStatus": "pending"
+}

@@ -1,0 +1,34 @@
+{
+  "finding": {
+    "findingId": "reddit-1ohbdgu-1763182793245",
+    "source": "reddit",
+    "category": "inference-optimization",
+    "title": "[R] PKBoost: Gradient boosting that stays accurate under data drift (2% degradation vs XGBoost's 32%)",
+    "description": "I've been working on a gradient boosting implementation that handles two problems I kept running into with XGBoost/LightGBM in production:\n\n1. **Performance collapse on extreme imbalance (under 1% positive class)**\n2. **Silent degradation when data drifts (sensor drift, behavior changes, etc.)**\n\nKey Results\n\nImbalanced data (Credit Card Fraud - 0.2% positives):\n\n**- PKBoost: 87.8% PR-AUC**\n\n**- LightGBM: 79.3% PR-AUC**\n\n**- XGBoost: 74.5% PR-AUC**\n\nUnder realistic drift (gradual covariate shift",
+    "data": {
+      "query": "inference optimization techniques",
+      "category": "inference-optimization",
+      "subreddit": "MachineLearning",
+      "score": 142,
+      "numComments": 44,
+      "author": "Federal_Ad1812",
+      "createdUtc": 1761562889,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.15000000000000002,
+    "implementationSuggestion": "Review inference optimization techniques for performance improvements",
+    "url": "https://reddit.com/r/MachineLearning/comments/1ohbdgu/r_pkboost_gradient_boosting_that_stays_accurate/",
+    "tags": [
+      "inference-optimization",
+      "inference",
+      "optimization"
+    ],
+    "timestamp": "2025-11-15T04:59:53.245Z"
+  },
+  "storedAt": "2025-11-15T04:59:53.610Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T04:59:53.610Z",
+  "implementationStatus": "pending"
+}

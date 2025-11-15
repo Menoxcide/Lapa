@@ -1,0 +1,34 @@
+{
+  "finding": {
+    "findingId": "reddit-unxc8q-1763186393211",
+    "source": "reddit",
+    "category": "inference-optimization",
+    "title": "New major release for nebullvm, an opensource to speed up AI inference by leveraging state-of-the-art optimization techniques (deep learning compilers, and now also quantization and quantization, and soon also sparsity, distillation, etc.)",
+    "description": "nebullvm is an opensource library that generates an optimize version of your deep learning model that runs 2-10 times faster in inference without performance loss by leveraging multiple deep learning compilers (openvino, tensorrt, etc.). And thanks to today's new release, nebullvm can accelerate up to 30x if you specify that you are willing to trade off a self-defined amount of accuracy/precision to get even lower response time and a lighter model. This additional acceleration is achieved by exp",
+    "data": {
+      "query": "inference optimization techniques",
+      "category": "inference-optimization",
+      "subreddit": "artificial",
+      "score": 8,
+      "numComments": 1,
+      "author": "emilec___",
+      "createdUtc": 1652348501,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.05,
+    "implementationSuggestion": "Review inference optimization techniques for performance improvements",
+    "url": "https://reddit.com/r/artificial/comments/unxc8q/new_major_release_for_nebullvm_an_opensource_to/",
+    "tags": [
+      "inference-optimization",
+      "inference",
+      "optimization"
+    ],
+    "timestamp": "2025-11-15T05:59:53.211Z"
+  },
+  "storedAt": "2025-11-15T05:59:53.439Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T05:59:53.439Z",
+  "implementationStatus": "pending"
+}

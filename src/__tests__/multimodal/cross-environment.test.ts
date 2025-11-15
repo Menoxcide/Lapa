@@ -1,8 +1,9 @@
 // Cross-Environment Compatibility Test Suite (Browser/Node.js)
-import { VisionVoiceController } from '../../multimodal/vision-voice';
-import { VisionAgentTool } from '../../multimodal/vision-agent-tool';
-import { VoiceAgentTool } from '../../multimodal/voice-agent-tool';
-import { MultimodalConfig } from '../../multimodal/types';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { VisionVoiceController } from '../../multimodal/vision-voice.ts';
+import { VisionAgentTool } from '../../multimodal/vision-agent-tool.ts';
+import { VoiceAgentTool } from '../../multimodal/voice-agent-tool.ts';
+import type { MultimodalConfig } from '../../multimodal/types/index.ts';
 
 // Mock Node.js specific modules that might not be available in browser
 vi.mock('fs', () => ({
@@ -300,7 +301,9 @@ describe('Cross-Environment Compatibility', () => {
           action: 'processImage',
           imageData: 'base64imageString' // Base64 works in both environments
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-1',
+        agentId: 'test-agent-1'
       };
       
       // Mock the internal handler
@@ -321,7 +324,9 @@ describe('Cross-Environment Compatibility', () => {
           action: 'transcribe',
           audioData: 'base64audioString' // Base64 works in both environments
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-2',
+        agentId: 'test-agent-2'
       };
       
       // Mock the internal handler
@@ -340,7 +345,10 @@ describe('Cross-Environment Compatibility', () => {
     it('should handle file reading in Node.js environment', async () => {
       // Mock fs.readFileSync
       const fs = await import('fs');
-      (fs.default.readFileSync as vi.Mock).mockReturnValue(Buffer.from('mock file data'));
+      const mockReadFileSync = vi.fn().mockReturnValue(Buffer.from('mock file data'));
+      if (fs.default) {
+        (fs.default as any).readFileSync = mockReadFileSync;
+      }
       
       // In a real implementation, we would have a utility function that works in both environments
       // For this test, we'll simulate reading a file

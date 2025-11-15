@@ -1,0 +1,86 @@
+{
+  "version": "1.0.0",
+  "name": "neuraforge",
+  "description": "NEURAFORGE Master Orchestrator Command - Deploy and orchestrate specialized agents",
+  "command": "/neuraforge",
+  "parameters": [
+    {
+      "name": "agent",
+      "type": "string",
+      "required": true,
+      "description": "Agent identifier (e.g., TEST, MCP, FEATURE, ARCHITECT, RESEARCH_WIZARD, DOCUMENTATION, FILESYSTEM)",
+      "enum": [
+        "TEST",
+        "MCP",
+        "FEATURE",
+        "ARCHITECT",
+        "RESEARCH_WIZARD",
+        "DOCUMENTATION",
+        "FILESYSTEM",
+        "CODER",
+        "REVIEWER",
+        "DEBUGGER",
+        "OPTIMIZER",
+        "PLANNER",
+        "VALIDATOR",
+        "INTEGRATOR",
+        "DEPLOYER"
+      ]
+    },
+    {
+      "name": "task",
+      "type": "string",
+      "required": false,
+      "description": "Optional task description to route to agent"
+    },
+    {
+      "name": "background",
+      "type": "boolean",
+      "required": false,
+      "default": true,
+      "description": "Deploy agent in background (default: true)"
+    }
+  ],
+  "handler": {
+    "type": "script",
+    "script": "scripts/neuraforge-deploy.ts",
+    "function": "deployAgent"
+  },
+  "examples": [
+    {
+      "command": "/neuraforge TEST",
+      "description": "Deploy TEST agent to execute test improvement initiatives"
+    },
+    {
+      "command": "/neuraforge MCP",
+      "description": "Deploy MCP agent to implement MCP upgrades/features"
+    },
+    {
+      "command": "/neuraforge FEATURE",
+      "description": "Deploy FEATURE agent to implement new features"
+    },
+    {
+      "command": "/neuraforge ARCHITECT",
+      "description": "Deploy ARCHITECT agent to design system architecture"
+    },
+    {
+      "command": "/neuraforge RESEARCH_WIZARD",
+      "description": "Deploy RESEARCH_WIZARD agent to research cutting-edge topics"
+    },
+    {
+      "command": "/neuraforge DOCUMENTATION",
+      "description": "Deploy DOCUMENTATION agent to create/update documentation"
+    },
+    {
+      "command": "/neuraforge FILESYSTEM",
+      "description": "Deploy FILESYSTEM agent to cleanup/organize filesystem"
+    }
+  ],
+  "metadata": {
+    "author": "LAPA-VOID Team",
+    "version": "1.0.0",
+    "created": "2025-01-XX",
+    "lastUpdated": "2025-01-XX"
+  }
+}
+

@@ -1,0 +1,46 @@
+{
+  "finding": {
+    "findingId": "arxiv-2103.04480v1-1763226878795",
+    "source": "arxiv",
+    "category": "ai-agents",
+    "title": "Learning Distributed Stabilizing Controllers for Multi-Agent Systems",
+    "description": "We address the problem of model-free distributed stabilization of heterogeneous multi-agent systems using reinforcement learning (RL). Two algorithms are developed. The first algorithm solves a centralized linear quadratic regulator (LQR) problem without knowing any initial stabilizing gain in advance. The second algorithm builds upon the results of the first algorithm, and extends it to distributed stabilization of multi-agent systems with predefined interaction graphs. Rigorous proofs are prov",
+    "data": {
+      "query": "multi-agent orchestration systems 2025",
+      "category": "ai-agents",
+      "authors": [
+        "Gangshan Jing",
+        "He Bai",
+        "Jemin George",
+        "Aranya Chakrabortty",
+        "Piyush K. Sharma"
+      ],
+      "categories": [
+        "eess.SY",
+        "math.OC"
+      ],
+      "published": "2021-03-07T23:25:28.000Z",
+      "updated": "2021-03-07T23:25:28.000Z",
+      "sources": [
+        "arxiv"
+      ]
+    },
+    "valuePotential": 0.6,
+    "implementationSuggestion": "Evaluate agent architecture improvements for LAPA-VOID agent system",
+    "url": "http://arxiv.org/abs/2103.04480v1",
+    "tags": [
+      "ai-agents",
+      "agent",
+      "orchestration",
+      "multi-agent",
+      "2025",
+      "eess.SY",
+      "math.OC"
+    ],
+    "timestamp": "2025-11-15T17:14:38.795Z"
+  },
+  "storedAt": "2025-11-15T17:14:42.434Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T17:14:42.434Z",
+  "implementationStatus": "pending"
+}

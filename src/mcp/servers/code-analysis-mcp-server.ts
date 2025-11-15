@@ -82,30 +82,31 @@ export class CodeAnalysisMCPServer {
    */
   private setupTools(): void {
     // Tool: Analyze code quality
-    this.server.setRequestHandler('tools/call', async (request) => {
-      if (request.params.name === 'analyze_code_quality') {
-        return this.handleAnalyzeCodeQuality(request.params.arguments as any);
+    this.server.setRequestHandler('tools/call' as any, async (request: any) => {
+      const params = request.params as any;
+      if (params.name === 'analyze_code_quality') {
+        return this.handleAnalyzeCodeQuality(params.arguments as any);
       }
-      if (request.params.name === 'check_security_vulnerabilities') {
-        return this.handleCheckSecurityVulnerabilities(request.params.arguments as any);
+      if (params.name === 'check_security_vulnerabilities') {
+        return this.handleCheckSecurityVulnerabilities(params.arguments as any);
       }
-      if (request.params.name === 'detect_code_smells') {
-        return this.handleDetectCodeSmells(request.params.arguments as any);
+      if (params.name === 'detect_code_smells') {
+        return this.handleDetectCodeSmells(params.arguments as any);
       }
-      if (request.params.name === 'validate_code_patterns') {
-        return this.handleValidateCodePatterns(request.params.arguments as any);
+      if (params.name === 'validate_code_patterns') {
+        return this.handleValidateCodePatterns(params.arguments as any);
       }
-      if (request.params.name === 'check_hallucinations') {
-        return this.handleCheckHallucinations(request.params.arguments as any);
+      if (params.name === 'check_hallucinations') {
+        return this.handleCheckHallucinations(params.arguments as any);
       }
-      if (request.params.name === 'generate_quality_report') {
-        return this.handleGenerateQualityReport(request.params.arguments as any);
+      if (params.name === 'generate_quality_report') {
+        return this.handleGenerateQualityReport(params.arguments as any);
       }
-      throw new Error(`Unknown tool: ${request.params.name}`);
+      throw new Error(`Unknown tool: ${params.name}`);
     });
 
     // Tool: List available tools
-    this.server.setRequestHandler('tools/list', async () => {
+    this.server.setRequestHandler('tools/list' as any, async () => {
       return {
         tools: [
           {
@@ -195,7 +196,7 @@ export class CodeAnalysisMCPServer {
     try {
       // Analyze code quality using LLM Judge
       const judgment = await this.llmJudge.judge({
-        type: 'code.quality',
+        type: 'code-quality',
         content: args.code,
         context: {
           language: args.language || 'typescript',
@@ -208,10 +209,10 @@ export class CodeAnalysisMCPServer {
           {
             type: 'text',
             text: JSON.stringify({
-              score: judgment.score,
-              confidence: judgment.confidence,
-              issues: judgment.issues,
-              passed: judgment.score >= this.llmJudge['config'].judgmentThreshold * 100,
+              score: judgment.score ?? 0,
+              confidence: judgment.confidence ?? 0,
+              issues: judgment.issues ?? [],
+              passed: (judgment.score ?? 0) >= this.llmJudge['config'].judgmentThreshold * 100,
             }, null, 2),
           },
         ],
@@ -255,7 +256,7 @@ export class CodeAnalysisMCPServer {
       
       // Also use LLM Judge for security analysis
       const judgment = await this.llmJudge.judge({
-        type: 'security',
+        type: 'code-quality',
         content: args.code,
         context: {
           language: args.language || 'typescript',
@@ -271,8 +272,8 @@ export class CodeAnalysisMCPServer {
               passed: securityValidation.passed,
               checks: securityValidation.checks,
               recommendations: securityValidation.recommendations,
-              qualityScore: judgment.score,
-              issues: judgment.issues.filter(issue => issue.severity === 'high'),
+              qualityScore: judgment.score ?? 0,
+              issues: (judgment.issues || []).filter((issue: any) => issue.severity === 'high'),
             }, null, 2),
           },
         ],
@@ -309,7 +310,7 @@ export class CodeAnalysisMCPServer {
     try {
       // Detect code smells using LLM Judge
       const judgment = await this.llmJudge.judge({
-        type: 'code.smells',
+        type: 'code-quality',
         content: args.code,
         context: {
           language: args.language || 'typescript',
@@ -324,8 +325,8 @@ export class CodeAnalysisMCPServer {
             text: JSON.stringify({
               score: judgment.score,
               confidence: judgment.confidence,
-              issues: judgment.issues,
-              codeSmells: judgment.issues.filter(issue => 
+              issues: judgment.issues || [],
+              codeSmells: (judgment.issues || []).filter((issue: any) => 
                 issue.category.includes('smell') || 
                 issue.category.includes('anti-pattern')
               ),
@@ -366,7 +367,7 @@ export class CodeAnalysisMCPServer {
     try {
       // Validate code patterns using LLM Judge
       const judgment = await this.llmJudge.judge({
-        type: 'code.patterns',
+        type: 'code-quality',
         content: args.code,
         context: {
           language: args.language || 'typescript',
@@ -380,11 +381,11 @@ export class CodeAnalysisMCPServer {
           {
             type: 'text',
             text: JSON.stringify({
-              score: judgment.score,
-              confidence: judgment.confidence,
-              issues: judgment.issues,
+              score: judgment.score ?? 0,
+              confidence: judgment.confidence ?? 0,
+              issues: judgment.issues || [],
               patterns: args.patterns || [],
-              validated: judgment.score >= this.llmJudge['config'].judgmentThreshold * 100,
+              validated: (judgment.score ?? 0) >= this.llmJudge['config'].judgmentThreshold * 100,
             }, null, 2),
           },
         ],
@@ -480,7 +481,7 @@ export class CodeAnalysisMCPServer {
       // Generate comprehensive quality report
       const [qualityJudgment, securityValidation, hallucinationCheck] = await Promise.all([
         this.llmJudge.judge({
-          type: 'code.quality',
+          type: 'code-quality',
           content: args.code,
           context: {
             language: args.language || 'typescript',
@@ -506,10 +507,10 @@ export class CodeAnalysisMCPServer {
         agentId: agentId,
         language: args.language || 'typescript',
         quality: {
-          score: qualityJudgment.score,
-          confidence: qualityJudgment.confidence,
-          issues: qualityJudgment.issues,
-          passed: qualityJudgment.score >= this.llmJudge['config'].judgmentThreshold * 100,
+          score: qualityJudgment.score ?? 0,
+          confidence: qualityJudgment.confidence ?? 0,
+          issues: qualityJudgment.issues || [],
+          passed: (qualityJudgment.score ?? 0) >= this.llmJudge['config'].judgmentThreshold * 100,
         },
         security: {
           passed: securityValidation.passed,
@@ -523,10 +524,10 @@ export class CodeAnalysisMCPServer {
           vetoRecommended: hallucinationCheck.vetoRecommended,
         },
         overall: {
-          passed: qualityJudgment.score >= this.llmJudge['config'].judgmentThreshold * 100 &&
+          passed: (qualityJudgment.score ?? 0) >= this.llmJudge['config'].judgmentThreshold * 100 &&
                   securityValidation.passed &&
                   !hallucinationCheck.isHallucination,
-          score: (qualityJudgment.score + (securityValidation.passed ? 100 : 0) + 
+          score: ((qualityJudgment.score ?? 0) + (securityValidation.passed ? 100 : 0) + 
                   (hallucinationCheck.isHallucination ? 0 : 100)) / 3,
         },
       };

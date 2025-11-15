@@ -361,8 +361,45 @@ describe('Phase 12: Memory Systems Integration', () => {
 
       await new Promise(resolve => setTimeout(resolve, 300));
 
-      // Search in Chroma
-      const chromaResults = await chromaRefine.searchSimilar(searchTerm, { limit: 10 });
+      // Search in Chroma with REFRAG for efficient decoding
+      const rawResults = await chromaRefine.searchSimilar(searchTerm, { limit: 10 });
+      
+      // Process through REFRAG if available
+      let chromaResults = rawResults;
+      try {
+        const { refragEngine } = await import('../../rag/refrag.ts');
+        if (refragEngine) {
+          await refragEngine.initialize().catch(() => {});
+          const refragResult = await refragEngine.processChunks(
+            rawResults.map(r => ({
+              id: r.document.id,
+              content: r.document.content,
+              metadata: r.document.metadata,
+              similarity: r.similarity
+            })),
+            searchTerm
+          );
+          // Use expanded chunks (most relevant) for integration testing
+          chromaResults = refragResult.expandedChunks.map(chunk => ({
+            document: {
+              id: chunk.id,
+              content: chunk.originalContent,
+              metadata: {
+                ...chunk.metadata,
+                source: (chunk.metadata.source === 'episodic' || chunk.metadata.source === 'memori' || chunk.metadata.source === 'rag' || chunk.metadata.source === 'manual')
+                  ? chunk.metadata.source
+                  : ('rag' as 'episodic' | 'memori' | 'rag' | 'manual'),
+                timestamp: chunk.metadata.timestamp || new Date()
+              }
+            },
+            similarity: chunk.relevanceScore || 0,
+            distance: 1 - (chunk.relevanceScore || 0)
+          }));
+        }
+      } catch (refragError) {
+        // Fallback to raw results if REFRAG unavailable
+        console.warn('REFRAG processing skipped in integration test:', refragError);
+      }
 
       // Should find relevant information
       expect(chromaResults.length).toBeGreaterThan(0);

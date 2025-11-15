@@ -120,17 +120,13 @@ describe('Phase 16 Integration', () => {
 
   describe('PhaseReporter', () => {
     it('should create phase reporter instance', () => {
-      const reporter = new PhaseReporter({
-        enableEventLogs: false
-      });
+      const reporter = new PhaseReporter({});
 
       expect(reporter).toBeDefined();
     });
 
     it('should generate phase summary', async () => {
-      const reporter = new PhaseReporter({
-        enableEventLogs: false
-      });
+      const reporter = new PhaseReporter({});
 
       const summary = await reporter.generatePhaseSummary(
         '16',
@@ -144,9 +140,7 @@ describe('Phase 16 Integration', () => {
     });
 
     it('should generate markdown report', async () => {
-      const reporter = new PhaseReporter({
-        enableEventLogs: false
-      });
+      const reporter = new PhaseReporter({});
 
       const report = await reporter.reportPhaseCompletion('16', {
         title: 'Phase 16: Task Tree + LPSP',
@@ -159,9 +153,7 @@ describe('Phase 16 Integration', () => {
     });
 
     it('should store summaries', async () => {
-      const reporter = new PhaseReporter({
-        enableEventLogs: false
-      });
+      const reporter = new PhaseReporter({});
 
       await reporter.generatePhaseSummary(
         '16',

@@ -1,5 +1,6 @@
 // Tests for Artifacts Builder Tool implementation
 
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ArtifactsBuilderTool } from '../../multimodal/artifacts-builder-tool.ts';
 import { AgentToolExecutionContext } from '../../core/types/agent-types.ts';
 import { MultimodalConfig } from '../../multimodal/types/index.ts';

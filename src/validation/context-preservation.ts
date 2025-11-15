@@ -213,6 +213,19 @@ export class ContextPreservationManager {
   }
 
   /**
+   * Test helper: Corrupt stored context checksum to simulate integrity failure
+   * @param handoffId Handoff ID to corrupt
+   * @internal For testing purposes only
+   */
+  _testCorruptChecksum(handoffId: string): void {
+    const preservedContext = this.contextStore.get(handoffId);
+    if (preservedContext) {
+      // Corrupt the checksum
+      preservedContext.checksum = 'corrupted-checksum';
+    }
+  }
+
+  /**
    * Get context preservation statistics
    * @returns Context preservation statistics
    */

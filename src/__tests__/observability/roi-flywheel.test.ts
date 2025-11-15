@@ -21,7 +21,6 @@ describe('ROI Flywheel Virtual Cycle (I4)', () => {
       tokenCostPer1K: 0.002,
       hourlyRateUSD: 50,
       averageBugFixTimeMinutes: 30,
-      enableMetrics: true,
     });
   });
 
@@ -71,10 +70,10 @@ describe('ROI Flywheel Virtual Cycle (I4)', () => {
     it('should track tokens saved accurately', () => {
       const initialTokens = 10000;
       
-      // Simulate token savings
-      roiDashboard.trackHandoffAvoided(5000);
-      roiDashboard.trackHandoffAvoided(3000);
-      roiDashboard.trackHandoffAvoided(2000);
+      // Simulate handoff avoidance (trackHandoffAvoided tracks handoffs, not tokens)
+      roiDashboard.trackHandoffAvoided('coder');
+      roiDashboard.trackHandoffAvoided('planner');
+      roiDashboard.trackHandoffAvoided('tester');
 
       const metrics = roiDashboard.getMetrics();
 
@@ -116,7 +115,7 @@ describe('ROI Flywheel Virtual Cycle (I4)', () => {
       });
 
       // Add some handoff avoidance and bug prevention
-      roiDashboard.trackHandoffAvoided(5000);
+      roiDashboard.trackHandoffAvoided('coder');
       roiDashboard.trackBugPrevented('tester');
       roiDashboard.trackBugPrevented('coder');
 
@@ -261,9 +260,9 @@ describe('ROI Flywheel Virtual Cycle (I4)', () => {
 
     it('should track handoff avoidance savings', () => {
       // Track multiple handoffs avoided
-      roiDashboard.trackHandoffAvoided(10000);
-      roiDashboard.trackHandoffAvoided(5000);
-      roiDashboard.trackHandoffAvoided(8000);
+      roiDashboard.trackHandoffAvoided('coder');
+      roiDashboard.trackHandoffAvoided('coder');
+      roiDashboard.trackHandoffAvoided('tester');
 
       const metrics = roiDashboard.getMetrics();
 
@@ -368,7 +367,6 @@ describe('ROI Flywheel Virtual Cycle (I4)', () => {
           tokenCostPer1K: 0.002,
           hourlyRateUSD: 50,
           averageBugFixTimeMinutes: 30,
-          enableMetrics: true,
         });
 
         // Complete tasks

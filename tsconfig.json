@@ -13,11 +13,11 @@
 	  "forceConsistentCasingInFileNames": true,
 	  "jsx": "react-jsx",
 	  "resolveJsonModule": true,
-	  "typeRoots": ["node_modules/@types"],
-	  "types": ["node", "react", "react-dom"],
 	  "allowImportingTsExtensions": true,
 	  "noEmit": true,
-	  "downlevelIteration": true
+	  "downlevelIteration": true,
+	  "incremental": true,
+	  "tsBuildInfoFile": ".tsbuildinfo"
 	},
 	"include": ["src/**/*"],
 	"exclude": ["node_modules", "dist", "extension/dist"]

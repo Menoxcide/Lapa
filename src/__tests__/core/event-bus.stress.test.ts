@@ -42,30 +42,35 @@ describe('Event Bus Stress Tests', () => {
     // Setup mock event bus with internal tracking
     mockSubscribers = new Map();
     publishedEvents = [];
+    const subscriptionIds = new Map<string, string>();
 
     // Mock event bus methods
-    vi.spyOn(eventBus, 'subscribe').mockImplementation((eventType: string, handler: Function) => {
-      if (!mockSubscribers.has(eventType)) {
-        mockSubscribers.set(eventType, new Set());
+    vi.spyOn(eventBus, 'subscribe').mockImplementation((eventType: any, handler: any, filter?: any) => {
+      const eventTypeStr = String(eventType);
+      if (!mockSubscribers.has(eventTypeStr)) {
+        mockSubscribers.set(eventTypeStr, new Set());
       }
-      mockSubscribers.get(eventType)!.add(handler);
-      return () => mockSubscribers.get(eventType)?.delete(handler);
+      mockSubscribers.get(eventTypeStr)!.add(handler);
+      const subscriptionId = `sub-${Date.now()}-${Math.random()}`;
+      subscriptionIds.set(subscriptionId, eventTypeStr);
+      return subscriptionId;
     });
 
-    vi.spyOn(eventBus, 'publish').mockImplementation(async (event: LAPAEvent) => {
+    vi.spyOn(eventBus, 'publish').mockImplementation(async (event: any) => {
       publishedEvents.push(event);
-      const handlers = mockSubscribers.get(event.type) || new Set();
-      handlers.forEach(handler => handler(event));
+      const eventTypeStr = String(event.type);
+      const handlers = mockSubscribers.get(eventTypeStr) || new Set();
+      handlers.forEach((handler: Function) => handler(event));
       return Promise.resolve();
     });
 
-    vi.spyOn(eventBus, 'removeAllListeners').mockImplementation(() => {
+    vi.spyOn(eventBus, 'clear').mockImplementation(() => {
       mockSubscribers.clear();
       publishedEvents = [];
     });
 
-    vi.spyOn(eventBus, 'listenerCount').mockImplementation((eventType: string) => {
-      return mockSubscribers.get(eventType)?.size || 0;
+    vi.spyOn(eventBus, 'getSubscriptionCount').mockImplementation(() => {
+      return Array.from(mockSubscribers.values()).reduce((sum, set) => sum + set.size, 0);
     });
   });
 
@@ -80,7 +85,7 @@ describe('Event Bus Stress Tests', () => {
       const events: LAPAEvent[] = [];
       const receivedEvents: LAPAEvent[] = [];
 
-      eventBus.subscribe('test.event', (event) => {
+      eventBus.subscribe('tool.execution.started' as any, (event: any) => {
         receivedEvents.push(event);
       });
 
@@ -90,11 +95,11 @@ describe('Event Bus Stress Tests', () => {
       for (let i = 0; i < 10000; i++) {
         await eventBus.publish({
           id: `event-${i}`,
-          type: 'test.event',
+          type: 'tool.execution.started' as any,
           timestamp: Date.now(),
           source: 'stress-test',
           payload: { index: i }
-        });
+        } as any);
       }
 
       const duration = Date.now() - startTime;
@@ -108,7 +113,7 @@ describe('Event Bus Stress Tests', () => {
       const receivedEvents: LAPAEvent[] = [];
       const eventCount = 1000;
 
-      eventBus.subscribe('ordered.event', (event) => {
+      eventBus.subscribe('task.created' as any, (event: any) => {
         receivedEvents.push(event);
       });
 
@@ -116,11 +121,11 @@ describe('Event Bus Stress Tests', () => {
       for (let i = 0; i < eventCount; i++) {
         await eventBus.publish({
           id: `event-${i}`,
-          type: 'ordered.event',
+          type: 'task.created' as any,
           timestamp: Date.now(),
           source: 'stress-test',
           payload: { index: i }
-        });
+        } as any);
       }
 
       // Verify ordering
@@ -133,7 +138,7 @@ describe('Event Bus Stress Tests', () => {
       const receivedEvents: LAPAEvent[] = [];
       const burstSize = 1000;
 
-      eventBus.subscribe('burst.event', (event) => {
+      eventBus.subscribe('tool.execution.completed' as any, (event: any) => {
         receivedEvents.push(event);
       });
 
@@ -143,11 +148,11 @@ describe('Event Bus Stress Tests', () => {
       const promises = Array.from({ length: burstSize }, (_, i) =>
         eventBus.publish({
           id: `burst-${i}`,
-          type: 'burst.event',
+          type: 'tool.execution.completed' as any,
           timestamp: Date.now(),
           source: 'stress-test',
           payload: { index: i }
-        })
+        } as any)
       );
 
       await Promise.all(promises);
@@ -165,7 +170,7 @@ describe('Event Bus Stress Tests', () => {
 
       // Create 100 subscribers
       for (let i = 0; i < subscriberCount; i++) {
-        eventBus.subscribe('concurrent.event', (event) => {
+        eventBus.subscribe('handoff.initiated' as any, (event: any) => {
           receivedCounts[i]++;
         });
       }
@@ -175,11 +180,11 @@ describe('Event Bus Stress Tests', () => {
       for (let i = 0; i < eventCount; i++) {
         await eventBus.publish({
           id: `event-${i}`,
-          type: 'concurrent.event',
+          type: 'handoff.initiated' as any,
           timestamp: Date.now(),
           source: 'stress-test',
           payload: { index: i }
-        });
+        } as any);
       }
 
       // All subscribers should receive all events
@@ -194,21 +199,21 @@ describe('Event Bus Stress Tests', () => {
 
       // Create and destroy subscribers dynamically
       for (let i = 0; i < 50; i++) {
-        const unsubscribe = eventBus.subscribe('dynamic.event', () => {
+        const subscriptionId = eventBus.subscribe('mode.changed' as any, () => {
           receivedCounts[i] = (receivedCounts[i] || 0) + 1;
         });
-        subscribers.push(unsubscribe);
+        subscribers.push(() => eventBus.unsubscribe(subscriptionId));
       }
 
       // Publish events
       for (let i = 0; i < 100; i++) {
         await eventBus.publish({
           id: `event-${i}`,
-          type: 'dynamic.event',
+          type: 'mode.changed' as any,
           timestamp: Date.now(),
           source: 'stress-test',
           payload: { index: i }
-        });
+        } as any);
       }
 
       // Unsubscribe half
@@ -220,11 +225,11 @@ describe('Event Bus Stress Tests', () => {
       for (let i = 100; i < 200; i++) {
         await eventBus.publish({
           id: `event-${i}`,
-          type: 'dynamic.event',
+          type: 'mode.changed' as any,
           timestamp: Date.now(),
           source: 'stress-test',
           payload: { index: i }
-        });
+        } as any);
       }
 
       // First 25 should have received 100 events, rest should have 200
@@ -243,14 +248,14 @@ describe('Event Bus Stress Tests', () => {
       const filterCount = 1000;
 
       // Subscribe with filter
-      eventBus.subscribe('filtered.event', (event) => {
+      eventBus.subscribe('performance.metric' as any, (event: any) => {
         if (event.payload && typeof event.payload === 'object' && 'value' in event.payload) {
           const value = (event.payload as any).value;
           if (value > 500 && value < 750) {
             filteredEvents.push(event);
           }
         }
-      }, (event) => {
+      }, (event: any) => {
         return event.payload && typeof event.payload === 'object' && 'value' in event.payload;
       });
 
@@ -258,11 +263,11 @@ describe('Event Bus Stress Tests', () => {
       for (let i = 0; i < filterCount; i++) {
         await eventBus.publish({
           id: `event-${i}`,
-          type: 'filtered.event',
+          type: 'performance.metric' as any,
           timestamp: Date.now(),
           source: 'stress-test',
           payload: { value: i }
-        });
+        } as any);
       }
 
       // Should have filtered to events with value between 500 and 750
@@ -279,28 +284,28 @@ describe('Event Bus Stress Tests', () => {
       const results2: LAPAEvent[] = [];
       const results3: LAPAEvent[] = [];
 
-      eventBus.subscribe('multi.filter', (event) => {
+      eventBus.subscribe('task.updated' as any, (event: any) => {
         results1.push(event);
-      }, (event) => event.payload && (event.payload as any).category === 'A');
+      }, (event: any) => event.payload && (event.payload as any).category === 'A');
 
-      eventBus.subscribe('multi.filter', (event) => {
+      eventBus.subscribe('task.updated' as any, (event: any) => {
         results2.push(event);
-      }, (event) => event.payload && (event.payload as any).category === 'B');
+      }, (event: any) => event.payload && (event.payload as any).category === 'B');
 
-      eventBus.subscribe('multi.filter', (event) => {
+      eventBus.subscribe('task.updated' as any, (event: any) => {
         results3.push(event);
-      }, (event) => event.payload && (event.payload as any).category === 'C');
+      }, (event: any) => event.payload && (event.payload as any).category === 'C');
 
       const eventCount = 1000;
       for (let i = 0; i < eventCount; i++) {
         const category = ['A', 'B', 'C'][i % 3];
         await eventBus.publish({
           id: `event-${i}`,
-          type: 'multi.filter',
+          type: 'task.updated' as any,
           timestamp: Date.now(),
           source: 'stress-test',
           payload: { category, index: i }
-        });
+        } as any);
       }
 
       expect(results1.length).toBeGreaterThan(0);
@@ -318,11 +323,11 @@ describe('Event Bus Stress Tests', () => {
       for (let i = 0; i < 10000; i++) {
         await eventBus.publish({
           id: `event-${i}`,
-          type: 'memory.test',
+          type: 'system.warning' as any,
           timestamp: Date.now(),
           source: 'stress-test',
           payload: { data: 'x'.repeat(100) }
-        });
+        } as any);
       }
 
       // Force garbage collection if available
@@ -342,8 +347,8 @@ describe('Event Bus Stress Tests', () => {
 
       // Create many subscribers
       for (let i = 0; i < 1000; i++) {
-        const unsubscribe = eventBus.subscribe('cleanup.test', () => {});
-        unsubscribes.push(unsubscribe);
+        const subscriptionId = eventBus.subscribe('system.shutdown' as any, () => {});
+        unsubscribes.push(() => eventBus.unsubscribe(subscriptionId));
       }
 
       // Unsubscribe all
@@ -353,15 +358,15 @@ describe('Event Bus Stress Tests', () => {
       for (let i = 0; i < 100; i++) {
         await eventBus.publish({
           id: `event-${i}`,
-          type: 'cleanup.test',
+          type: 'system.shutdown' as any,
           timestamp: Date.now(),
           source: 'stress-test',
           payload: {}
-        });
+        } as any);
       }
 
       // No listeners should be active
-      expect(eventBus.listenerCount('cleanup.test')).toBe(0);
+      expect(eventBus.getSubscriptionCount()).toBe(0);
     });
   });
 
@@ -369,24 +374,29 @@ describe('Event Bus Stress Tests', () => {
     it('should handle 100 different event types efficiently', async () => {
       const receivedCounts = new Map<string, number>();
 
-      // Subscribe to 100 different event types
+      // Subscribe to 100 different event types (using valid event types with index)
+      const validEventTypes: (keyof import('../../core/types/event-types.ts').LAPAEventMap)[] = [
+        'task.created', 'task.updated', 'tool.execution.started', 'tool.execution.completed',
+        'handoff.initiated', 'handoff.completed', 'agent.registered', 'performance.metric'
+      ];
       for (let i = 0; i < 100; i++) {
-        const eventType = `diverse.event.${i}`;
+        const eventType = validEventTypes[i % validEventTypes.length];
+        const eventKey = `${eventType}-${i}`;
         eventBus.subscribe(eventType, () => {
-          receivedCounts.set(eventType, (receivedCounts.get(eventType) || 0) + 1);
+          receivedCounts.set(eventKey, (receivedCounts.get(eventKey) || 0) + 1);
         });
       }
 
       // Publish events of each type
       for (let i = 0; i < 100; i++) {
-        const eventType = `diverse.event.${i}`;
+        const eventType = validEventTypes[i % validEventTypes.length];
         await eventBus.publish({
           id: `event-${i}`,
           type: eventType,
           timestamp: Date.now(),
           source: 'stress-test',
           payload: { type: i }
-        });
+        } as any);
       }
 
       // All event types should have been received
@@ -403,7 +413,7 @@ describe('Event Bus Stress Tests', () => {
       let errorCount = 0;
 
       // Create subscriber that throws errors
-      eventBus.subscribe('error.test', (event) => {
+      eventBus.subscribe('tool.execution.failed' as any, (event: any) => {
         if ((event.payload as any)?.shouldError) {
           errorCount++;
           throw new Error('Test error');
@@ -416,11 +426,11 @@ describe('Event Bus Stress Tests', () => {
       for (let i = 0; i < 100; i++) {
         await eventBus.publish({
           id: `event-${i}`,
-          type: 'error.test',
+          type: 'tool.execution.failed' as any,
           timestamp: Date.now(),
           source: 'stress-test',
           payload: { shouldError: i % 10 === 0, index: i }
-        });
+        } as any);
       }
 
       // Should have processed all events despite errors

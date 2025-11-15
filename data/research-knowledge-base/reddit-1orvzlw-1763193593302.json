@@ -1,0 +1,35 @@
+{
+  "finding": {
+    "findingId": "reddit-1orvzlw-1763193593302",
+    "source": "reddit",
+    "category": "continuous-learning",
+    "title": "\"Scaling Agent Learning via Experience Synthesis\"",
+    "description": "[https://arxiv.org/abs/2511.03773](https://arxiv.org/abs/2511.03773) \n\n\"While reinforcement learning (RL) can empower large language model (LLM) agents by enabling self-improvement through interaction, its practical adoption remains challenging due to costly rollouts, limited task diversity, unreliable reward signals, and infrastructure complexity, all of which obstruct the collection of scalable experience data. To address these challenges, we introduce DreamGym, the first unified framework des",
+    "data": {
+      "query": "continuous learning agents",
+      "category": "continuous-learning",
+      "subreddit": "singularity",
+      "score": 10,
+      "numComments": 0,
+      "author": "AngleAccomplished865",
+      "createdUtc": 1762624877,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.05,
+    "implementationSuggestion": "Review continuous learning approaches for agent adaptation",
+    "url": "https://reddit.com/r/singularity/comments/1orvzlw/scaling_agent_learning_via_experience_synthesis/",
+    "tags": [
+      "continuous-learning",
+      "agent",
+      "continuous",
+      "learning"
+    ],
+    "timestamp": "2025-11-15T07:59:53.302Z"
+  },
+  "storedAt": "2025-11-15T07:59:53.477Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T07:59:53.477Z",
+  "implementationStatus": "pending"
+}

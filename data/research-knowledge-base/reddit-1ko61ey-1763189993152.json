@@ -1,0 +1,34 @@
+{
+  "finding": {
+    "findingId": "reddit-1ko61ey-1763189993152",
+    "source": "reddit",
+    "category": "inference-optimization",
+    "title": "Safer, More Objective Artificial Expression Through Stripping Engagement and Influence",
+    "description": "I made a communication standard for artificial expression, and I'd like to ask you to help me test it. You can find it here: [NORMAX ARTEX](https://chatgpt.com/g/g-6807e512193c81918db810dd8620fa32-normax-artex).\n\n\nEDIT: NORMAX ARTEX is now an artificial expression standard within the larger LOGOS for ChatGPT - a self-guided learning and reasoning tool. \nI will leave this post up but please note NORMAX will only continue to see development as part of LOGOS. \n\nhttps://chatgpt.com/g/g-682e73b670488",
+    "data": {
+      "query": "inference optimization techniques",
+      "category": "inference-optimization",
+      "subreddit": "ChatGPT",
+      "score": 2,
+      "numComments": 9,
+      "author": "NORMAX-ARTEX",
+      "createdUtc": 1747415002,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.05,
+    "implementationSuggestion": "Review inference optimization techniques for performance improvements",
+    "url": "https://reddit.com/r/ChatGPT/comments/1ko61ey/safer_more_objective_artificial_expression/",
+    "tags": [
+      "inference-optimization",
+      "inference",
+      "optimization"
+    ],
+    "timestamp": "2025-11-15T06:59:53.152Z"
+  },
+  "storedAt": "2025-11-15T06:59:53.396Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T06:59:53.396Z",
+  "implementationStatus": "pending"
+}

@@ -1,4 +1,5 @@
 // Multimodal Agent Integration Test Suite
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { VisionVoiceController } from '../../multimodal/vision-voice.ts';
 import { VisionAgentTool } from '../../multimodal/vision-agent-tool.ts';
 import { VoiceAgentTool } from '../../multimodal/voice-agent-tool.ts';
@@ -9,15 +10,15 @@ import { HelixTeamAgentWrapper, AgentToolRegistry, agentToolRegistry } from '../
 import { HybridHandoffSystem } from '../../orchestrator/handoffs.ts';
 
 // Mock the event bus
-vi.mock('../../core/event-bus', () => ({
+vi.mock('../../core/event-bus.ts', () => ({
   eventBus: {
     publish: vi.fn()
   }
 }));
 
 // Mock NIM inference requests
-vi.mock('../../inference/nim.local', () => ({
-  sendNemotronVisionInferenceRequest: vi.fn().mockImplementation((model, prompt, imageData, options) => {
+vi.mock('../../inference/nim.local.ts', () => ({
+  sendNemotronVisionInferenceRequest: vi.fn().mockImplementation((model: any, prompt: any, imageData: any, options: any) => {
     // Return different responses based on the prompt
     if (prompt.includes('Describe this image')) {
       return Promise.resolve('This is a test image showing a user interface with buttons and text fields.');
@@ -76,7 +77,7 @@ vi.mock('../../inference/nim.local', () => ({
     }
     return Promise.resolve('Mocked vision result');
   }),
-  sendNIMInferenceRequest: vi.fn().mockImplementation((model, prompt, options) => {
+  sendNIMInferenceRequest: vi.fn().mockImplementation((model: any, prompt: any, options: any) => {
     // Return different responses based on the prompt
     if (prompt.includes('transcribe')) {
       return Promise.resolve(JSON.stringify({
@@ -432,8 +433,8 @@ describe('Multimodal Agent Integration', () => {
         
         // Process multimodal input
         const input = {
-          image: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==', 'base64'),
-          audio: Buffer.from('mock-audio-data')
+          imageData: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==', 'base64'),
+          audioData: Buffer.from('mock-audio-data')
         };
         
         const result = await testContext.visionVoiceController.processMultimodalInput(input);
@@ -470,8 +471,9 @@ describe('Multimodal Agent Integration', () => {
         const task = {
           id: 'integration-test-task',
           description: 'Test task for multimodal integration',
+          type: 'task',
           input: 'Test input data',
-          priority: 'medium' as const
+          priority: 5
         };
         
         // Create test context

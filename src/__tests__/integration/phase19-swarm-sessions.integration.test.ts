@@ -16,7 +16,8 @@ import { eventBus } from '../../core/event-bus.ts';
 import { Task } from '../../agents/moe-router.ts';
 
 // Mock WebSocket implementation for testing
-jest.mock('ws');
+import { vi } from 'vitest';
+vi.mock('ws');
 
 describe('Phase 19 Swarm Sessions Integration', () => {
   let signalingServer: WebRTCSignalingServer;
@@ -319,7 +320,8 @@ describe('Phase 19 Swarm Sessions Integration', () => {
       const task: Task = {
         id: 'task-1',
         description: 'Test task for veto',
-        type: 'test'
+        type: 'test',
+        priority: 5
       };
 
       const session = swarmSessionManager.getSession(sessionId);
@@ -363,7 +365,8 @@ describe('Phase 19 Swarm Sessions Integration', () => {
       const task: Task = {
         id: 'task-1',
         description: 'Test task for A2A',
-        type: 'test'
+        type: 'test',
+        priority: 5
       };
 
       // Mock agent IDs for participants
@@ -404,7 +407,8 @@ describe('Phase 19 Swarm Sessions Integration', () => {
       const task: Task = {
         id: 'task-1',
         description: 'Persistent task',
-        type: 'test'
+        type: 'test',
+        priority: 5
       };
 
       const session = swarmSessionManager.getSession(sessionId);
@@ -472,7 +476,8 @@ describe('Phase 19 Swarm Sessions Integration', () => {
       const task: Task = {
         id: 'task-1',
         description: 'Test task',
-        type: 'test'
+        type: 'test',
+        priority: 5
       };
 
       const message = {
@@ -529,7 +534,8 @@ describe('Phase 19 Swarm Sessions Integration', () => {
       const task: Task = {
         id: 'task-1',
         description: 'Test task for veto',
-        type: 'test'
+        type: 'test',
+        priority: 5
       };
 
       session.activeTasks.set('task-1', task);

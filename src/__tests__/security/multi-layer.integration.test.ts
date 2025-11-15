@@ -59,7 +59,7 @@ describe('Security Multi-Layer Integration Audit (I3)', () => {
       const hallucinationResult = await hallucinationCheck.checkClaim(claim);
 
       // Verify RBAC would prevent unauthorized actions even if hallucination not detected
-      const hasDeletePermission = rbacSystem.checkPermission('test-user', 'agent.delete', 'test-resource');
+      const hasDeletePermission = rbacSystem.hasPermission('test-user', 'agent.delete');
       
       expect(hasDeletePermission).toBe(false); // Developer role should not have delete permission
 
@@ -93,7 +93,7 @@ describe('Security Multi-Layer Integration Audit (I3)', () => {
         roles: ['security'],
       };
       rbacSystem.registerPrincipal(principal);
-      securityLayers.rbac = rbacSystem.checkPermission('test-security-user', 'security.audit', 'test-resource');
+      securityLayers.rbac = rbacSystem.hasPermission('test-security-user', 'security.audit');
 
       // Test hallucination detection layer
       const claim: Claim = {
@@ -297,8 +297,8 @@ describe('Security Multi-Layer Integration Audit (I3)', () => {
 
       // Verify reviewers can vote and veto
       principals.forEach(p => {
-        const canVote = rbacSystem.checkPermission(p.id, 'consensus.vote', vetoRequest.taskId);
-        const canVeto = rbacSystem.checkPermission(p.id, 'consensus.veto', vetoRequest.taskId);
+        const canVote = rbacSystem.hasPermission(p.id, 'consensus.vote');
+        const canVeto = rbacSystem.hasPermission(p.id, 'consensus.veto');
         
         expect(canVote).toBe(true);
         expect(canVeto).toBe(true);
@@ -343,7 +343,7 @@ describe('Security Multi-Layer Integration Audit (I3)', () => {
 
         rbacSystem.registerPrincipal(reviewerPrincipal);
 
-        const canVeto = rbacSystem.checkPermission('test-reviewer', 'consensus.veto', claim.id);
+        const canVeto = rbacSystem.hasPermission('test-reviewer', 'consensus.veto');
         expect(canVeto).toBe(true);
       }
 

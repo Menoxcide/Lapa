@@ -248,7 +248,7 @@ describe('WCAG 2.2 Compliance Tests (4.4)', () => {
           button.getAttribute('title');
 
         expect(accessibleText).toBeTruthy();
-        expect(accessibleText.length).toBeGreaterThan(0);
+        expect(accessibleText?.length).toBeGreaterThan(0);
       });
     });
 
@@ -347,9 +347,10 @@ describe('WCAG 2.2 Compliance Tests (4.4)', () => {
           // Interactive elements should not have negative tabindex unless intentionally hidden
           if (tabIndexNum < 0) {
             // Verify element is intentionally hidden (e.g., modal backdrop)
+            const htmlElement = element as HTMLElement;
             const isHidden = element.hasAttribute('aria-hidden') || 
                            element.classList.contains('hidden') ||
-                           element.style.display === 'none';
+                           (htmlElement.style && htmlElement.style.display === 'none');
             // If intentionally hidden, that's OK
             expect(isHidden || tabIndexNum === -1).toBe(true);
           }

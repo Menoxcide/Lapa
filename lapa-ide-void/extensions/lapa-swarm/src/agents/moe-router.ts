@@ -8,15 +8,17 @@
 
 // Define agent types in the LAPA swarm
 export type AgentType =
-  | 'planner'      // High-level task planning and decomposition
-  | 'coder'        // Code generation and implementation
-  | 'reviewer'     // Code review and quality assurance
-  | 'debugger'     // Bug detection and fixing
-  | 'optimizer'    // Performance optimization
-  | 'tester'       // Test creation and execution
-  | 'researcher'   // Research and information gathering
-  | 'custom'       // Custom agent type for specialized tasks
-  | 'removable';   // Removable agent type for temporary agents
+  | 'planner'         // High-level task planning and decomposition
+  | 'coder'           // Code generation and implementation
+  | 'reviewer'        // Code review and quality assurance
+  | 'debugger'        // Bug detection and fixing
+  | 'optimizer'       // Performance optimization
+  | 'tester'          // Test creation and execution
+  | 'researcher'      // Research and information gathering
+  | 'error-explainer'     // Error explanation and fix suggestions (DebugSage)
+  | 'code-smell-detector' // Code smell detection and refactoring suggestions
+  | 'custom'          // Custom agent type for specialized tasks
+  | 'removable';      // Removable agent type for temporary agents
 
 // Define a task with its characteristics
 export interface Task {

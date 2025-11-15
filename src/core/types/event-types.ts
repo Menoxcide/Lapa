@@ -1277,6 +1277,9 @@ export interface LAPAEventMap {
   'benchmark.failed': BenchmarkFailedEvent;
   'phase18.cleanup': Phase18CleanupEvent;
   
+  // Research events
+  'research.findings.available': ResearchFindingsAvailableEvent;
+  
   // Agent interaction events
   'agent.interaction': AgentInteractionEvent;
   'agent.skill.acquired': AgentSkillAcquiredEvent;
@@ -1291,6 +1294,11 @@ export interface LAPAEventMap {
   'mcp.connector.error': any;
   'mcp.connector.close': any;
   'mcp.tool.called': any;
+  'mcp.request.retry': any;
+  'mcp.connector.reconnect.failed': any;
+  'mcp.benchmark.completed': MCPBenchmarkCompletedEvent;
+  'mcp.tool.deprecated': MCPToolDeprecatedEvent;
+  'mcp.tool.migrated': MCPToolMigratedEvent;
   
   // Additional event types used in the codebase but not previously defined
   'task.progress': any;
@@ -1394,6 +1402,75 @@ export interface MCPScaffoldingTestsCompletedEvent extends LAPAEvent {
     toolName: string;
     results: any[];
     timestamp: number;
+  };
+}
+
+// MCP Benchmark events
+export interface MCPBenchmarkCompletedEvent extends LAPAEvent {
+  type: 'mcp.benchmark.completed';
+  payload: {
+    serverName: string;
+    toolName: string;
+    timestamp: number;
+    latency: {
+      min: number;
+      max: number;
+      mean: number;
+      median: number;
+      p50: number;
+      p95: number;
+      p99: number;
+      stdDev: number;
+    };
+    throughput: {
+      requestsPerSecond: number;
+      totalRequests: number;
+      successfulRequests: number;
+      failedRequests: number;
+    };
+    memory?: {
+      baseline: number;
+      peak: number;
+      average: number;
+      leak: number;
+    };
+    errors: {
+      count: number;
+      rate: number;
+      types: Record<string, number>;
+    };
+    metadata: {
+      warmupIterations: number;
+      benchmarkIterations: number;
+      concurrency: number;
+      duration: number;
+    };
+  };
+}
+
+// MCP Tool Versioning events
+export interface MCPToolDeprecatedEvent extends LAPAEvent {
+  type: 'mcp.tool.deprecated';
+  payload: {
+    serverName: string;
+    toolName: string;
+    version: string;
+    reason?: string;
+    replacement?: string;
+    migrationGuide?: string;
+  };
+}
+
+export interface MCPToolMigratedEvent extends LAPAEvent {
+  type: 'mcp.tool.migrated';
+  payload: {
+    serverName: string;
+    toolName: string;
+    fromVersion: string;
+    toVersion: string;
+    success: boolean;
+    warnings?: string[];
+    errors?: string[];
   };
 }
 
@@ -1698,6 +1775,37 @@ export interface Phase18CleanupEvent extends LAPAEvent {
   type: 'phase18.cleanup';
   payload: {
     timestamp: number;
+  };
+}
+
+// Research events
+export interface ResearchFindingsAvailableEvent extends LAPAEvent {
+  type: 'research.findings.available';
+  payload: {
+    findingId: string;
+    source: string;
+    category: string;
+    title: string;
+    description: string;
+    data: Record<string, unknown>;
+    valuePotential: number;
+    implementationSuggestion?: string;
+    url?: string;
+    tags: string[];
+    timestamp: string;
+    findings: Array<{
+      findingId: string;
+      source: string;
+      category: string;
+      title: string;
+      description: string;
+      data: Record<string, unknown>;
+      valuePotential: number;
+      implementationSuggestion?: string;
+      url?: string;
+      tags: string[];
+      timestamp: Date;
+    }>;
   };
 }
 

@@ -1,0 +1,35 @@
+{
+  "finding": {
+    "findingId": "reddit-1f7a03v-1763193593172",
+    "source": "reddit",
+    "category": "swarm-architectures",
+    "title": "The Landscape of Emerging AI Agent Architectures for Reasoning, Planning, and Tool Calling: A Survey",
+    "description": "The Landscape of Emerging AI Agent Architectures for Reasoning, Planning, and Tool Calling: A Survey",
+    "data": {
+      "query": "LLM agent swarm architectures",
+      "category": "swarm-architectures",
+      "subreddit": "singularity",
+      "score": 24,
+      "numComments": 5,
+      "author": "141_1337",
+      "createdUtc": 1725291991,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.25,
+    "implementationSuggestion": "Explore swarm coordination patterns for multi-agent systems",
+    "url": "https://reddit.com/r/singularity/comments/1f7a03v/the_landscape_of_emerging_ai_agent_architectures/",
+    "tags": [
+      "swarm-architectures",
+      "agent",
+      "llm",
+      "swarm"
+    ],
+    "timestamp": "2025-11-15T07:59:53.172Z"
+  },
+  "storedAt": "2025-11-15T07:59:53.417Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T07:59:53.417Z",
+  "implementationStatus": "pending"
+}

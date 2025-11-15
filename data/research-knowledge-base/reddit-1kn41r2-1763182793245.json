@@ -1,0 +1,34 @@
+{
+  "finding": {
+    "findingId": "reddit-1kn41r2-1763182793245",
+    "source": "reddit",
+    "category": "inference-optimization",
+    "title": "[D] LLM Inference Optimization Techniques",
+    "description": "When I launched NLP Cloud in early 2020, optimizing inference of our AI models in production was a nightmare.  \n  \nSince then, so much progress has been made...  \n  \nNow machine learning engineers can leverage lots of advanced techniques to considerably improve the speed and throughput of their LLMs, like:  \n\\- continuous batching  \n\\- tensor parallelism  \n\\- sequence parallelism  \n\\- multi-query attention  \n\\- FlashAttention  \n\\- KV caching  \n\\- PagedAttention  \n\\- quantization / distillation  ",
+    "data": {
+      "query": "inference optimization techniques",
+      "category": "inference-optimization",
+      "subreddit": "MachineLearning",
+      "score": 20,
+      "numComments": 3,
+      "author": "juliensalinas",
+      "createdUtc": 1747301744,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.05,
+    "implementationSuggestion": "Review inference optimization techniques for performance improvements",
+    "url": "https://reddit.com/r/MachineLearning/comments/1kn41r2/d_llm_inference_optimization_techniques/",
+    "tags": [
+      "inference-optimization",
+      "inference",
+      "optimization"
+    ],
+    "timestamp": "2025-11-15T04:59:53.245Z"
+  },
+  "storedAt": "2025-11-15T04:59:53.606Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T04:59:53.606Z",
+  "implementationStatus": "pending"
+}

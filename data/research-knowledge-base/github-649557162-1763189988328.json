@@ -1,0 +1,55 @@
+{
+  "finding": {
+    "findingId": "github-649557162-1763189988328",
+    "source": "github",
+    "category": "model-quantization",
+    "title": "A-suozhang/Awesome-Efficient-Diffusion",
+    "description": "Curated list of methods that focuses on improving the efficiency of diffusion models",
+    "data": {
+      "query": "model quantization methods",
+      "category": "model-quantization",
+      "stars": 44,
+      "forks": 0,
+      "language": "",
+      "topics": [
+        "adaptive",
+        "awesome-list",
+        "diffusion",
+        "efficient",
+        "nas",
+        "pruning",
+        "quantization",
+        "stable-diffusion",
+        "transformer"
+      ],
+      "createdAt": "2023-06-05T06:24:22.000Z",
+      "updatedAt": "2025-10-14T08:53:12.000Z",
+      "owner": "A-suozhang",
+      "sources": [
+        "github"
+      ]
+    },
+    "valuePotential": 0.1,
+    "implementationSuggestion": "Explore model quantization methods for efficiency gains",
+    "url": "https://github.com/A-suozhang/Awesome-Efficient-Diffusion",
+    "tags": [
+      "model-quantization",
+      "quantization",
+      "model",
+      "adaptive",
+      "awesome-list",
+      "diffusion",
+      "efficient",
+      "nas",
+      "pruning",
+      "quantization",
+      "stable-diffusion",
+      "transformer"
+    ],
+    "timestamp": "2025-11-15T06:59:48.328Z"
+  },
+  "storedAt": "2025-11-15T06:59:53.440Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T06:59:53.440Z",
+  "implementationStatus": "pending"
+}

@@ -1,0 +1,38 @@
+{
+  "finding": {
+    "findingId": "arxiv-2206.07653v1-1763197190030",
+    "source": "arxiv",
+    "category": "model-quantization",
+    "title": "A Valid Quantization of a Half-Harmonic Oscillator Field Theory",
+    "description": "The usual full- and half-harmonic oscillators are turned into field theories, and that behavior is examined using canonical and affine quantization. The result leads to a valid affine quantization of the half harmonic oscillator field theory, which points toward further valid quantizations of more realistic field theory models.",
+    "data": {
+      "query": "model quantization methods",
+      "category": "model-quantization",
+      "authors": [
+        "John R. Klauder"
+      ],
+      "categories": [
+        "hep-th"
+      ],
+      "published": "2022-06-04T14:05:48.000Z",
+      "updated": "2022-06-04T14:05:48.000Z",
+      "sources": [
+        "arxiv"
+      ]
+    },
+    "valuePotential": 0.2,
+    "implementationSuggestion": "Explore model quantization methods for efficiency gains",
+    "url": "http://arxiv.org/abs/2206.07653v1",
+    "tags": [
+      "model-quantization",
+      "quantization",
+      "model",
+      "hep-th"
+    ],
+    "timestamp": "2025-11-15T08:59:50.030Z"
+  },
+  "storedAt": "2025-11-15T08:59:53.545Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T08:59:53.545Z",
+  "implementationStatus": "pending"
+}

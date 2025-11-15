@@ -1,0 +1,34 @@
+{
+  "finding": {
+    "findingId": "reddit-ume0zz-1763226882229",
+    "source": "reddit",
+    "category": "inference-optimization",
+    "title": "[P] Open-source to speed up deep learning inference by leveraging multiple optimization techniques (deep learning compilers, quantization, half precision, etc)",
+    "description": "Hi everyone, my name is Emile. After trying for a long time many tools to speed up AI inference, with some colleagues I have built an open-source library to bundle the best techniques you could find around and consolidated them into a single interface, this opensource library (today's release features the integration of most of these techniques). Let me know what you think of this OSS! Thank you\n\nThis library is called nebullvm and takes your AI model as input and outputs an optimized version th",
+    "data": {
+      "query": "inference optimization techniques",
+      "category": "inference-optimization",
+      "subreddit": "MachineLearning",
+      "score": 65,
+      "numComments": 11,
+      "author": "emilec___",
+      "createdUtc": 1652171902,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.15000000000000002,
+    "implementationSuggestion": "Review inference optimization techniques for performance improvements",
+    "url": "https://reddit.com/r/MachineLearning/comments/ume0zz/p_opensource_to_speed_up_deep_learning_inference/",
+    "tags": [
+      "inference-optimization",
+      "inference",
+      "optimization"
+    ],
+    "timestamp": "2025-11-15T17:14:42.229Z"
+  },
+  "storedAt": "2025-11-15T17:14:42.752Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T17:14:42.752Z",
+  "implementationStatus": "pending"
+}

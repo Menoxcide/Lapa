@@ -26,7 +26,18 @@ vi.mock('../../local/memori-sqlite.ts', () => ({
     initialize: vi.fn().mockResolvedValue(undefined),
     close: vi.fn().mockResolvedValue(undefined),
     storeConversationEntry: vi.fn().mockResolvedValue(undefined),
-    storePerformanceMetric: vi.fn().mockResolvedValue(undefined)
+    storePerformanceMetric: vi.fn().mockResolvedValue(undefined),
+    extractEntities: vi.fn().mockResolvedValue([]),
+    storeEntity: vi.fn().mockResolvedValue(undefined),
+    getConversationHistory: vi.fn().mockResolvedValue([]),
+    getPerformanceMetrics: vi.fn().mockResolvedValue([]),
+    storeSwarmSession: vi.fn().mockResolvedValue(undefined),
+    storeSwarmSessionParticipant: vi.fn().mockResolvedValue(undefined),
+    removeSwarmSessionParticipant: vi.fn().mockResolvedValue(undefined),
+    removeSwarmSession: vi.fn().mockResolvedValue(undefined),
+    storeSwarmSessionTask: vi.fn().mockResolvedValue(undefined),
+    storeSwarmSessionVeto: vi.fn().mockResolvedValue(undefined),
+    getAllSwarmSessions: vi.fn().mockResolvedValue([])
   }
 }));
 

@@ -1,12 +1,28 @@
-import React from 'react';
+import React, { useMemo, useCallback, memo } from 'react';
 import LiveGraph from './components/LiveGraph.tsx';
 import AgentAvatars from './components/AgentAvatars.tsx';
 import SpeechBubbles from './components/SpeechBubbles.tsx';
 import ControlPanel from './components/ControlPanel.tsx';
 import { useDashboard } from './state/index.ts';
 
-const Dashboard: React.FC = () => {
+const Dashboard: React.FC = memo(() => {
   const { state, pauseSwarm, resumeSwarm, redirectTask, resetSwarm } = useDashboard();
+
+  // Optimized: Memoize callbacks to prevent unnecessary re-renders of child components
+  const handleNodeClick = useCallback((nodeId: string) => {
+    console.log(`Clicked node: ${nodeId}`);
+  }, []);
+
+  const handleAgentClick = useCallback((agentId: string) => {
+    console.log(`Clicked agent: ${agentId}`);
+  }, []);
+
+  const handleMessageClick = useCallback((messageId: string) => {
+    console.log(`Clicked message: ${messageId}`);
+  }, []);
+
+  // Optimized: Memoize metrics to avoid recalculating on every render
+  const metrics = useMemo(() => state.metrics, [state.metrics]);
 
   return (
     <main className="dashboard p-6 bg-gray-50 min-h-screen" role="main" aria-label="LAPA Swarm Dashboard">
@@ -20,7 +36,7 @@ const Dashboard: React.FC = () => {
           <LiveGraph
             nodes={state.nodes}
             edges={state.edges}
-            onNodeClick={(nodeId) => console.log(`Clicked node: ${nodeId}`)}
+            onNodeClick={handleNodeClick}
           />
         </section>
         <section role="region" aria-label="Swarm Controls">
@@ -38,13 +54,13 @@ const Dashboard: React.FC = () => {
         <section role="region" aria-label="Agent Swarm">
           <AgentAvatars
             agents={state.agents}
-            onAgentClick={(agentId) => console.log(`Clicked agent: ${agentId}`)}
+            onAgentClick={handleAgentClick}
           />
         </section>
         <section role="region" aria-label="Agent Conversations">
           <SpeechBubbles
             messages={state.messages}
-            onMessageClick={(messageId) => console.log(`Clicked message: ${messageId}`)}
+            onMessageClick={handleMessageClick}
           />
         </section>
       </div>
@@ -54,24 +70,26 @@ const Dashboard: React.FC = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="metric-card bg-blue-50 p-4 rounded-lg">
             <h3 className="text-lg font-medium text-blue-800">Tasks Completed</h3>
-            <p className="text-2xl font-bold text-blue-600">{state.metrics.tasksCompleted}</p>
+            <p className="text-2xl font-bold text-blue-600">{metrics.tasksCompleted}</p>
           </div>
           <div className="metric-card bg-green-50 p-4 rounded-lg">
             <h3 className="text-lg font-medium text-green-800">Success Rate</h3>
-            <p className="text-2xl font-bold text-green-600">{state.metrics.successRate}%</p>
+            <p className="text-2xl font-bold text-green-600">{metrics.successRate}%</p>
           </div>
           <div className="metric-card bg-yellow-50 p-4 rounded-lg">
             <h3 className="text-lg font-medium text-yellow-800">Active Agents</h3>
-            <p className="text-2xl font-bold text-yellow-600">{state.metrics.activeAgents}/5</p>
+            <p className="text-2xl font-bold text-yellow-600">{metrics.activeAgents}/5</p>
           </div>
           <div className="metric-card bg-purple-50 p-4 rounded-lg">
             <h3 className="text-lg font-medium text-purple-800">Avg. Response Time</h3>
-            <p className="text-2xl font-bold text-purple-600">{state.metrics.avgResponseTime}s</p>
+            <p className="text-2xl font-bold text-purple-600">{metrics.avgResponseTime}s</p>
           </div>
         </div>
       </section>
     </main>
   );
-};
+});
+
+Dashboard.displayName = 'Dashboard';
 
 export default Dashboard;

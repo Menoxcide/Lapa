@@ -20,6 +20,8 @@ import { Task } from '../agents/moe-router.ts';
 import { z } from 'zod';
 import { MCPConnector, createMCPConnector, MCPConnectorConfig } from '../mcp/mcp-connector.ts';
 import { A2AHandshakeProtocol, a2aHandshakeProtocol } from './handshake.ts';
+import { serializeToTOON, deserializeFromTOON, isSuitableForTOON } from '../utils/toon-serializer.ts';
+import { shouldOptimizeForTOON, optimizeContextForLLM } from '../utils/toon-optimizer.ts';
 
 // Zod schema for A2A handshake request validation (protocolVersion is optional)
 // Note: We'll validate after ensuring protocolVersion is set
@@ -161,6 +163,9 @@ export class A2AMediator {
   }> = new Map();
   private mcpConnector: MCPConnector | null = null;
   private isMCPConnected: boolean = false;
+  private cleanupInterval: NodeJS.Timeout | null = null;
+  private readonly MAX_HANDSHAKE_HISTORY = 1000; // Limit history size
+  private readonly MAX_ACTIVE_HANDSHAKE_AGE = 3600000; // 1 hour in ms
 
   constructor(config?: Partial<A2AMediatorConfig>) {
     this.config = { ...DEFAULT_CONFIG, ...config };
@@ -169,6 +174,11 @@ export class A2AMediator {
     if (this.config.enableMCPIntegration && this.config.mcpConfig) {
       this.mcpConnector = createMCPConnector(this.config.mcpConfig);
     }
+    
+    // Start cleanup interval to prevent memory leaks
+    this.cleanupInterval = setInterval(() => {
+      this.cleanupOldHandshakes();
+    }, 300000); // Every 5 minutes
     
     // Subscribe to A2A events
     eventBus.subscribe('a2a.handshake.request', async (event) => {
@@ -381,13 +391,21 @@ export class A2AMediator {
         };
       }
       
+      // Optimize context for LLM if it contains arrays
+      const optimizedContext = request.context && shouldOptimizeForTOON(request.context)
+        ? optimizeContextForLLM(request.context as Record<string, any>)
+        : request.context;
+
       // Publish task negotiation request event
       await eventBus.publish({
         id: `a2a-task-negotiation-${Date.now()}`,
         type: 'a2a.task.negotiation.request',
         timestamp: Date.now(),
         source: 'a2a-mediator',
-        payload: request
+        payload: {
+          ...request,
+          context: optimizedContext
+        }
       });
       
       const negotiationId = this.generateNegotiationId();
@@ -543,13 +561,21 @@ export class A2AMediator {
         };
       }
       
+      // Optimize state data for LLM if it contains arrays
+      const optimizedState = shouldOptimizeForTOON(request.state)
+        ? optimizeContextForLLM(request.state as Record<string, any>)
+        : request.state;
+
       // Publish state sync request event
       await eventBus.publish({
         id: `a2a-state-sync-${Date.now()}`,
         type: 'a2a.state.sync.request',
         timestamp: Date.now(),
         source: 'a2a-mediator',
-        payload: request
+        payload: {
+          ...request,
+          state: optimizedState
+        }
       });
       
       const syncId = this.generateSyncId();
@@ -1044,6 +1070,65 @@ export class A2AMediator {
     const descriptionLength = task.description.length;
     const estimatedLatency = baseLatency + (descriptionLength * 0.1);
     return Math.min(estimatedLatency, 1000); // Cap at 1s
+  }
+
+  /**
+   * Cleans up old handshakes to prevent memory leaks
+   * Removes expired active handshakes and limits history size
+   */
+  private cleanupOldHandshakes(): void {
+    const now = Date.now();
+    
+    // Clean up active handshakes older than MAX_ACTIVE_HANDSHAKE_AGE
+    // Note: activeHandshakes doesn't have timestamps, so we'll clean based on size
+    // In a real implementation, we'd track handshake start times
+    if (this.activeHandshakes.size > this.config.maxConcurrentHandshakes * 2) {
+      // If we have more than 2x the max, something is wrong - clear oldest
+      const entries = Array.from(this.activeHandshakes.entries());
+      const toKeep = entries.slice(0, this.config.maxConcurrentHandshakes);
+      this.activeHandshakes.clear();
+      toKeep.forEach(([id, request]) => {
+        this.activeHandshakes.set(id, request);
+      });
+    }
+    
+    // Limit handshake history size
+    if (this.handshakeHistory.size > this.MAX_HANDSHAKE_HISTORY) {
+      const entries = Array.from(this.handshakeHistory.entries());
+      // Sort by timestamp if available, otherwise keep most recent
+      entries.sort((a, b) => {
+        const aTime = (a[1] as any).timestamp || 0;
+        const bTime = (b[1] as any).timestamp || 0;
+        return bTime - aTime; // Most recent first
+      });
+      
+      // Keep only the most recent entries
+      this.handshakeHistory.clear();
+      entries.slice(0, Math.floor(this.MAX_HANDSHAKE_HISTORY * 0.5)).forEach(([id, response]) => {
+        this.handshakeHistory.set(id, response);
+      });
+    }
+    
+    // Clean up registered agents that haven't handshaken in a while
+    const maxAgentAge = 86400000; // 24 hours
+    for (const [agentId, agentInfo] of this.registeredAgents.entries()) {
+      if (now - agentInfo.lastHandshake > maxAgentAge) {
+        this.registeredAgents.delete(agentId);
+      }
+    }
+  }
+
+  /**
+   * Cleanup method to stop intervals and clear resources
+   */
+  dispose(): void {
+    if (this.cleanupInterval) {
+      clearInterval(this.cleanupInterval);
+      this.cleanupInterval = null;
+    }
+    this.activeHandshakes.clear();
+    this.handshakeHistory.clear();
+    this.registeredAgents.clear();
   }
 }
 

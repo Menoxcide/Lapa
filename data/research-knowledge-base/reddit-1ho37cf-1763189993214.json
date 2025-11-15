@@ -1,0 +1,34 @@
+{
+  "finding": {
+    "findingId": "reddit-1ho37cf-1763189993214",
+    "source": "reddit",
+    "category": "model-quantization",
+    "title": "Llama 3.1 8B CPU inference on any PC with a browser",
+    "description": "In May of this year, a team at Yandex Research, in collaboration with ISTA and KAUST, published a new SOTA quantization method called PV-tuning.\n\nThis project from one of the authors runs models like Llama 3.1 8B inside any modern browser using PV-tuning compression.\n\n[Demo](https://galqiwi.github.io/aqlm-rs/about.html)\n\n[Code](https://github.com/galqiwi/demo-aqlm-rs)",
+    "data": {
+      "query": "model quantization methods",
+      "category": "model-quantization",
+      "subreddit": "artificial",
+      "score": 16,
+      "numComments": 2,
+      "author": "azalio",
+      "createdUtc": 1735382341,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.05,
+    "implementationSuggestion": "Explore model quantization methods for efficiency gains",
+    "url": "https://reddit.com/r/artificial/comments/1ho37cf/llama_31_8b_cpu_inference_on_any_pc_with_a_browser/",
+    "tags": [
+      "model-quantization",
+      "quantization",
+      "model"
+    ],
+    "timestamp": "2025-11-15T06:59:53.214Z"
+  },
+  "storedAt": "2025-11-15T06:59:53.416Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T06:59:53.416Z",
+  "implementationStatus": "pending"
+}

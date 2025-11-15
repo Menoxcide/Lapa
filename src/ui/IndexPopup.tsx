@@ -6,6 +6,7 @@
  */
 
 import React, { useState, useCallback } from 'react';
+import { EnhancePromptButton } from './components/EnhancePromptButton.tsx';
 
 interface IndexPopupProps {
   onClose?: () => void;
@@ -17,30 +18,14 @@ const IndexPopup: React.FC<IndexPopupProps> = ({ onClose, onIndexComplete }) => 
   const [refinedInput, setRefinedInput] = useState('');
   const [selectedPersona, setSelectedPersona] = useState('researcher');
   const [selectedModel, setSelectedModel] = useState('llama3.1:8b');
-  const [isRefining, setIsRefining] = useState(false);
   const [isIndexing, setIsIndexing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [recall, setRecall] = useState(0);
   const [dragActive, setDragActive] = useState(false);
   const [droppedFiles, setDroppedFiles] = useState<File[]>([]);
 
-  const handleRefine = async () => {
-    if (!input.trim()) {
-      alert('Please enter a description first.');
-      return;
-    }
-
-    setIsRefining(true);
-    try {
-      // TODO: Call PromptEngineer MCP to refine the input
-      // For now, simulate refinement
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setRefinedInput(`Refined: ${input} (with enhanced context and clarity)`);
-    } catch (error) {
-      console.error('Failed to refine input:', error);
-    } finally {
-      setIsRefining(false);
-    }
+  const handleEnhanced = (enhancedPrompt: string) => {
+    setRefinedInput(enhancedPrompt);
   };
 
   const handleDrag = useCallback((e: React.DragEvent) => {
@@ -187,13 +172,11 @@ const IndexPopup: React.FC<IndexPopupProps> = ({ onClose, onIndexComplete }) => 
               className="w-full h-32 p-3 border rounded"
             />
             <div className="flex items-center gap-2 mt-2">
-              <button
-                onClick={handleRefine}
-                disabled={isRefining || !input.trim()}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50 text-sm"
-              >
-                {isRefining ? 'Refining...' : '✨ AI Refine'}
-              </button>
+              <EnhancePromptButton
+                currentPrompt={input}
+                onEnhanced={handleEnhanced}
+                size="sm"
+              />
               {refinedInput && (
                 <span className="text-xs text-green-600">✓ Refined</span>
               )}

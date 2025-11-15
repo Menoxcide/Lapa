@@ -1,13 +1,14 @@
 // Multimodal Coordination Integration Test Suite
-import { VisionVoiceController } from '../../multimodal/vision-voice';
-import { VisionAgentTool } from '../../multimodal/vision-agent-tool';
-import { VoiceAgentTool } from '../../multimodal/voice-agent-tool';
-import { AgentToolRegistry } from '../../core/agent-tool';
-import { MultimodalConfig } from '../../multimodal/types';
-import { eventBus } from '../../core/event-bus';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { VisionVoiceController } from '../../multimodal/vision-voice.ts';
+import { VisionAgentTool } from '../../multimodal/vision-agent-tool.ts';
+import { VoiceAgentTool } from '../../multimodal/voice-agent-tool.ts';
+import { AgentToolRegistry } from '../../core/agent-tool.ts';
+import type { MultimodalConfig } from '../../multimodal/types/index.ts';
+import { eventBus } from '../../core/event-bus.ts';
 
 // Mock the event bus
-vi.mock('../../core/event-bus', () => ({
+vi.mock('../../core/event-bus.ts', () => ({
   eventBus: {
     publish: vi.fn(),
     subscribe: vi.fn()
@@ -52,10 +53,10 @@ describe('Multimodal Coordination', () => {
   
   describe('Tool Registry Integration', () => {
     it('should register multimodal tools correctly', () => {
-      const tools = toolRegistry.getAllTools();
+      const tools = Array.from(toolRegistry['tools'].values());
       expect(tools).toHaveLength(2);
-      expect(tools.some(tool => tool.name === 'vision-agent')).toBe(true);
-      expect(tools.some(tool => tool.name === 'voice-agent')).toBe(true);
+      expect(tools.some((tool: any) => tool.name === 'vision-agent')).toBe(true);
+      expect(tools.some((tool: any) => tool.name === 'voice-agent')).toBe(true);
     });
     
     it('should execute vision agent tool through registry', async () => {
@@ -65,14 +66,17 @@ describe('Multimodal Coordination', () => {
           action: 'processImage',
           imageData: 'base64imageString'
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-1',
+        agentId: 'test-agent-1'
       };
       
       // Mock the vision agent tool execute method
       const mockExecute = vi.spyOn(visionAgentTool, 'execute')
-        .mockResolvedValue({ success: true, output: 'Processed image description' });
+        .mockResolvedValue({ success: true, output: 'Processed image description', executionTime: 100 });
       
-      const result = await toolRegistry.executeTool(context);
+      const tool = toolRegistry.getTool('vision-agent');
+      const result = tool ? await tool.execute(context) : { success: false, error: 'Tool not found', executionTime: 0 };
       
       expect(result.success).toBe(true);
       expect(result.output).toBe('Processed image description');
@@ -86,14 +90,17 @@ describe('Multimodal Coordination', () => {
           action: 'transcribe',
           audioData: 'base64audioString'
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-2',
+        agentId: 'test-agent-2'
       };
       
       // Mock the voice agent tool execute method
       const mockExecute = vi.spyOn(voiceAgentTool, 'execute')
-        .mockResolvedValue({ success: true, output: { text: 'Transcribed audio' } });
+        .mockResolvedValue({ success: true, output: { text: 'Transcribed audio' }, executionTime: 100 });
       
-      const result = await toolRegistry.executeTool(context);
+      const tool = toolRegistry.getTool('voice-agent');
+      const result = tool ? await tool.execute(context) : { success: false, error: 'Tool not found', executionTime: 0 };
       
       expect(result.success).toBe(true);
       expect(result.output).toEqual({ text: 'Transcribed audio' });
@@ -120,7 +127,9 @@ describe('Multimodal Coordination', () => {
           action: 'processImage',
           imageData: imageBuffer.toString('base64')
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-1',
+        agentId: 'test-agent-1'
       };
       
       // Mock the internal handler
@@ -154,7 +163,9 @@ describe('Multimodal Coordination', () => {
           action: 'transcribe',
           audioData: audioBuffer.toString('base64')
         },
-        context: {}
+        context: {},
+        taskId: 'test-task-2',
+        agentId: 'test-agent-2'
       };
       
       // Mock the internal handler
@@ -174,8 +185,8 @@ describe('Multimodal Coordination', () => {
   describe('Unified Multimodal Processing', () => {
     it('should coordinate vision and voice processing through controller', async () => {
       const input = { 
-        image: Buffer.from('mock image data'), 
-        audio: Buffer.from('mock audio data') 
+        imageData: Buffer.from('mock image data'), 
+        audioData: Buffer.from('mock audio data') 
       };
       
       // Mock controller methods
@@ -188,14 +199,14 @@ describe('Multimodal Coordination', () => {
       const result = await visionVoiceController.processMultimodalInput(input);
       
       expect(result.text).toContain('Processed image description'); // With sequential strategy, vision is processed first
-      expect(result.image).toBe(input.image);
-      expect(result.audio).toBe(input.audio);
-      expect(mockProcessImage).toHaveBeenCalledWith(input.image);
-      expect(mockProcessAudio).toHaveBeenCalledWith(input.audio);
+      expect(result.imageData).toBe(input.imageData);
+      expect(result.audioData).toBe(input.audioData);
+      expect(mockProcessImage).toHaveBeenCalledWith(input.imageData);
+      expect(mockProcessAudio).toHaveBeenCalledWith(input.audioData);
     });
     
     it('should handle tool execution errors gracefully in coordination', async () => {
-      const input = { image: Buffer.from('mock image data') };
+      const input = { imageData: Buffer.from('mock image data') };
       
       // Mock vision controller to throw an error
       const mockProcessImage = vi.spyOn(visionVoiceController, 'processImage')
@@ -205,7 +216,7 @@ describe('Multimodal Coordination', () => {
         .rejects
         .toThrow('Image processing failed');
       
-      expect(mockProcessImage).toHaveBeenCalledWith(input.image);
+      expect(mockProcessImage).toHaveBeenCalledWith(input.imageData);
     });
   });
   
@@ -213,11 +224,13 @@ describe('Multimodal Coordination', () => {
     it('should publish and handle modality switch events', async () => {
       // Subscribe to modality switch events
       const eventHandler = vi.fn();
-      (eventBus.subscribe as vi.Mock).mockImplementation((eventType, handler) => {
+      const mockSubscribe = vi.fn().mockImplementation((eventType: any, handler: any) => {
         if (eventType === 'multimodal.modality.switched') {
           eventHandler.mockImplementation(handler);
         }
+        return 'mock-subscription-id';
       });
+      (eventBus.subscribe as any) = mockSubscribe;
       
       // Trigger modality switch
       visionVoiceController.setCurrentModality('vision');
@@ -233,7 +246,7 @@ describe('Multimodal Coordination', () => {
     });
     
     it('should publish and handle processing events', async () => {
-      const input = { image: Buffer.from('mock image data') };
+      const input = { imageData: Buffer.from('mock image data') };
       
       // Mock vision controller processImage method
       const mockProcessImage = vi.spyOn(visionVoiceController, 'processImage')
@@ -251,7 +264,7 @@ describe('Multimodal Coordination', () => {
         type: 'multimodal.processing.completed'
       }));
       
-      expect(mockProcessImage).toHaveBeenCalledWith(input.image);
+      expect(mockProcessImage).toHaveBeenCalledWith(input.imageData);
     });
   });
   

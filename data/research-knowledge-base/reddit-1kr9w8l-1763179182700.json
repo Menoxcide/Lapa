@@ -1,0 +1,33 @@
+{
+  "finding": {
+    "findingId": "reddit-1kr9w8l-1763179182700",
+    "source": "reddit",
+    "category": "orchestration",
+    "title": "[P] OpenEvolve: Open Source Implementation of DeepMind's AlphaEvolve System",
+    "description": "Hey everyone! I'm excited to share **OpenEvolve**, an open-source implementation of Google DeepMind's AlphaEvolve system that I recently completed. For those who missed it, AlphaEvolve is an evolutionary coding agent that DeepMind announced in May that uses LLMs to discover new algorithms and optimize existing ones.\n\n## What is OpenEvolve?\n\nOpenEvolve is a framework that **evolves entire codebases** through an iterative process using LLMs. It orchestrates a pipeline of code generation, evaluatio",
+    "data": {
+      "query": "agent orchestration frameworks",
+      "category": "orchestration",
+      "subreddit": "MachineLearning",
+      "score": 214,
+      "numComments": 53,
+      "author": "asankhs",
+      "createdUtc": 1747760044,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.4,
+    "implementationSuggestion": "Review orchestration patterns for potential NEURAFORGE enhancements",
+    "url": "https://reddit.com/r/MachineLearning/comments/1kr9w8l/p_openevolve_open_source_implementation_of/",
+    "tags": [
+      "orchestration",
+      "agent"
+    ],
+    "timestamp": "2025-11-15T03:59:42.700Z"
+  },
+  "storedAt": "2025-11-15T03:59:44.575Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T03:59:44.575Z",
+  "implementationStatus": "pending"
+}

@@ -1,0 +1,34 @@
+{
+  "finding": {
+    "findingId": "reddit-1li59r6-1763186393307",
+    "source": "reddit",
+    "category": "model-quantization",
+    "title": "[R] Does quantization affect models' performance on long-context tasks?(arXiv:2505.20276)",
+    "description": "4-bit quantized models generally exhibit small performance performance drops in general (with good quantization methods like AWQ / GPTQ / etc). In this work we set about to find out if there are specific tasks where quantized models start to significantly underperform. We found that this occurs on very long-context tasks with long context seeing larger performance drops relative to the full-precision models\n\n&gt;**Abstract:**  \nLarge language models (LLMs) now support context windows exceeding 1",
+    "data": {
+      "query": "model quantization methods",
+      "category": "model-quantization",
+      "subreddit": "MachineLearning",
+      "score": 14,
+      "numComments": 1,
+      "author": "Fit-Flow-4180",
+      "createdUtc": 1750645485,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.05,
+    "implementationSuggestion": "Explore model quantization methods for efficiency gains",
+    "url": "https://reddit.com/r/MachineLearning/comments/1li59r6/r_does_quantization_affect_models_performance_on/",
+    "tags": [
+      "model-quantization",
+      "quantization",
+      "model"
+    ],
+    "timestamp": "2025-11-15T05:59:53.307Z"
+  },
+  "storedAt": "2025-11-15T05:59:53.466Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T05:59:53.466Z",
+  "implementationStatus": "pending"
+}

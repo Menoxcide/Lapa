@@ -1,0 +1,40 @@
+{
+  "finding": {
+    "findingId": "arxiv-2502.09809v1-1763193589188",
+    "source": "arxiv",
+    "category": "orchestration",
+    "title": "AgentGuard: Repurposing Agentic Orchestrator for Safety Evaluation of Tool Orchestration",
+    "description": "The integration of tool use into large language models (LLMs) enables agentic systems with real-world impact. In the meantime, unlike standalone LLMs, compromised agents can execute malicious workflows with more consequential impact, signified by their tool-use capability. We propose AgentGuard, a framework to autonomously discover and validate unsafe tool-use workflows, followed by generating safety constraints to confine the behaviors of agents, achieving the baseline of safety guarantee at de",
+    "data": {
+      "query": "agent orchestration frameworks",
+      "category": "orchestration",
+      "authors": [
+        "Jizhou Chen",
+        "Samuel Lee Cong"
+      ],
+      "categories": [
+        "cs.CR",
+        "cs.AI"
+      ],
+      "published": "2025-02-13T23:00:33.000Z",
+      "updated": "2025-02-13T23:00:33.000Z",
+      "sources": [
+        "arxiv"
+      ]
+    },
+    "valuePotential": 0.45000000000000007,
+    "implementationSuggestion": "Review orchestration patterns for potential NEURAFORGE enhancements",
+    "url": "http://arxiv.org/abs/2502.09809v1",
+    "tags": [
+      "orchestration",
+      "agent",
+      "cs.CR",
+      "cs.AI"
+    ],
+    "timestamp": "2025-11-15T07:59:49.188Z"
+  },
+  "storedAt": "2025-11-15T07:59:53.524Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T07:59:53.524Z",
+  "implementationStatus": "pending"
+}

@@ -1,0 +1,60 @@
+{
+  "finding": {
+    "findingId": "arxiv-2107.12808v2-1763197189953",
+    "source": "arxiv",
+    "category": "continuous-learning",
+    "title": "Open-Ended Learning Leads to Generally Capable Agents",
+    "description": "In this work we create agents that can perform well beyond a single, individual task, that exhibit much wider generalisation of behaviour to a massive, rich space of challenges. We define a universe of tasks within an environment domain and demonstrate the ability to train agents that are generally capable across this vast space and beyond. The environment is natively multi-agent, spanning the continuum of competitive, cooperative, and independent games, which are situated within procedurally ge",
+    "data": {
+      "query": "continuous learning agents",
+      "category": "continuous-learning",
+      "authors": [
+        "Open Ended Learning Team",
+        "Adam Stooke",
+        "Anuj Mahajan",
+        "Catarina Barros",
+        "Charlie Deck",
+        "Jakob Bauer",
+        "Jakub Sygnowski",
+        "Maja Trebacz",
+        "Max Jaderberg",
+        "Michael Mathieu",
+        "Nat McAleese",
+        "Nathalie Bradley-Schmieg",
+        "Nathaniel Wong",
+        "Nicolas Porcel",
+        "Roberta Raileanu",
+        "Steph Hughes-Fitt",
+        "Valentin Dalibard",
+        "Wojciech Marian Czarnecki"
+      ],
+      "categories": [
+        "cs.LG",
+        "cs.AI",
+        "cs.MA"
+      ],
+      "published": "2021-07-27T13:30:07.000Z",
+      "updated": "2021-07-31T16:55:19.000Z",
+      "sources": [
+        "arxiv"
+      ]
+    },
+    "valuePotential": 0.2,
+    "implementationSuggestion": "Review continuous learning approaches for agent adaptation",
+    "url": "http://arxiv.org/abs/2107.12808v2",
+    "tags": [
+      "continuous-learning",
+      "agent",
+      "continuous",
+      "learning",
+      "cs.LG",
+      "cs.AI",
+      "cs.MA"
+    ],
+    "timestamp": "2025-11-15T08:59:49.953Z"
+  },
+  "storedAt": "2025-11-15T08:59:53.477Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T08:59:53.477Z",
+  "implementationStatus": "pending"
+}

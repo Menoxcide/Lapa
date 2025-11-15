@@ -50,6 +50,8 @@ describe('GitCommitMessageGenerator', () => {
     const mockContext: AgentToolExecutionContext = {
       taskId: 'test-task-1',
       agentId: 'test-agent',
+      toolName: 'git-commit-generator',
+      context: {},
       parameters: {}
     };
 
@@ -91,10 +93,10 @@ index 1234567..abcdefg 100644
       });
 
       expect(result.success).toBe(true);
-      expect(result.data).toBeDefined();
-      expect(result.data?.commitMessage).toBeDefined();
-      expect(result.data?.subject).toBeDefined();
-      expect(result.data?.subject).toMatch(/^(feat|fix|refactor|test|docs|style|perf)(\(.+\))?:/);
+      expect(result.output).toBeDefined();
+      expect(result.output?.commitMessage).toBeDefined();
+      expect(result.output?.subject).toBeDefined();
+      expect(result.output?.subject).toMatch(/^(feat|fix|refactor|test|docs|style|perf)(\(.+\))?:/);
     });
 
     it('should handle git repository errors gracefully', async () => {
@@ -130,8 +132,8 @@ index 1234567..abcdefg 100644
       });
 
       expect(result.success).toBe(true);
-      expect(result.data?.commitMessage).toBeDefined();
-      expect(result.data?.subject).not.toMatch(/^(feat|fix|refactor):/);
+      expect(result.output?.commitMessage).toBeDefined();
+      expect(result.output?.subject).not.toMatch(/^(feat|fix|refactor):/);
     });
 
     it('should include body when includeBody is true', async () => {
@@ -156,8 +158,8 @@ index 1234567..abcdefg 100644
       });
 
       expect(result.success).toBe(true);
-      expect(result.data?.body).toBeDefined();
-      expect(result.data?.fullMessage).toContain('\n\n');
+      expect(result.output?.body).toBeDefined();
+      expect(result.output?.fullMessage).toContain('\n\n');
     });
 
     it('should respect maxLength parameter', async () => {
@@ -182,7 +184,7 @@ index 1234567..abcdefg 100644
       });
 
       expect(result.success).toBe(true);
-      expect(result.data?.subject.length).toBeLessThanOrEqual(20);
+      expect(result.output?.subject.length).toBeLessThanOrEqual(20);
     });
   });
 

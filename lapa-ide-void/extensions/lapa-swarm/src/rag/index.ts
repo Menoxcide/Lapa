@@ -24,3 +24,7 @@ export { RAGConfig } from './config.ts';
 // Phase 12: Chroma Vector Refinement
 export { ChromaRefine, chromaRefine } from './chroma-refine.ts';
 export type { ChromaRefineConfig, VectorDocument, VectorSearchResult } from './chroma-refine.ts';
+
+// Phase 13: REFRAG Efficient Decoding Framework
+export { REFRAGEngine, refragEngine, getREFRAGEngine } from './refrag.ts';
+export type { REFRAGConfig, CompressedChunk, REFRAGResult } from './refrag.ts';

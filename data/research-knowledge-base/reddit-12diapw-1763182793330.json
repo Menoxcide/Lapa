@@ -1,0 +1,35 @@
+{
+  "finding": {
+    "findingId": "reddit-12diapw-1763182793330",
+    "source": "reddit",
+    "category": "continuous-learning",
+    "title": "GPT-4 Week 3. Chatbots are yesterdays news. AI Agents are the future. The beginning of the proto-agi era is here",
+    "description": "Another insane week in AI\n\nI need a break 😪. I'll be on to answer comments after I sleep. Enjoy\n\n&amp;#x200B;\n\n* Autogpt is GPT-4 running fully autonomously. It even has a voice, can fix code, set tasks, create new instances and more. Connect this with literally anything and let GPT-4 do its thing by itself. The things that can and will be created with this are going to be world changing. The future will just end up being AI agents talking with other AI agents it seems \\[[Link](https://twitter.",
+    "data": {
+      "query": "continuous learning agents",
+      "category": "continuous-learning",
+      "subreddit": "ChatGPT",
+      "score": 13160,
+      "numComments": 2121,
+      "author": "lostlifon",
+      "createdUtc": 1680783039,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.15000000000000002,
+    "implementationSuggestion": "Review continuous learning approaches for agent adaptation",
+    "url": "https://reddit.com/r/ChatGPT/comments/12diapw/gpt4_week_3_chatbots_are_yesterdays_news_ai/",
+    "tags": [
+      "continuous-learning",
+      "agent",
+      "continuous",
+      "learning"
+    ],
+    "timestamp": "2025-11-15T04:59:53.330Z"
+  },
+  "storedAt": "2025-11-15T04:59:53.532Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T04:59:53.532Z",
+  "implementationStatus": "pending"
+}

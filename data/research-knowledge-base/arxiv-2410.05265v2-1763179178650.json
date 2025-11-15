@@ -1,0 +1,45 @@
+{
+  "finding": {
+    "findingId": "arxiv-2410.05265v2-1763179178650",
+    "source": "arxiv",
+    "category": "model-quantization",
+    "title": "PrefixQuant: Eliminating Outliers by Prefixed Tokens for Large Language Models Quantization",
+    "description": "Existing weight-activation quantization methods for Large Language Models (LLMs) primarily address channel-wise outliers but often neglect token-wise outliers, which limits the accuracy of quantized models. In this work, we propose PrefixQuant, a novel quantization method that achieves state-of-the-art performance across various precision levels (W4A4KV4 and W4A8KV4) and granularities (dynamic and static quantization) by effectively isolating token-wise outliers. First, PrefixQuant eliminates to",
+    "data": {
+      "query": "model quantization methods",
+      "category": "model-quantization",
+      "authors": [
+        "Mengzhao Chen",
+        "Yi Liu",
+        "Jiahao Wang",
+        "Yi Bin",
+        "Wenqi Shao",
+        "Ping Luo"
+      ],
+      "categories": [
+        "cs.LG",
+        "cs.CL"
+      ],
+      "published": "2024-10-07T17:59:35.000Z",
+      "updated": "2025-01-27T13:39:25.000Z",
+      "sources": [
+        "arxiv"
+      ]
+    },
+    "valuePotential": 0.2,
+    "implementationSuggestion": "Explore model quantization methods for efficiency gains",
+    "url": "http://arxiv.org/abs/2410.05265v2",
+    "tags": [
+      "model-quantization",
+      "quantization",
+      "model",
+      "cs.LG",
+      "cs.CL"
+    ],
+    "timestamp": "2025-11-15T03:59:38.650Z"
+  },
+  "storedAt": "2025-11-15T03:59:46.935Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T03:59:46.935Z",
+  "implementationStatus": "pending"
+}

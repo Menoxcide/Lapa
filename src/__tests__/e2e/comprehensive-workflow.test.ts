@@ -73,29 +73,25 @@ describe('Comprehensive E2E Workflow Tests', () => {
   beforeEach(async () => {
     // Setup mock event bus
     mockEventHandlers = new Map();
-    vi.spyOn(eventBus, 'subscribe').mockImplementation((eventType: string, handler: Function) => {
-      if (!mockEventHandlers.has(eventType)) {
-        mockEventHandlers.set(eventType, []);
+    vi.spyOn(eventBus, 'subscribe').mockImplementation((eventType: any, handler: any, filter?: any) => {
+      const eventTypeStr = String(eventType);
+      if (!mockEventHandlers.has(eventTypeStr)) {
+        mockEventHandlers.set(eventTypeStr, []);
       }
-      mockEventHandlers.get(eventType)!.push(handler);
-      return () => {
-        const handlers = mockEventHandlers.get(eventType);
-        if (handlers) {
-          const index = handlers.indexOf(handler);
-          if (index > -1) handlers.splice(index, 1);
-        }
-      };
+      mockEventHandlers.get(eventTypeStr)!.push(handler);
+      const subscriptionId = `sub-${Date.now()}-${Math.random()}`;
+      return subscriptionId;
     });
 
     vi.spyOn(eventBus, 'publish').mockImplementation(async (event: any) => {
       const handlers = mockEventHandlers.get(event.type) || [];
-      handlers.forEach(handler => handler(event));
+      handlers.forEach((handler: Function) => handler(event));
       return Promise.resolve();
     });
 
     a2aMediator = new A2AMediator();
     sessionManager = new SwarmSessionManager();
-    orchestrator = new LangGraphOrchestrator();
+    orchestrator = new LangGraphOrchestrator('start');
     handoffSystem = new HybridHandoffSystem();
     memoriEngine = new MemoriEngine();
     episodicMemory = new EpisodicMemoryStore();
@@ -109,42 +105,25 @@ describe('Comprehensive E2E Workflow Tests', () => {
   });
 
   afterEach(() => {
-    eventBus.removeAllListeners();
+    eventBus.clear();
   });
 
   describe('Complete Feature Implementation Workflow', () => {
     it('should execute full feature implementation from spec to deployment', async () => {
       // 1. Create swarm session
       const sessionId = await sessionManager.createSession({
-        name: 'Feature Implementation',
+        sessionId: 'session-feature-impl',
+        hostUserId: 'user-1',
         enableA2A: true,
-        maxParticipants: 5
-      });
+        maxParticipants: 5,
+        enableVetoes: false
+      }, 'user-1');
 
       // 2. Add specialized agents
-      await sessionManager.addParticipant(sessionId, {
-        agentId: 'architect',
-        capabilities: ['architecture', 'planning'],
-        role: 'architect'
-      });
-
-      await sessionManager.addParticipant(sessionId, {
-        agentId: 'coder',
-        capabilities: ['coding', 'implementation'],
-        role: 'coder'
-      });
-
-      await sessionManager.addParticipant(sessionId, {
-        agentId: 'reviewer',
-        capabilities: ['review', 'quality'],
-        role: 'reviewer'
-      });
-
-      await sessionManager.addParticipant(sessionId, {
-        agentId: 'tester',
-        capabilities: ['testing', 'validation'],
-        role: 'tester'
-      });
+      await sessionManager.joinSession(sessionId, 'user-architect', 'Architect', 'architect');
+      await sessionManager.joinSession(sessionId, 'user-coder', 'Coder', 'coder');
+      await sessionManager.joinSession(sessionId, 'user-reviewer', 'Reviewer', 'reviewer');
+      await sessionManager.joinSession(sessionId, 'user-tester', 'Tester', 'tester');
 
       // 3. Establish A2A connections
       const handshake1 = await a2aMediator.initiateHandshake({
@@ -190,10 +169,11 @@ describe('Comprehensive E2E Workflow Tests', () => {
       expect(workflowResult.executionPath).toContain('test');
 
       // 6. Store workflow in memory
-      await episodicMemory.store({
+      await episodicMemory.storeEpisode({
         agentId: 'architect',
+        taskId: 'task-auth-feature',
+        sessionId: sessionId,
         content: `Completed feature: User Authentication`,
-        importance: 1.0,
         tags: ['feature', 'workflow', 'complete']
       });
 
@@ -206,18 +186,17 @@ describe('Comprehensive E2E Workflow Tests', () => {
   describe('Multi-Agent Collaboration with Handoffs', () => {
     it('should coordinate handoffs between multiple agents', async () => {
       const sessionId = await sessionManager.createSession({
-        name: 'Collaboration Test',
-        enableA2A: true
-      });
+        sessionId: 'session-collaboration',
+        hostUserId: 'user-1',
+        enableA2A: true,
+        maxParticipants: 10,
+        enableVetoes: false
+      }, 'user-1');
 
       // Add agents
       const agents = ['agent-1', 'agent-2', 'agent-3'];
       for (const agentId of agents) {
-        await sessionManager.addParticipant(sessionId, {
-          agentId,
-          capabilities: ['coding'],
-          role: 'coder'
-        });
+        await sessionManager.joinSession(sessionId, `user-${agentId}`, `Agent ${agentId}`, agentId);
       }
 
       // Establish A2A connections
@@ -238,8 +217,9 @@ describe('Comprehensive E2E Workflow Tests', () => {
       // Execute handoff chain
       const task = {
         id: 'task-123',
+        type: 'task',
         description: 'Complex task requiring multiple agents',
-        priority: 'high' as const
+        priority: 5
       };
 
       // Agent 1 hands off to Agent 2
@@ -351,10 +331,11 @@ describe('Comprehensive E2E Workflow Tests', () => {
       };
 
       // Store workflow context
-      await episodicMemory.store({
+      await episodicMemory.storeEpisode({
         agentId: 'agent-1',
+        taskId: 'task-memory-integration',
+        sessionId: 'session-memory',
         content: JSON.stringify(workflowContext),
-        importance: 0.9,
         tags: ['workflow', 'context']
       });
 
@@ -374,10 +355,11 @@ describe('Comprehensive E2E Workflow Tests', () => {
       };
 
       // Store context before handoff
-      await episodicMemory.store({
+      await episodicMemory.storeEpisode({
         agentId: 'agent-1',
+        taskId: context.taskId,
+        sessionId: 'session-handoff',
         content: JSON.stringify(context),
-        importance: 1.0,
         tags: ['handoff', 'context']
       });
 

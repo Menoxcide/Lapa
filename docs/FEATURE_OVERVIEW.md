@@ -248,6 +248,36 @@ Advanced agent orchestration with:
 - ✅ Template-based skill scaffolding
 - ✅ Integration with marketplace publishing
 
+### ✅ Feature Sandbox System - **Completed**
+- ✅ Isolated sandbox environments for feature development
+- ✅ Sandbox lifecycle management (create, promote, archive, cleanup)
+- ✅ Integration with FEATURE_AGENT workflow
+- ✅ Automatic promotion to production
+- ✅ Event-driven architecture with memory integration
+
+### ✅ Global Sandbox System - **Completed**
+- ✅ Multi-provider support (Local, MCP, E2B, custom providers)
+- ✅ Universal agent access (any agent can use sandboxes)
+- ✅ Unified interface across all sandbox types
+- ✅ Lifecycle management with auto-cleanup
+- ✅ Category support (feature, test, debug, experiment, integration, research)
+
+### ✅ Git Commit Message Generator - **Completed**
+- ✅ AI-powered analysis of git diffs
+- ✅ Multiple formats (conventional commits, descriptive, detailed)
+- ✅ Smart change type detection
+- ✅ Confidence scoring for generated messages
+- ✅ IDE integration via command palette
+- ✅ Free tier availability
+
+### ✅ Session Continuity (SwarmPersistence) - **Completed**
+- ✅ Automatic session saving every 30 seconds
+- ✅ Full context preservation (agents, tasks, memory, conversation history)
+- ✅ Graceful recovery after crashes or restarts
+- ✅ Session history viewing and restoration
+- ✅ Memory snapshots for context restoration
+- ✅ Free tier availability
+
 ## Enhanced Feature Documentation
 
 ### ✅ High Priority Core Functionality - **Fully Implemented**

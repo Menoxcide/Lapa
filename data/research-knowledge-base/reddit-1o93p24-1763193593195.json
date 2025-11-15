@@ -1,0 +1,36 @@
+{
+  "finding": {
+    "findingId": "reddit-1o93p24-1763193593195",
+    "source": "reddit",
+    "category": "ai-agents",
+    "title": "Major AI updates in the last 24h",
+    "description": "\n**Models &amp; Releases**\n* Anthropic introduced Skills for Claude, a library of custom instruction manuals that let users tailor Claude’s behavior to specific tasks.\n* Claude’s integration with Microsoft 365 adds direct access to SharePoint, OneDrive, Outlook and Teams, streamlining information retrieval for businesses.\n* Google’s DeepSomatic model speeds up identification of complex genetic variants in cancer cells, improving research throughput.\n\n***\n\n**Hardware &amp; Infrastructure**\n* Appl",
+    "data": {
+      "query": "multi-agent orchestration systems 2025",
+      "category": "ai-agents",
+      "subreddit": "artificial",
+      "score": 53,
+      "numComments": 7,
+      "author": "Majestic-Ad-6485",
+      "createdUtc": 1760713288,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.55,
+    "implementationSuggestion": "Evaluate agent architecture improvements for LAPA-VOID agent system",
+    "url": "https://reddit.com/r/artificial/comments/1o93p24/major_ai_updates_in_the_last_24h/",
+    "tags": [
+      "ai-agents",
+      "agent",
+      "orchestration",
+      "multi-agent",
+      "2025"
+    ],
+    "timestamp": "2025-11-15T07:59:53.195Z"
+  },
+  "storedAt": "2025-11-15T07:59:53.361Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T07:59:53.361Z",
+  "implementationStatus": "pending"
+}

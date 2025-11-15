@@ -71,7 +71,7 @@ describe('Comprehensive Security Audit (4.3)', () => {
 
         const permissions = new Set<Permission>();
         testPermissions.forEach(permission => {
-          if (rbacSystem.checkPermission(`test-${roleId}`, permission, 'test-resource')) {
+          if (rbacSystem.hasPermission(`test-${roleId}`, permission)) {
             permissions.add(permission);
           }
         });
@@ -124,12 +124,12 @@ describe('Comprehensive Security Audit (4.3)', () => {
 
       // Architect inherits from developer
       const architectPermissions = testPermissions.filter(p =>
-        rbacSystem.checkPermission('test-architect', p, 'test-resource')
+        rbacSystem.hasPermission('test-architect', p)
       );
 
       // Admin inherits from architect and security
       const adminPermissions = testPermissions.filter(p =>
-        rbacSystem.checkPermission('test-admin', p, 'test-resource')
+        rbacSystem.hasPermission('test-admin', p)
       );
 
       // Verify inheritance
@@ -151,13 +151,13 @@ describe('Comprehensive Security Audit (4.3)', () => {
       rbacSystem.registerPrincipal(viewerPrincipal);
 
       // Viewer should not have write permissions
-      expect(rbacSystem.checkPermission('test-viewer', 'code.write', 'test-resource')).toBe(false);
-      expect(rbacSystem.checkPermission('test-viewer', 'agent.delete', 'test-resource')).toBe(false);
-      expect(rbacSystem.checkPermission('test-viewer', 'security.redteam', 'test-resource')).toBe(false);
+      expect(rbacSystem.hasPermission('test-viewer', 'code.write')).toBe(false);
+      expect(rbacSystem.hasPermission('test-viewer', 'agent.delete')).toBe(false);
+      expect(rbacSystem.hasPermission('test-viewer', 'security.redteam')).toBe(false);
 
       // Viewer should have read permissions
-      expect(rbacSystem.checkPermission('test-viewer', 'code.read', 'test-resource')).toBe(true);
-      expect(rbacSystem.checkPermission('test-viewer', 'memory.read', 'test-resource')).toBe(true);
+      expect(rbacSystem.hasPermission('test-viewer', 'code.read')).toBe(true);
+      expect(rbacSystem.hasPermission('test-viewer', 'memory.read')).toBe(true);
     });
   });
 

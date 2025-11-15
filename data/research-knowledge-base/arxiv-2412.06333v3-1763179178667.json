@@ -1,0 +1,46 @@
+{
+  "finding": {
+    "findingId": "arxiv-2412.06333v3-1763179178667",
+    "source": "arxiv",
+    "category": "ai-agents",
+    "title": "Augmenting the action space with conventions to improve multi-agent cooperation in Hanabi",
+    "description": "The card game Hanabi is considered a strong medium for the testing and development of multi-agent reinforcement learning (MARL) algorithms, due to its cooperative nature, partial observability, limited communication and remarkable complexity. Previous research efforts have explored the capabilities of MARL algorithms within Hanabi, focusing largely on advanced architecture design and algorithmic manipulations to achieve state-of-the-art performance for various number of cooperators. However, thi",
+    "data": {
+      "query": "multi-agent orchestration systems 2025",
+      "category": "ai-agents",
+      "authors": [
+        "F. Bredell",
+        "H. A. Engelbrecht",
+        "J. C. Schoeman"
+      ],
+      "categories": [
+        "cs.MA",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2024-12-09T09:34:40.000Z",
+      "updated": "2025-05-24T12:49:59.000Z",
+      "sources": [
+        "arxiv"
+      ]
+    },
+    "valuePotential": 0.6,
+    "implementationSuggestion": "Evaluate agent architecture improvements for LAPA-VOID agent system",
+    "url": "http://arxiv.org/abs/2412.06333v3",
+    "tags": [
+      "ai-agents",
+      "agent",
+      "orchestration",
+      "multi-agent",
+      "2025",
+      "cs.MA",
+      "cs.AI",
+      "cs.LG"
+    ],
+    "timestamp": "2025-11-15T03:59:38.667Z"
+  },
+  "storedAt": "2025-11-15T03:59:42.947Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T03:59:42.947Z",
+  "implementationStatus": "pending"
+}

@@ -1,0 +1,41 @@
+{
+  "finding": {
+    "findingId": "arxiv-1810.05633v2-1763193589188",
+    "source": "arxiv",
+    "category": "inference-optimization",
+    "title": "Stochastic (Approximate) Proximal Point Methods: Convergence, Optimality, and Adaptivity",
+    "description": "We develop model-based methods for solving stochastic convex optimization problems, introducing the approximate-proximal point, or aProx, family, which includes stochastic subgradient, proximal point, and bundle methods. When the modeling approaches we propose are appropriately accurate, the methods enjoy stronger convergence and robustness guarantees than classical approaches, even though the model-based methods typically add little to no computational overhead over stochastic subgradient metho",
+    "data": {
+      "query": "inference optimization techniques",
+      "category": "inference-optimization",
+      "authors": [
+        "Hilal Asi",
+        "John C. Duchi"
+      ],
+      "categories": [
+        "math.OC",
+        "stat.ML"
+      ],
+      "published": "2018-10-12T17:56:08.000Z",
+      "updated": "2019-07-03T20:57:41.000Z",
+      "sources": [
+        "arxiv"
+      ]
+    },
+    "valuePotential": 0.2,
+    "implementationSuggestion": "Review inference optimization techniques for performance improvements",
+    "url": "http://arxiv.org/abs/1810.05633v2",
+    "tags": [
+      "inference-optimization",
+      "inference",
+      "optimization",
+      "math.OC",
+      "stat.ML"
+    ],
+    "timestamp": "2025-11-15T07:59:49.188Z"
+  },
+  "storedAt": "2025-11-15T07:59:53.565Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T07:59:53.565Z",
+  "implementationStatus": "pending"
+}

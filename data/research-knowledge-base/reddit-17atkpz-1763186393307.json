@@ -1,0 +1,34 @@
+{
+  "finding": {
+    "findingId": "reddit-17atkpz-1763186393307",
+    "source": "reddit",
+    "category": "model-quantization",
+    "title": "BitNet: Scaling 1-bit Transformers for Large Language Models - Microsoft Research 2023 - Allows 1-Bit training from scratch while substantially reducing memory footprint and energy consumption, compared to state-of-the-art 8-bit quantization methods!",
+    "description": "Paper: [https://arxiv.org/abs/2310.11453](https://arxiv.org/abs/2310.11453) \n\nAbstract:\n\n&gt;The increasing size of large language models has posed challenges for deploymen and raised concerns about environmental impact due to high energy consumption. In this work, we introduce BitNet, a **scalable and stable 1-bit Transformer architecture designed for large language models**. Specifically, we introduce BitLinear as a drop in replacement of the nn.Linear layer in order to **train 1-bit weights f",
+    "data": {
+      "query": "model quantization methods",
+      "category": "model-quantization",
+      "subreddit": "singularity",
+      "score": 35,
+      "numComments": 8,
+      "author": "Singularian2501",
+      "createdUtc": 1697643135,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.05,
+    "implementationSuggestion": "Explore model quantization methods for efficiency gains",
+    "url": "https://reddit.com/r/singularity/comments/17atkpz/bitnet_scaling_1bit_transformers_for_large/",
+    "tags": [
+      "model-quantization",
+      "quantization",
+      "model"
+    ],
+    "timestamp": "2025-11-15T05:59:53.307Z"
+  },
+  "storedAt": "2025-11-15T05:59:53.480Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T05:59:53.480Z",
+  "implementationStatus": "pending"
+}

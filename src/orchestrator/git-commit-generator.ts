@@ -71,7 +71,7 @@ export class GitCommitMessageGenerator extends BaseAgentTool {
   constructor() {
     super(
       'git-commit-generator',
-      'utility',
+      'code-generation',
       'Generates meaningful commit messages from git diffs using AI analysis',
       '1.0.0'
     );
@@ -130,7 +130,7 @@ export class GitCommitMessageGenerator extends BaseAgentTool {
 
       return {
         success: true,
-        data: {
+        output: {
           commitMessage: commitMessage.fullMessage,
           subject: commitMessage.subject,
           body: commitMessage.body,
@@ -523,6 +523,8 @@ export async function generateCommitMessage(
   const context: AgentToolExecutionContext = {
     taskId: `commit-${Date.now()}`,
     agentId: 'git-commit-generator',
+    toolName: 'git-commit-generator',
+    context: {},
     parameters: options || {}
   };
   
@@ -532,6 +534,6 @@ export async function generateCommitMessage(
     throw new Error(result.error || 'Failed to generate commit message');
   }
   
-  return result.data as CommitMessageResult;
+  return (result.output || result as any) as CommitMessageResult;
 }
 

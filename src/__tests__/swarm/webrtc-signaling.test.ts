@@ -100,7 +100,7 @@ describe('WebRTC Signaling in Swarm Sessions', () => {
       maxParticipants: 3,
       enableVetoes: true,
       enableA2A: true
-    });
+    }, 'user-1');
 
     // Join with second participant
     const joined = await joinSwarmSession(sessionId, 'user-2', 'User 2');
@@ -133,7 +133,7 @@ describe('WebRTC Signaling in Swarm Sessions', () => {
       maxParticipants: 3,
       enableVetoes: true,
       enableA2A: true
-    });
+    }, 'host-user');
 
     // Track events
     const sdpOffers: any[] = [];
@@ -189,7 +189,7 @@ describe('WebRTC Signaling in Swarm Sessions', () => {
       maxParticipants: 3,
       enableVetoes: true,
       enableA2A: true
-    });
+    }, 'host-user');
 
     // Track ICE candidate events
     const iceCandidates: any[] = [];
@@ -222,7 +222,7 @@ describe('WebRTC Signaling in Swarm Sessions', () => {
       maxParticipants: 3,
       enableVetoes: true,
       enableA2A: true
-    });
+    }, 'host-user');
 
     // Track connection state events
     const connectionStates: any[] = [];

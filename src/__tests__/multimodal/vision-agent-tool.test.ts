@@ -1,4 +1,5 @@
 // Vision Agent Tool Test Suite
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { VisionAgentTool } from '../../multimodal/vision-agent-tool.ts';
 import { AgentToolExecutionContext } from '../../core/types/agent-types.ts';
 

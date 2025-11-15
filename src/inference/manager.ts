@@ -15,6 +15,7 @@
 import { eventBus } from '../core/event-bus.ts';
 import { isOllamaAvailable, startOllamaContainer, sendOllamaChatRequest } from './ollama.local.ts';
 import { isNIMAvailable, startNIMContainer, sendNIMInferenceRequest, stopNIMContainer } from './nim.local.ts';
+import { performance } from 'perf_hooks';
 import si from 'systeminformation';
 
 // Alert threshold configuration
@@ -112,15 +113,16 @@ export class InferenceManager {
     };
 
     this.currentBackend = this.config.defaultBackend;
-    this.healthStatus = {
-      cpuTemp: 0,
-      gpuTemp: 0,
-      cpuUsage: 0,
-      gpuUsage: 0,
-      memoryUsage: 0,
-      vramUsage: 0,
-      thermalThrottle: false
-    };
+      this.healthStatus = {
+        cpuTemp: 0,
+        gpuTemp: 0,
+        cpuUsage: 0,
+        gpuUsage: 0,
+        memoryUsage: 0,
+        vramUsage: 0,
+        thermalThrottle: false,
+        _lastUpdate: 0 // Internal timestamp for caching
+      } as SystemHealth & { _lastUpdate: number };
   }
 
   /**
@@ -253,7 +255,10 @@ export class InferenceManager {
         health.cpuTemp > this.config.maxCpuTemp ||
         health.gpuTemp > this.config.maxGpuTemp;
 
-      this.healthStatus = health;
+      this.healthStatus = {
+        ...health,
+        _lastUpdate: performance.now()
+      } as SystemHealth & { _lastUpdate: number };
 
       // Emit health update event
       eventBus.publish({
@@ -439,15 +444,23 @@ export class InferenceManager {
 
   /**
    * Sends inference request with auto-fallback
+   * Optimized version with faster health checks and reduced overhead
    */
   async infer(request: InferenceRequest): Promise<InferenceResponse> {
-    const startTime = Date.now();
+    const startTime = performance.now(); // Use performance.now() for better precision
     const backend = request.backend || this.currentBackend;
 
     try {
-      // Check health before inference
-      if (this.config.enableThermalGuard) {
-        await this.updateHealthStatus();
+      // Optimized: Only check health if thermal guard enabled and using NIM
+      // Skip health check for Ollama (faster path)
+      if (this.config.enableThermalGuard && (backend === 'nim' || backend === 'auto')) {
+        // Use cached health status if recent (within last 2 seconds)
+        const lastUpdate = (this.healthStatus as any)._lastUpdate || 0;
+        const healthAge = performance.now() - lastUpdate;
+        if (healthAge > 2000) {
+          await this.updateHealthStatus();
+        }
+        
         if (this.healthStatus.thermalThrottle && backend === 'nim') {
           // Auto-fallback to Ollama if thermal throttling
           return this.infer({ ...request, backend: 'ollama' });
@@ -457,30 +470,26 @@ export class InferenceManager {
       let response: string;
       let tokensUsed: number | undefined;
 
+      // Optimized: Pre-compute inference parameters once
+      const inferenceParams = this.getInferenceParameters();
+
       if (backend === 'nim' || (backend === 'auto' && this.currentBackend === 'nim')) {
         response = await sendNIMInferenceRequest(
           request.model,
           request.prompt,
-          this.getInferenceParameters()
+          inferenceParams
         );
       } else {
-        // Use Ollama
-        if (request.messages) {
-          response = await sendOllamaChatRequest(
-            request.model,
-            request.messages,
-            this.getInferenceParameters()
-          );
-        } else {
-          response = await sendOllamaChatRequest(
-            request.model,
-            [{ role: 'user', content: request.prompt }],
-            this.getInferenceParameters()
-          );
-        }
+        // Use Ollama - optimized message handling
+        const messages = request.messages || [{ role: 'user', content: request.prompt }];
+        response = await sendOllamaChatRequest(
+          request.model,
+          messages,
+          inferenceParams
+        );
       }
 
-      const latency = Date.now() - startTime;
+      const latency = Math.round(performance.now() - startTime);
 
       return {
         response,
@@ -490,7 +499,7 @@ export class InferenceManager {
         healthStatus: { ...this.healthStatus }
       };
     } catch (error) {
-      // Auto-fallback on error
+      // Auto-fallback on error (optimized: only if not already on Ollama)
       if (this.config.enableAutoFallback && backend !== 'ollama') {
         console.log(`[InferenceManager] Inference failed, falling back to Ollama:`, error);
         return this.infer({ ...request, backend: 'ollama' });
@@ -501,10 +510,22 @@ export class InferenceManager {
 
   /**
    * Gets inference parameters based on performance mode
+   * Optimized version with cached parameters per mode
    */
+  private cachedParams?: Record<PerformanceMode, Record<string, any>>;
+  
   private getInferenceParameters(): Record<string, any> {
-    // Adjust parameters based on perfMode (1-10)
-    // Higher mode = more tokens, higher temperature, etc.
+    // Cache parameters per mode to avoid recalculation
+    if (!this.cachedParams) {
+      this.cachedParams = {} as Record<PerformanceMode, Record<string, any>>;
+    }
+
+    // Return cached params if available
+    if (this.cachedParams[this.config.perfMode]) {
+      return this.cachedParams[this.config.perfMode];
+    }
+
+    // Calculate and cache parameters
     const baseParams: Record<string, any> = {
       temperature: 0.7 + (this.config.perfMode * 0.03), // 0.7 to 1.0
       top_p: 0.9,
@@ -520,6 +541,8 @@ export class InferenceManager {
       baseParams.batch_size = 1;
     }
 
+    // Cache the parameters
+    this.cachedParams[this.config.perfMode] = baseParams;
     return baseParams;
   }
 
@@ -538,12 +561,31 @@ export class InferenceManager {
   }
 
   /**
-   * Cleanup
+   * Cleanup - optimized to prevent memory leaks
    */
   dispose(): void {
+    // Clear health check timer
     if (this.healthCheckTimer) {
       clearInterval(this.healthCheckTimer);
+      this.healthCheckTimer = undefined;
     }
+    
+    // Clear cached parameters to free memory
+    this.cachedParams = undefined;
+    
+    // Reset health status
+    this.healthStatus = {
+      cpuTemp: 0,
+      gpuTemp: 0,
+      cpuUsage: 0,
+      gpuUsage: 0,
+      memoryUsage: 0,
+      vramUsage: 0,
+      thermalThrottle: false,
+      _lastUpdate: 0
+    } as SystemHealth & { _lastUpdate: number };
+    
+    this.isInitialized = false;
   }
 
   /**

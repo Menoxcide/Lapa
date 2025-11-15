@@ -1,0 +1,34 @@
+{
+  "finding": {
+    "findingId": "reddit-1bif6ey-1763197193143",
+    "source": "reddit",
+    "category": "nim-inference",
+    "title": "[D] NVIDIA GTC 2024 announcements",
+    "description": "NVIDIA's plan has spread across accelerated computing, generative AI, industry applications, automotive, enterprise platforms, Omniverse, and robotics.\n\nSome of the most interesting are:\n\n* DRIVE Thor: an in-vehicle computing platform for generative AI applications in self-driving cars. With up to a thousand trillion operations per second, it enhances safety for autonomous driving and enables interactive conversations with the vehicle.\n* Omniverse: a digital twin ecosystem blending physical and ",
+    "data": {
+      "query": "NVIDIA NIM inference microservice",
+      "category": "nim-inference",
+      "subreddit": "MachineLearning",
+      "score": 78,
+      "numComments": 40,
+      "author": "vvkuka",
+      "createdUtc": 1710836039,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.15000000000000002,
+    "implementationSuggestion": "Evaluate NVIDIA NIM integration opportunities for inference optimization",
+    "url": "https://reddit.com/r/MachineLearning/comments/1bif6ey/d_nvidia_gtc_2024_announcements/",
+    "tags": [
+      "nim-inference",
+      "inference",
+      "nim"
+    ],
+    "timestamp": "2025-11-15T08:59:53.143Z"
+  },
+  "storedAt": "2025-11-15T08:59:53.363Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T08:59:53.363Z",
+  "implementationStatus": "pending"
+}

@@ -1,0 +1,35 @@
+{
+  "finding": {
+    "findingId": "reddit-1hkejvj-1763193593302",
+    "source": "reddit",
+    "category": "continuous-learning",
+    "title": "What are the best open source tools/techniques for continuous learning with LLMs?",
+    "description": "What is the current state of the art as far as tools that enable continuous learning with open-source LLMs, so that models can learn from natural language interaction with users and incrementally incorporate it into the model? I'm not talking about building large datasets of user interactions and then fine-tuning the entire model (or developing LoRA) based on these, but more like with each user interaction incrementally updating either the base model or some secondary model that is used in conce",
+    "data": {
+      "query": "continuous learning agents",
+      "category": "continuous-learning",
+      "subreddit": "LocalLLaMA",
+      "score": 6,
+      "numComments": 0,
+      "author": "jferments",
+      "createdUtc": 1734922813,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.05,
+    "implementationSuggestion": "Review continuous learning approaches for agent adaptation",
+    "url": "https://reddit.com/r/LocalLLaMA/comments/1hkejvj/what_are_the_best_open_source_toolstechniques_for/",
+    "tags": [
+      "continuous-learning",
+      "agent",
+      "continuous",
+      "learning"
+    ],
+    "timestamp": "2025-11-15T07:59:53.302Z"
+  },
+  "storedAt": "2025-11-15T07:59:53.473Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T07:59:53.473Z",
+  "implementationStatus": "pending"
+}

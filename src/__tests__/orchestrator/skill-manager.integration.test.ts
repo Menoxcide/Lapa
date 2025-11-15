@@ -9,9 +9,9 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { SkillManager } from '../../orchestrator/skill-manager.ts';
+import { SkillManager, type SkillMetadata } from '../../orchestrator/skill-manager.ts';
 import { eventBus } from '../../core/event-bus.ts';
-import { SkillRegistry } from '../../marketplace/registry.ts';
+// Note: SkillManager doesn't use SkillRegistry, it manages skills directly
 
 // Mock dependencies
 vi.mock('../../core/event-bus.ts', () => ({
@@ -23,27 +23,14 @@ vi.mock('../../core/event-bus.ts', () => ({
   }
 }));
 
-vi.mock('../../marketplace/registry.ts', () => ({
-  SkillRegistry: vi.fn().mockImplementation(() => ({
-    registerSkill: vi.fn().mockResolvedValue(undefined),
-    getSkill: vi.fn().mockResolvedValue({
-      id: 'skill-1',
-      name: 'Test Skill',
-      description: 'Test',
-      version: '1.0.0'
-    }),
-    listSkills: vi.fn().mockResolvedValue([])
-  }))
-}));
+// Note: SkillManager manages skills directly, no registry mock needed
 
 describe('Skill Manager Integration', () => {
   let skillManager: SkillManager;
-  let skillRegistry: SkillRegistry;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    skillRegistry = new SkillRegistry();
-    skillManager = new SkillManager({ skillRegistry });
+    skillManager = new SkillManager();
   });
 
   afterEach(() => {
@@ -52,59 +39,87 @@ describe('Skill Manager Integration', () => {
 
   describe('Skill Registration', () => {
     it('should register skills through registry', async () => {
-      const skill = {
+      const skill: SkillMetadata = {
         id: 'skill-1',
         name: 'Test Skill',
         description: 'Test description',
         version: '1.0.0',
-        capabilities: ['test']
+        category: 'code',
+        inputs: [],
+        outputs: []
       };
 
-      await skillManager.registerSkill(skill);
+      skillManager.registerSkill(skill);
 
-      expect(skillRegistry.registerSkill).toHaveBeenCalledWith(skill);
       expect(eventBus.publish).toHaveBeenCalled();
     });
 
     it('should handle duplicate skill registration', async () => {
-      const skill = {
+      const skill: SkillMetadata = {
         id: 'skill-1',
         name: 'Test Skill',
         description: 'Test',
         version: '1.0.0',
-        capabilities: ['test']
+        category: 'code',
+        inputs: [],
+        outputs: []
       };
 
-      await skillManager.registerSkill(skill);
-      await expect(skillManager.registerSkill(skill)).rejects.toThrow();
+      skillManager.registerSkill(skill);
+      // Second registration overwrites the first
+      skillManager.registerSkill(skill);
+      expect(skillManager.getSkill('skill-1')).toBeDefined();
     });
   });
 
   describe('Skill Retrieval', () => {
-    it('should retrieve skills from registry', async () => {
-      const skill = await skillManager.getSkill('skill-1');
+    it('should retrieve skills from manager', () => {
+      const skill: SkillMetadata = {
+        id: 'skill-1',
+        name: 'Test Skill',
+        description: 'Test',
+        version: '1.0.0',
+        category: 'code',
+        inputs: [],
+        outputs: []
+      };
+      skillManager.registerSkill(skill);
+      
+      const retrieved = skillManager.getSkill('skill-1');
 
-      expect(skill).toBeDefined();
-      expect(skill.id).toBe('skill-1');
-      expect(skillRegistry.getSkill).toHaveBeenCalledWith('skill-1');
+      expect(retrieved).toBeDefined();
+      expect(retrieved?.id).toBe('skill-1');
     });
 
-    it('should list all available skills', async () => {
-      const skills = await skillManager.listSkills();
+    it('should list all available skills', () => {
+      const skill: SkillMetadata = {
+        id: 'skill-1',
+        name: 'Test Skill',
+        description: 'Test',
+        version: '1.0.0',
+        category: 'code',
+        inputs: [],
+        outputs: []
+      };
+      skillManager.registerSkill(skill);
+      
+      const skills = skillManager.getSkills();
 
       expect(Array.isArray(skills)).toBe(true);
-      expect(skillRegistry.listSkills).toHaveBeenCalled();
+      expect(skills.length).toBeGreaterThan(0);
     });
   });
 
   describe('Event Bus Integration', () => {
     it('should publish skill registration events', async () => {
-      await skillManager.registerSkill({
+      skillManager.registerSkill({
         id: 'skill-1',
         name: 'Test',
         description: 'Test',
         version: '1.0.0',
-        capabilities: ['test']
+        category: 'code',
+        inputs: [],
+        outputs: []
       });
 
       expect(eventBus.publish).toHaveBeenCalledWith(
@@ -116,13 +131,13 @@ describe('Skill Manager Integration', () => {
 
     it('should subscribe to skill acquisition events', async () => {
       const events: any[] = [];
-      eventBus.subscribe('skill.acquired', (event) => {
+      eventBus.subscribe('skill.registered' as any, (event) => {
         events.push(event);
       });
 
       await eventBus.publish({
         id: 'acquire-1',
-        type: 'skill.acquired',
+        type: 'skill.registered' as any,
         timestamp: Date.now(),
         source: 'agent-1',
         payload: { skillId: 'skill-1', agentId: 'agent-1' }
@@ -135,28 +150,26 @@ describe('Skill Manager Integration', () => {
 
   describe('Error Handling', () => {
     it('should handle invalid skill data', async () => {
-      await expect(skillManager.registerSkill(null as any)).rejects.toThrow();
-      await expect(skillManager.registerSkill(undefined as any)).rejects.toThrow();
+      // registerSkill doesn't throw, it validates with zod which throws on invalid input
+      expect(() => skillManager.registerSkill(null as any)).toThrow();
+      expect(() => skillManager.registerSkill(undefined as any)).toThrow();
     });
 
     it('should handle missing skill fields', async () => {
-      await expect(skillManager.registerSkill({
+      expect(() => skillManager.registerSkill({
         id: 'skill-1'
-      } as any)).rejects.toThrow();
+      } as any)).toThrow();
     });
 
-    it('should handle registry failures', async () => {
-      vi.spyOn(skillRegistry, 'registerSkill').mockRejectedValueOnce(
-        new Error('Registry error')
-      );
-
-      await expect(skillManager.registerSkill({
+    it('should handle skill registration errors', () => {
+      // Test with invalid skill data
+      expect(() => skillManager.registerSkill({
         id: 'skill-1',
         name: 'Test',
         description: 'Test',
-        version: '1.0.0',
-        capabilities: ['test']
-      })).rejects.toThrow('Registry error');
+        version: '1.0.0'
+        // Missing required fields: category, inputs, outputs
+      } as any)).toThrow();
     });
   });
 });

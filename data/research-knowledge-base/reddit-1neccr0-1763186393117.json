@@ -1,0 +1,33 @@
+{
+  "finding": {
+    "findingId": "reddit-1neccr0-1763186393117",
+    "source": "reddit",
+    "category": "orchestration",
+    "title": "[P] Semlib: LLM-powered Data Processing",
+    "description": "I've been thinking a lot about semantic data processing recently. A lot of the attention in AI has been on agents and chatbots (e.g., Claude Code or Claude Desktop), and I think semantic data processing is not well-served by such tools (or frameworks designed for implementing such tools, like LangChain).\n\nAs I was working on some concrete semantic data processing problems and writing a lot of Python code (to call LLMs in a for loop, for example, and then adding more and more code to do things li",
+    "data": {
+      "query": "agent orchestration frameworks",
+      "category": "orchestration",
+      "subreddit": "MachineLearning",
+      "score": 21,
+      "numComments": 6,
+      "author": "anishathalye",
+      "createdUtc": 1757605750,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.30000000000000004,
+    "implementationSuggestion": "Review orchestration patterns for potential NEURAFORGE enhancements",
+    "url": "https://reddit.com/r/MachineLearning/comments/1neccr0/p_semlib_llmpowered_data_processing/",
+    "tags": [
+      "orchestration",
+      "agent"
+    ],
+    "timestamp": "2025-11-15T05:59:53.117Z"
+  },
+  "storedAt": "2025-11-15T05:59:53.416Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T05:59:53.416Z",
+  "implementationStatus": "pending"
+}

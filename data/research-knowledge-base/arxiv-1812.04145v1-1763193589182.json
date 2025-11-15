@@ -1,0 +1,45 @@
+{
+  "finding": {
+    "findingId": "arxiv-1812.04145v1-1763193589182",
+    "source": "arxiv",
+    "category": "continuous-learning",
+    "title": "Learning Sharing Behaviors with Arbitrary Numbers of Agents",
+    "description": "",
+    "data": {
+      "query": "continuous learning agents",
+      "category": "continuous-learning",
+      "authors": [
+        "Katherine Metcalf",
+        "Barry-John Theobald",
+        "Nicholas Apostoloff"
+      ],
+      "categories": [
+        "cs.LG",
+        "cs.MA",
+        "stat.ML"
+      ],
+      "published": "2018-12-10T23:20:45.000Z",
+      "updated": "2018-12-10T23:20:45.000Z",
+      "sources": [
+        "arxiv"
+      ]
+    },
+    "valuePotential": 0.2,
+    "implementationSuggestion": "Review continuous learning approaches for agent adaptation",
+    "url": "http://arxiv.org/abs/1812.04145v1",
+    "tags": [
+      "continuous-learning",
+      "agent",
+      "continuous",
+      "learning",
+      "cs.LG",
+      "cs.MA",
+      "stat.ML"
+    ],
+    "timestamp": "2025-11-15T07:59:49.182Z"
+  },
+  "storedAt": "2025-11-15T07:59:53.486Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T07:59:53.486Z",
+  "implementationStatus": "pending"
+}

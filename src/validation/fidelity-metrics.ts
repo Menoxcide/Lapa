@@ -9,6 +9,7 @@ export class FidelityMetricsTracker {
   private eventBus: LAPAEventBus;
   private metrics: OperationMetrics;
   private fidelityThresholds: FidelityThresholds;
+  private readonly MAX_LATENCY_SAMPLES = 1000; // Prevent unbounded memory growth
 
   constructor(eventBus: LAPAEventBus) {
     this.eventBus = eventBus;
@@ -133,6 +134,7 @@ export class FidelityMetricsTracker {
 
   /**
    * Record successful event processing
+   * Optimized to prevent unbounded memory growth
    * @param event Event that was processed
    */
   private recordEventProcessingSuccess(event: LAPAEvent): void {
@@ -142,7 +144,12 @@ export class FidelityMetricsTracker {
     // Calculate latency if timestamp is available
     if (event.timestamp) {
       const latency = Date.now() - event.timestamp;
-      this.metrics.eventProcessing.latencies.push(latency);
+      // Prevent unbounded array growth - use sliding window
+      const latencies = this.metrics.eventProcessing.latencies;
+      latencies.push(latency);
+      if (latencies.length > this.MAX_LATENCY_SAMPLES) {
+        latencies.shift(); // Remove oldest sample
+      }
       this.updateAverageLatency(this.metrics.eventProcessing);
     }
   }
@@ -158,6 +165,7 @@ export class FidelityMetricsTracker {
 
   /**
    * Record successful agent tool execution
+   * Optimized to prevent unbounded memory growth
    * @param event Event representing tool execution
    */
   private recordAgentToolExecutionSuccess(event: LAPAEvent): void {
@@ -167,7 +175,12 @@ export class FidelityMetricsTracker {
     // Calculate latency if execution time is available in payload
     if (event.payload && typeof event.payload === 'object' && 'executionTime' in event.payload) {
       const latency = event.payload.executionTime as number;
-      this.metrics.agentToolExecution.latencies.push(latency);
+      // Prevent unbounded array growth - use sliding window
+      const latencies = this.metrics.agentToolExecution.latencies;
+      latencies.push(latency);
+      if (latencies.length > this.MAX_LATENCY_SAMPLES) {
+        latencies.shift(); // Remove oldest sample
+      }
       this.updateAverageLatency(this.metrics.agentToolExecution);
     }
   }
@@ -204,7 +217,12 @@ export class FidelityMetricsTracker {
     // Calculate latency if timestamp is available
     if (event.timestamp) {
       const latency = Date.now() - event.timestamp;
-      this.metrics.crossLanguageCommunication.latencies.push(latency);
+      // Prevent unbounded array growth - use sliding window
+      const latencies = this.metrics.crossLanguageCommunication.latencies;
+      latencies.push(latency);
+      if (latencies.length > this.MAX_LATENCY_SAMPLES) {
+        latencies.shift(); // Remove oldest sample
+      }
       this.updateAverageLatency(this.metrics.crossLanguageCommunication);
     }
   }
@@ -229,7 +247,12 @@ export class FidelityMetricsTracker {
     // Calculate latency if transition time is available in payload
     if (event.payload && typeof event.payload === 'object' && 'transitionTime' in event.payload) {
       const latency = event.payload.transitionTime as number;
-      this.metrics.modeSwitching.latencies.push(latency);
+      // Prevent unbounded array growth - use sliding window
+      const latencies = this.metrics.modeSwitching.latencies;
+      latencies.push(latency);
+      if (latencies.length > this.MAX_LATENCY_SAMPLES) {
+        latencies.shift(); // Remove oldest sample
+      }
       this.updateAverageLatency(this.metrics.modeSwitching);
     }
   }
@@ -254,7 +277,12 @@ export class FidelityMetricsTracker {
     // Calculate latency if timestamp is available
     if (event.timestamp) {
       const latency = Date.now() - event.timestamp;
-      this.metrics.contextPreservation.latencies.push(latency);
+      // Prevent unbounded array growth - use sliding window
+      const latencies = this.metrics.contextPreservation.latencies;
+      latencies.push(latency);
+      if (latencies.length > this.MAX_LATENCY_SAMPLES) {
+        latencies.shift(); // Remove oldest sample
+      }
       this.updateAverageLatency(this.metrics.contextPreservation);
     }
   }

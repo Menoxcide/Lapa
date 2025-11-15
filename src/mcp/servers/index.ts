@@ -10,8 +10,8 @@ export { MemoryMCPServer, createMemoryMCPServer, type MemoryMCPServerConfig } fr
 export { AgentCoordinationMCPServer, createAgentCoordinationMCPServer, type AgentCoordinationMCPServerConfig } from './agent-coordination-mcp-server.ts';
 export { CodeAnalysisMCPServer, createCodeAnalysisMCPServer, type CodeAnalysisMCPServerConfig } from './code-analysis-mcp-server.ts';
 
-// Re-export E2B MCP Server
-export { E2BMCPService, type E2BMCPConfig, type ExecutionResult, type FileOperationResult } from '../sandbox/e2b-mcp.ts';
+// Re-export E2B MCP Server (commented out - module not found)
+// export { E2BMCPService, type E2BMCPConfig, type ExecutionResult, type FileOperationResult } from '../sandbox/e2b-mcp.ts';
 
 /**
  * MCP Server Registry

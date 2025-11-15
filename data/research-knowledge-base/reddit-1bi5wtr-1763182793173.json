@@ -1,0 +1,34 @@
+{
+  "finding": {
+    "findingId": "reddit-1bi5wtr-1763182793173",
+    "source": "reddit",
+    "category": "nim-inference",
+    "title": "Nvidia did not announce just new Blackwell chips, some notable things here:",
+    "description": "* NVIDIA inference microservices (NVIDIA NIMs),  AI microservices that businesses can use to create and deploy custom applications on their own platforms while retaining full ownership and control of their intellectual property. \n\n [https://nvidianews.nvidia.com/news/generative-ai-microservices-for-developers](https://nvidianews.nvidia.com/news/generative-ai-microservices-for-developers)\n\n&amp;#x200B;\n\n* NVIDIA 6G research cloud, a generative AI and Omniverse-powered platform to advance the next",
+    "data": {
+      "query": "NVIDIA NIM inference microservice",
+      "category": "nim-inference",
+      "subreddit": "singularity",
+      "score": 212,
+      "numComments": 20,
+      "author": "czk_21",
+      "createdUtc": 1710805552,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.15000000000000002,
+    "implementationSuggestion": "Evaluate NVIDIA NIM integration opportunities for inference optimization",
+    "url": "https://reddit.com/r/singularity/comments/1bi5wtr/nvidia_did_not_announce_just_new_blackwell_chips/",
+    "tags": [
+      "nim-inference",
+      "inference",
+      "nim"
+    ],
+    "timestamp": "2025-11-15T04:59:53.173Z"
+  },
+  "storedAt": "2025-11-15T04:59:53.415Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T04:59:53.415Z",
+  "implementationStatus": "pending"
+}

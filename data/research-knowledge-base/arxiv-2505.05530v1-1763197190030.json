@@ -1,0 +1,51 @@
+{
+  "finding": {
+    "findingId": "arxiv-2505.05530v1-1763197190030",
+    "source": "arxiv",
+    "category": "model-quantization",
+    "title": "Low-bit Model Quantization for Deep Neural Networks: A Survey",
+    "description": "With unprecedented rapid development, deep neural networks (DNNs) have deeply influenced almost all fields. However, their heavy computation costs and model sizes are usually unacceptable in real-world deployment. Model quantization, an effective weight-lighting technique, has become an indispensable procedure in the whole deployment pipeline. The essence of quantization acceleration is the conversion from continuous floating-point numbers to discrete integer ones, which significantly speeds up ",
+    "data": {
+      "query": "model quantization methods",
+      "category": "model-quantization",
+      "authors": [
+        "Kai Liu",
+        "Qian Zheng",
+        "Kaiwen Tao",
+        "Zhiteng Li",
+        "Haotong Qin",
+        "Wenbo Li",
+        "Yong Guo",
+        "Xianglong Liu",
+        "Linghe Kong",
+        "Guihai Chen",
+        "Yulun Zhang",
+        "Xiaokang Yang"
+      ],
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2025-05-08T13:26:19.000Z",
+      "updated": "2025-05-08T13:26:19.000Z",
+      "sources": [
+        "arxiv"
+      ]
+    },
+    "valuePotential": 0.2,
+    "implementationSuggestion": "Explore model quantization methods for efficiency gains",
+    "url": "http://arxiv.org/abs/2505.05530v1",
+    "tags": [
+      "model-quantization",
+      "quantization",
+      "model",
+      "cs.LG",
+      "cs.AI"
+    ],
+    "timestamp": "2025-11-15T08:59:50.030Z"
+  },
+  "storedAt": "2025-11-15T08:59:53.544Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T08:59:53.544Z",
+  "implementationStatus": "pending"
+}

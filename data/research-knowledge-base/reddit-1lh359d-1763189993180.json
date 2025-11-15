@@ -1,0 +1,36 @@
+{
+  "finding": {
+    "findingId": "reddit-1lh359d-1763189993180",
+    "source": "reddit",
+    "category": "ai-agents",
+    "title": "From Arch-Function to Arch-Agent. Designed for fast multi-step, multi-turn workflow orchestration in agents.",
+    "description": "Hello - in the past i've shared my work around [function-calling](https://www.reddit.com/r/LocalLLaMA/comments/1hr9ll1/i_built_a_small_function_calling_llm_that_packs_a/) on this sub. The encouraging feedback and usage (over 100k downloads 🤯) has gotten me and my team cranking away.  Six months from our initial launch, I am excited to share our agent models: Arch-Agent.   \n  \nFull details in the model card: [https://huggingface.co/katanemo/Arch-Agent-7B](https://huggingface.co/katanemo/Arch-Age",
+    "data": {
+      "query": "multi-agent orchestration systems 2025",
+      "category": "ai-agents",
+      "subreddit": "LocalLLaMA",
+      "score": 103,
+      "numComments": 17,
+      "author": "AdditionalWeb107",
+      "createdUtc": 1750530002,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.55,
+    "implementationSuggestion": "Evaluate agent architecture improvements for LAPA-VOID agent system",
+    "url": "https://reddit.com/r/LocalLLaMA/comments/1lh359d/from_archfunction_to_archagent_designed_for_fast/",
+    "tags": [
+      "ai-agents",
+      "agent",
+      "orchestration",
+      "multi-agent",
+      "2025"
+    ],
+    "timestamp": "2025-11-15T06:59:53.180Z"
+  },
+  "storedAt": "2025-11-15T06:59:53.261Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T06:59:53.261Z",
+  "implementationStatus": "pending"
+}

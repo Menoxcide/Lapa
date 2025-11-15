@@ -1,0 +1,43 @@
+{
+  "finding": {
+    "findingId": "arxiv-2501.00258v1-1763200789126",
+    "source": "arxiv",
+    "category": "inference-optimization",
+    "title": "Optimal design of frame structures with mixed categorical and continuous design variables using the Gumbel-Softmax method",
+    "description": "In optimizing real-world structures, due to fabrication or budgetary restraints, the design variables may be restricted to a set of standard engineering choices. Such variables, commonly called categorical variables, are discrete and unordered in essence, precluding the utilization of gradient-based optimizers for the problems containing them. In this paper, incorporating the Gumbel-Softmax (GSM) method, we propose a new gradient-based optimizer for handling such variables in the optimal design ",
+    "data": {
+      "query": "inference optimization techniques",
+      "category": "inference-optimization",
+      "authors": [
+        "Mehran Ebrahimi",
+        "Hyunmin Cheong",
+        "Pradeep Kumar Jayaraman",
+        "Farhad Javid"
+      ],
+      "categories": [
+        "cs.CE",
+        "math.OC"
+      ],
+      "published": "2024-12-31T03:59:24.000Z",
+      "updated": "2024-12-31T03:59:24.000Z",
+      "sources": [
+        "arxiv"
+      ]
+    },
+    "valuePotential": 0.2,
+    "implementationSuggestion": "Review inference optimization techniques for performance improvements",
+    "url": "http://arxiv.org/abs/2501.00258v1",
+    "tags": [
+      "inference-optimization",
+      "inference",
+      "optimization",
+      "cs.CE",
+      "math.OC"
+    ],
+    "timestamp": "2025-11-15T09:59:49.126Z"
+  },
+  "storedAt": "2025-11-15T09:59:53.577Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T09:59:53.577Z",
+  "implementationStatus": "pending"
+}

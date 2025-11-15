@@ -1,0 +1,62 @@
+{
+  "finding": {
+    "findingId": "github-775285675-1763193588258",
+    "source": "github",
+    "category": "nim-inference",
+    "title": "mickymultani/nvidia-NIM-RAG",
+    "description": "Project demonstrates the power and simplicity of NVIDIA NIM (NVIDIA Inference Model), a suite of optimized cloud-native microservices, by setting up and running a Retrieval-Augmented Generation (RAG) pipeline. ",
+    "data": {
+      "query": "NVIDIA NIM inference microservice",
+      "category": "nim-inference",
+      "stars": 14,
+      "forks": 5,
+      "language": "Python",
+      "topics": [
+        "enterpriseservices",
+        "genai",
+        "langchain",
+        "large-language-models",
+        "llm-inference",
+        "llmops",
+        "nim",
+        "nvidia",
+        "nvidia-docker",
+        "nvidia-gpu",
+        "rag",
+        "retrieval-augmented-generation"
+      ],
+      "createdAt": "2024-03-21T05:11:55.000Z",
+      "updatedAt": "2025-10-13T07:12:29.000Z",
+      "owner": "mickymultani",
+      "sources": [
+        "github"
+      ]
+    },
+    "valuePotential": 0.1,
+    "implementationSuggestion": "Evaluate NVIDIA NIM integration opportunities for inference optimization",
+    "url": "https://github.com/mickymultani/nvidia-NIM-RAG",
+    "tags": [
+      "nim-inference",
+      "inference",
+      "nim",
+      "Python",
+      "enterpriseservices",
+      "genai",
+      "langchain",
+      "large-language-models",
+      "llm-inference",
+      "llmops",
+      "nim",
+      "nvidia",
+      "nvidia-docker",
+      "nvidia-gpu",
+      "rag",
+      "retrieval-augmented-generation"
+    ],
+    "timestamp": "2025-11-15T07:59:48.258Z"
+  },
+  "storedAt": "2025-11-15T07:59:53.398Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T07:59:53.398Z",
+  "implementationStatus": "pending"
+}

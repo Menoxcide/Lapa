@@ -1,0 +1,50 @@
+{
+  "finding": {
+    "findingId": "arxiv-2505.14302v1-1763193589177",
+    "source": "arxiv",
+    "category": "model-quantization",
+    "title": "Scaling Law for Quantization-Aware Training",
+    "description": "Large language models (LLMs) demand substantial computational and memory resources, creating deployment challenges. Quantization-aware training (QAT) addresses these challenges by reducing model precision while maintaining performance. However, the scaling behavior of QAT, especially at 4-bit precision (W4A4), is not well understood. Existing QAT scaling laws often ignore key factors such as the number of training tokens and quantization granularity, which limits their applicability. This paper ",
+    "data": {
+      "query": "model quantization methods",
+      "category": "model-quantization",
+      "authors": [
+        "Mengzhao Chen",
+        "Chaoyi Zhang",
+        "Jing Liu",
+        "Yutao Zeng",
+        "Zeyue Xue",
+        "Zhiheng Liu",
+        "Yunshui Li",
+        "Jin Ma",
+        "Jie Huang",
+        "Xun Zhou",
+        "Ping Luo"
+      ],
+      "categories": [
+        "cs.LG",
+        "cs.CL"
+      ],
+      "published": "2025-05-20T12:54:43.000Z",
+      "updated": "2025-05-20T12:54:43.000Z",
+      "sources": [
+        "arxiv"
+      ]
+    },
+    "valuePotential": 0.2,
+    "implementationSuggestion": "Explore model quantization methods for efficiency gains",
+    "url": "http://arxiv.org/abs/2505.14302v1",
+    "tags": [
+      "model-quantization",
+      "quantization",
+      "model",
+      "cs.LG",
+      "cs.CL"
+    ],
+    "timestamp": "2025-11-15T07:59:49.177Z"
+  },
+  "storedAt": "2025-11-15T07:59:53.601Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T07:59:53.601Z",
+  "implementationStatus": "pending"
+}

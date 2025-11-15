@@ -1,0 +1,91 @@
+# LAPA-VOID Cursor Rules - Agent Persona System
+
+## NEURAFORGE Command System
+
+### Using /neuraforge Command
+
+To deploy any agent, use:
+```
+/neuraforge [AGENT_NAME]
+```
+
+**Available Agents:**
+- `/neuraforge TEST` - Deploy TEST agent
+- `/neuraforge MCP` - Deploy MCP agent
+- `/neuraforge FEATURE` - Deploy FEATURE agent
+- `/neuraforge ARCHITECT` - Deploy ARCHITECT agent
+- `/neuraforge CODER` - Deploy CODER agent
+- `/neuraforge REVIEWER` - Deploy REVIEWER agent
+- `/neuraforge DEBUGGER` - Deploy DEBUGGER agent
+- `/neuraforge OPTIMIZER` - Deploy OPTIMIZER agent
+- `/neuraforge PLANNER` - Deploy PLANNER agent
+- `/neuraforge VALIDATOR` - Deploy VALIDATOR agent
+- `/neuraforge INTEGRATOR` - Deploy INTEGRATOR agent
+- `/neuraforge DEPLOYER` - Deploy DEPLOYER agent
+- `/neuraforge DOCUMENTATION` - Deploy DOCUMENTATION agent
+- `/neuraforge RESEARCH_WIZARD` - Deploy RESEARCH_WIZARD agent
+- `/neuraforge FILESYSTEM` - Deploy FILESYSTEM agent
+- `/neuraforge NEURAFORGE` - Deploy NEURAFORGE orchestrator
+
+### Agent Persona Documents
+
+All agent personas are located in `docs/personas/`:
+- Load any persona: `@docs/personas/[AGENT]_PERSONA.md`
+- Agent prompts: See root directory `*_AGENT_PROMPT.txt` or `*_PROMPT.txt`
+
+### Direct Agent Usage
+
+To use an agent directly, reference their persona:
+```
+@docs/personas/MCP_AGENT_PERSONA.md
+```
+
+Then reference their prompt file:
+```
+@MCP_AGENT_PROMPT.txt
+```
+
+---
+
+## Agent System Architecture
+
+- **16+ Specialized Agents**: Each with unique expertise and capabilities
+- **NEURAFORGE Orchestrator**: Master coordinator for all agents
+- **Dynamic Deployment**: Agents loaded from persona documents
+- **Autonomous Operation**: All agents operate autonomously with 100% quality gates
+- **Evolution System**: Agents learn and evolve continuously
+
+---
+
+## Quick Reference
+
+### Core Development Agents
+- ARCHITECT - System design
+- CODER - Code implementation
+- REVIEWER - Code review
+- TEST - Testing
+- DEBUGGER - Bug fixing
+- OPTIMIZER - Performance
+
+### Planning & Coordination
+- PLANNER - Task planning
+- VALIDATOR - Validation
+- INTEGRATOR - Integration
+- DEPLOYER - Deployment
+
+### Specialized
+- RESEARCH_WIZARD - AI research
+- DOCUMENTATION - Documentation
+- FILESYSTEM - Filesystem management
+- MCP - MCP servers
+- FEATURE - Feature development
+
+### Master
+- NEURAFORGE - Orchestrator
+
+---
+
+For detailed information, see:
+- `docs/personas/README.md` - Agent persona system overview
+- `COMPLETE_AGENT_PERSONA_SYSTEM.md` - Complete system documentation
+

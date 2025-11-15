@@ -27,6 +27,7 @@ import { z } from 'zod';
 import type { WebSocket } from 'ws';
 import { mcpScaffolding } from './scaffolding.ts';
 import { mcpSecurityManager } from './mcp-security.ts';
+import { serializeToTOON, deserializeFromTOON, isSuitableForTOON } from '../utils/toon-serializer.ts';
 
 // MCP Protocol version
 export const MCP_PROTOCOL_VERSION = '2024-11-05';
@@ -118,6 +119,14 @@ export interface MCPTool {
   name: string;
   description: string;
   inputSchema: z.ZodType<any>;
+  version?: string; // Tool version (semantic version)
+  deprecated?: boolean; // Whether tool is deprecated
+  deprecationInfo?: {
+    reason?: string;
+    replacement?: string;
+    migrationGuide?: string;
+    sunsetDate?: number;
+  };
 }
 
 // MCP resource definition
@@ -1291,6 +1300,8 @@ class WebSocketTransport implements MCPTransport {
       throw new Error('WebSocket is not connected');
     }
 
+    // MCP protocol requires JSON-RPC, but we can optimize payload data with TOON
+    // For now, use JSON as MCP protocol standard; TOON can optimize data within messages
     this.ws.send(JSON.stringify(message));
   }
 

@@ -9,6 +9,7 @@
 import { memoriEngine } from './memori-engine.ts';
 import { episodicMemoryStore } from './episodic.ts';
 import { chromaRefine } from '../rag/chroma-refine.ts';
+import { refragEngine } from '../rag/refrag.ts';
 import type { EnhancedEntity } from './memori-engine.ts';
 import type { Episode } from './episodic.ts';
 import type { VectorSearchResult } from '../rag/chroma-refine.ts';
@@ -198,10 +199,37 @@ export async function measureChromaRecall(
   const retrievedDocuments: VectorSearchResult[] = [];
 
   for (const doc of testDocuments) {
-    const results = await chromaRefine.searchSimilar(doc.query, {
+    // Use REFRAG for efficient decoding
+    const rawResults = await chromaRefine.searchSimilar(doc.query, {
       limit: 10,
       threshold: similarityThreshold
     });
+
+    // Process through REFRAG if available
+    let results: VectorSearchResult[];
+    if (refragEngine && await refragEngine.initialize().catch(() => false)) {
+      const refragResult = await refragEngine.processChunks(
+        rawResults.map(r => ({
+          id: r.document.id,
+          content: r.document.content,
+          metadata: r.document.metadata,
+          similarity: r.similarity
+        })),
+        doc.query
+      );
+      // Use expanded chunks (most relevant)
+      results = refragResult.expandedChunks.map(chunk => ({
+        document: {
+          id: chunk.id,
+          content: chunk.originalContent,
+          metadata: chunk.metadata
+        },
+        similarity: chunk.relevanceScore || 0,
+        distance: 1 - (chunk.relevanceScore || 0)
+      }));
+    } else {
+      results = rawResults;
+    }
 
     retrievedDocuments.push(...results);
     if (results.length > 0 && results[0].similarity >= similarityThreshold) {

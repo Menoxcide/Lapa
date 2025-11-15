@@ -1,0 +1,41 @@
+{
+  "finding": {
+    "findingId": "arxiv-2510.04404v2-1763189989537",
+    "source": "arxiv",
+    "category": "orchestration",
+    "title": "Next-Generation Event-Driven Architectures: Performance, Scalability, and Intelligent Orchestration Across Messaging Frameworks",
+    "description": "Modern distributed systems demand low-latency, fault-tolerant event processing that exceeds traditional messaging architecture limits. While frameworks including Apache Kafka, RabbitMQ, Apache Pulsar, NATS JetStream, and serverless event buses have matured significantly, no unified comparative study evaluates them holistically under standardized conditions. This paper presents the first comprehensive benchmarking framework evaluating 12 messaging systems across three representative workloads: e-",
+    "data": {
+      "query": "agent orchestration frameworks",
+      "category": "orchestration",
+      "authors": [
+        "Jahidul Arafat",
+        "Fariha Tasmin",
+        "Sanjaya Poudel"
+      ],
+      "categories": [
+        "cs.DC",
+        "cs.PF"
+      ],
+      "published": "2025-10-06T00:25:22.000Z",
+      "updated": "2025-10-22T23:44:56.000Z",
+      "sources": [
+        "arxiv"
+      ]
+    },
+    "valuePotential": 0.45000000000000007,
+    "implementationSuggestion": "Review orchestration patterns for potential NEURAFORGE enhancements",
+    "url": "http://arxiv.org/abs/2510.04404v2",
+    "tags": [
+      "orchestration",
+      "agent",
+      "cs.DC",
+      "cs.PF"
+    ],
+    "timestamp": "2025-11-15T06:59:49.537Z"
+  },
+  "storedAt": "2025-11-15T06:59:53.375Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T06:59:53.375Z",
+  "implementationStatus": "pending"
+}

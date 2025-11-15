@@ -141,7 +141,7 @@ export class ROIDashboard {
   /**
    * Tracks handoff avoidance
    */
-  private trackHandoffAvoided(mode?: string): void {
+  public trackHandoffAvoided(mode?: string): void {
     this.metrics.handoffsAvoided += 1;
     const timeSavedMinutes = this.config.averageHandoffTimeMinutes;
     const timeSavedHours = timeSavedMinutes / 60;
@@ -165,7 +165,7 @@ export class ROIDashboard {
   /**
    * Tracks bug prevention
    */
-  private trackBugPrevented(mode?: string): void {
+  public trackBugPrevented(mode?: string): void {
     this.metrics.bugsPrevented += 1;
     const timeSavedMinutes = this.config.averageBugFixTimeMinutes;
     const timeSavedHours = timeSavedMinutes / 60;
@@ -189,7 +189,7 @@ export class ROIDashboard {
   /**
    * Tracks task completion
    */
-  private trackTaskCompletion(mode: string, executionTimeMs: number, tokensUsed: number): void {
+  public trackTaskCompletion(mode: string, executionTimeMs: number, tokensUsed: number): void {
     if (!this.metrics.perModeROI[mode]) {
       this.metrics.perModeROI[mode] = {
         timeSavedHours: 0,

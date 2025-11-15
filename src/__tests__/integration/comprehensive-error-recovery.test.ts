@@ -121,7 +121,9 @@ describe('Comprehensive Error Recovery', () => {
       vi.spyOn(a2aMediator, 'initiateHandshake').mockResolvedValueOnce({
         success: true,
         handshakeId: 'handshake-123',
-        capabilities: ['coding']
+        capabilities: ['coding'],
+        accepted: true,
+        protocolVersion: '1.0'
       });
 
       const result = await a2aMediator.initiateHandshake(request);
@@ -153,7 +155,9 @@ describe('Comprehensive Error Recovery', () => {
       // Recovery: retry with shorter timeout
       vi.spyOn(a2aMediator, 'initiateHandshake').mockResolvedValueOnce({
         success: true,
-        handshakeId: 'handshake-456'
+        handshakeId: 'handshake-456',
+        accepted: true,
+        protocolVersion: '1.0'
       });
 
       const result = await a2aMediator.initiateHandshake(request);
@@ -180,28 +184,32 @@ describe('Comprehensive Error Recovery', () => {
     });
 
     it('should recover from memory storage failures', async () => {
-      vi.spyOn(episodicMemory, 'store').mockRejectedValueOnce(new Error('Storage failed'));
+      vi.spyOn(episodicMemory, 'storeEpisode').mockRejectedValueOnce(new Error('Storage failed'));
 
-      await expect(episodicMemory.store({
+      await expect(episodicMemory.storeEpisode({
         agentId: 'agent-1',
         taskId: 'task-1',
-        content: 'test'
+        sessionId: 'session-1',
+        content: 'test',
+        timestamp: new Date()
       } as any)).rejects.toThrow('Storage failed');
 
       // Recovery: second attempt succeeds
-      vi.spyOn(episodicMemory, 'store').mockResolvedValueOnce({
+      vi.spyOn(episodicMemory, 'storeEpisode').mockResolvedValueOnce({
         id: 'episode-1',
         agentId: 'agent-1',
         taskId: 'task-1',
+        sessionId: 'session-1',
         content: 'test',
-        importance: 0.5,
         timestamp: new Date()
       } as any);
 
-      const result = await episodicMemory.store({
+      const result = await episodicMemory.storeEpisode({
         agentId: 'agent-1',
         taskId: 'task-1',
-        content: 'test'
+        sessionId: 'session-1',
+        content: 'test',
+        timestamp: new Date()
       } as any);
 
       expect(result.id).toBe('episode-1');

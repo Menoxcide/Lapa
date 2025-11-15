@@ -1,0 +1,35 @@
+{
+  "finding": {
+    "findingId": "reddit-1laflyy-1763189993251",
+    "source": "reddit",
+    "category": "continuous-learning",
+    "title": "[D][R] Collaborative Learning in Agentic Systems: A Collective AI is Greater Than the Sum of Its Parts",
+    "description": "**TL;DR:** The paper introduces MOSAIC, a framework for collaborative learning among autonomous, agentic AI systems that operate in decentralized, dynamic environments. These agents selectively share and reuse modular knowledge (in the form of neural network masks) without requiring synchronization or centralized control.\n\nKey innovations include:\n\n* Task similarity via Wasserstein embeddings and cosine similarity to guide knowledge retrieval.\n* Performance-based heuristics to decide what, when,",
+    "data": {
+      "query": "continuous learning agents",
+      "category": "continuous-learning",
+      "subreddit": "MachineLearning",
+      "score": 28,
+      "numComments": 10,
+      "author": "Chocological45",
+      "createdUtc": 1749820419,
+      "sources": [
+        "reddit"
+      ]
+    },
+    "valuePotential": 0.05,
+    "implementationSuggestion": "Review continuous learning approaches for agent adaptation",
+    "url": "https://reddit.com/r/MachineLearning/comments/1laflyy/dr_collaborative_learning_in_agentic_systems_a/",
+    "tags": [
+      "continuous-learning",
+      "agent",
+      "continuous",
+      "learning"
+    ],
+    "timestamp": "2025-11-15T06:59:53.251Z"
+  },
+  "storedAt": "2025-11-15T06:59:53.342Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T06:59:53.342Z",
+  "implementationStatus": "pending"
+}

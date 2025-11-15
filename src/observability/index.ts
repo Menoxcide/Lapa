@@ -27,3 +27,16 @@ export type {
 export { PhaseAnalyzer } from './phase-analyzer.ts';
 export type { PhaseAnalyzerConfig } from './phase-analyzer.ts';
 
+export { AgentLightningAdapter, createAgentLightningAdapter } from './agent-lightning.ts';
+export type {
+  AgentLightningConfig,
+  AgentLightningSpan
+} from './agent-lightning.ts';
+
+export { LightningStoreAdapter, createLightningStoreAdapter } from './lightning-store.ts';
+export type {
+  LightningTask,
+  LightningResource,
+  LightningTrace
+} from './lightning-store.ts';
+

@@ -6,6 +6,12 @@ describe('LangGraphOrchestrator', () => {
 
   beforeEach(() => {
     orchestrator = new LangGraphOrchestrator('start-node');
+    // Add the initial state node so workflow execution can start
+    orchestrator.addNode({
+      id: 'start-node',
+      type: 'process',
+      label: 'Start Process'
+    });
   });
 
   describe('constructor', () => {
@@ -54,7 +60,8 @@ describe('LangGraphOrchestrator', () => {
       nodes.forEach(node => orchestrator.addNode(node));
       
       const retrievedNodes = orchestrator.getNodes();
-      expect(retrievedNodes).toHaveLength(3);
+      // Should have 4 nodes: start-node (from beforeEach) + 3 new nodes
+      expect(retrievedNodes).toHaveLength(4);
       expect(retrievedNodes).toEqual(expect.arrayContaining(nodes));
     });
   });
@@ -75,6 +82,23 @@ describe('LangGraphOrchestrator', () => {
     });
 
     it('should add multiple edges', () => {
+      // Add nodes first so edges can reference them
+      orchestrator.addNode({
+        id: 'node-1',
+        type: 'agent',
+        label: 'Agent 1'
+      });
+      orchestrator.addNode({
+        id: 'node-2',
+        type: 'process',
+        label: 'Process 1'
+      });
+      orchestrator.addNode({
+        id: 'node-3',
+        type: 'decision',
+        label: 'Decision Point'
+      });
+      
       const edges: GraphEdge[] = [
         {
           id: 'edge-1',
@@ -118,7 +142,9 @@ describe('LangGraphOrchestrator', () => {
     });
 
     it('should return empty array when no nodes exist', () => {
-      const nodes = orchestrator.getNodes();
+      // Create a new orchestrator without initial state node
+      const emptyOrchestrator = new LangGraphOrchestrator('empty-start');
+      const nodes = emptyOrchestrator.getNodes();
       expect(nodes).toHaveLength(0);
     });
   });
@@ -139,7 +165,14 @@ describe('LangGraphOrchestrator', () => {
     });
 
     it('should return empty array when no edges exist', () => {
-      const edges = orchestrator.getEdges();
+      // Create a new orchestrator without edges
+      const emptyOrchestrator = new LangGraphOrchestrator('empty-start');
+      emptyOrchestrator.addNode({
+        id: 'empty-start',
+        type: 'process',
+        label: 'Start'
+      });
+      const edges = emptyOrchestrator.getEdges();
       expect(edges).toHaveLength(0);
     });
   });
@@ -216,12 +249,8 @@ describe('LangGraphOrchestrator', () => {
   describe('executeWorkflow', () => {
     it('should execute a simple linear workflow successfully', async () => {
       // Create a simple linear workflow: start -> node1 -> node2 -> end
+      // Note: start-node already added in beforeEach
       const nodes: GraphNode[] = [
-        {
-          id: 'start-node',
-          type: 'process',
-          label: 'Start Process'
-        },
         {
           id: 'processing-node',
           type: 'agent',

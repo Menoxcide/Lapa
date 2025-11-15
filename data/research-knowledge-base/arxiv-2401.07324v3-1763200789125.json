@@ -1,0 +1,48 @@
+{
+  "finding": {
+    "findingId": "arxiv-2401.07324v3-1763200789125",
+    "source": "arxiv",
+    "category": "swarm-architectures",
+    "title": "Small LLMs Are Weak Tool Learners: A Multi-LLM Agent",
+    "description": "Large Language Model (LLM) agents significantly extend the capabilities of standalone LLMs, empowering them to interact with external tools (e.g., APIs, functions) and complete various tasks in a self-directed fashion. The challenge of tool use demands that LLMs not only understand user queries and generate answers accurately but also excel in task planning, tool invocation, and result summarization. While traditional works focus on training a single LLM with all these capabilities, performance ",
+    "data": {
+      "query": "LLM agent swarm architectures",
+      "category": "swarm-architectures",
+      "authors": [
+        "Weizhou Shen",
+        "Chenliang Li",
+        "Hongzhan Chen",
+        "Ming Yan",
+        "Xiaojun Quan",
+        "Hehong Chen",
+        "Ji Zhang",
+        "Fei Huang"
+      ],
+      "categories": [
+        "cs.AI",
+        "cs.CL"
+      ],
+      "published": "2024-01-14T16:17:07.000Z",
+      "updated": "2024-02-16T12:42:25.000Z",
+      "sources": [
+        "arxiv"
+      ]
+    },
+    "valuePotential": 0.4,
+    "implementationSuggestion": "Explore swarm coordination patterns for multi-agent systems",
+    "url": "http://arxiv.org/abs/2401.07324v3",
+    "tags": [
+      "swarm-architectures",
+      "agent",
+      "llm",
+      "swarm",
+      "cs.AI",
+      "cs.CL"
+    ],
+    "timestamp": "2025-11-15T09:59:49.126Z"
+  },
+  "storedAt": "2025-11-15T09:59:53.439Z",
+  "accessedCount": 0,
+  "lastAccessed": "2025-11-15T09:59:53.439Z",
+  "implementationStatus": "pending"
+}
